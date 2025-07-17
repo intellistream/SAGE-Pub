@@ -37,7 +37,7 @@
 
 前往 SAGE 的官方发布页面下载最新的 `.whl` 文件。
 
-* **下载地址**: [https://github.com/IntelliStream/SAGE-Pub](https://github.com/LaughKing/SAGE-Pub)
+* **下载地址**: [https://github.com/IntelliStream/SAGE-Pub](https://github.com/IntelliStream/SAGE-Pub)
 
 请下载与项目版本对应的文件，例如 `sage-0.1.0-py3-none-any.whl`。
 
