@@ -1,0 +1,2526 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+        <link rel="canonical" href="https://intellistream.github.io/SAGE-Pub/about/">
+      
+      
+        <link rel="prev" href="..">
+      
+      
+        <link rel="next" href="../get_start/install/">
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.15">
+    
+    
+      
+        <title>关于 SAGE - SAGE 项目文档</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.342714a4.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#sage-a-dataflow-native-framework-for-llm-reasoning" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href=".." title="SAGE 项目文档" class="md-header__button md-logo" aria-label="SAGE 项目文档" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            SAGE 项目文档
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              关于 SAGE
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="标签" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href=".." class="md-tabs__link">
+        
+  
+  
+    
+  
+  首页
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    <li class="md-tabs__item md-tabs__item--active">
+      <a href="./" class="md-tabs__link">
+        
+  
+  
+    
+  
+  关于 SAGE
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../get_start/install/" class="md-tabs__link">
+          
+  
+  
+  使用指南
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../guides/components/" class="md-tabs__link">
+          
+  
+  
+  Guides
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      
+  
+  
+  
+  
+    
+    
+      
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../reference/sage/api/memory/" class="md-tabs__link">
+          
+  
+  
+  Reference
+
+        </a>
+      </li>
+    
+  
+
+    
+  
+
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../examples/minimal/" class="md-tabs__link">
+          
+  
+  
+  Example
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="SAGE 项目文档" class="md-nav__button md-logo" aria-label="SAGE 项目文档" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    SAGE 项目文档
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    首页
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    关于 SAGE
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    关于 SAGE
+    
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#features" class="md-nav__link">
+    <span class="md-ellipsis">
+      ✨ Features
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#installation" class="md-nav__link">
+    <span class="md-ellipsis">
+      🔧 Installation
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#quick-start" class="md-nav__link">
+    <span class="md-ellipsis">
+      🚀 Quick Start
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🚀 Quick Start">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#memory-toolkit" class="md-nav__link">
+    <span class="md-ellipsis">
+      🧠 Memory Toolkit
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🧠 Memory Toolkit">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-initialize-vector-db-and-embedding-model" class="md-nav__link">
+    <span class="md-ellipsis">
+      (1). Initialize Vector DB and Embedding Model
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-create-indexes-eg-filtered-by-metadata" class="md-nav__link">
+    <span class="md-ellipsis">
+      (3). Create Indexes (e.g., Filtered by Metadata)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-retrieve-similar-vectors" class="md-nav__link">
+    <span class="md-ellipsis">
+      (4). Retrieve Similar Vectors
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5-persist-collection-to-local-disk" class="md-nav__link">
+    <span class="md-ellipsis">
+      (5). Persist Collection to Local Disk
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#6-reload-persisted-collection-requires-embedding-model" class="md-nav__link">
+    <span class="md-ellipsis">
+      (6). Reload Persisted Collection (Requires Embedding Model)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#7-delete-all-persisted-data-optional" class="md-nav__link">
+    <span class="md-ellipsis">
+      (7). Delete All Persisted Data (Optional)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-by-step-build-a-local-rag-pipeline" class="md-nav__link">
+    <span class="md-ellipsis">
+      🔧 Step-by-Step: Build a Local RAG Pipeline
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🔧 Step-by-Step: Build a Local RAG Pipeline">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#about-config" class="md-nav__link">
+    <span class="md-ellipsis">
+      📘 About config
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#about-ray" class="md-nav__link">
+    <span class="md-ellipsis">
+      📘 About Ray
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#about-long-running" class="md-nav__link">
+    <span class="md-ellipsis">
+      📘 About Long Running
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#components" class="md-nav__link">
+    <span class="md-ellipsis">
+      🧩 Components
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🧩 Components">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#operator" class="md-nav__link">
+    <span class="md-ellipsis">
+      Operator
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Operator">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#supported-operators" class="md-nav__link">
+    <span class="md-ellipsis">
+      🔧 Supported Operators
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#supported-fuction" class="md-nav__link">
+    <span class="md-ellipsis">
+      🔧 Supported Fuction
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#memory" class="md-nav__link">
+    <span class="md-ellipsis">
+      Memory
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#engine" class="md-nav__link">
+    <span class="md-ellipsis">
+      Engine（执行引擎）
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Engine（执行引擎）">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#how-it-works" class="md-nav__link">
+    <span class="md-ellipsis">
+      How It Works
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#key-features" class="md-nav__link">
+    <span class="md-ellipsis">
+      Key Features
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#sage-dashboard" class="md-nav__link">
+    <span class="md-ellipsis">
+      🎨 SAGE-Dashboard
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🎨 SAGE-Dashboard">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#features_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      ✨: Features
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="✨: Features">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#experience-our-meticulously-designed-sage-dashboard-both-user-friendly-and-powerful" class="md-nav__link">
+    <span class="md-ellipsis">
+      Experience our meticulously designed Sage -Dashboard both user-friendly and powerful::
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#license" class="md-nav__link">
+    <span class="md-ellipsis">
+      🔖 License
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    使用指南
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            使用指南
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../get_start/install/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Installation
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../get_start/quickstart/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Quickstart
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Guides
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            Guides
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guides/components/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Components
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_2" id="__nav_4_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Framework
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_2">
+            <span class="md-nav__icon md-icon"></span>
+            Framework
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../framework/philosophy/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Design Philosophy
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_3" id="__nav_4_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    SAGE-dashboard
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_3">
+            <span class="md-nav__icon md-icon"></span>
+            SAGE-dashboard
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../dashboard/dag_visualization/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    DAG Visualization
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../dashboard/live_monitoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Live Monitoring
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../dashboard/dnd_construction/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Drag-and-Drop DAG Construction
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Reference
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            Reference
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_5_1" id="__nav_5_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    SAGE
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_1">
+            <span class="md-nav__icon md-icon"></span>
+            SAGE
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5_1_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_5_1_1" id="__nav_5_1_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    api
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_5_1_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_1_1">
+            <span class="md-nav__icon md-icon"></span>
+            api
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/sage/api/memory/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    memory
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/sage/api/model/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    model
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/sage/api/operator/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    operator
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/sage/api/pipeline/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    pipeline
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/sage/api/query/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    query
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5_1_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_5_1_2" id="__nav_5_1_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    core
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_5_1_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_1_2">
+            <span class="md-nav__icon md-icon"></span>
+            core
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/sage/core/compiler/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    compiler
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/sage/core/dag/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    dag
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/sage/core/engine/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    engine
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/sage/core/graph/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    graph
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/sage/core/io/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    io
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/sage/core/metrics/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    metrics
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/sage/core/model/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    model
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/sage/core/neuromem/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    neuromem
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/sage/core/operator/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    operator
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/sage/core/runtime/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    runtime
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/sage/sage_runtime/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    sage_runtime
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/sage/sage_commen_funs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    sage_commen_funs
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/sage/sage_memory/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    sage_memory
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/sage/sage_tests/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    sage_tests
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/sage/sage_vectors/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    sage_vectors
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Example
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            Example
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../examples/minimal/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    minimal
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../examples/advanced/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    advanced
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../examples/integration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    integration
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#features" class="md-nav__link">
+    <span class="md-ellipsis">
+      ✨ Features
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#installation" class="md-nav__link">
+    <span class="md-ellipsis">
+      🔧 Installation
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#quick-start" class="md-nav__link">
+    <span class="md-ellipsis">
+      🚀 Quick Start
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🚀 Quick Start">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#memory-toolkit" class="md-nav__link">
+    <span class="md-ellipsis">
+      🧠 Memory Toolkit
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🧠 Memory Toolkit">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-initialize-vector-db-and-embedding-model" class="md-nav__link">
+    <span class="md-ellipsis">
+      (1). Initialize Vector DB and Embedding Model
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-create-indexes-eg-filtered-by-metadata" class="md-nav__link">
+    <span class="md-ellipsis">
+      (3). Create Indexes (e.g., Filtered by Metadata)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-retrieve-similar-vectors" class="md-nav__link">
+    <span class="md-ellipsis">
+      (4). Retrieve Similar Vectors
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5-persist-collection-to-local-disk" class="md-nav__link">
+    <span class="md-ellipsis">
+      (5). Persist Collection to Local Disk
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#6-reload-persisted-collection-requires-embedding-model" class="md-nav__link">
+    <span class="md-ellipsis">
+      (6). Reload Persisted Collection (Requires Embedding Model)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#7-delete-all-persisted-data-optional" class="md-nav__link">
+    <span class="md-ellipsis">
+      (7). Delete All Persisted Data (Optional)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-by-step-build-a-local-rag-pipeline" class="md-nav__link">
+    <span class="md-ellipsis">
+      🔧 Step-by-Step: Build a Local RAG Pipeline
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🔧 Step-by-Step: Build a Local RAG Pipeline">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#about-config" class="md-nav__link">
+    <span class="md-ellipsis">
+      📘 About config
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#about-ray" class="md-nav__link">
+    <span class="md-ellipsis">
+      📘 About Ray
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#about-long-running" class="md-nav__link">
+    <span class="md-ellipsis">
+      📘 About Long Running
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#components" class="md-nav__link">
+    <span class="md-ellipsis">
+      🧩 Components
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🧩 Components">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#operator" class="md-nav__link">
+    <span class="md-ellipsis">
+      Operator
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Operator">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#supported-operators" class="md-nav__link">
+    <span class="md-ellipsis">
+      🔧 Supported Operators
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#supported-fuction" class="md-nav__link">
+    <span class="md-ellipsis">
+      🔧 Supported Fuction
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#memory" class="md-nav__link">
+    <span class="md-ellipsis">
+      Memory
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#engine" class="md-nav__link">
+    <span class="md-ellipsis">
+      Engine（执行引擎）
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Engine（执行引擎）">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#how-it-works" class="md-nav__link">
+    <span class="md-ellipsis">
+      How It Works
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#key-features" class="md-nav__link">
+    <span class="md-ellipsis">
+      Key Features
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#sage-dashboard" class="md-nav__link">
+    <span class="md-ellipsis">
+      🎨 SAGE-Dashboard
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🎨 SAGE-Dashboard">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#features_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      ✨: Features
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="✨: Features">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#experience-our-meticulously-designed-sage-dashboard-both-user-friendly-and-powerful" class="md-nav__link">
+    <span class="md-ellipsis">
+      Experience our meticulously designed Sage -Dashboard both user-friendly and powerful::
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#license" class="md-nav__link">
+    <span class="md-ellipsis">
+      🔖 License
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="sage-a-dataflow-native-framework-for-llm-reasoning"><div align="center">🧠 SAGE: A Dataflow-Native Framework for LLM Reasoning<div></h1>
+<p>SAGE is a dataflow-native reasoning framework built from the ground up to support modular, controllable, and transparent workflows over Large Language Models (LLMs). It addresses common problems in existing LLM-augmented systems (like RAG and Agents), such as hard-coded orchestration logic, opaque execution paths, and limited runtime control. SAGE introduces a dataflow-centric abstraction, modeling reasoning workflows as directed acyclic graphs (DAGs) composed of typed operators.</p>
+<p><img alt="" src="./asset/framework.png" /></p>
+<h2 id="features">✨ Features</h2>
+<ul>
+<li>
+<p>🧩 <strong>Declarative &amp; Modular Composition</strong>: Build complex reasoning pipelines from typed, reusable operators. The dataflow graph cleanly separates what to compute from how to compute it.</p>
+</li>
+<li>
+<p>🔀 <strong>Unified Data and Control Flow</strong>: Express conditional branching, tool routing, and fallback logic declaratively within the graph structure, eliminating brittle, imperative control code.</p>
+</li>
+<li>
+<p>💾 <strong>Native Stateful Operators</strong>: Memory is a first-class citizen. Model session, task, and long-term memory as stateful nodes directly within the graph for persistent, context-aware computation.</p>
+</li>
+<li>
+<p>⚡ <strong>Asynchronous &amp; Resilient Runtime</strong>: The engine executes DAGs asynchronously in a non-blocking, data-driven manner. It features stream-aware queues, event-driven scheduling, and built-in backpressure to handle complex workloads gracefully.</p>
+</li>
+<li>
+<p>📊 <strong>Built-in Observability &amp; Introspection</strong>: An interactive dashboard provides runtime instrumentation out-of-the-box. Visually inspect execution graphs, monitor operator-level metrics, and debug pipeline behavior in real-time.</p>
+</li>
+</ul>
+<h2 id="installation">🔧 Installation</h2>
+<p>To accommodate different user environments and preferences, we provide <strong>comprehensive setup scripts</strong> that support multiple installation modes. Simply run the top-level <code>./setup.sh</code> script and choose from the following four installation options:</p>
+<pre><code class="language-bash">./setup.sh
+</code></pre>
+<p>You will be prompted to select one of the following modes:</p>
+<ol>
+<li><strong>Minimal Setup</strong><br />
+   Set up only the Conda environment.</li>
+</ol>
+<p>To start with Minimal Setup, you need:</p>
+<pre><code>- Conda (Miniconda or Anaconda)
+- Python ≥ 3.11
+- Hugging Face CLI
+</code></pre>
+<!-- 2. **Setup with Ray**  
+   Includes the minimal setup and additionally installs [Ray](https://www.ray.io/), a distributed computing framework. -->
+
+<ol>
+<li>
+<p><strong>Setup with Docker</strong><br />
+   Launches a pre-configured Docker container and sets up the Conda environment inside it.</p>
+</li>
+<li>
+<p><strong>Full Setup</strong><br />
+   Launches the Docker container, installs all required dependencies (including <strong>CANDY</strong>, our in-house vector database), and sets up the Conda environment.</p>
+</li>
+</ol>
+<hr />
+<p>Alternatively, you can install the project manually:</p>
+<ol>
+<li>Create a new Conda environment with Python ≥ 3.11:</li>
+</ol>
+<p><code>bash
+   conda create -n sage python=3.11
+   conda activate sage</code></p>
+<ol>
+<li>Install the package from the root directory:</li>
+</ol>
+<p><code>bash
+   pip install .</code></p>
+<p>This method is recommended for advanced users who prefer manual dependency management or wish to integrate the project into existing workflows.</p>
+<h2 id="quick-start">🚀 Quick Start</h2>
+<h3 id="memory-toolkit">🧠 Memory Toolkit</h3>
+<p>Memory provides a lightweight in-memory vector database (VDB) supporting text embeddings, vector indexing, multi-index management, metadata filtering, persistence to disk, and recovery.</p>
+<hr />
+<h4 id="1-initialize-vector-db-and-embedding-model">(1). Initialize Vector DB and Embedding Model</h4>
+<pre><code class="language-python">mgr = MemoryManager()
+embedder = MockTextEmbedder(fixed_dim=16)
+col = mgr.create_collection(
+    name=&quot;test_vdb&quot;,
+    backend_type=&quot;VDB&quot;,
+    description=&quot;test VDB&quot;,
+    embedding_model=embedder,
+    dim=16
+)
+​````
+
+
+#### (2). Insert Text Entries with Metadata
+
+​```python
+col.add_metadata_field(&quot;tag&quot;)
+col.insert(&quot;Alpha&quot;, {&quot;tag&quot;: &quot;A&quot;})
+col.insert(&quot;Beta&quot;, {&quot;tag&quot;: &quot;B&quot;})
+col.insert(&quot;Gamma&quot;, {&quot;tag&quot;: &quot;A&quot;})
+</code></pre>
+<h4 id="3-create-indexes-eg-filtered-by-metadata">(3). Create Indexes (e.g., Filtered by Metadata)</h4>
+<pre><code class="language-python">col.create_index(&quot;global_index&quot;)
+col.create_index(&quot;tag_A_index&quot;, metadata_filter_func=lambda m: m.get(&quot;tag&quot;) == &quot;A&quot;)
+</code></pre>
+<h4 id="4-retrieve-similar-vectors">(4). Retrieve Similar Vectors</h4>
+<pre><code class="language-python">res1 = col.retrieve(&quot;Alpha&quot;, topk=1, index_name=&quot;global_index&quot;)
+res2 = col.retrieve(&quot;Alpha&quot;, topk=5, index_name=&quot;tag_A_index&quot;)
+</code></pre>
+<h4 id="5-persist-collection-to-local-disk">(5). Persist Collection to Local Disk</h4>
+<pre><code class="language-python">mgr.store_collection()
+print(&quot;Saved to:&quot;, mgr.data_dir)
+</code></pre>
+<h4 id="6-reload-persisted-collection-requires-embedding-model">(6). Reload Persisted Collection (Requires Embedding Model)</h4>
+<pre><code class="language-python">mgr2 = MemoryManager()
+embedder2 = MockTextEmbedder(fixed_dim=16)
+col2 = mgr2.connect_collection(&quot;test_vdb&quot;, embedding_model=embedder2)
+</code></pre>
+<h4 id="7-delete-all-persisted-data-optional">(7). Delete All Persisted Data (Optional)</h4>
+<pre><code class="language-python">VDBMemoryCollection.clear(&quot;test_vdb&quot;, mgr.data_dir)
+manager_json = os.path.join(mgr.data_dir, &quot;manager.json&quot;)
+if os.path.exists(manager_json):
+    os.remove(manager_json)
+</code></pre>
+<h3 id="step-by-step-build-a-local-rag-pipeline">🔧 Step-by-Step: Build a Local RAG Pipeline</h3>
+<p>SAGE uses a <strong>fluent-style API</strong> to declaratively define RAG pipelines. Here's how to get started:</p>
+<hr />
+<pre><code class="language-python">from sage_core.api.env import LocalEnvironment
+from sage_common_funs.io.source import FileSource
+from sage_common_funs.rag.retriever import DenseRetriever
+from sage_common_funs.rag.promptor import QAPromptor
+from sage_common_funs.rag.generator import OpenAIGenerator
+from sage_common_funs.io.sink import TerminalSink
+from sage_utils.config_loader import load_config
+
+config = load_config(&quot;config.yaml&quot;)
+
+env = LocalEnvironment()
+env.set_memory(config=None)
+
+query_stream = (env
+   .from_source(FileSource, config[&quot;source&quot;])
+   .map(DenseRetriever, config[&quot;retriever&quot;])
+   .map(QAPromptor, config[&quot;promptor&quot;])
+   .map(OpenAIGenerator, config[&quot;generator&quot;])
+   .sink(TerminalSink, config[&quot;sink&quot;])
+)
+
+try:
+   env.submit()
+   env.run_once() 
+   time.sleep(5) 
+   env.stop()
+finally:
+   env.close()
+
+</code></pre>
+<h4 id="about-config">📘 About config</h4>
+<p>Each operator in the pipeline requires a configuration dictionary config that provides runtime parameters. You can find example config.yaml under <a href="./config">config</a>.</p>
+<h4 id="about-ray">📘 About Ray</h4>
+<p>To enable distributed execution using Ray, you can use RemoteEnvironment.</p>
+<pre><code class="language-python">env = RemoteEnvironment()
+</code></pre>
+<h4 id="about-long-running">📘 About Long Running</h4>
+<p>If your pipeline is meant to run as a long-lived service, use:</p>
+<pre><code class="language-python">env.run_streaming() 
+</code></pre>
+<p>See more examples under <a href="sage_examples">sage_examples</a></p>
+<h2 id="components">🧩 Components</h2>
+<h3 id="operator">Operator</h3>
+<p>SAGE follows a Flink-style pipeline architecture where each <code>Operator</code> acts as a modular and composable processing unit. Operators can be chained together using a fluent API to form a streaming data pipeline. Internally, each <code>Operator</code> wraps a stateless or stateful <code>Function</code> that defines its core logic.</p>
+<h4 id="supported-operators">🔧 Supported Operators</h4>
+<table>
+<thead>
+<tr>
+<th>Operator Method</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>from_source()</code></td>
+<td>Adds a <code>SourceFunction</code> to read input data from external systems.</td>
+</tr>
+<tr>
+<td><code>map()</code></td>
+<td>Applies a stateless <code>Function</code> to each element of the stream, one-to-one transformation.</td>
+</tr>
+<tr>
+<td><code>flatmap()</code></td>
+<td>Similar to <code>map()</code>, but allows one input to emit zero or more outputs (many-to-many).</td>
+</tr>
+<tr>
+<td><code>sink()</code></td>
+<td>Defines the terminal output of the stream, consuming the final data (e.g., write to terminal, file, database).</td>
+</tr>
+</tbody>
+</table>
+<h4 id="supported-fuction">🔧 Supported Fuction</h4>
+<table>
+<thead>
+<tr>
+<th>Fuction Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>SourceOperator</code></td>
+<td>Entry point of the pipeline. Ingests input data from external sources such as files, APIs, or user queries.</td>
+</tr>
+<tr>
+<td><code>RetrievalOperator</code></td>
+<td>Performs dense or hybrid retrieval from a vector database or document store based on the input query.</td>
+</tr>
+<tr>
+<td><code>RerankOperator</code></td>
+<td>Reorders retrieved documents using a reranker model (e.g., cross-encoder) to improve relevance.</td>
+</tr>
+<tr>
+<td><code>RefineOperator</code></td>
+<td>Compresses or filters retrieved context to reduce input length for faster and more accurate model inference.</td>
+</tr>
+<tr>
+<td><code>PromptOperator</code></td>
+<td>Builds model-ready prompts by formatting the query and context into a specific template or structure.</td>
+</tr>
+<tr>
+<td><code>GenerationOperator</code></td>
+<td>Generates answers using a large language model (e.g., OpenAI, LLaMA, vLLM) based on the constructed prompt.</td>
+</tr>
+<tr>
+<td><code>SinkOperator</code></td>
+<td>Terminal point of the pipeline. Outputs final results to various sinks like terminal, files, databases, or APIs.</td>
+</tr>
+<tr>
+<td><code>AgentOperator</code></td>
+<td>Enables multi-step decision-making agents that call tools or external APIs based on reasoning strategies.</td>
+</tr>
+<tr>
+<td><code>EvaluateOperator</code></td>
+<td>Calculates metrics like F1, ROUGE, BLEU for model output evaluation. Often used in test/evaluation pipelines.</td>
+</tr>
+<tr>
+<td><code>RoutingOperator</code></td>
+<td>Implements conditional branching or fallback logic within the pipeline (e.g., skip generation if retrieval fails).</td>
+</tr>
+</tbody>
+</table>
+<h3 id="memory">Memory</h3>
+<p><img alt="" src="./asset/Memory_framework.png" /></p>
+<h2 id="engine">Engine（执行引擎）</h2>
+<p>Sage Engine is the core execution component that orchestrates the compilation and execution of data flow pipelines. It uses a layered architecture to transform logical pipelines into physical execution graphs and efficiently execute them across different runtime environments, supporting both local multi-thread accleration or execution on distributed platrofms.</p>
+<h3 id="how-it-works">How It Works</h3>
+<p>The Engine operates in four main phases:</p>
+<ol>
+<li><strong>Pipeline Collection</strong>: Gathers user-defined logical pipelines built through DataStream API and validates pipeline integrity</li>
+<li><strong>Compilation &amp; Optimization</strong>: Uses Compiler to transform logical pipelines into optimized physical execution graphs with parallelism expansion</li>
+<li><strong>Runtime Scheduling</strong>: Selects appropriate Runtime (local/distributed) and converts execution graphs into concrete DAG nodes</li>
+<li><strong>Execution Monitoring</strong>: Monitors pipeline execution status, collects performance metrics, and handles fault recovery</li>
+</ol>
+<h3 id="key-features">Key Features</h3>
+<ul>
+<li><strong>Declarative Programming</strong>: Users describe "what to do", Engine handles "how to do it"</li>
+<li><strong>Auto-Parallelization</strong>: Automatically determines parallel execution strategies based on data dependencies</li>
+<li><strong>Platform Agnostic</strong>: Same logical pipeline runs on both local and distributed environments</li>
+<li><strong>Performance Optimization</strong>: Combines compile-time optimization with runtime tuning</li>
+<li><strong>Fault Tolerance</strong>: Comprehensive error handling and recovery mechanisms (Under development)</li>
+</ul>
+<h2 id="sage-dashboard">🎨 SAGE-Dashboard</h2>
+<p>With the <strong>SAGE-Dashboard</strong>, you can quickly orchestrate a large model application and run it with one click. Our meticulously designed visual interface will help you efficiently build, monitor, and manage complex workflows!</p>
+
+<h3 id="features_1">✨: Features</h3>
+<ul>
+<li><strong>DAG Visualization</strong><ul>
+<li>In the dashboard, the running DAG (Directed Acyclic Graph) is rendered in real-time, making your application workflow clear at a glance.</li></li>
+<li>Intuitively displays data flows and component dependencies, simplifying the process of understanding complex applications.</li></li>
+</ul>
+</li>
+<li><strong>Live Monitoring</strong><ul>
+<li>During execution, you can observe the resource usage of various components, including operators and memory, in real-time through the built-in dashboard.</li></li>
+<li>Operators are annotated with latency heatmaps, queue occupancy, and runtime statistics. Developers can observe the execution flow in real time, trace performance bottlenecks, and monitor memory behavior.</li></li>
+</ul>
+</li>
+<li><strong>Drag-and-Drop DAG Construction</strong><ul>
+<li>Quickly assemble a complete DAG workflow by simply arranging and connecting nodes on the canvas, with no need to write complex configuration files.</li></li>
+<li>Intuitively define your workflow by dragging and dropping from a rich library of built-in component nodes.</li></li>
+</ul>
+</li>
+</ul>
+<details>
+<summary>Show more</summary>
+
+ <!-- ![](./asset/UI.png) -->
+ <img src="./asset/UI.png" alt="sage-dashboard" width="505"/>
+</details>
+
+<h4 id="experience-our-meticulously-designed-sage-dashboard-both-user-friendly-and-powerful">Experience our meticulously designed Sage -Dashboard both user-friendly and powerful::</h4>
+<pre><code class="language-bash">cd sage_frontend/sage_server
+python main.py --host 127.0.0.1 --port 8080 --log-level debug
+
+cd ../dashboard
+npm i 
+npm start
+</code></pre>
+<h2 id="license">🔖 License</h2>
+<p>SAGE is licensed under the <a href="./LICENSE">MIT License</a>.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      <script id="__config" type="application/json">{"base": "..", "features": ["navigation.tabs", "navigation.expand", "content.code.copy"], "search": "../assets/javascripts/workers/search.d50fe291.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.56ea9cef.min.js"></script>
+      
+    
+  </body>
+</html>
