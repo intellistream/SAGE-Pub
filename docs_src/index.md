@@ -6,5 +6,5 @@ SAGE 是一个高效、模块化的推理管道引擎，支持多模态数据、
 
 下面是我们的项目介绍视频：
 
-<iframe width="560" height="315" src="https://www.youtube.com/watch?v=RCyH8CCPGTg" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+<iframe width="560" height="315" src="https://www.youtube.com/embed/RCyH8CCPGTg?si=v7NNJYucEbezAR26" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
 
