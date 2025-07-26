@@ -1,0 +1,2999 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+        <link rel="canonical" href="https://intellistream.github.io/SAGE-Pub/reference/sage/api/operator/">
+      
+      
+        <link rel="prev" href="../model/">
+      
+      
+        <link rel="next" href="../pipeline/">
+      
+      
+      <link rel="icon" href="../../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.15">
+    
+    
+      
+        <title>operator - SAGE 项目文档</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../../assets/stylesheets/main.342714a4.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#denseretriever" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../../../.." title="SAGE 项目文档" class="md-header__button md-logo" aria-label="SAGE 项目文档" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            SAGE 项目文档
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              operator
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="标签" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  首页
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../../about/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  关于 SAGE
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../get_start/install/" class="md-tabs__link">
+          
+  
+  
+  快速开始
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../guides/components/" class="md-tabs__link">
+          
+  
+  
+  接口文档
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      
+  
+  
+  
+    
+  
+  
+    
+    
+      
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../memory/" class="md-tabs__link">
+          
+  
+  
+  SAGE Lib
+
+        </a>
+      </li>
+    
+  
+
+    
+  
+
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../examples/minimal/" class="md-tabs__link">
+          
+  
+  
+  加入 SAGE
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../../.." title="SAGE 项目文档" class="md-nav__button md-logo" aria-label="SAGE 项目文档" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    SAGE 项目文档
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    首页
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../about/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    关于 SAGE
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    快速开始
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            快速开始
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../get_start/install/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    安装与部署
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../get_start/quickstart/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    快速入门
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    接口文档
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            接口文档
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../guides/components/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    DataStream API
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_2" id="__nav_4_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Framework
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_2">
+            <span class="md-nav__icon md-icon"></span>
+            Framework
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/philosophy/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Design Philosophy
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_3" id="__nav_4_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    SAGE-dashboard
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_3">
+            <span class="md-nav__icon md-icon"></span>
+            SAGE-dashboard
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../dashboard/dag_visualization/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    DAG Visualization
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../dashboard/live_monitoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Live Monitoring
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../dashboard/dnd_construction/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Drag-and-Drop DAG Construction
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    SAGE Lib
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            SAGE Lib
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_1" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_5_1" id="__nav_5_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    SAGE
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_1_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_5_1">
+            <span class="md-nav__icon md-icon"></span>
+            SAGE
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_1_1" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_5_1_1" id="__nav_5_1_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    api
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_5_1_1_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_5_1_1">
+            <span class="md-nav__icon md-icon"></span>
+            api
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../memory/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    memory
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../model/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    model
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    operator
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    operator
+    
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#denseretriever" class="md-nav__link">
+    <span class="md-ellipsis">
+      DenseRetriever
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="DenseRetriever">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#__init__" class="md-nav__link">
+    <span class="md-ellipsis">
+      初始化参数 (__init__)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#execute" class="md-nav__link">
+    <span class="md-ellipsis">
+      执行方法 (execute)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#bm25sretriever" class="md-nav__link">
+    <span class="md-ellipsis">
+      BM25sRetriever
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="BM25sRetriever">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#__init___1" class="md-nav__link">
+    <span class="md-ellipsis">
+      初始化参数 (__init__)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#execute_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      执行方法 (execute)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#qapromptor" class="md-nav__link">
+    <span class="md-ellipsis">
+      QAPromptor
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="QAPromptor">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#__init___2" class="md-nav__link">
+    <span class="md-ellipsis">
+      初始化参数 (__init__)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      属性
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#execute_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      执行方法 (execute)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#summarizationpromptor" class="md-nav__link">
+    <span class="md-ellipsis">
+      SummarizationPromptor
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="SummarizationPromptor">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#__init___3" class="md-nav__link">
+    <span class="md-ellipsis">
+      初始化参数 (__init__)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      属性
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#execute_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      执行方法 (execute)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#openaigenerator" class="md-nav__link">
+    <span class="md-ellipsis">
+      OpenAIGenerator
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="OpenAIGenerator">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#__init___4" class="md-nav__link">
+    <span class="md-ellipsis">
+      初始化参数 (__init__)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      属性
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#execute_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      执行方法 (execute)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#openaigeneratorwithhistory" class="md-nav__link">
+    <span class="md-ellipsis">
+      OpenAIGeneratorWithHistory
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="OpenAIGeneratorWithHistory">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#__init___5" class="md-nav__link">
+    <span class="md-ellipsis">
+      初始化参数 (__init__)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      属性
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#execute_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      执行方法 (execute)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      功能描述
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_6" class="md-nav__link">
+    <span class="md-ellipsis">
+      状态管理
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#hfgenerator" class="md-nav__link">
+    <span class="md-ellipsis">
+      HFGenerator
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="HFGenerator">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#__init___6" class="md-nav__link">
+    <span class="md-ellipsis">
+      初始化参数 (__init__)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_7" class="md-nav__link">
+    <span class="md-ellipsis">
+      属性
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#execute_6" class="md-nav__link">
+    <span class="md-ellipsis">
+      执行方法 (execute)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#f1evaluate" class="md-nav__link">
+    <span class="md-ellipsis">
+      F1Evaluate
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="F1Evaluate">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#__init___7" class="md-nav__link">
+    <span class="md-ellipsis">
+      初始化参数 (__init__)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_8" class="md-nav__link">
+    <span class="md-ellipsis">
+      内部方法
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#execute_7" class="md-nav__link">
+    <span class="md-ellipsis">
+      执行方法 (execute)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#bertrecallevaluate" class="md-nav__link">
+    <span class="md-ellipsis">
+      BertRecallEvaluate
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="BertRecallEvaluate">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#__init___8" class="md-nav__link">
+    <span class="md-ellipsis">
+      初始化参数 (__init__)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_9" class="md-nav__link">
+    <span class="md-ellipsis">
+      属性
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_10" class="md-nav__link">
+    <span class="md-ellipsis">
+      内部方法
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#execute_8" class="md-nav__link">
+    <span class="md-ellipsis">
+      执行方法 (execute)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#rougelevaluate" class="md-nav__link">
+    <span class="md-ellipsis">
+      RougeLEvaluate
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="RougeLEvaluate">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#__init___9" class="md-nav__link">
+    <span class="md-ellipsis">
+      初始化参数 (__init__)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_11" class="md-nav__link">
+    <span class="md-ellipsis">
+      属性
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_12" class="md-nav__link">
+    <span class="md-ellipsis">
+      内部方法
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#execute_9" class="md-nav__link">
+    <span class="md-ellipsis">
+      执行方法 (execute)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#brsevaluate" class="md-nav__link">
+    <span class="md-ellipsis">
+      BRSEvaluate
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="BRSEvaluate">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#__init___10" class="md-nav__link">
+    <span class="md-ellipsis">
+      初始化参数 (__init__)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_13" class="md-nav__link">
+    <span class="md-ellipsis">
+      属性
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_14" class="md-nav__link">
+    <span class="md-ellipsis">
+      内部方法
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#execute_10" class="md-nav__link">
+    <span class="md-ellipsis">
+      执行方法 (execute)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../pipeline/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    pipeline
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../query/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    query
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5_1_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_5_1_2" id="__nav_5_1_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    core
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_5_1_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_1_2">
+            <span class="md-nav__icon md-icon"></span>
+            core
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core/compiler/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    compiler
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core/dag/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    dag
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core/engine/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    engine
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core/graph/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    graph
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core/io/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    io
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core/metrics/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    metrics
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core/model/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    model
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core/neuromem/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    neuromem
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core/operator/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    operator
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core/runtime/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    runtime
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../sage_runtime/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    sage_runtime
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../sage_commen_funs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    sage_commen_funs
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../sage_memory/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    sage_memory
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../sage_tests/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    sage_tests
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../sage_vectors/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    sage_vectors
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    加入 SAGE
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            加入 SAGE
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../examples/minimal/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    minimal
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../examples/advanced/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    advanced
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../examples/integration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    integration
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#denseretriever" class="md-nav__link">
+    <span class="md-ellipsis">
+      DenseRetriever
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="DenseRetriever">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#__init__" class="md-nav__link">
+    <span class="md-ellipsis">
+      初始化参数 (__init__)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#execute" class="md-nav__link">
+    <span class="md-ellipsis">
+      执行方法 (execute)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#bm25sretriever" class="md-nav__link">
+    <span class="md-ellipsis">
+      BM25sRetriever
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="BM25sRetriever">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#__init___1" class="md-nav__link">
+    <span class="md-ellipsis">
+      初始化参数 (__init__)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#execute_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      执行方法 (execute)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#qapromptor" class="md-nav__link">
+    <span class="md-ellipsis">
+      QAPromptor
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="QAPromptor">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#__init___2" class="md-nav__link">
+    <span class="md-ellipsis">
+      初始化参数 (__init__)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      属性
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#execute_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      执行方法 (execute)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#summarizationpromptor" class="md-nav__link">
+    <span class="md-ellipsis">
+      SummarizationPromptor
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="SummarizationPromptor">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#__init___3" class="md-nav__link">
+    <span class="md-ellipsis">
+      初始化参数 (__init__)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      属性
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#execute_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      执行方法 (execute)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#openaigenerator" class="md-nav__link">
+    <span class="md-ellipsis">
+      OpenAIGenerator
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="OpenAIGenerator">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#__init___4" class="md-nav__link">
+    <span class="md-ellipsis">
+      初始化参数 (__init__)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      属性
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#execute_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      执行方法 (execute)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#openaigeneratorwithhistory" class="md-nav__link">
+    <span class="md-ellipsis">
+      OpenAIGeneratorWithHistory
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="OpenAIGeneratorWithHistory">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#__init___5" class="md-nav__link">
+    <span class="md-ellipsis">
+      初始化参数 (__init__)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      属性
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#execute_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      执行方法 (execute)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      功能描述
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_6" class="md-nav__link">
+    <span class="md-ellipsis">
+      状态管理
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#hfgenerator" class="md-nav__link">
+    <span class="md-ellipsis">
+      HFGenerator
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="HFGenerator">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#__init___6" class="md-nav__link">
+    <span class="md-ellipsis">
+      初始化参数 (__init__)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_7" class="md-nav__link">
+    <span class="md-ellipsis">
+      属性
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#execute_6" class="md-nav__link">
+    <span class="md-ellipsis">
+      执行方法 (execute)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#f1evaluate" class="md-nav__link">
+    <span class="md-ellipsis">
+      F1Evaluate
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="F1Evaluate">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#__init___7" class="md-nav__link">
+    <span class="md-ellipsis">
+      初始化参数 (__init__)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_8" class="md-nav__link">
+    <span class="md-ellipsis">
+      内部方法
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#execute_7" class="md-nav__link">
+    <span class="md-ellipsis">
+      执行方法 (execute)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#bertrecallevaluate" class="md-nav__link">
+    <span class="md-ellipsis">
+      BertRecallEvaluate
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="BertRecallEvaluate">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#__init___8" class="md-nav__link">
+    <span class="md-ellipsis">
+      初始化参数 (__init__)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_9" class="md-nav__link">
+    <span class="md-ellipsis">
+      属性
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_10" class="md-nav__link">
+    <span class="md-ellipsis">
+      内部方法
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#execute_8" class="md-nav__link">
+    <span class="md-ellipsis">
+      执行方法 (execute)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#rougelevaluate" class="md-nav__link">
+    <span class="md-ellipsis">
+      RougeLEvaluate
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="RougeLEvaluate">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#__init___9" class="md-nav__link">
+    <span class="md-ellipsis">
+      初始化参数 (__init__)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_11" class="md-nav__link">
+    <span class="md-ellipsis">
+      属性
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_12" class="md-nav__link">
+    <span class="md-ellipsis">
+      内部方法
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#execute_9" class="md-nav__link">
+    <span class="md-ellipsis">
+      执行方法 (execute)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#brsevaluate" class="md-nav__link">
+    <span class="md-ellipsis">
+      BRSEvaluate
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="BRSEvaluate">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#__init___10" class="md-nav__link">
+    <span class="md-ellipsis">
+      初始化参数 (__init__)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_13" class="md-nav__link">
+    <span class="md-ellipsis">
+      属性
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_14" class="md-nav__link">
+    <span class="md-ellipsis">
+      内部方法
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#execute_10" class="md-nav__link">
+    <span class="md-ellipsis">
+      执行方法 (execute)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+  <h1>operator</h1>
+
+<h3 id="denseretriever">DenseRetriever</h3>
+<p><code>DenseRetriever</code> 是一个基于向量检索的算子，它主要通过 <strong>LTM（Long-Term Memory）</strong> 进行信息检索。它继承自 <code>MapFunction</code>。</p>
+<h4 id="__init__">初始化参数 (<code>__init__</code>)</h4>
+<ul>
+<li><strong><code>config</code></strong> (<code>dict</code>): 包含了检索器的配置信息。<ul>
+<li><code>config["ltm"]</code> (<code>bool</code> 或 <code>dict</code>): 如果为 <code>True</code> 或一个字典，表示启用 LTM 检索。如果是一个字典，它将作为 <code>ltm_config</code> 用于 LTM 检索的详细配置。</li>
+</ul>
+</li>
+<li><strong><code>**kwargs</code></strong>: 传递给基类 <code>MapFunction</code> 的额外参数。</li>
+</ul>
+<h4 id="execute">执行方法 (<code>execute</code>)</h4>
+<p><code>execute</code> 方法执行实际的检索操作。</p>
+<ul>
+<li><strong><code>data</code></strong> (<code>str</code>): 输入的查询字符串。<ul>
+<li>如果 <code>data</code> 是一个元组，并且不为空，则取元组的第一个元素作为查询字符串。</li>
+</ul>
+</li>
+<li><strong>返回</strong> (<code>Tuple[str, List[str]]</code>): 一个包含原始查询字符串和检索到的块列表的元组。<ul>
+<li><strong><code>input_query</code></strong> (<code>str</code>): 原始的输入查询。</li>
+<li><strong><code>chunks</code></strong> (<code>List[str]</code>): 从 LTM 中检索到的文本块列表。</li>
+</ul>
+</li>
+</ul>
+<hr />
+<h3 id="bm25sretriever">BM25sRetriever</h3>
+<p><code>BM25sRetriever</code> 是一个基于 <strong>BM25s 算法</strong>的检索算子。它也继承自 <code>MapFunction</code>。</p>
+<h4 id="__init___1">初始化参数 (<code>__init__</code>)</h4>
+<ul>
+<li><strong><code>config</code></strong> (<code>dict</code>): 包含了检索器的配置信息。<ul>
+<li><code>config["bm25s_collection"]</code> (<code>str</code>): 必需参数，指定用于 BM25s 检索的集合名称。</li>
+<li><code>config["bm25s_config"]</code> (<code>dict</code>, 可选): BM25s 检索的额外配置参数，默认为空字典。</li>
+</ul>
+</li>
+<li><strong><code>**kwargs</code></strong>: 传递给基类 <code>MapFunction</code> 的额外参数。</li>
+</ul>
+<h4 id="execute_1">执行方法 (<code>execute</code>)</h4>
+<p><code>execute</code> 方法执行实际的 BM25s 检索操作。</p>
+<ul>
+<li><strong><code>data</code></strong> (<code>str</code>): 输入的查询字符串。</li>
+<li><strong>返回</strong> (<code>Tuple[str, List[str]]</code>): 一个包含原始查询字符串和检索到的块列表的元组。<ul>
+<li><strong><code>input_query</code></strong> (<code>str</code>): 原始的输入查询。</li>
+<li><strong><code>chunks</code></strong> (<code>List[str]</code>): 从 BM25s 中检索到的文本块列表。</li>
+</ul>
+</li>
+</ul>
+<p>本部分将继续介绍 <code>sage_libs.rag</code> 文件夹下定义的算子，这些算子主要用于检索增强生成（RAG）流程中的提示词工程环节。</p>
+<hr />
+<h3 id="qapromptor">QAPromptor</h3>
+<p><code>QAPromptor</code> 是一个提示词生成算子，它根据用户查询和外部语料库生成问答（QA）风格的提示词。它继承自 <code>MapFunction</code>，旨在为问答模型准备必要的提示词结构。</p>
+<h4 id="__init___2">初始化参数 (<code>__init__</code>)</h4>
+<ul>
+<li><strong><code>config</code></strong> (<code>dict</code>): 包含提示词生成器配置信息的字典（例如，模型详情等）。</li>
+<li><strong><code>**kwargs</code></strong>: 传递给基类 <code>MapFunction</code> 的额外参数。</li>
+</ul>
+<h4 id="_1">属性</h4>
+<ul>
+<li><strong><code>config</code></strong> (<code>dict</code>): 存储用于初始化提示词生成器的配置。</li>
+<li><strong><code>prompt_template</code></strong> (<code>jinja2.Template</code>): 用于生成系统提示词的模板，通常包含上下文或指令。默认使用 <code>QA_prompt_template</code>。</li>
+</ul>
+<h4 id="execute_2">执行方法 (<code>execute</code>)</h4>
+<p><code>execute</code> 方法生成 ChatGPT 风格的提示词（包含 <code>system</code> 和 <code>user</code> 两条消息）。</p>
+<ul>
+<li><strong><code>data</code></strong>: 输入数据，支持以下两种格式：<ul>
+<li><code>Tuple[str, Union[List[str], str]]</code>: 元组，第一个元素是查询字符串 (<code>query</code>)，第二个元素是外部语料库，可以是字符串列表或单个字符串。</li>
+<li><code>str</code>: 单个查询字符串 (<code>query</code>)。</li>
+</ul>
+</li>
+<li><strong>返回</strong> (<code>list</code>): 一个列表，包含：<ul>
+<li>原始查询字符串。</li>
+<li>一个包含 <code>system</code> 和 <code>user</code> 消息的提示词列表。<ul>
+<li><code>system_prompt</code> (<code>dict</code>): 包含 <code>role</code> (固定为 "system") 和 <code>content</code>。如果提供了外部语料库，内容将基于 <code>prompt_template</code> 渲染；否则，将使用默认的通用系统提示。</li>
+<li><code>user_prompt</code> (<code>dict</code>): 包含 <code>role</code> (固定为 "user") 和 <code>content</code> (格式为 "Question: {query}")。</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<hr />
+<h3 id="summarizationpromptor">SummarizationPromptor</h3>
+<p><code>SummarizationPromptor</code> 是一个提示词生成算子，它根据用户查询和外部语料库生成摘要风格的提示词。它继承自 <code>MapFunction</code>。</p>
+<h4 id="__init___3">初始化参数 (<code>__init__</code>)</h4>
+<ul>
+<li><strong><code>config</code></strong> (<code>dict</code>): 包含提示词生成器配置信息的字典（例如，模型详情等）。</li>
+</ul>
+<h4 id="_2">属性</h4>
+<ul>
+<li><strong><code>config</code></strong> (<code>dict</code>): 存储用于初始化提示词生成器的配置。</li>
+<li><strong><code>prompt_template</code></strong> (<code>jinja2.Template</code>): 用于生成系统提示词的模板，通常包含上下文或指令。默认使用 <code>summarization_prompt_template</code>。</li>
+</ul>
+<h4 id="execute_3">执行方法 (<code>execute</code>)</h4>
+<p><code>execute</code> 方法为输入的查询和外部语料库生成摘要风格的提示词。</p>
+<ul>
+<li><strong><code>data</code></strong>: 输入数据，预期为一个元组 <code>(query, external_corpus_list)</code>，其中：<ul>
+<li><code>query</code> (<code>str</code>): 用户查询字符串。</li>
+<li><code>external_corpus_list</code> (<code>List[str]</code>): 外部语料库的字符串列表。</li>
+</ul>
+</li>
+<li><strong>返回</strong> (<code>list</code>): 一个包含两个提示词的列表：<ul>
+<li><code>system_prompt</code> (<code>dict</code>): 一个基于模板和外部语料库数据的系统提示词。</li>
+<li><code>user_prompt</code> (<code>dict</code>): 一个包含待摘要问题的用户提示词。</li>
+</ul>
+</li>
+</ul>
+<hr />
+<h3 id="openaigenerator">OpenAIGenerator</h3>
+<p><code>OpenAIGenerator</code> 是一个生成器算子，用于与指定的 OpenAI 模型接口，根据输入数据生成响应。它继承自 <code>GeneratorFunction</code>。</p>
+<h4 id="__init___4">初始化参数 (<code>__init__</code>)</h4>
+<ul>
+<li><strong><code>config</code></strong> (<code>dict</code>): 包含生成器配置的字典，包括：<ul>
+<li><code>method</code> (<code>str</code>): 生成模型的方法（例如，"openai"）。</li>
+<li><code>model_name</code> (<code>str</code>): 要使用的 OpenAI 模型名称。</li>
+<li><code>base_url</code> (<code>str</code>): OpenAI API 的基础 URL。</li>
+<li><code>api_key</code> (<code>str</code>): OpenAI API 密钥，如果未提供，则尝试从环境变量 <code>ALIBABA_API_KEY</code> 获取。</li>
+</ul>
+</li>
+<li><strong><code>local_remote</code></strong>: 当前代码中未使用，可能是预留参数。</li>
+<li><strong><code>**kwargs</code></strong>: 传递给基类 <code>GeneratorFunction</code> 的额外参数。</li>
+</ul>
+<h4 id="_3">属性</h4>
+<ul>
+<li><strong><code>config</code></strong> (<code>dict</code>): 生成器的配置信息。</li>
+<li><strong><code>model</code></strong>: 通过 <code>apply_generator_model</code> 函数初始化的生成模型实例。</li>
+<li><strong><code>num</code></strong> (<code>int</code>): 内部计数器，用于记录执行次数。</li>
+</ul>
+<h4 id="execute_4">执行方法 (<code>execute</code>)</h4>
+<p><code>execute</code> 方法使用配置的模型根据输入数据生成响应。</p>
+<ul>
+<li><strong><code>data</code></strong> (<code>list</code>): 输入数据列表。<ul>
+<li>列表的第一个元素（如果存在）被视为用户查询 (<code>user_query</code>)。</li>
+<li>列表的第二个元素（如果存在）或整个列表（如果只有一个元素）被视为传递给模型的 <code>prompt</code>。</li>
+</ul>
+</li>
+<li><strong><code>**kwargs</code></strong>: 传递给模型生成方法的额外参数（例如 <code>temperature</code>、<code>max_tokens</code> 等）。</li>
+<li><strong>返回</strong> (<code>Tuple[str, str]</code>): 一个元组，包含原始用户查询和模型生成的响应。<ul>
+<li><strong><code>user_query</code></strong> (<code>str</code>): 原始的输入查询。</li>
+<li><strong><code>response</code></strong> (<code>str</code>): 模型生成的响应。</li>
+</ul>
+</li>
+</ul>
+<hr />
+<h3 id="openaigeneratorwithhistory">OpenAIGeneratorWithHistory</h3>
+<p><code>OpenAIGeneratorWithHistory</code> 是一个具有全局对话记忆的 OpenAI 生成器。它继承自 <code>StatefulFunction</code>，这意味着它能够维护并持久化对话历史。</p>
+<h4 id="__init___5">初始化参数 (<code>__init__</code>)</h4>
+<ul>
+<li><strong><code>config</code></strong> (<code>dict</code>): 包含生成器配置的字典，与 <code>OpenAIGenerator</code> 类似，并额外支持：<ul>
+<li><code>max_history_turns</code> (<code>int</code>, 可选): 要保留的最大对话轮次（用户和助手各算一轮），默认为 5。</li>
+</ul>
+</li>
+<li><strong><code>**kwargs</code></strong>: 传递给基类 <code>StatefulFunction</code> 的额外参数。</li>
+</ul>
+<h4 id="_4">属性</h4>
+<ul>
+<li><strong><code>config</code></strong> (<code>dict</code>): 生成器的配置信息。</li>
+<li><strong><code>model</code></strong>: 通过 <code>apply_generator_model</code> 函数初始化的生成模型实例。</li>
+<li><strong><code>dialogue_history</code></strong> (<code>List[str]</code>): 全局对话历史，按对话轮次记录字符串（每个元素是一个角色-内容字典）。</li>
+<li><strong><code>history_turns</code></strong> (<code>int</code>): 要保留的最大对话轮次。</li>
+<li><strong><code>num</code></strong> (<code>int</code>): 内部计数器，用于记录执行次数。</li>
+</ul>
+<h4 id="execute_5">执行方法 (<code>execute</code>)</h4>
+<p><code>execute</code> 方法执行响应生成，并管理对话历史。</p>
+<ul>
+<li><strong><code>data</code></strong> (<code>List</code>): 输入数据，预期格式为 <code>[user_query, prompt_dict]</code>。<ul>
+<li><code>user_query</code> (<code>str</code>): 原始用户查询。</li>
+<li><code>prompt_dict</code> (<code>list</code>): 包含新对话轮次（通常是用户和系统消息）的字典列表。</li>
+</ul>
+</li>
+<li><strong><code>**kwargs</code></strong>: 传递给模型生成方法的额外参数。</li>
+<li><strong>返回</strong> (<code>Tuple[str, str]</code>): 一个元组，包含原始用户查询和模型生成的响应。</li>
+</ul>
+<h4 id="_5">功能描述</h4>
+<p><code>OpenAIGeneratorWithHistory</code> 的核心功能是在 <code>OpenAIGenerator</code> 的基础上增加了对话历史管理和状态持久化。它在每次执行时，会从 <code>dialogue_history</code> 中获取最近的对话轮次，并将其与当前的用户/系统提示词合并，形成完整的 <code>full_prompt</code> 发送给模型。模型生成响应后，该响应会被添加到对话历史中。为了保持历史的长度，它只会保留最近 N 轮的对话。此外，该算子会在每次 <code>execute</code> 后自动保存其状态（<code>dialogue_history</code>），确保对话的连续性。</p>
+<h4 id="_6">状态管理</h4>
+<ul>
+<li><strong><code>dialogue_history</code></strong>: 作为内部状态，用于记录对话的完整历史。</li>
+<li><strong><code>load_function_state</code></strong>: 在初始化时加载函数状态，实现延迟恢复。</li>
+<li><strong><code>save_function_state</code></strong>: 在每次 <code>execute</code> 后自动保存函数状态，并在 <code>save_state</code> 方法中手动触发。</li>
+</ul>
+<hr />
+<h3 id="hfgenerator">HFGenerator</h3>
+<p><code>HFGenerator</code> 是一个生成器算子，用于与 Hugging Face 模型接口，根据输入数据生成响应。它继承自 <code>MapFunction</code>。</p>
+<h4 id="__init___6">初始化参数 (<code>__init__</code>)</h4>
+<ul>
+<li><strong><code>config</code></strong> (<code>dict</code>): 包含生成器配置的字典，包括：<ul>
+<li><code>method</code> (<code>str</code>): 生成模型的方法（例如，"huggingface"）。</li>
+<li><code>model_name</code> (<code>str</code>): 要使用的 Hugging Face 模型名称。</li>
+</ul>
+</li>
+<li><strong><code>**kwargs</code></strong>: 传递给基类 <code>MapFunction</code> 的额外参数。</li>
+</ul>
+<h4 id="_7">属性</h4>
+<ul>
+<li><strong><code>config</code></strong> (<code>dict</code>): 生成器的配置信息。</li>
+<li><strong><code>model</code></strong>: 通过 <code>apply_generator_model</code> 函数初始化的生成模型实例。</li>
+</ul>
+<h4 id="execute_6">执行方法 (<code>execute</code>)</h4>
+<p><code>execute</code> 方法使用配置的 Hugging Face 模型根据输入数据生成响应。</p>
+<ul>
+<li><strong><code>data</code></strong> (<code>list</code>): 输入数据列表。<ul>
+<li>列表的第一个元素（如果存在）被视为用户查询 (<code>user_query</code>)。</li>
+<li>列表的第二个元素（如果存在）或整个列表（如果只有一个元素）被视为传递给模型的 <code>prompt</code>。</li>
+</ul>
+</li>
+<li><strong><code>**kwargs</code></strong>: 传递给模型生成方法的额外参数（例如 <code>temperature</code>、<code>max_tokens</code> 等）。</li>
+<li><strong>返回</strong> (<code>Tuple[str, str]</code>): 一个元组，包含原始用户查询和模型生成的响应。</li>
+</ul>
+<hr />
+<h3 id="f1evaluate">F1Evaluate</h3>
+<p><code>F1Evaluate</code> 是一个用于计算 F1 分数的评估算子，它通过比较预测文本和参考文本的词语重叠来衡量它们的相似性。它继承自 <code>MapFunction</code>。</p>
+<h4 id="__init___7">初始化参数 (<code>__init__</code>)</h4>
+<ul>
+<li><strong><code>config</code></strong> (<code>dict</code>): 配置字典（当前算子未使用特定配置）。</li>
+<li><strong><code>**kwargs</code></strong>: 传递给基类 <code>MapFunction</code> 的额外参数。</li>
+</ul>
+<h4 id="_8">内部方法</h4>
+<ul>
+<li><strong><code>_get_tokens(self, text)</code></strong>:<ul>
+<li><strong>功能</strong>: 将输入文本转换为小写并按空格分割成词语列表（tokens）。</li>
+<li><strong>参数</strong>: <code>text</code> (<code>str</code>) - 输入文本。</li>
+<li><strong>返回</strong>: <code>list[str]</code> - 小写词语列表。</li>
+</ul>
+</li>
+<li><strong><code>_f1_score(self, prediction, reference)</code></strong>:<ul>
+<li><strong>功能</strong>: 计算预测文本和参考文本之间的 F1 分数。F1 分数是精确率和召回率的调和平均值，用于衡量文本相似度。</li>
+<li><strong>参数</strong>:<ul>
+<li><code>prediction</code> (<code>str</code>) - 模型生成的预测文本。</li>
+<li><code>reference</code> (<code>str</code>) - 参考标准文本。</li>
+</ul>
+</li>
+<li><strong>返回</strong>: <code>float</code> - 计算出的 F1 分数。</li>
+</ul>
+</li>
+</ul>
+<h4 id="execute_7">执行方法 (<code>execute</code>)</h4>
+<p><code>execute</code> 方法计算给定预测和参考文本的 F1 分数并打印结果。</p>
+<ul>
+<li><strong><code>data</code></strong> (<code>tuple[str, str]</code>): 一个包含两个字符串的元组，第一个是参考文本，第二个是预测文本。<ul>
+<li><code>reference</code> (<code>str</code>): 参考标准文本。</li>
+<li><code>prediction</code> (<code>str</code>): 模型生成的预测文本。</li>
+</ul>
+</li>
+<li><strong>返回</strong>: 无。打印 F1 分数到控制台。</li>
+</ul>
+<hr />
+<h3 id="bertrecallevaluate">BertRecallEvaluate</h3>
+<p><code>BertRecallEvaluate</code> 是一个基于 BERT 模型的召回率评估算子，它使用 BERT 嵌入的余弦相似度来衡量生成文本与参考文本之间的语义相似性。它继承自 <code>MapFunction</code>。</p>
+<h4 id="__init___8">初始化参数 (<code>__init__</code>)</h4>
+<ul>
+<li><strong><code>config</code></strong> (<code>dict</code>): 配置字典（当前算子未使用特定配置）。</li>
+<li><strong><code>**kwargs</code></strong>: 传递给基类 <code>MapFunction</code> 的额外参数。</li>
+</ul>
+<h4 id="_9">属性</h4>
+<ul>
+<li><strong><code>model</code></strong>: 加载的 <code>bert-base-uncased</code> 预训练模型。</li>
+<li><strong><code>tokenizer</code></strong>: 加载的 <code>bert-base-uncased</code> 分词器。</li>
+</ul>
+<h4 id="_10">内部方法</h4>
+<ul>
+<li><strong><code>bert_recall(self, reference, generated)</code></strong>:<ul>
+<li><strong>功能</strong>: 计算参考文本和生成文本之间基于 BERT 嵌入的余弦相似度。</li>
+<li><strong>参数</strong>:<ul>
+<li><code>reference</code> (<code>str</code>) - 参考标准文本。</li>
+<li><code>generated</code> (<code>str</code>) - 模型生成的文本。</li>
+</ul>
+</li>
+<li><strong>返回</strong>: <code>float</code> - 计算出的 BERT 召回分数（余弦相似度）。如果生成文本为空，则返回 0.0。</li>
+</ul>
+</li>
+</ul>
+<h4 id="execute_8">执行方法 (<code>execute</code>)</h4>
+<p><code>execute</code> 方法计算给定参考文本和生成文本的 BERT 召回分数并打印结果。</p>
+<ul>
+<li><strong><code>data</code></strong> (<code>tuple[str, str]</code>): 一个包含两个字符串的元组，第一个是参考文本，第二个是生成文本。<ul>
+<li><code>reference</code> (<code>str</code>): 参考标准文本。</li>
+<li><code>generated</code> (<code>str</code>): 模型生成的文本。</li>
+</ul>
+</li>
+<li><strong>返回</strong>: 无。打印 BERT 召回分数到控制台。</li>
+</ul>
+<hr />
+<h3 id="rougelevaluate">RougeLEvaluate</h3>
+<p><code>RougeLEvaluate</code> 是一个用于计算 ROUGE-L 分数的评估算子，它主要通过最长公共子序列（LCS）来衡量生成文本与参考文本之间的相似性，通常用于摘要和机器翻译的评估。它继承自 <code>MapFunction</code>。</p>
+<h4 id="__init___9">初始化参数 (<code>__init__</code>)</h4>
+<ul>
+<li><strong><code>config</code></strong> (<code>dict</code>): 配置字典（当前算子未使用特定配置）。</li>
+<li><strong><code>**kwargs</code></strong>: 传递给基类 <code>MapFunction</code> 的额外参数。</li>
+</ul>
+<h4 id="_11">属性</h4>
+<ul>
+<li><strong><code>rouge</code></strong>: <code>rouge</code> 库的 <code>Rouge</code> 实例。</li>
+</ul>
+<h4 id="_12">内部方法</h4>
+<ul>
+<li><strong><code>rouge_l(self, reference, generated)</code></strong>:<ul>
+<li><strong>功能</strong>: 计算生成文本和参考文本之间的 ROUGE-L F1 分数。</li>
+<li><strong>参数</strong>:<ul>
+<li><code>reference</code> (<code>str</code>) - 参考标准文本。</li>
+<li><code>generated</code> (<code>str</code>) - 模型生成的文本。</li>
+</ul>
+</li>
+<li><strong>返回</strong>: <code>float</code> - 计算出的 ROUGE-L F1 分数。如果生成文本为空，则返回 0.0。</li>
+</ul>
+</li>
+</ul>
+<h4 id="execute_9">执行方法 (<code>execute</code>)</h4>
+<p><code>execute</code> 方法计算给定参考文本和生成文本的 ROUGE-L 分数并打印结果。</p>
+<ul>
+<li><strong><code>data</code></strong> (<code>tuple[str, str]</code>): 一个包含两个字符串的元组，第一个是参考文本，第二个是生成文本。<ul>
+<li><code>reference</code> (<code>str</code>): 参考标准文本。</li>
+<li><code>generated</code> (<code>str</code>): 模型生成的文本。</li>
+</ul>
+</li>
+<li><strong>返回</strong>: 无。打印 ROUGE-L 分数到控制台。</li>
+</ul>
+<hr />
+<h3 id="brsevaluate">BRSEvaluate</h3>
+<p><code>BRSEvaluate</code> 是一个复合评估算子，它结合了 BERT 召回率和 ROUGE-L 分数来提供一个综合的评估指标（BRS）。它继承自 <code>MapFunction</code>。</p>
+<h4 id="__init___10">初始化参数 (<code>__init__</code>)</h4>
+<ul>
+<li><strong><code>config</code></strong> (<code>dict</code>): 配置字典。此配置会传递给内部的 <code>BertRecallEvaluate</code> 和 <code>RougeLEvaluate</code> 实例。</li>
+<li><strong><code>**kwargs</code></strong>: 传递给基类 <code>MapFunction</code> 的额外参数。</li>
+</ul>
+<h4 id="_13">属性</h4>
+<ul>
+<li><strong><code>bert_recall_evaluate</code></strong>: <code>BertRecallEvaluate</code> 的实例。</li>
+<li><strong><code>rouge_l_evaluate</code></strong>: <code>RougeLEvaluate</code> 的实例。</li>
+</ul>
+<h4 id="_14">内部方法</h4>
+<ul>
+<li><strong><code>BRS(self, reference, generated)</code></strong>:<ul>
+<li><strong>功能</strong>: 计算生成文本和参考文本的 BRS 分数。BRS 分数是 BERT 召回率和 ROUGE-L 分数的调和平均值。</li>
+<li><strong>参数</strong>:<ul>
+<li><code>reference</code> (<code>str</code>) - 参考标准文本。</li>
+<li><code>generated</code> (<code>str</code>) - 模型生成的文本。</li>
+</ul>
+</li>
+<li><strong>返回</strong>: <code>float</code> - 计算出的 BRS 分数。如果任一子分数（BERT 召回或 ROUGE-L）为 0，则返回 0。</li>
+</ul>
+</li>
+</ul>
+<h4 id="execute_10">执行方法 (<code>execute</code>)</h4>
+<p><code>execute</code> 方法计算给定参考文本和生成文本的 BRS 分数并打印结果。</p>
+<ul>
+<li><strong><code>data</code></strong> (<code>tuple[str, str]</code>): 一个包含两个字符串的元组，第一个是参考文本，第二个是生成文本。<ul>
+<li><code>reference</code> (<code>str</code>): 参考标准文本。</li>
+<li><code>generated</code> (<code>str</code>): 模型生成的文本。</li>
+</ul>
+</li>
+<li><strong>返回</strong>: 无。打印 BRS 分数到控制台。</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      <script id="__config" type="application/json">{"base": "../../../..", "features": ["navigation.tabs", "navigation.expand", "content.code.copy"], "search": "../../../../assets/javascripts/workers/search.d50fe291.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../../../../assets/javascripts/bundle.56ea9cef.min.js"></script>
+      
+    
+  </body>
+</html>
