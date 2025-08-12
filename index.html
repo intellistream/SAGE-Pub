@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SAGE - 高性能流处理平台</title>
+    <link rel="icon" href="assets/img/isage_light.svg">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css">
+    
+    <!-- Custom Styles -->
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="hero.css">
+    <link rel="stylesheet" href="sections.css">
+    <link rel="stylesheet" href="animations.css">
+    <link rel="stylesheet" href="responsive.css">
+</head>
+<body>
+    <!-- Floating Navigation (appears on scroll) -->
+    <nav class="floating-nav" id="floatingNav">
+        <ul class="floating-nav-links">
+            <li><a href="get_start/quickstart/" title="快速开始" class="nav-icon-play">
+                <i class="fas fa-play-circle"></i>
+                <span class="nav-glow"></span>
+            </a></li>
+            <li><a href="kernel/architecture/" title="文档" class="nav-icon-docs">
+                <i class="fas fa-file-code"></i>
+                <span class="nav-glow"></span>
+            </a></li>
+            <li><a href="examples/" title="示例" class="nav-icon-code">
+                <i class="fas fa-code-branch"></i>
+                <span class="nav-glow"></span>
+            </a></li>
+            <li><a href="https://github.com/intellistream" title="GitHub" class="nav-icon-github">
+                <i class="fab fa-github-alt"></i>
+                <span class="nav-glow"></span>
+            </a></li>
+        </ul>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <!-- Starfield background -->
+        <div class="starfield"></div>
+        
+        <!-- Dynamic background elements -->
+        <div class="data-nodes">
+            <div class="data-node" style="top: 20%; left: -10px;"></div>
+            <div class="data-node" style="top: 40%; left: -10px;"></div>
+            <div class="data-node" style="top: 60%; left: -10px;"></div>
+            <div class="data-node" style="top: 80%; left: -10px;"></div>
+            <div class="data-node" style="top: 30%; left: -10px;"></div>
+            <div class="data-node" style="top: 70%; left: -10px;"></div>
+        </div>
+        
+        <div class="network-lines">
+            <div class="network-line" style="top: 25%; width: 100%;"></div>
+            <div class="network-line" style="top: 50%; width: 100%;"></div>
+            <div class="network-line" style="top: 75%; width: 100%;"></div>
+        </div>
+        
+        <div class="hero-content">
+            <div class="hero-badge" style="margin-bottom: 1.5rem; padding: 0.5rem 1rem;">
+                <div class="badge-icon" style="background: none;">
+                    <i class="fas fa-star" style="color: #FFD700;"></i>
+                </div>
+                最新发布：SAGE v0.1 现已上线
+            </div>
+            
+            <h1 class="hero-title animate-fadeInUp" style="display: flex; align-items: center; justify-content: center; gap: 0.5em; color: #ffffff;">
+                <img src="assets/img/isage_light.svg" alt="SAGE Logo" style="vertical-align: middle; height: 1em; margin: 0; filter: brightness(1.5) contrast(1.2) drop-shadow(0 2px 8px rgba(59, 130, 246, 0.4));">
+                SAGE
+            </h1>
+            <p class="hero-subtitle animate-fadeInUp" style="color: #ffffff;">高性能分布式推理框架<br>支持流计算、向量处理与模型记忆<br>让AI应用开发变得简单而高效</p>
+            
+            <div class="hero-buttons animate-fadeInUp">
+                <a href="get_start/quickstart/" class="btn btn-primary">
+                    <span class="btn-icon"><i class="fas fa-rocket"></i></span>
+                    快速开始
+                </a>
+                <a href="kernel/architecture/" class="btn btn-secondary">
+                    <span class="btn-icon"><i class="fas fa-book-reader"></i></span>
+                    查看文档
+                </a>
+                <a href="https://github.com/intellistream" class="btn btn-secondary">
+                    <span class="btn-icon"><i class="fab fa-github-alt"></i></span>
+                    GitHub
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features section-animate">
+        <div class="container">
+            <h2 class="section-title">核心特性</h2>
+            <p class="section-subtitle">强大的功能特性，助力您构建下一代智能应用</p>
+            
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">🚀</div>
+                    <h3 class="feature-title">高性能流处理</h3>
+                    <p class="feature-description">基于先进的数据流模型，支持实时数据处理与分析，提供卓越的吞吐量和低延迟性能。</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">🧠</div>
+                    <h3 class="feature-title">向量增强推理</h3>
+                    <p class="feature-description">集成向量数据库和嵌入模型，支持语义检索、RAG应用和智能问答系统。</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">🔧</div>
+                    <h3 class="feature-title">模块化架构</h3>
+                    <p class="feature-description">灵活的组件化设计，支持自定义算子和函数，轻松构建复杂的数据处理管道。</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">📊</div>
+                    <h3 class="feature-title">可视化Dashboard</h3>
+                    <p class="feature-description">提供直观的可视化界面，支持拖拽式DAG构建和实时监控。</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">🌐</div>
+                    <h3 class="feature-title">多模态支持</h3>
+                    <p class="feature-description">支持文本、图像、音频等多种数据类型的处理和分析。</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">☁️</div>
+                    <h3 class="feature-title">云原生部署</h3>
+                    <p class="feature-description">支持分布式部署，与Ray等框架集成，轻松扩展到大规模集群。</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Quick Start Section -->
+    <section class="quickstart section-animate">
+        <div class="container">
+            <h2 class="section-title">快速开始</h2>
+            <p class="section-subtitle">四个简单步骤，开启您的SAGE之旅</p>
+            
+            <div class="steps-grid">
+                <div class="step-card">
+                    <div class="step-number">1</div>
+                    <h3 class="step-title">安装</h3>
+                    <p class="step-description">通过pip安装SAGE包</p>
+                </div>
+                
+                <div class="step-card">
+                    <div class="step-number">2</div>
+                    <h3 class="step-title">配置</h3>
+                    <p class="step-description">设置环境和API密钥</p>
+                </div>
+                
+                <div class="step-card">
+                    <div class="step-number">3</div>
+                    <h3 class="step-title">构建</h3>
+                    <p class="step-description">使用Fluent API构建管道</p>
+                </div>
+                
+                <div class="step-card">
+                    <div class="step-number">4</div>
+                    <h3 class="step-title">运行</h3>
+                    <p class="step-description">执行流处理任务</p>
+                </div>
+            </div>
+            
+            <div class="code-block">
+<pre><code># 安装 SAGE
+pip install sage-framework
+
+# 创建简单的RAG管道
+from sage import Environment, FileSource, DenseRetriever, QAPromptor
+
+pipeline = Environment(name="my_rag_pipeline")
+result = (pipeline
+    .from_source(FileSource, config)
+    .map(DenseRetriever, config)
+    .map(QAPromptor, config)
+    .execute()
+)</code></pre>
+            </div>
+            
+            <div style="text-align: center;">
+                <a href="get_start/install/" class="btn btn-primary">
+                    开始安装 →
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Stats Section -->
+    <section class="stats section-animate">
+        <div class="container">
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="stat-number">100+</div>
+                    <div class="stat-label">内置算子</div>
+                </div>
+                
+                <div class="stat-item">
+                    <div class="stat-number">10x</div>
+                    <div class="stat-label">性能提升</div>
+                </div>
+                
+                <div class="stat-item">
+                    <div class="stat-number">5+</div>
+                    <div class="stat-label">数据源类型</div>
+                </div>
+                
+                <div class="stat-item">
+                    <div class="stat-number">∞</div>
+                    <div class="stat-label">扩展可能</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-links">
+                <a href="get_start/quickstart/">快速开始</a>
+                <a href="kernel/architecture/">文档</a>
+                <a href="examples/">示例</a>
+                <a href="https://github.com/intellistream">GitHub</a>
+                <a href="https://grid.hust.edu.cn/">CGCL Lab</a>
+            </div>
+            <div class="copyright">
+                Copyright © 2025 SAGE | <a href="https://grid.hust.edu.cn/" target="_blank">CGCL Lab</a>
+            </div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>

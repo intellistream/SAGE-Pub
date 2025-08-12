@@ -1,0 +1,179 @@
+/* Animations */
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes streamFlow {
+    0% { transform: translateX(-100px); }
+    100% { transform: translateX(100px); }
+}
+
+@keyframes nodeFloat {
+    0% { 
+        transform: translate(0, 0) scale(1);
+        opacity: 0;
+    }
+    10% {
+        opacity: 1;
+    }
+    50% { 
+        transform: translate(100vw, -50px) scale(1.2);
+        opacity: 0.8;
+    }
+    90% {
+        opacity: 1;
+    }
+    100% { 
+        transform: translate(200vw, 0) scale(1);
+        opacity: 0;
+    }
+}
+
+@keyframes pulse {
+    0%, 100% { 
+        opacity: 0.3;
+        transform: scaleX(1);
+    }
+    50% { 
+        opacity: 0.8;
+        transform: scaleX(1.1);
+    }
+}
+
+@keyframes dataFlow {
+    0% {
+        transform: translateX(-100px);
+        opacity: 0;
+    }
+    10% {
+        opacity: 1;
+    }
+    90% {
+        opacity: 1;
+    }
+    100% {
+        transform: translateX(calc(100vw + 100px));
+        opacity: 0;
+    }
+}
+
+@keyframes twinkle {
+    0%, 100% {
+        opacity: 0.3;
+        transform: scale(1);
+    }
+    50% {
+        opacity: 1;
+        transform: scale(1.2);
+    }
+}
+
+@keyframes labelFlow {
+    0% {
+        transform: translateX(-200px);
+        opacity: 0;
+    }
+    5% {
+        opacity: 1;
+    }
+    95% {
+        opacity: 1;
+    }
+    100% {
+        transform: translateX(calc(100vw + 200px));
+        opacity: 0;
+    }
+}
+
+/* Enhanced Navigation Animations */
+@keyframes iconPulse {
+    0%, 100% {
+        transform: scale(1);
+        filter: drop-shadow(0 0 5px rgba(0, 0, 0, 0.1));
+    }
+    50% {
+        transform: scale(1.05);
+        filter: drop-shadow(0 0 15px rgba(0, 0, 0, 0.2));
+    }
+}
+
+@keyframes iconRotate {
+    0% {
+        transform: rotate(0deg);
+    }
+    25% {
+        transform: rotate(-5deg);
+    }
+    75% {
+        transform: rotate(5deg);
+    }
+    100% {
+        transform: rotate(0deg);
+    }
+}
+
+@keyframes iconBounce {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-3px);
+    }
+}
+
+/* Add hover animations to icons */
+.floating-nav-links a i {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    z-index: 1;
+}
+
+.nav-icon-play:hover i {
+    animation: iconRotate 0.6s ease-in-out;
+}
+
+.nav-icon-docs:hover i {
+    animation: iconPulse 0.8s ease-in-out;
+}
+
+.nav-icon-code:hover i {
+    animation: iconBounce 0.5s ease-in-out;
+}
+
+.nav-icon-github:hover i {
+    animation: iconRotate 0.4s ease-in-out;
+}
+
+@keyframes slideInFromTop {
+    from {
+        opacity: 0;
+        transform: translateY(-30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideInFromBottom {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.animate-fadeInUp {
+    animation: fadeInUp 0.6s ease-out;
+}

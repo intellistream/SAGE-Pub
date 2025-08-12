@@ -1,0 +1,1567 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+        <link rel="canonical" href="https://intellistream.github.io/SAGE-Pub/kernel/datastream/datastream_function/">
+      
+      
+      
+      
+      <link rel="icon" href="../../../assets/img/isage_light.svg">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.16">
+    
+    
+  
+    <title>DataStream Operator 与 Function</title>
+  
+
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.7e37652d.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Public+Sans:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Public Sans";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+<!-- Google Tag Manager -->
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-T35S4S46');</script>
+<!-- End Google Tag Manager -->
+
+    
+    
+  <meta name="algolia-site-verification" content="165B7E7C89E49946" />
+  <script>
+    // Simple copy page functionality - uses original markdown source
+    function copyPageAsMarkdown() {
+        const markdownScript = document.getElementById('page-markdown-content');
+        if (!markdownScript) {
+            alert('Markdown content not available for this page');
+            return;
+        }
+        
+        try {
+            let rawContent = markdownScript.textContent;
+            
+            // Safe HTML entity decoding function
+            function decodeHtmlEntities(text) {
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(text, 'text/html');
+                return doc.documentElement.textContent || '';
+            }
+            
+            // Always decode HTML entities since the browser might encode them
+            rawContent = decodeHtmlEntities(rawContent);
+            
+            
+            const data = JSON.parse(rawContent);
+            const content = `Source: ${window.location.href}\n\n${data.markdown}`;
+            
+            navigator.clipboard.writeText(content).then(() => {
+                // Simple notification
+                const notification = document.createElement('div');
+                notification.textContent = 'Page content copied to clipboard';
+                notification.style.cssText = 'position:fixed;top:20px;right:20px;background:#4CAF50;color:white;padding:10px 16px;border-radius:4px;z-index:9999;box-shadow:0 2px 10px rgba(0,0,0,0.2);';
+                document.body.appendChild(notification);
+                setTimeout(() => notification.remove(), 3000);
+            }).catch(() => {
+                alert('Failed to copy content');
+            });
+        } catch (e) {
+            console.error('Failed to parse page content:', e);
+            alert('Failed to parse page content: ' + e.message);
+        }
+    }
+
+    // Add dropdown button to header when page loads
+    document.addEventListener('DOMContentLoaded', function() {
+        const headerSource = document.querySelector('.md-header__source');
+        if (headerSource) {
+            // Create dropdown container
+            const dropdownContainer = document.createElement('div');
+            dropdownContainer.style.cssText = 'position:relative;display:inline-block;margin-left:8px;';
+            
+            // Create main button
+            const button = document.createElement('button');
+            button.innerHTML = 'Copy page <span style="margin-left:8px;font-size:12px;color:#9ca3af;">▾</span>';
+            button.style.cssText = 'background:transparent;border:1px solid #d1d5db;padding:6px 12px;border-radius:4px;cursor:pointer;font-size:14px;color:#374151;transition:all 0.2s ease;white-space:nowrap;display:flex;align-items:center;';
+            
+            // Create dropdown menu
+            const dropdown = document.createElement('div');
+            dropdown.className = 'copy-page-dropdown';
+            dropdown.style.cssText = 'position:absolute;top:100%;left:0;background:white;border:1px solid #e5e7eb;border-radius:6px;box-shadow:0 4px 12px rgba(0,0,0,0.15);z-index:1000;min-width:180px;display:none;padding:4px 0;';
+            
+            // Create dropdown options
+            const option1 = document.createElement('div');
+            option1.textContent = 'Copy as Markdown for LLMs';
+            option1.className = 'copy-page-option';
+            option1.style.cssText = 'padding:8px 16px;cursor:pointer;font-size:14px;color:#374151;margin:2px 0;';
+            option1.onmouseover = function() { 
+                this.style.background = document.documentElement.getAttribute('data-md-color-scheme') === 'slate' ? '#4a5568' : '#f8fafc'; 
+            };
+            option1.onmouseout = function() { this.style.background = 'transparent'; };
+            option1.onclick = function() {
+                // Check if we're on a reference page
+                if (window.location.pathname.includes('/reference/')) {
+                    alert('Copy Page not yet available in API reference pages.');
+                } else {
+                    copyPageAsMarkdown();
+                }
+                dropdown.style.display = 'none';
+            };
+            
+            const option2 = document.createElement('div');
+            option2.textContent = "View LangGraph's llms.txt";
+            option2.className = 'copy-page-option';
+            option2.style.cssText = 'padding:8px 16px;cursor:pointer;font-size:14px;color:#374151;margin:2px 0;';
+            option2.onmouseover = function() { 
+                this.style.background = document.documentElement.getAttribute('data-md-color-scheme') === 'slate' ? '#4a5568' : '#f8fafc'; 
+            };
+            option2.onmouseout = function() { this.style.background = 'transparent'; };
+            option2.onclick = function() {
+                window.open('/langgraph/llms-txt-overview/', '_blank');
+                dropdown.style.display = 'none';
+            };
+            
+            // Add options to dropdown
+            dropdown.appendChild(option1);
+            dropdown.appendChild(option2);
+            
+            // Button hover effects
+            button.onmouseover = function() { 
+                this.style.background = '#f3f4f6'; 
+                this.style.borderColor = '#9ca3af'; 
+            };
+            button.onmouseout = function() { 
+                this.style.background = 'transparent'; 
+                this.style.borderColor = '#d1d5db'; 
+            };
+            
+            // Toggle dropdown
+            button.onclick = function(e) {
+                e.stopPropagation();
+                dropdown.style.display = dropdown.style.display === 'none' ? 'block' : 'none';
+            };
+            
+            // Close dropdown when clicking outside
+            document.addEventListener('click', function() {
+                dropdown.style.display = 'none';
+            });
+            
+            // Assemble dropdown
+            dropdownContainer.appendChild(button);
+            dropdownContainer.appendChild(dropdown);
+            headerSource.parentNode.insertBefore(dropdownContainer, headerSource.nextSibling);
+        }
+    });
+  </script>
+  <style>
+    @import url("https://fonts.googleapis.com/css2?family=Public+Sans&display=swap");
+    :root {
+      --md-primary-fg-color: #333333;
+      --md-accent-fg-color: #1E88E5;
+      --md-default-bg-color: #FFFFFF;
+      --md-default-fg-color: #333333;
+      --md-text-font-family: "Public Sans", sans-serif;
+    }
+
+    body {
+      font-family: var(--md-text-font-family);
+      background-color: var(--md-default-bg-color);
+      color: var(--md-default-fg-color);
+    }
+
+    .md-main {
+      background-color: #FFFFFF;
+    }
+
+    .md-footer {
+      background-color: #F5F5F5;
+      color: #666666;
+    }
+
+    .md-footer-meta {
+      background-color: #4d4d4d;
+    }
+
+    .md-typeset a {
+      color: #1E88E5;
+    }
+
+    .md-typeset a:hover {
+      color: #1565C0;
+    }
+
+    .md-nav__link--active,
+    .md-nav__link:active {
+      color: #1E88E5;
+    }
+
+    .md-search__input {
+      background-color: #F5F5F5;
+      color: #333333;
+    }
+
+    .md-search__input:hover,
+    .md-search__input:focus {
+      background-color: #EEEEEE;
+    }
+    /* Table of contents styles */
+    .md-nav--secondary .md-nav__item--active > .md-nav__link {
+      font-weight: bold;
+      color: var(--md-primary-fg-color);
+    }
+
+    .md-nav--secondary .md-nav__item--nested > .md-nav__link {
+      font-weight: normal;
+      color: var(--md-default-fg-color);
+    }
+
+    .md-header__button.md-logo img {
+      height: 30px;
+      max-height: 30px;
+      width: auto;
+      vertical-align: middle;
+    }
+
+    .md-nav--secondary .md-nav__item--nested > .md-nav__link::before {
+      content: "";
+      display: inline-block;
+      width: 6px;
+      height: 6px;
+      background-color: var(--md-default-fg-color);
+      border-radius: 50%;
+      margin-right: 0.5rem;
+    }
+
+    [data-md-color-scheme="slate"] {
+      --md-default-bg-color: #1E1E1E;
+      --md-default-fg-color: #FFFFFF;
+      --md-accent-fg-color: #64B5F6;
+    }
+
+    [data-md-color-scheme="slate"] .md-main {
+      background-color: #1E1E1E;
+    }
+
+    [data-md-color-scheme="slate"] .navbar {
+      background-color: #1E1E1E;
+      color: #FFFFFF;
+      box-shadow: none;
+    }
+
+    [data-md-color-scheme="slate"] .md-footer {
+      background-color: #1E1E1E;
+      color: #BDBDBD;
+    }
+
+    [data-md-color-scheme="slate"] .md-header {
+      background-color: #1E1E1E;
+      color: #BDBDBD;
+    }
+
+    [data-md-color-scheme="slate"] .md-tabs {
+      background-color: #1E1E1E;
+      color: #BDBDBD;
+    }
+
+    [data-md-color-scheme="slate"] .md-search__input {
+      background-color: #F5F5F5;
+      color: #333333;
+    }
+
+    [data-md-color-scheme="slate"] .md-search__icon {
+      color: #333333;
+    }
+
+    [data-md-color-scheme="slate"] .md-search__input::placeholder {
+      color: #333333;
+    }
+
+    [data-md-color-scheme="slate"] .md-footer-meta {
+      background-color: #4d4d4d;
+    }
+
+    [data-md-color-scheme="slate"] .md-typeset a {
+      color: #64B5F6;
+    }
+
+    [data-md-color-scheme="slate"] .md-typeset a:hover {
+      color: #90CAF9;
+    }
+
+    .notebook-links {
+      display: flex;
+      justify-content: flex-end;
+      margin-bottom: 1rem;
+    }
+    .notebook-links .md-content__button {
+      margin-left: 0.5rem;
+    }
+
+    [data-md-color-scheme=default] .logo-dark {
+      display: none !important;
+    }
+
+    [data-md-color-scheme=slate] .logo-light {
+      display: none !important;
+    }
+
+    .jupyter-wrapper .jp-CodeCell .jp-Cell-inputWrapper .jp-InputPrompt.jp-InputArea-prompt {
+      display: none !important;
+    }
+
+    .jupyter-wrapper .jp-Notebook .jp-Cell .jp-OutputPrompt {
+      display: none !important;
+    }
+
+    .md-banner {
+      background-color: #CFC9FA;
+      color: #000000;
+    }
+
+    .md-banner a {
+      color: #000000;
+      text-decoration: underline;
+    }
+
+    .md-banner a:hover {
+      color: #000000;
+    }
+
+    .md-header__title {
+      visibility: hidden;
+    }
+
+    /* Dark mode banner styling */
+    [data-md-color-scheme="slate"] .md-banner {
+      background-color: #CFC9FA; /* Same light purple for both modes */
+      color: #000000;
+    }
+
+    [data-md-color-scheme="slate"] .md-banner a {
+      color: #000000;
+    }
+
+    [data-md-color-scheme="slate"] .md-banner a:hover {
+      color: #000000;
+    }
+
+    /* Copy page dropdown dark mode support */
+    [data-md-color-scheme="slate"] .copy-page-dropdown {
+      background: #1f2937 !important;
+      border-color: #374151 !important;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.5) !important;
+    }
+
+    [data-md-color-scheme="slate"] .copy-page-option {
+      color: #e5e7eb !important;
+    }
+
+  </style>
+
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="white" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#datastream-operator-function" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../../.." title="SAGE 项目文档" class="md-header__button md-logo" aria-label="SAGE 项目文档" data-md-component="logo">
+      
+  <img src="../../../assets/logo/sage.svg" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            SAGE 项目文档
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              DataStream Operator 与 Function
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="white" data-md-color-accent="indigo"  aria-hidden="true"  type="radio" name="__palette" id="__palette_0">
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+          <a href="javascript:void(0)" class="md-search__icon md-icon" title="分享" aria-label="分享" data-clipboard data-clipboard-text="" data-md-component="search-share" tabindex="-1">
+            
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.15c-.05.21-.08.43-.08.66 0 1.61 1.31 2.91 2.92 2.91s2.92-1.3 2.92-2.91A2.92 2.92 0 0 0 18 16.08"/></svg>
+          </a>
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="标签" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  首页
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../about/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  关于 SAGE
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../get_start/install/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  快速开始
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../" class="md-tabs__link">
+          
+  
+  
+    
+  
+  🏗️ SAGE Core & Kernel
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../middleware/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  🔧 Middleware
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../applications/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  🚀 Applications
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../get_start/remote_mode/sage_cil/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  🔄 SAGE CLI
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../join_sage/intellistream/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  加入 SAGE
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="SAGE 项目文档" class="md-nav__button md-logo" aria-label="SAGE 项目文档" data-md-component="logo">
+      
+  <img src="../../../assets/logo/sage.svg" alt="logo">
+
+    </a>
+    SAGE 项目文档
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    首页
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../about/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    关于 SAGE
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../../get_start/install/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    快速开始
+    
+  </span>
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    🏗️ SAGE Core & Kernel
+    
+  </span>
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../../middleware/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    🔧 Middleware
+    
+  </span>
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../../applications/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    🚀 Applications
+    
+  </span>
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../get_start/remote_mode/sage_cil/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    🔄 SAGE CLI
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../../join_sage/intellistream/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    加入 SAGE
+    
+  </span>
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#function" class="md-nav__link">
+    <span class="md-ellipsis">
+      Function 类型总览
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Function 类型总览">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#function_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      Function 编写示例
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#function_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      Function 传参示例
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#function_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      Function 生命周期
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#operator" class="md-nav__link">
+    <span class="md-ellipsis">
+      Operator 原理解析
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#function_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      Function 类型详解
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Function 类型详解">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#mapfunction" class="md-nav__link">
+    <span class="md-ellipsis">
+      MapFunction
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#filterfunction" class="md-nav__link">
+    <span class="md-ellipsis">
+      FilterFunction
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#flatmapfunction" class="md-nav__link">
+    <span class="md-ellipsis">
+      FlatMapFunction
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#keybyfunction" class="md-nav__link">
+    <span class="md-ellipsis">
+      KeyByFunction
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sinkfunction" class="md-nav__link">
+    <span class="md-ellipsis">
+      SinkFunction
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#batchfunction" class="md-nav__link">
+    <span class="md-ellipsis">
+      BatchFunction
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sourcefunction" class="md-nav__link">
+    <span class="md-ellipsis">
+      SourceFunction
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#comapfunction" class="md-nav__link">
+    <span class="md-ellipsis">
+      CoMapFunction
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      总结
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+<div class="notebook-links">
+  
+</div>
+
+
+                  
+
+
+
+<h1 id="datastream-operator-function">DataStream Operator 与 Function<a class="headerlink" href="#datastream-operator-function" title="Permanent link">&para;</a></h1>
+<p>在 SAGE 的数据处理模型中，<code>Function</code> 和 <code>Operator</code> 是支撑整个 DataStream 数据转换过程的核心构件，简而言之：</p>
+<ul>
+<li><strong><code>Function</code> 是用户实现的业务逻辑模块</strong> —— 你只需继承合适的 Base Function 类型并实现 <code>execute()</code> 方法，告诉系统你想“对数据做什么”。</li>
+<li><strong><code>Operator</code> 是系统自动生成和调度的执行器</strong> —— 它负责“如何执行你的逻辑”以及“在什么地方执行”（比如分布式线程、流调度、并发机制等），<strong>用户无需直接操作或创建 Operator</strong>。</li>
+</ul>
+<p><a href="../../../assets/img/function.png"><img alt="DataStream Function" src="../../../assets/img/function.png" title="function实现与提交" /></a></p>
+<p>如图，在 SAGE 中，用户只需要选择合适的 Base Function 类型（如 <code>MapFunction</code>）并实现其核心逻辑，系统会在后续为其**创建匹配的 Operator**，并负责执行调度、资源管理、容错等所有底层细节。</p>
+<hr />
+<h2 id="function">Function 类型总览<a class="headerlink" href="#function" title="Permanent link">&para;</a></h2>
+<p>SAGE 中提供了一组标准 Base Function 类型，供用户继承并实现自定义的数据处理逻辑，你可以点击具体的 Function 查看用法：</p>
+<table>
+<thead>
+<tr>
+<th>Function 类型</th>
+<th>用途描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="#mapfunction"><code>MapFunction</code></a></td>
+<td>对每条数据进行一对一转换</td>
+</tr>
+<tr>
+<td><a href="#filterfunction"><code>FilterFunction</code></a></td>
+<td>按条件筛选，仅保留满足条件的数据</td>
+</tr>
+<tr>
+<td><a href="#flatmapfunction"><code>FlatMapFunction</code></a></td>
+<td>将一条输入数据拆分为多条输出数据</td>
+</tr>
+<tr>
+<td><a href="#keybyfunction"><code>KeyByFunction</code></a></td>
+<td>提取关键字段，实现按 <em>key</em> 分区</td>
+</tr>
+<tr>
+<td><a href="#sinkfunction"><code>SinkFunction</code></a></td>
+<td>将数据写出到终端、文件或外部系统</td>
+</tr>
+<tr>
+<td><a href="#batchfunction"><code>BatchFunction</code></a></td>
+<td>用于**批处理**模式下的数据源</td>
+</tr>
+<tr>
+<td><a href="#sourcefunction"><code>SourceFunction</code></a></td>
+<td>用于**流式**模式下的数据源</td>
+</tr>
+<tr>
+<td><a href="#comapfunction"><code>CoMapFunction</code></a></td>
+<td>用于处理双输入流的组合逻辑</td>
+</tr>
+</tbody>
+</table>
+<h3 id="function_1">Function 编写示例<a class="headerlink" href="#function_1" title="Permanent link">&para;</a></h3>
+<p>每个 Function 都需要实现一个或多个方法，最常见的是 <code>execute()</code> 方法。例如：</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">MyMap</span><span class="p">(</span><span class="n">MapFunction</span><span class="p">):</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="k">def</span><span class="w"> </span><span class="nf">execute</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>        <span class="k">return</span> <span class="n">value</span> <span class="o">*</span> <span class="mi">2</span>
+</span></code></pre></div>
+<h3 id="function_2">Function 传参示例<a class="headerlink" href="#function_2" title="Permanent link">&para;</a></h3>
+<p>你可以在 Function 中定义构造函数（<code>__init__</code>），SAGE 支持通过 <code>.map(MyFunction, config)</code> 的方式注入参数。</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">MyFunction</span><span class="p">(</span><span class="n">MapFunction</span><span class="p">):</span>
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">factor</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;factor&quot;</span><span class="p">)</span>
+</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>
+</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>    <span class="k">def</span><span class="w"> </span><span class="nf">execute</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>        <span class="k">return</span> <span class="n">value</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">factor</span>
+</span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>
+</span><span id="__span-1-8"><a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="c1"># 使用方式</span>
+</span><span id="__span-1-9"><a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a><span class="n">mydatastream</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">MyFunction</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span>
+</span></code></pre></div>
+<h3 id="function_3">Function 生命周期<a class="headerlink" href="#function_3" title="Permanent link">&para;</a></h3>
+<p>Function 在算子执行过程中的生命周期包括：</p>
+<ol>
+<li><code>__init__()</code>：构造函数，在创建时调用，可接收参数；</li>
+<li><code>open()</code>：任务启动时（可选）调用，一般用于连接资源；</li>
+<li><code>execute()</code>：核心处理逻辑，每条数据到达时调用；</li>
+<li><code>close()</code>：任务结束时调用，用于资源释放等清理操作。</li>
+</ol>
+<hr />
+<h2 id="operator">Operator 原理解析<a class="headerlink" href="#operator" title="Permanent link">&para;</a></h2>
+<p>每一个 Function 在运行时都会由其对应的 <code>Operator</code> 包装和调度，Operator 负责：</p>
+<ul>
+<li>接收上游数据</li>
+<li>调用 Function 的 <code>execute()</code> 或其他接口方法</li>
+<li>处理数据流传递、并发与容错</li>
+<li>与底层调度器（如 LocalEnvironment）集成</li>
+</ul>
+<p>系统会根据提交数据流选择合适的 Operator 来包装你的 Function，以下是两者的运行时关系图：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>输入数据 → Operator.receive() 
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>          → Function.execute()
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>            → 输出数据 → 下游 Operator.receive()
+</span></code></pre></div>
+<hr />
+<h2 id="function_4">Function 类型详解<a class="headerlink" href="#function_4" title="Permanent link">&para;</a></h2>
+<h3 id="mapfunction">MapFunction <a id="mapfunction"></a><a class="headerlink" href="#mapfunction" title="Permanent link">&para;</a></h3>
+<p>对每条数据做一对一转换。</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">Upper</span><span class="p">(</span><span class="n">MapFunction</span><span class="p">):</span>
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>    <span class="k">def</span><span class="w"> </span><span class="nf">execute</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">s</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>        <span class="k">return</span> <span class="n">s</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span>
+</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>
+</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="n">ds</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">Upper</span><span class="p">)</span>
+</span></code></pre></div>
+<h3 id="filterfunction">FilterFunction <a id="filterfunction"></a><a class="headerlink" href="#filterfunction" title="Permanent link">&para;</a></h3>
+<p>N条数据输入，M条数据流出，按条件保留数据（N ≥ M）：</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">IsPositive</span><span class="p">(</span><span class="n">FilterFunction</span><span class="p">):</span>
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>    <span class="k">def</span><span class="w"> </span><span class="nf">execute</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>        <span class="k">return</span> <span class="n">x</span> <span class="o">&gt;</span> <span class="mi">0</span>
+</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>
+</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="n">ds</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">IsPositive</span><span class="p">)</span>
+</span></code></pre></div>
+<h3 id="flatmapfunction">FlatMapFunction <a id="flatmapfunction"></a><a class="headerlink" href="#flatmapfunction" title="Permanent link">&para;</a></h3>
+<p>一条数据输出多条数据，支持返回列表或调用 <code>collector.collect()</code>。</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">Split</span><span class="p">(</span><span class="n">FlatMapFunction</span><span class="p">):</span>
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>    <span class="k">def</span><span class="w"> </span><span class="nf">execute</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sentence</span><span class="p">):</span>
+</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>        <span class="k">return</span> <span class="n">sentence</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+</span></code></pre></div>
+<p>或使用 <code>collector</code>：</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">Split</span><span class="p">(</span><span class="n">FlatMapFunction</span><span class="p">):</span>
+</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>    <span class="k">def</span><span class="w"> </span><span class="nf">execute</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sentence</span><span class="p">,</span> <span class="n">collector</span><span class="p">):</span>
+</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>        <span class="k">for</span> <span class="n">word</span> <span class="ow">in</span> <span class="n">sentence</span><span class="o">.</span><span class="n">split</span><span class="p">():</span>
+</span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>            <span class="n">collector</span><span class="o">.</span><span class="n">collect</span><span class="p">(</span><span class="n">word</span><span class="p">)</span>
+</span></code></pre></div>
+<h3 id="keybyfunction">KeyByFunction <a id="keybyfunction"></a><a class="headerlink" href="#keybyfunction" title="Permanent link">&para;</a></h3>
+<p>一条数据流转为多条数据流，为数据指定 Key，实现分区：</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="n">ds</span><span class="o">.</span><span class="n">keyby</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="s2">&quot;user_id&quot;</span><span class="p">],</span> <span class="n">strategy</span><span class="o">=</span><span class="s2">&quot;hash&quot;</span><span class="p">)</span>
+</span></code></pre></div>
+<p>支持策略包括 <code>"hash"</code>、<code>"round_robin"</code>、<code>"broadcast"</code>。</p>
+<h3 id="sinkfunction">SinkFunction <a id="sinkfunction"></a><a class="headerlink" href="#sinkfunction" title="Permanent link">&para;</a></h3>
+<p>将最终数据写入文件、终端、数据库等：</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">PrintSink</span><span class="p">(</span><span class="n">SinkFunction</span><span class="p">):</span>
+</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>    <span class="k">def</span><span class="w"> </span><span class="nf">execute</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+</span><span id="__span-8-3"><a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>        <span class="nb">print</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+</span><span id="__span-8-4"><a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>
+</span><span id="__span-8-5"><a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a><span class="n">ds</span><span class="o">.</span><span class="n">sink</span><span class="p">(</span><span class="n">PrintSink</span><span class="p">)</span>
+</span></code></pre></div>
+<h3 id="batchfunction">BatchFunction <a id="batchfunction"></a><a class="headerlink" href="#batchfunction" title="Permanent link">&para;</a></h3>
+<p>用于生成有限批量数据：</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">HelloBatch</span><span class="p">(</span><span class="n">BatchFunction</span><span class="p">):</span>
+</span><span id="__span-9-2"><a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="__span-9-3"><a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">counter</span> <span class="o">=</span> <span class="mi">0</span>
+</span><span id="__span-9-4"><a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a>
+</span><span id="__span-9-5"><a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a>    <span class="k">def</span><span class="w"> </span><span class="nf">execute</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="__span-9-6"><a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a>        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">counter</span> <span class="o">&gt;=</span> <span class="mi">5</span><span class="p">:</span>
+</span><span id="__span-9-7"><a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a>            <span class="k">return</span> <span class="kc">None</span>
+</span><span id="__span-9-8"><a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">counter</span> <span class="o">+=</span> <span class="mi">1</span>
+</span><span id="__span-9-9"><a id="__codelineno-9-9" name="__codelineno-9-9" href="#__codelineno-9-9"></a>        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;Hello #</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">counter</span><span class="si">}</span><span class="s2">&quot;</span>
+</span><span id="__span-9-10"><a id="__codelineno-9-10" name="__codelineno-9-10" href="#__codelineno-9-10"></a>
+</span><span id="__span-9-11"><a id="__codelineno-9-11" name="__codelineno-9-11" href="#__codelineno-9-11"></a><span class="n">env</span><span class="o">.</span><span class="n">from_batch</span><span class="p">(</span><span class="n">HelloBatch</span><span class="p">)</span>
+</span></code></pre></div>
+<h3 id="sourcefunction">SourceFunction <a id="sourcefunction"></a><a class="headerlink" href="#sourcefunction" title="Permanent link">&para;</a></h3>
+<p>用于生成无限流数据，例如读取 socket：</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">MySocket</span><span class="p">(</span><span class="n">SourceFunction</span><span class="p">):</span>
+</span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>    <span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">):</span>
+</span><span id="__span-10-3"><a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+</span><span id="__span-10-4"><a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a>            <span class="n">data</span> <span class="o">=</span> <span class="n">read_socket</span><span class="p">()</span>
+</span><span id="__span-10-5"><a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a>            <span class="n">ctx</span><span class="o">.</span><span class="n">collect</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+</span></code></pre></div>
+<h3 id="comapfunction">CoMapFunction <a id="comapfunction"></a><a class="headerlink" href="#comapfunction" title="Permanent link">&para;</a></h3>
+<p>处理双输入流，分别实现 <code>map1()</code> 和 <code>map2()</code>：</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">TagSource</span><span class="p">(</span><span class="n">CoMapFunction</span><span class="p">):</span>
+</span><span id="__span-11-2"><a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>    <span class="k">def</span><span class="w"> </span><span class="nf">map1</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">a</span><span class="p">):</span>
+</span><span id="__span-11-3"><a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>        <span class="k">return</span> <span class="p">(</span><span class="s2">&quot;A&quot;</span><span class="p">,</span> <span class="n">a</span><span class="p">)</span>
+</span><span id="__span-11-4"><a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a>
+</span><span id="__span-11-5"><a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a>    <span class="k">def</span><span class="w"> </span><span class="nf">map2</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
+</span><span id="__span-11-6"><a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a>        <span class="k">return</span> <span class="p">(</span><span class="s2">&quot;B&quot;</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span>
+</span><span id="__span-11-7"><a id="__codelineno-11-7" name="__codelineno-11-7" href="#__codelineno-11-7"></a>
+</span><span id="__span-11-8"><a id="__codelineno-11-8" name="__codelineno-11-8" href="#__codelineno-11-8"></a><span class="n">ds1</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">ds2</span><span class="p">)</span><span class="o">.</span><span class="n">co_map</span><span class="p">(</span><span class="n">TagSource</span><span class="p">)</span>
+</span></code></pre></div>
+<hr />
+<h2 id="_1">总结<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h2>
+<p>在本章中，我们深入讲解了 SAGE 中 <code>Function</code> 与 <code>Operator</code> 的角色与配合机制：</p>
+<ul>
+<li><strong>Function 是业务逻辑的核心单元</strong>，用户只需关注“如何处理一条数据”，通过继承内置函数类型（如 <code>MapFunction</code>, <code>FilterFunction</code> 等）实现 <code>execute()</code> 方法。</li>
+<li><strong>Operator 是系统执行引擎的调度载体</strong>，负责承载 Function 的执行、数据的输入输出、并发调度、状态维护与容错恢复等复杂逻辑，<strong>由系统自动创建与管理</strong>。</li>
+<li>SAGE 提供多种 Function 类型，涵盖流入（如 <code>BatchFunction</code>、<code>SourceFunction</code>）、转换（如 <code>MapFunction</code>、<code>FlatMapFunction</code>、<code>FilterFunction</code>）、多流操作（如 <code>CoMapFunction</code>）以及流出（如 <code>SinkFunction</code>）的完整生命周期。</li>
+<li>用户可以通过构造函数注入参数、实现 <code>open()</code> 和 <code>close()</code> 方法来精细控制资源管理和初始化/清理流程。</li>
+<li>通过 Operator 与调度系统的配合，用户只需专注于编写最小颗粒度的逻辑模块，系统即可高效、安全地完成整个流处理拓扑的构建与执行。</li>
+</ul>
+<p>下一章将讲述：<strong>数据流转换（Transformation）</strong>，我们将详细讲解如何使用 <code>.map()</code>、<code>.filter()</code>、<code>.keyby()</code> 等 API，灵活组合各类 Function，构建完整、可运行的流处理管道。</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  回到页面顶部
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Copyright &copy; 2025 SAGE | <a href="https://grid.hust.edu.cn/" target="_blank">CGCL Lab</a>
+
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+        <div class="md-social">
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://shuhaozhangtony.github.io/" target="_blank" rel="noopener" title="shuhaozhangtony.github.io" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 7.0.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path fill="currentColor" d="M64 32C28.7 32 0 60.7 0 96v320c0 35.3 28.7 64 64 64h448c35.3 0 64-28.7 64-64V96c0-35.3-28.7-64-64-64zm80 256h64c44.2 0 80 35.8 80 80 0 8.8-7.2 16-16 16H80c-8.8 0-16-7.2-16-16 0-44.2 35.8-80 80-80m-24-96a56 56 0 1 1 112 0 56 56 0 1 1-112 0m240-48h112c13.3 0 24 10.7 24 24s-10.7 24-24 24H360c-13.3 0-24-10.7-24-24s10.7-24 24-24m0 96h112c13.3 0 24 10.7 24 24s-10.7 24-24 24H360c-13.3 0-24-10.7-24-24s10.7-24 24-24"/></svg>
+    </a>
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://github.com/intellistream" target="_blank" rel="noopener" title="github.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.0.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path fill="currentColor" d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      <script id="__config" type="application/json">{"base": "../../..", "features": ["navigation.expand", "toc.follow", "announce.dismiss", "content.code.annotate", "content.code.copy", "content.code.select", "content.tabs.link", "content.action.edit", "content.tooltips", "navigation.indexes", "navigation.footer", "navigation.sections", "navigation.path", "navigation.tabs", "navigation.top", "navigation.prune", "navigation.tracking", "search.highlight", "search.share", "search.suggest"], "search": "../../../assets/javascripts/workers/search.d50fe291.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.50899def.min.js"></script>
+      
+        <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+      
+        <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+      
+    
+  </body>
+</html>

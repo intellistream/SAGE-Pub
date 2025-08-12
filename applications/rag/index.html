@@ -1,0 +1,2609 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+        <link rel="canonical" href="https://intellistream.github.io/SAGE-Pub/applications/rag/">
+      
+      
+        <link rel="prev" href="../">
+      
+      
+        <link rel="next" href="../agents/">
+      
+      
+      <link rel="icon" href="../../assets/img/isage_light.svg">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.16">
+    
+    
+  
+    <title>RAG 应用</title>
+  
+
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.7e37652d.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Public+Sans:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Public Sans";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+<!-- Google Tag Manager -->
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-T35S4S46');</script>
+<!-- End Google Tag Manager -->
+
+    
+    
+  <meta name="algolia-site-verification" content="165B7E7C89E49946" />
+  <script>
+    // Simple copy page functionality - uses original markdown source
+    function copyPageAsMarkdown() {
+        const markdownScript = document.getElementById('page-markdown-content');
+        if (!markdownScript) {
+            alert('Markdown content not available for this page');
+            return;
+        }
+        
+        try {
+            let rawContent = markdownScript.textContent;
+            
+            // Safe HTML entity decoding function
+            function decodeHtmlEntities(text) {
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(text, 'text/html');
+                return doc.documentElement.textContent || '';
+            }
+            
+            // Always decode HTML entities since the browser might encode them
+            rawContent = decodeHtmlEntities(rawContent);
+            
+            
+            const data = JSON.parse(rawContent);
+            const content = `Source: ${window.location.href}\n\n${data.markdown}`;
+            
+            navigator.clipboard.writeText(content).then(() => {
+                // Simple notification
+                const notification = document.createElement('div');
+                notification.textContent = 'Page content copied to clipboard';
+                notification.style.cssText = 'position:fixed;top:20px;right:20px;background:#4CAF50;color:white;padding:10px 16px;border-radius:4px;z-index:9999;box-shadow:0 2px 10px rgba(0,0,0,0.2);';
+                document.body.appendChild(notification);
+                setTimeout(() => notification.remove(), 3000);
+            }).catch(() => {
+                alert('Failed to copy content');
+            });
+        } catch (e) {
+            console.error('Failed to parse page content:', e);
+            alert('Failed to parse page content: ' + e.message);
+        }
+    }
+
+    // Add dropdown button to header when page loads
+    document.addEventListener('DOMContentLoaded', function() {
+        const headerSource = document.querySelector('.md-header__source');
+        if (headerSource) {
+            // Create dropdown container
+            const dropdownContainer = document.createElement('div');
+            dropdownContainer.style.cssText = 'position:relative;display:inline-block;margin-left:8px;';
+            
+            // Create main button
+            const button = document.createElement('button');
+            button.innerHTML = 'Copy page <span style="margin-left:8px;font-size:12px;color:#9ca3af;">▾</span>';
+            button.style.cssText = 'background:transparent;border:1px solid #d1d5db;padding:6px 12px;border-radius:4px;cursor:pointer;font-size:14px;color:#374151;transition:all 0.2s ease;white-space:nowrap;display:flex;align-items:center;';
+            
+            // Create dropdown menu
+            const dropdown = document.createElement('div');
+            dropdown.className = 'copy-page-dropdown';
+            dropdown.style.cssText = 'position:absolute;top:100%;left:0;background:white;border:1px solid #e5e7eb;border-radius:6px;box-shadow:0 4px 12px rgba(0,0,0,0.15);z-index:1000;min-width:180px;display:none;padding:4px 0;';
+            
+            // Create dropdown options
+            const option1 = document.createElement('div');
+            option1.textContent = 'Copy as Markdown for LLMs';
+            option1.className = 'copy-page-option';
+            option1.style.cssText = 'padding:8px 16px;cursor:pointer;font-size:14px;color:#374151;margin:2px 0;';
+            option1.onmouseover = function() { 
+                this.style.background = document.documentElement.getAttribute('data-md-color-scheme') === 'slate' ? '#4a5568' : '#f8fafc'; 
+            };
+            option1.onmouseout = function() { this.style.background = 'transparent'; };
+            option1.onclick = function() {
+                // Check if we're on a reference page
+                if (window.location.pathname.includes('/reference/')) {
+                    alert('Copy Page not yet available in API reference pages.');
+                } else {
+                    copyPageAsMarkdown();
+                }
+                dropdown.style.display = 'none';
+            };
+            
+            const option2 = document.createElement('div');
+            option2.textContent = "View LangGraph's llms.txt";
+            option2.className = 'copy-page-option';
+            option2.style.cssText = 'padding:8px 16px;cursor:pointer;font-size:14px;color:#374151;margin:2px 0;';
+            option2.onmouseover = function() { 
+                this.style.background = document.documentElement.getAttribute('data-md-color-scheme') === 'slate' ? '#4a5568' : '#f8fafc'; 
+            };
+            option2.onmouseout = function() { this.style.background = 'transparent'; };
+            option2.onclick = function() {
+                window.open('/langgraph/llms-txt-overview/', '_blank');
+                dropdown.style.display = 'none';
+            };
+            
+            // Add options to dropdown
+            dropdown.appendChild(option1);
+            dropdown.appendChild(option2);
+            
+            // Button hover effects
+            button.onmouseover = function() { 
+                this.style.background = '#f3f4f6'; 
+                this.style.borderColor = '#9ca3af'; 
+            };
+            button.onmouseout = function() { 
+                this.style.background = 'transparent'; 
+                this.style.borderColor = '#d1d5db'; 
+            };
+            
+            // Toggle dropdown
+            button.onclick = function(e) {
+                e.stopPropagation();
+                dropdown.style.display = dropdown.style.display === 'none' ? 'block' : 'none';
+            };
+            
+            // Close dropdown when clicking outside
+            document.addEventListener('click', function() {
+                dropdown.style.display = 'none';
+            });
+            
+            // Assemble dropdown
+            dropdownContainer.appendChild(button);
+            dropdownContainer.appendChild(dropdown);
+            headerSource.parentNode.insertBefore(dropdownContainer, headerSource.nextSibling);
+        }
+    });
+  </script>
+  <style>
+    @import url("https://fonts.googleapis.com/css2?family=Public+Sans&display=swap");
+    :root {
+      --md-primary-fg-color: #333333;
+      --md-accent-fg-color: #1E88E5;
+      --md-default-bg-color: #FFFFFF;
+      --md-default-fg-color: #333333;
+      --md-text-font-family: "Public Sans", sans-serif;
+    }
+
+    body {
+      font-family: var(--md-text-font-family);
+      background-color: var(--md-default-bg-color);
+      color: var(--md-default-fg-color);
+    }
+
+    .md-main {
+      background-color: #FFFFFF;
+    }
+
+    .md-footer {
+      background-color: #F5F5F5;
+      color: #666666;
+    }
+
+    .md-footer-meta {
+      background-color: #4d4d4d;
+    }
+
+    .md-typeset a {
+      color: #1E88E5;
+    }
+
+    .md-typeset a:hover {
+      color: #1565C0;
+    }
+
+    .md-nav__link--active,
+    .md-nav__link:active {
+      color: #1E88E5;
+    }
+
+    .md-search__input {
+      background-color: #F5F5F5;
+      color: #333333;
+    }
+
+    .md-search__input:hover,
+    .md-search__input:focus {
+      background-color: #EEEEEE;
+    }
+    /* Table of contents styles */
+    .md-nav--secondary .md-nav__item--active > .md-nav__link {
+      font-weight: bold;
+      color: var(--md-primary-fg-color);
+    }
+
+    .md-nav--secondary .md-nav__item--nested > .md-nav__link {
+      font-weight: normal;
+      color: var(--md-default-fg-color);
+    }
+
+    .md-header__button.md-logo img {
+      height: 30px;
+      max-height: 30px;
+      width: auto;
+      vertical-align: middle;
+    }
+
+    .md-nav--secondary .md-nav__item--nested > .md-nav__link::before {
+      content: "";
+      display: inline-block;
+      width: 6px;
+      height: 6px;
+      background-color: var(--md-default-fg-color);
+      border-radius: 50%;
+      margin-right: 0.5rem;
+    }
+
+    [data-md-color-scheme="slate"] {
+      --md-default-bg-color: #1E1E1E;
+      --md-default-fg-color: #FFFFFF;
+      --md-accent-fg-color: #64B5F6;
+    }
+
+    [data-md-color-scheme="slate"] .md-main {
+      background-color: #1E1E1E;
+    }
+
+    [data-md-color-scheme="slate"] .navbar {
+      background-color: #1E1E1E;
+      color: #FFFFFF;
+      box-shadow: none;
+    }
+
+    [data-md-color-scheme="slate"] .md-footer {
+      background-color: #1E1E1E;
+      color: #BDBDBD;
+    }
+
+    [data-md-color-scheme="slate"] .md-header {
+      background-color: #1E1E1E;
+      color: #BDBDBD;
+    }
+
+    [data-md-color-scheme="slate"] .md-tabs {
+      background-color: #1E1E1E;
+      color: #BDBDBD;
+    }
+
+    [data-md-color-scheme="slate"] .md-search__input {
+      background-color: #F5F5F5;
+      color: #333333;
+    }
+
+    [data-md-color-scheme="slate"] .md-search__icon {
+      color: #333333;
+    }
+
+    [data-md-color-scheme="slate"] .md-search__input::placeholder {
+      color: #333333;
+    }
+
+    [data-md-color-scheme="slate"] .md-footer-meta {
+      background-color: #4d4d4d;
+    }
+
+    [data-md-color-scheme="slate"] .md-typeset a {
+      color: #64B5F6;
+    }
+
+    [data-md-color-scheme="slate"] .md-typeset a:hover {
+      color: #90CAF9;
+    }
+
+    .notebook-links {
+      display: flex;
+      justify-content: flex-end;
+      margin-bottom: 1rem;
+    }
+    .notebook-links .md-content__button {
+      margin-left: 0.5rem;
+    }
+
+    [data-md-color-scheme=default] .logo-dark {
+      display: none !important;
+    }
+
+    [data-md-color-scheme=slate] .logo-light {
+      display: none !important;
+    }
+
+    .jupyter-wrapper .jp-CodeCell .jp-Cell-inputWrapper .jp-InputPrompt.jp-InputArea-prompt {
+      display: none !important;
+    }
+
+    .jupyter-wrapper .jp-Notebook .jp-Cell .jp-OutputPrompt {
+      display: none !important;
+    }
+
+    .md-banner {
+      background-color: #CFC9FA;
+      color: #000000;
+    }
+
+    .md-banner a {
+      color: #000000;
+      text-decoration: underline;
+    }
+
+    .md-banner a:hover {
+      color: #000000;
+    }
+
+    .md-header__title {
+      visibility: hidden;
+    }
+
+    /* Dark mode banner styling */
+    [data-md-color-scheme="slate"] .md-banner {
+      background-color: #CFC9FA; /* Same light purple for both modes */
+      color: #000000;
+    }
+
+    [data-md-color-scheme="slate"] .md-banner a {
+      color: #000000;
+    }
+
+    [data-md-color-scheme="slate"] .md-banner a:hover {
+      color: #000000;
+    }
+
+    /* Copy page dropdown dark mode support */
+    [data-md-color-scheme="slate"] .copy-page-dropdown {
+      background: #1f2937 !important;
+      border-color: #374151 !important;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.5) !important;
+    }
+
+    [data-md-color-scheme="slate"] .copy-page-option {
+      color: #e5e7eb !important;
+    }
+
+  </style>
+
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="white" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#rag-core-rag-components" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../.." title="SAGE 项目文档" class="md-header__button md-logo" aria-label="SAGE 项目文档" data-md-component="logo">
+      
+  <img src="../../assets/logo/sage.svg" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            SAGE 项目文档
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              RAG 应用
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="white" data-md-color-accent="indigo"  aria-hidden="true"  type="radio" name="__palette" id="__palette_0">
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+          <a href="javascript:void(0)" class="md-search__icon md-icon" title="分享" aria-label="分享" data-clipboard data-clipboard-text="" data-md-component="search-share" tabindex="-1">
+            
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.15c-.05.21-.08.43-.08.66 0 1.61 1.31 2.91 2.92 2.91s2.92-1.3 2.92-2.91A2.92 2.92 0 0 0 18 16.08"/></svg>
+          </a>
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="标签" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  首页
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../about/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  关于 SAGE
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../get_start/install/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  快速开始
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../kernel/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  🏗️ SAGE Core & Kernel
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../middleware/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  🔧 Middleware
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../" class="md-tabs__link">
+          
+  
+  
+    
+  
+  🚀 Applications
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../get_start/remote_mode/sage_cil/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  🔄 SAGE CLI
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../join_sage/intellistream/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  加入 SAGE
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="SAGE 项目文档" class="md-nav__button md-logo" aria-label="SAGE 项目文档" data-md-component="logo">
+      
+  <img src="../../assets/logo/sage.svg" alt="logo">
+
+    </a>
+    SAGE 项目文档
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    首页
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../about/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    关于 SAGE
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../get_start/install/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    快速开始
+    
+  </span>
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../kernel/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    🏗️ SAGE Core & Kernel
+    
+  </span>
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../middleware/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    🔧 Middleware
+    
+  </span>
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" checked>
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    🚀 Applications
+    
+  </span>
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_6" id="__nav_6_label" tabindex="">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            🚀 Applications
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    RAG 应用
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    RAG 应用
+    
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-data-preparation-trigger" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. 数据准备与触发 (Data Preparation &amp; Trigger)
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="1. 数据准备与触发 (Data Preparation &amp; Trigger)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#11-chunking" class="md-nav__link">
+    <span class="md-ellipsis">
+      1.1 分块 (Chunking)
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="1.1 分块 (Chunking)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#charactersplitter" class="md-nav__link">
+    <span class="md-ellipsis">
+      CharacterSplitter
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sentencetransformerstokentextsplitter" class="md-nav__link">
+    <span class="md-ellipsis">
+      SentenceTransformersTokenTextSplitter
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#12-trigger" class="md-nav__link">
+    <span class="md-ellipsis">
+      1.2 触发器 (Trigger)
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="1.2 触发器 (Trigger)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#triggerablesource" class="md-nav__link">
+    <span class="md-ellipsis">
+      TriggerableSource
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#restapisource" class="md-nav__link">
+    <span class="md-ellipsis">
+      RESTApiSource
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-information-retrieval" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. 信息检索 (Information Retrieval)
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. 信息检索 (Information Retrieval)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#21-searcher" class="md-nav__link">
+    <span class="md-ellipsis">
+      2.1 搜索引擎 (Searcher)
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2.1 搜索引擎 (Searcher)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#bochawebsearch" class="md-nav__link">
+    <span class="md-ellipsis">
+      BochaWebSearch
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#22-retriever" class="md-nav__link">
+    <span class="md-ellipsis">
+      2.2 检索器 (Retriever)
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2.2 检索器 (Retriever)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#denseretriever" class="md-nav__link">
+    <span class="md-ellipsis">
+      DenseRetriever
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#bm25sretriever" class="md-nav__link">
+    <span class="md-ellipsis">
+      BM25sRetriever
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#23-reranker" class="md-nav__link">
+    <span class="md-ellipsis">
+      2.3 重排器 (Reranker)
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2.3 重排器 (Reranker)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#bgereranker" class="md-nav__link">
+    <span class="md-ellipsis">
+      BGEReranker
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#llmbased_reranker" class="md-nav__link">
+    <span class="md-ellipsis">
+      LLMbased_Reranker
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-query-understanding-generation" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. 查询理解与生成 (Query Understanding &amp; Generation)
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. 查询理解与生成 (Query Understanding &amp; Generation)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#31-query-profiler" class="md-nav__link">
+    <span class="md-ellipsis">
+      3.1 查询分析器 (Query Profiler)
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3.1 查询分析器 (Query Profiler)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#query_profiler" class="md-nav__link">
+    <span class="md-ellipsis">
+      Query_Profiler
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#32-prompting" class="md-nav__link">
+    <span class="md-ellipsis">
+      3.2 提示词工程 (Prompting)
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3.2 提示词工程 (Prompting)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#qapromptor" class="md-nav__link">
+    <span class="md-ellipsis">
+      QAPromptor
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#summarizationpromptor" class="md-nav__link">
+    <span class="md-ellipsis">
+      SummarizationPromptor
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#queryprofilerpromptor" class="md-nav__link">
+    <span class="md-ellipsis">
+      QueryProfilerPromptor
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#33-generator" class="md-nav__link">
+    <span class="md-ellipsis">
+      3.3 生成器 (Generator)
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3.3 生成器 (Generator)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#openaigenerator" class="md-nav__link">
+    <span class="md-ellipsis">
+      OpenAIGenerator
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#openaigeneratorwithhistory" class="md-nav__link">
+    <span class="md-ellipsis">
+      OpenAIGeneratorWithHistory
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#hfgenerator" class="md-nav__link">
+    <span class="md-ellipsis">
+      HFGenerator
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#34-writer" class="md-nav__link">
+    <span class="md-ellipsis">
+      3.4 写入器 (Writer)
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3.4 写入器 (Writer)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#memorywriter" class="md-nav__link">
+    <span class="md-ellipsis">
+      MemoryWriter
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-evaluation" class="md-nav__link">
+    <span class="md-ellipsis">
+      4. 评估 (Evaluation)
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. 评估 (Evaluation)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#41" class="md-nav__link">
+    <span class="md-ellipsis">
+      4.1 文本相似度评估
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#42" class="md-nav__link">
+    <span class="md-ellipsis">
+      4.2 性能与指标评估
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../agents/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    智能代理
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../io/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    IO 模块
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../context/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Context 管理
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../embedding/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Embedding 服务
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6_7" >
+        
+          
+          <label class="md-nav__link" for="__nav_6_7" id="__nav_6_7_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    工具生态
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_6_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6_7">
+            <span class="md-nav__icon md-icon"></span>
+            工具生态
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tools_intro/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    工具概览
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../tools/arxiv_paper_searcher/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    工具列表
+    
+  </span>
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../get_start/remote_mode/sage_cil/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    🔄 SAGE CLI
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../join_sage/intellistream/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    加入 SAGE
+    
+  </span>
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-data-preparation-trigger" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. 数据准备与触发 (Data Preparation &amp; Trigger)
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="1. 数据准备与触发 (Data Preparation &amp; Trigger)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#11-chunking" class="md-nav__link">
+    <span class="md-ellipsis">
+      1.1 分块 (Chunking)
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="1.1 分块 (Chunking)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#charactersplitter" class="md-nav__link">
+    <span class="md-ellipsis">
+      CharacterSplitter
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sentencetransformerstokentextsplitter" class="md-nav__link">
+    <span class="md-ellipsis">
+      SentenceTransformersTokenTextSplitter
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#12-trigger" class="md-nav__link">
+    <span class="md-ellipsis">
+      1.2 触发器 (Trigger)
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="1.2 触发器 (Trigger)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#triggerablesource" class="md-nav__link">
+    <span class="md-ellipsis">
+      TriggerableSource
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#restapisource" class="md-nav__link">
+    <span class="md-ellipsis">
+      RESTApiSource
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-information-retrieval" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. 信息检索 (Information Retrieval)
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. 信息检索 (Information Retrieval)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#21-searcher" class="md-nav__link">
+    <span class="md-ellipsis">
+      2.1 搜索引擎 (Searcher)
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2.1 搜索引擎 (Searcher)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#bochawebsearch" class="md-nav__link">
+    <span class="md-ellipsis">
+      BochaWebSearch
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#22-retriever" class="md-nav__link">
+    <span class="md-ellipsis">
+      2.2 检索器 (Retriever)
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2.2 检索器 (Retriever)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#denseretriever" class="md-nav__link">
+    <span class="md-ellipsis">
+      DenseRetriever
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#bm25sretriever" class="md-nav__link">
+    <span class="md-ellipsis">
+      BM25sRetriever
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#23-reranker" class="md-nav__link">
+    <span class="md-ellipsis">
+      2.3 重排器 (Reranker)
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2.3 重排器 (Reranker)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#bgereranker" class="md-nav__link">
+    <span class="md-ellipsis">
+      BGEReranker
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#llmbased_reranker" class="md-nav__link">
+    <span class="md-ellipsis">
+      LLMbased_Reranker
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-query-understanding-generation" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. 查询理解与生成 (Query Understanding &amp; Generation)
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. 查询理解与生成 (Query Understanding &amp; Generation)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#31-query-profiler" class="md-nav__link">
+    <span class="md-ellipsis">
+      3.1 查询分析器 (Query Profiler)
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3.1 查询分析器 (Query Profiler)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#query_profiler" class="md-nav__link">
+    <span class="md-ellipsis">
+      Query_Profiler
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#32-prompting" class="md-nav__link">
+    <span class="md-ellipsis">
+      3.2 提示词工程 (Prompting)
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3.2 提示词工程 (Prompting)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#qapromptor" class="md-nav__link">
+    <span class="md-ellipsis">
+      QAPromptor
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#summarizationpromptor" class="md-nav__link">
+    <span class="md-ellipsis">
+      SummarizationPromptor
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#queryprofilerpromptor" class="md-nav__link">
+    <span class="md-ellipsis">
+      QueryProfilerPromptor
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#33-generator" class="md-nav__link">
+    <span class="md-ellipsis">
+      3.3 生成器 (Generator)
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3.3 生成器 (Generator)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#openaigenerator" class="md-nav__link">
+    <span class="md-ellipsis">
+      OpenAIGenerator
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#openaigeneratorwithhistory" class="md-nav__link">
+    <span class="md-ellipsis">
+      OpenAIGeneratorWithHistory
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#hfgenerator" class="md-nav__link">
+    <span class="md-ellipsis">
+      HFGenerator
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#34-writer" class="md-nav__link">
+    <span class="md-ellipsis">
+      3.4 写入器 (Writer)
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3.4 写入器 (Writer)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#memorywriter" class="md-nav__link">
+    <span class="md-ellipsis">
+      MemoryWriter
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-evaluation" class="md-nav__link">
+    <span class="md-ellipsis">
+      4. 评估 (Evaluation)
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. 评估 (Evaluation)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#41" class="md-nav__link">
+    <span class="md-ellipsis">
+      4.1 文本相似度评估
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#42" class="md-nav__link">
+    <span class="md-ellipsis">
+      4.2 性能与指标评估
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+<div class="notebook-links">
+  
+</div>
+
+
+                  
+
+
+
+<h1 id="rag-core-rag-components">RAG 核心组件 (Core RAG Components)<a class="headerlink" href="#rag-core-rag-components" title="Permanent link">&para;</a></h1>
+<p>本文档详细介绍了 SAGE 系统中用于构建检索增强生成 (RAG) 流程的核心组件。这些组件涵盖了从数据分块、检索、重排到生成和评估的全过程。</p>
+<hr />
+<h2 id="1-data-preparation-trigger">1. 数据准备与触发 (Data Preparation &amp; Trigger)<a class="headerlink" href="#1-data-preparation-trigger" title="Permanent link">&para;</a></h2>
+<h3 id="11-chunking">1.1 分块 (Chunking)<a class="headerlink" href="#11-chunking" title="Permanent link">&para;</a></h3>
+<p>分块是将长文本分割成小块，以便于后续的检索和处理。</p>
+<h4 id="charactersplitter"><code>CharacterSplitter</code><a class="headerlink" href="#charactersplitter" title="Permanent link">&para;</a></h4>
+<p>基于字符进行文本分割。</p>
+<ul>
+<li><strong>核心功能</strong>: 将输入文本按指定的字符数 <code>chunk_size</code> 和重叠数 <code>overlap</code> 进行切分。</li>
+<li><strong>输入</strong>: <code>str</code> - 待切分的文本。</li>
+<li><strong>输出</strong>: <code>List[str]</code> - 文本块列表。</li>
+<li><strong>用例</strong>: 适用于处理不方便按词或句子分割的文本，或在需要快速、简单切分的场景。</li>
+<li><strong>配置要求</strong>:<ul>
+<li><code>chunk_size</code> (int): 每个块的字符数 (默认: 512)。</li>
+<li><code>overlap</code> (int): 相邻块之间的重叠字符数 (默认: 128)。</li>
+</ul>
+</li>
+</ul>
+<h4 id="sentencetransformerstokentextsplitter"><code>SentenceTransformersTokenTextSplitter</code><a class="headerlink" href="#sentencetransformerstokentextsplitter" title="Permanent link">&para;</a></h4>
+<p>使用 SentenceTransformer 的分词器进行文本分割，更符合模型处理习惯。</p>
+<ul>
+<li><strong>核心功能</strong>: 基于模型的分词器将文本切分为 token 块。</li>
+<li><strong>输入</strong>: <code>str</code> - 待切分的文本。</li>
+<li><strong>输出</strong>: <code>List[str]</code> - 文本块列表。</li>
+<li><strong>用例</strong>: RAG 应用的首选分块方法。因为它遵循下游模型的 tokenization 逻辑，能更好地保留语义完整性，提高检索和生成的质量。</li>
+<li><strong>配置要求</strong>:<ul>
+<li><code>model_name</code> (str): SentenceTransformer 模型名称 (默认: "sentence-transformers/all-mpnet-base-v2")。</li>
+<li><code>chunk_size</code> (int): 每个块的 token 数 (默认: 512)。</li>
+<li><code>chunk_overlap</code> (int): 相邻块之间的重叠 token 数 (默认: 50)。</li>
+</ul>
+</li>
+</ul>
+<h3 id="12-trigger">1.2 触发器 (Trigger)<a class="headerlink" href="#12-trigger" title="Permanent link">&para;</a></h3>
+<p>触发器是启动数据流的外部接口。</p>
+<h4 id="triggerablesource"><code>TriggerableSource</code><a class="headerlink" href="#triggerablesource" title="Permanent link">&para;</a></h4>
+<p>一个通用的、可由外部事件触发的数据源。</p>
+<ul>
+<li><strong>核心功能</strong>: 维护一个内部队列，外部调用 <code>trigger(data)</code> 方法将数据放入队列，<code>execute()</code> 方法从队列中取出数据并送入数据流。</li>
+<li><strong>用例</strong>: 构建交互式应用，例如，数据流由 Web 界面的用户提交、或消息队列中新消息的到达等外部事件启动。</li>
+<li><strong>方法</strong>:<ul>
+<li><code>trigger(data)</code>: 向队列中添加数据。</li>
+<li><code>stop()</code>: 停止数据源。</li>
+<li><code>is_empty()</code>: 检查队列是否为空。</li>
+</ul>
+</li>
+<li><strong>配置要求</strong>:<ul>
+<li><code>wait_timeout</code> (float): 轮询模式下等待新输入的超时时间（秒）(默认: 1.0)。</li>
+<li><code>enable_polling</code> (bool): 是否启用轮询模式 (默认: True)。若为 <code>False</code>，则 <code>execute</code> 方法会一直阻塞直到有数据进入。</li>
+</ul>
+</li>
+</ul>
+<h4 id="restapisource"><code>RESTApiSource</code><a class="headerlink" href="#restapisource" title="Permanent link">&para;</a></h4>
+<p>专门用于处理 REST API 请求的触发器，继承自 <code>TriggerableSource</code>。</p>
+<ul>
+<li><strong>核心功能</strong>: 封装了处理 API 请求的逻辑，如请求ID管理、队列大小限制等。</li>
+<li><strong>用例</strong>: 为 SAGE 流水线创建一个 Web Service 终端。前端应用可以通过调用此终端来触发 RAG 流程。</li>
+<li><strong>方法</strong>:<ul>
+<li><code>trigger_request(request_data)</code>: 触发一个 API 请求。</li>
+</ul>
+</li>
+<li><strong>配置要求</strong>:<ul>
+<li><code>request_timeout</code> (float): 请求处理的超时时间 (默认: 30.0)。</li>
+<li><code>max_queue_size</code> (int): 最大允许的排队请求数 (默认: 100)。</li>
+</ul>
+</li>
+</ul>
+<hr />
+<h2 id="2-information-retrieval">2. 信息检索 (Information Retrieval)<a class="headerlink" href="#2-information-retrieval" title="Permanent link">&para;</a></h2>
+<h3 id="21-searcher">2.1 搜索引擎 (Searcher)<a class="headerlink" href="#21-searcher" title="Permanent link">&para;</a></h3>
+<h4 id="bochawebsearch"><code>BochaWebSearch</code><a class="headerlink" href="#bochawebsearch" title="Permanent link">&para;</a></h4>
+<p>调用博查智能的 Web Search API 进行在线搜索。</p>
+<ul>
+<li><strong>核心功能</strong>: 将输入查询发送到博查 API，并返回搜索结果。</li>
+<li><strong>输入</strong>: <code>str</code> - 查询语句。</li>
+<li><strong>输出</strong>: <code>Dict[str, Any]</code> - API 返回的 JSON 对象。</li>
+<li><strong>用例</strong>: 解答需要从互联网获取最新信息的问题，而这些信息在本地知识库中不存在。</li>
+<li><strong>配置要求</strong>:<ul>
+<li><code>api_key</code> (str): 博查 API 的密钥 (必需)。</li>
+<li><code>count</code> (int): 返回结果数量 (默认: 10)。</li>
+<li><code>page</code> (int): 查询页码 (默认: 1)。</li>
+<li><code>summary</code> (bool): 是否请求返回摘要 (默认: True)。</li>
+</ul>
+</li>
+</ul>
+<h3 id="22-retriever">2.2 检索器 (Retriever)<a class="headerlink" href="#22-retriever" title="Permanent link">&para;</a></h3>
+<p>从本地或内存知识库中检索信息。</p>
+<h4 id="denseretriever"><code>DenseRetriever</code><a class="headerlink" href="#denseretriever" title="Permanent link">&para;</a></h4>
+<p>使用向量化模型进行密集检索。</p>
+<ul>
+<li><strong>核心功能</strong>: 根据输入查询，从配置的长期记忆 (LTM) 知识库中检索最相关的文本块。</li>
+<li><strong>输入</strong>: <code>str</code> - 查询语句。</li>
+<li><strong>输出</strong>: <code>Tuple[str, List[str]]</code> - (原始查询, 检索到的文本块列表)。</li>
+<li><strong>用例</strong>: 从大规模、预先索引好的知识库中查找语义上相似的文档（例如，为员工的问题找到相关的内部政策文件）。</li>
+<li><strong>配置要求</strong>:<ul>
+<li><code>ltm</code> (bool): 是否启用长期记忆检索 (必需)。</li>
+<li><code>ltm_config</code> (dict): LTM 的具体配置，如集合名称、向量模型等。</li>
+</ul>
+</li>
+</ul>
+<h4 id="bm25sretriever"><code>BM25sRetriever</code><a class="headerlink" href="#bm25sretriever" title="Permanent link">&para;</a></h4>
+<p>使用 BM25s 算法进行稀疏检索。</p>
+<ul>
+<li><strong>核心功能</strong>: 利用 BM25s 算法从指定集合中检索文本。</li>
+<li><strong>输入</strong>: <code>str</code> - 查询语句。</li>
+<li><strong>输出</strong>: <code>Tuple[str, List[str]]</code> - (原始查询, 检索到的文本块列表)。</li>
+<li><strong>用例</strong>: 进行关键词搜索，对包含特定术语、名称或代码的查询非常有效。常与 <code>DenseRetriever</code> 结合使用以实现混合搜索。</li>
+<li><strong>配置要求</strong>:<ul>
+<li><code>bm25s_collection</code> (str): BM25s 集合的名称 (必需)。</li>
+<li><code>bm25s_config</code> (dict): BM25s 的具体配置。</li>
+</ul>
+</li>
+</ul>
+<h3 id="23-reranker">2.3 重排器 (Reranker)<a class="headerlink" href="#23-reranker" title="Permanent link">&para;</a></h3>
+<p>对检索到的结果进行重新排序，以提高最相关文档的排名。</p>
+<h4 id="bgereranker"><code>BGEReranker</code><a class="headerlink" href="#bgereranker" title="Permanent link">&para;</a></h4>
+<p>使用 <code>BAAI/bge-reranker-v2-m3</code> 模型进行重排。</p>
+<ul>
+<li><strong>核心功能</strong>: 计算查询与每个文档的相关性分数，并按分数降序排列。</li>
+<li><strong>输入</strong>: <code>Tuple[str, List[str]]</code> - (查询, 文档列表)。</li>
+<li><strong>输出</strong>: <code>Tuple[str, List[str]]</code> - (查询, 重排后的文档列表)。</li>
+<li><strong>用例</strong>: 精炼检索器的返回结果。例如，在检索器召回 20-50 个文档后，使用重排器精确地找出最相关的 3-5 个文档送入生成器，从而提高效率和答案的准确性。</li>
+<li><strong>配置要求</strong>:<ul>
+<li><code>model_name</code> (str): 模型名称 (默认: "BAAI/bge-reranker-v2-m3")。</li>
+<li><code>top_k</code> (int): 返回排名最高的 k 个文档。</li>
+</ul>
+</li>
+</ul>
+<h4 id="llmbased_reranker"><code>LLMbased_Reranker</code><a class="headerlink" href="#llmbased_reranker" title="Permanent link">&para;</a></h4>
+<p>使用 <code>BAAI/bge-reranker-v2-gemma</code> 模型进行重排。</p>
+<ul>
+<li><strong>核心功能</strong>: 基于一个生成式 LLM 判断每个文档是否包含查询的答案（"Yes" 或 "No"），并据此排序。</li>
+<li><strong>输入</strong>: <code>Tuple[str, List[str]]</code> - (查询, 文档列表)。</li>
+<li><strong>输出</strong>: <code>Tuple[str, List[str]]</code> - (查询, 重排后的文档列表)。</li>
+<li><strong>用例</strong>: 与 <code>BGEReranker</code> 类似，但使用更强大（也可能更慢）的生成式模型进行重排。适用于简单相关性分数不足以判断的复杂查询。</li>
+<li><strong>配置要求</strong>:<ul>
+<li><code>model_name</code> (str): 模型名称 (默认: "BAAI/bge-reranker-v2-gemma")。</li>
+<li><code>top_k</code> (int): 返回排名最高的 k 个文档。</li>
+</ul>
+</li>
+</ul>
+<hr />
+<h2 id="3-query-understanding-generation">3. 查询理解与生成 (Query Understanding &amp; Generation)<a class="headerlink" href="#3-query-understanding-generation" title="Permanent link">&para;</a></h2>
+<h3 id="31-query-profiler">3.1 查询分析器 (Query Profiler)<a class="headerlink" href="#31-query-profiler" title="Permanent link">&para;</a></h3>
+<h4 id="query_profiler"><code>Query_Profiler</code><a class="headerlink" href="#query_profiler" title="Permanent link">&para;</a></h4>
+<p>分析用户查询的复杂性，以决定后续的处理策略。</p>
+<ul>
+<li><strong>核心功能</strong>: 解析大模型返回的关于查询的 JSON 分析结果，并输出处理策略。</li>
+<li><strong>输入</strong>: <code>str</code> - 包含查询分析的 JSON 字符串。</li>
+<li><strong>输出</strong>: <code>List</code> - <code>[synthesis_method, num_chunks, intermediate_length_range]</code>，例如 <code>["map_reduce", [3, 9], 100]</code>。</li>
+<li><strong>用例</strong>: 在高级 RAG 系统中充当“路由器”。通过分析用户问题，决定采用哪种 RAG 策略（如简单检索 vs. 多步推理），使系统更具适应性。</li>
+<li><strong>配置要求</strong>: 此组件通常没有自己的配置，因为它处理的是上游 LLM 调用的输出。</li>
+</ul>
+<h3 id="32-prompting">3.2 提示词工程 (Prompting)<a class="headerlink" href="#32-prompting" title="Permanent link">&para;</a></h3>
+<h4 id="qapromptor"><code>QAPromptor</code><a class="headerlink" href="#qapromptor" title="Permanent link">&para;</a></h4>
+<p>构建用于问答任务的提示词。</p>
+<ul>
+<li><strong>核心功能</strong>: 将查询和可选的上下文（corpus）格式化为大模型所需的 <code>system</code> 和 <code>user</code> 消息列表。</li>
+<li><strong>输入</strong>: <code>str</code> (查询) 或 <code>Tuple[str, List[str]]</code> (查询, 上下文)。</li>
+<li><strong>输出</strong>: <code>List[str, List[dict]]</code> - <code>[query, prompt_list]</code>。</li>
+<li><strong>用例</strong>: 任何需要根据检索到的上下文来回答问题的 RAG 流水线的标准组件。</li>
+<li><strong>配置要求</strong>: 无，其模板是为通用问答任务硬编码的。</li>
+</ul>
+<h4 id="summarizationpromptor"><code>SummarizationPromptor</code><a class="headerlink" href="#summarizationpromptor" title="Permanent link">&para;</a></h4>
+<p>构建用于摘要任务的提示词。</p>
+<ul>
+<li><strong>核心功能</strong>: 将查询和上下文格式化为摘要模型的提示词。</li>
+<li><strong>输入</strong>: <code>Tuple[str, List[str]]</code> - (查询, 上下文)。</li>
+<li><strong>输出</strong>: <code>List[dict]</code> - 提示词列表。</li>
+<li><strong>用例</strong>: 在 "map-reduce" 等 RAG 策略中使用，先将多个独立的文档块进行摘要，然后将摘要内容合并以回答最终问题。</li>
+<li><strong>配置要求</strong>: 无。</li>
+</ul>
+<h4 id="queryprofilerpromptor"><code>QueryProfilerPromptor</code><a class="headerlink" href="#queryprofilerpromptor" title="Permanent link">&para;</a></h4>
+<p>构建用于查询分析的提示词。</p>
+<ul>
+<li><strong>核心功能</strong>: 将用户查询包装成一个请求，让大模型分析其特性。</li>
+<li><strong>输入</strong>: <code>str</code> - 用户查询。</li>
+<li><strong>输出</strong>: <code>List[dict]</code> - 发送给大模型的提示词。</li>
+<li><strong>用例</strong>: <code>Query_Profiler</code> 的上游组件，它定义了*如何*请求大模型来分析一个查询。</li>
+<li><strong>配置要求</strong>:<ul>
+<li><code>metadata</code> (dict): 描述知识库的元数据，帮助模型更好地理解查询背景。</li>
+<li><code>chunk_size</code> (int): 知识库的分块大小。</li>
+</ul>
+</li>
+</ul>
+<h3 id="33-generator">3.3 生成器 (Generator)<a class="headerlink" href="#33-generator" title="Permanent link">&para;</a></h3>
+<p>调用大模型生成最终答案。</p>
+<h4 id="openaigenerator"><code>OpenAIGenerator</code><a class="headerlink" href="#openaigenerator" title="Permanent link">&para;</a></h4>
+<p>调用与 OpenAI API 兼容的端点（如 VLLM, DashScope）进行文本生成。</p>
+<ul>
+<li><strong>核心功能</strong>: 向指定模型端点发送提示词并返回生成结果。</li>
+<li><strong>输入</strong>: <code>List</code> - <code>[user_query, prompt]</code> 或 <code>[prompt]</code>。</li>
+<li><strong>输出</strong>: <code>Tuple[str, str]</code> - <code>(user_query, generated_text)</code>。</li>
+<li><strong>用例</strong>: RAG 流水线的最后一步，整合精炼后的上下文和原始查询，生成用户可读的答案。可以连接到 OpenAI, VLLM, DashScope 等服务。</li>
+<li><strong>配置要求</strong>:<ul>
+<li><code>method</code> (str): 调用方法，如 "openai"。</li>
+<li><code>model_name</code> (str): 模型名称，如 "gpt-4o-mini"。</li>
+<li><code>base_url</code> (str): API 的基础 URL。</li>
+<li><code>api_key</code> (str): API 密钥。</li>
+<li><code>seed</code> (int): 随机种子 (可选)。</li>
+</ul>
+</li>
+</ul>
+<h4 id="openaigeneratorwithhistory"><code>OpenAIGeneratorWithHistory</code><a class="headerlink" href="#openaigeneratorwithhistory" title="Permanent link">&para;</a></h4>
+<p>带滚动对话历史的生成器。</p>
+<ul>
+<li><strong>核心功能</strong>: 在 <code>OpenAIGenerator</code> 的基础上维护一个对话历史队列，每次请求时自动带上最近的对话历史。</li>
+<li><strong>输入</strong>: <code>List</code> - <code>[user_query, prompt_list]</code>。</li>
+<li><strong>输出</strong>: <code>Tuple[str, str]</code> - <code>(user_query, generated_text)</code>。</li>
+<li><strong>用例</strong>: 构建对话式聊天机器人。它能记住之前的对话，允许用户提出追问，使交互更自然。</li>
+<li><strong>配置要求</strong>:<ul>
+<li>与 <code>OpenAIGenerator</code> 相同。</li>
+<li><code>max_history_turns</code> (int): 最大保留的对话轮数 (默认: 5)。</li>
+</ul>
+</li>
+</ul>
+<h4 id="hfgenerator"><code>HFGenerator</code><a class="headerlink" href="#hfgenerator" title="Permanent link">&para;</a></h4>
+<p>调用本地 Hugging Face 模型进行生成。</p>
+<ul>
+<li><strong>核心功能</strong>: 加载并运行本地的 Hugging Face 模型。</li>
+<li><strong>输入</strong>: <code>List</code> - <code>[user_query, prompt]</code> 或 <code>[prompt]</code>。</li>
+<li><strong>输出</strong>: <code>Tuple[str, str]</code> - <code>(user_query, generated_text)</code>。</li>
+<li><strong>用例</strong>: 出于数据隐私、成本或自定义的需求，使用本地部署的开源模型。</li>
+<li><strong>配置要求</strong>:<ul>
+<li><code>method</code> (str): 调用方法，如 "hf"。</li>
+<li><code>model_name</code> (str): Hugging Face 上的模型名称或本地路径。</li>
+</ul>
+</li>
+</ul>
+<h3 id="34-writer">3.4 写入器 (Writer)<a class="headerlink" href="#34-writer" title="Permanent link">&para;</a></h3>
+<h4 id="memorywriter"><code>MemoryWriter</code><a class="headerlink" href="#memorywriter" title="Permanent link">&para;</a></h4>
+<p>将处理过程中的数据写入到 SAGE 的记忆模块中。</p>
+<ul>
+<li><strong>核心功能</strong>: 将输入数据写入到配置的短期记忆 (STM)、长期记忆 (LTM) 或文档化认知记忆 (DCM) 中。</li>
+<li><strong>输入</strong>: <code>Union[str, List[str], Tuple[str, str]]</code> - 任意格式的数据。</li>
+<li><strong>用例</strong>: 创建一个能自我完善的 RAG 系统。例如，在一次用户交互后，可将生成的答案或用户反馈写回 LTM，使系统能从交互中学习。</li>
+<li><strong>配置要求</strong>:<ul>
+<li><code>stm</code>, <code>ltm</code>, <code>dcm</code> (bool): 是否启用相应的记忆模块。</li>
+<li><code>stm_collection</code>, <code>ltm_collection</code>, <code>dcm_collection</code> (str): 相应记忆模块的集合名称。</li>
+<li><code>stm_config</code>, <code>ltm_config</code>, <code>dcm_config</code> (dict): 具体配置。</li>
+</ul>
+</li>
+</ul>
+<hr />
+<h2 id="4-evaluation">4. 评估 (Evaluation)<a class="headerlink" href="#4-evaluation" title="Permanent link">&para;</a></h2>
+<p>评估模块用于衡量 RAG 流程各个环节和最终输出的质量。</p>
+<ul>
+<li><strong>通用用例</strong>: 在开发或测试环境中，将这些评估组件串联在生成器之后，可以为每个问答对自动计算质量和性能指标，从而实现快速实验和回归测试。</li>
+<li><strong>通用输入</strong>: 所有评估组件都接收一个 <code>dict</code>，通常包含 <code>references</code> (标准答案列表) 和 <code>generated</code> (模型生成答案)。</li>
+<li><strong>通用输出</strong>: 在控制台打印评估分数，并透传输入的 <code>dict</code> 以便链式调用。</li>
+<li><strong>通用配置</strong>: 通常无需配置，因为它们操作的是流程中传递的标准化字典。</li>
+</ul>
+<h3 id="41">4.1 文本相似度评估<a class="headerlink" href="#41" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong><code>F1Evaluate</code></strong>: 计算生成答案和标准答案之间的 F1 分数。</li>
+<li><strong><code>RecallEvaluate</code></strong>: 计算召回率。</li>
+<li><strong><code>BertRecallEvaluate</code></strong>: 使用 BERT 模型计算语义相似度作为召回率。</li>
+<li><strong><code>RougeLEvaluate</code></strong>: 计算 ROUGE-L 分数，衡量最长公共子序列。</li>
+<li><strong><code>BRSEvaluate</code></strong>: 计算基于词袋的召回率 (Bag-of-Words Recall Score)。</li>
+<li><strong><code>AccuracyEvaluate</code></strong>: 计算精确匹配准确率。</li>
+</ul>
+<h3 id="42">4.2 性能与指标评估<a class="headerlink" href="#42" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong><code>TokenCountEvaluate</code></strong>: 计算生成答案的 token 数量。</li>
+<li><strong><code>LatencyEvaluate</code></strong>: 计算生成延迟。</li>
+<li><strong><code>ContextRecallEvaluate</code></strong>: 评估检索阶段的上下文召回率。</li>
+<li><strong><code>CompressionRateEvaluate</code></strong>: 评估信息压缩率（原始文档与精炼后文档的长度比）。</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  回到页面顶部
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="页脚" >
+        
+          
+          <a href="../" class="md-footer__link md-footer__link--prev" aria-label="上一页: Applications 概览">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                上一页
+              </span>
+              <div class="md-ellipsis">
+                Applications 概览
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../agents/" class="md-footer__link md-footer__link--next" aria-label="下一页: 智能代理">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                下一页
+              </span>
+              <div class="md-ellipsis">
+                智能代理
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Copyright &copy; 2025 SAGE | <a href="https://grid.hust.edu.cn/" target="_blank">CGCL Lab</a>
+
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+        <div class="md-social">
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://shuhaozhangtony.github.io/" target="_blank" rel="noopener" title="shuhaozhangtony.github.io" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 7.0.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path fill="currentColor" d="M64 32C28.7 32 0 60.7 0 96v320c0 35.3 28.7 64 64 64h448c35.3 0 64-28.7 64-64V96c0-35.3-28.7-64-64-64zm80 256h64c44.2 0 80 35.8 80 80 0 8.8-7.2 16-16 16H80c-8.8 0-16-7.2-16-16 0-44.2 35.8-80 80-80m-24-96a56 56 0 1 1 112 0 56 56 0 1 1-112 0m240-48h112c13.3 0 24 10.7 24 24s-10.7 24-24 24H360c-13.3 0-24-10.7-24-24s10.7-24 24-24m0 96h112c13.3 0 24 10.7 24 24s-10.7 24-24 24H360c-13.3 0-24-10.7-24-24s10.7-24 24-24"/></svg>
+    </a>
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://github.com/intellistream" target="_blank" rel="noopener" title="github.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.0.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path fill="currentColor" d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      <script id="__config" type="application/json">{"base": "../..", "features": ["navigation.expand", "toc.follow", "announce.dismiss", "content.code.annotate", "content.code.copy", "content.code.select", "content.tabs.link", "content.action.edit", "content.tooltips", "navigation.indexes", "navigation.footer", "navigation.sections", "navigation.path", "navigation.tabs", "navigation.top", "navigation.prune", "navigation.tracking", "search.highlight", "search.share", "search.suggest"], "search": "../../assets/javascripts/workers/search.d50fe291.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.50899def.min.js"></script>
+      
+        <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+      
+        <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+      
+    
+  </body>
+</html>
