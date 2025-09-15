@@ -300,32 +300,7 @@ fault_tolerance_config = {
 }
 ```
 
-## 📞 支持与资源
 
-### 获取帮助
-- 📖 https://intellistream.github.io/SAGE-Pub/ - 详细API参考和指南
-- 🐛 https://github.com/intellistream/SAGE/issues - 报告问题和功能请求
-- 💬 https://github.com/intellistream/SAGE/discussions - 技术交流和最佳实践分享
-- 🎓 https://github.com/intellistream/SAGE/examples - 实用示例和模板项目
-
-### 学习资源
-- 🚀 guides/quickstart.md - 新手入门指南
-- 🏗️ architecture.md - 系统设计原理
-- ⚡ best-practices.md - 调优技巧和策略
-- 🔧 faq.md - 常见问题解决方案
-
-## 📄 许可证与版本
-
-**许可证**: MIT License - 详见 LICENSE 文件
-
-**版本信息**:
-- 当前版本: 1.0.0
-- Python要求: 3.8+
-- 支持平台: Linux, macOS, Windows
-
----
-
-通过 SAGE Kernel，您可以构建高性能、可扩展的大语言模型推理流水线，充分发挥现代硬件和分布式环境的计算能力。立即开始您的 SAGE 之旅！
 
 ## 📚 核心组件文档
 
