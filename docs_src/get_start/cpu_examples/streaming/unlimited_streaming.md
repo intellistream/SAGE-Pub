@@ -1,6 +1,6 @@
 # 无界流处理 (Infinite Stream)
 
-> 本例位于 SAGE Repo 下的 `examples/tutorials/core-api/wordcount_source_example.py`
+> 本例位于 SAGE Repo 下的 `examples/tutorials/core-api/hello_wordcount_source_example.py`
 
 ```mermaid
 graph LR

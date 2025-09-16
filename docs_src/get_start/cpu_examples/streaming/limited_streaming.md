@@ -1,6 +1,6 @@
 # 有界流处理 (Finite Stream)
 
-> 本例位于 SAGE Repo 下的 `examples/tutorials/core-api/wordcount_batch_example.py`
+> 本例位于 SAGE Repo 下的 `examples/tutorials/core-api/hello_wordcount_batch_example.py`
 
 ```mermaid
 graph LR
