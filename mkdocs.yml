@@ -154,6 +154,9 @@ nav:
               # - 远程执行环境: kernel/core/execution/remote_environment.md
               # - 分布式调度: kernel/core/execution/distributed_scheduling.md
               # - 状态管理: kernel/core/execution/state_management.md
+          
+          - Runtime 运行时:
+              - Runtime Services: kernel/runtime_services.md
       
       - 🛠️ 开发指南:
           - 快速入门: kernel/guides/quickstart.md
@@ -206,6 +209,7 @@ nav:
   - Librarys:
       - Librarys 概览: librarys/README.md
       - RAG:
+        - API 参考: librarys/rag/api_reference.md
         - 组件:
             - 文档加载与解析: librarys/rag/components/document_loaders.md
             - 分块: librarys/rag/components/chunk.md
@@ -242,6 +246,10 @@ nav:
               - Searcher Tool: librarys/tools/searcher_tool.md
               - Text Detector: librarys/tools/text_detector.md
               - URL Text Extractor: librarys/tools/url_text_extractor.md
+  
+  - 工具 (Tools):
+      - CLI 命令行工具: tools/cli_reference.md
+  
   - Extensions: get_start/remote_mode/sage_cil.md
   - 加入 SAGE:
     - 我们是谁: join_sage/intellistream.md
