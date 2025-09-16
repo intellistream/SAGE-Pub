@@ -1,8 +1,9 @@
-name: Deploy SAGE Documentation with Gist Integration
+name: Deploy MkDocs to GitHub Pages
 
 on:
   push:
     branches: [main]
+  workflow_dispatch:  # 允许手动触发
 
 permissions:
   contents: write
@@ -10,38 +11,20 @@ permissions:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-
+    
     steps:
-      - uses: actions/checkout@v3
-
-      - uses: actions/setup-python@v4
+      - name: Checkout
+        uses: actions/checkout@v4
+        
+      - name: Setup Python
+        uses: actions/setup-python@v5
         with:
-          python-version: '3.x'
-
+          python-version: '3.11'
+          
       - name: Install dependencies
         run: |
-          pip install mkdocs mkdocs-material mkdocs-include-markdown-plugin mkdocstrings[python]
-
-      - name: Setup Runtime Configuration (Secure)
-        run: |
-          # 创建安全的运行时配置，不直接暴露 Token
-          mkdir -p docs_src/assets/js
-          cat > docs_src/assets/js/runtime-config.js << 'EOF'
-          // Runtime configuration - 安全版本
-          window.SAGE_RUNTIME_CONFIG = window.SAGE_RUNTIME_CONFIG || {};
+          pip install --upgrade pip
+          pip install -r requirements.txt
           
-          // 不直接存储 Token，而是提供配置方法
-          window.SAGE_RUNTIME_CONFIG.setGistToken = function(token) {
-            this.gistToken = token;
-            console.log('🔑 Gist Token 已设置');
-          };
-          
-          // 生产环境标识
-          window.SAGE_RUNTIME_CONFIG.environment = 'production';
-          window.SAGE_RUNTIME_CONFIG.buildTime = new Date().toISOString();
-          
-          console.log('🚀 生产环境配置已加载');
-          EOF
-
       - name: Build and deploy
         run: mkdocs gh-deploy --force
