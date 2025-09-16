@@ -64,7 +64,7 @@ Required-by:
 
 ### 方法2：运行 SAGE HelloWorld 程序
 
-执行 SAGE 官方发布仓库下(目前为私有库) `hello_world.py` Python 文件。
+执行 `hello_world.py` Python 文件。
 
 ```Bash
 python hello_world.py
