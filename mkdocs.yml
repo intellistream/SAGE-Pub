@@ -229,7 +229,7 @@ nav:
             - MCP-server: librarys/agents/components/mcp_server.md
             - Memory: librarys/agents/components/memory.md
         - 例子:
-            - 使用SAGE构建Agent: librarys/agents/examples/agent.md
+            - 使用SAGE构建Agent: librarys/agents/examples/agent_min.md
       - IO 模块: librarys/io.md
       # - Context 管理: librarys/context.md
       # - Embedding 服务: librarys/embedding.md
