@@ -1032,7 +1032,7 @@
 /* 中等屏幕适配 */
 @media (max-width: 600px) {
     .team-photo {
-        width: 100px;      /* 中等屏幕尺寸 */
+        width: 120px;      /* 中等屏幕尺寸 */
         top: 1.2rem;
         right: 1.2rem;
     }
@@ -1049,7 +1049,7 @@
     
     /* 小屏幕设备团队照片适配 */
     .team-photo {
-        width: 80px;       /* 小屏幕进一步缩小 */
+        width: 100px;       /* 小屏幕进一步缩小 */
         top: 1rem;
         right: 1rem;
     }
