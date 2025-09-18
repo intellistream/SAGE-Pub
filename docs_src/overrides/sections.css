@@ -693,7 +693,7 @@
     position: absolute;
     top: 2rem;
     right: 2rem;
-    width: 200px;      /* 只控制宽度 */
+    width: 200px;      /* 桌面端默认宽度 */
     height: auto;      /* 高度自适应 */
     border-radius: 12px;
     object-fit: cover; /* 依然保证填充效果 */
@@ -988,6 +988,17 @@
     .contribute-ways {
         grid-template-columns: 1fr;
     }
+    
+    /* 移动端团队照片适配 */
+    .team-photo {
+        width: 120px;      /* 移动端适当缩小 */
+        top: 1.5rem;
+        right: 1.5rem;
+    }
+    
+    .team-card {
+        padding: 2rem 1.5rem 1.5rem; /* 调整内边距 */
+    }
 }
 
 /* Article Monitoring Animation Integration */
@@ -1018,6 +1029,15 @@
     }
 }
 
+/* 中等屏幕适配 */
+@media (max-width: 600px) {
+    .team-photo {
+        width: 100px;      /* 中等屏幕尺寸 */
+        top: 1.2rem;
+        right: 1.2rem;
+    }
+}
+
 @media (max-width: 480px) {
     .example-card .article-monitoring-container {
         height: 240px;
@@ -1025,6 +1045,17 @@
     
     .example-card .example-video {
         margin: 0.5rem;
+    }
+    
+    /* 小屏幕设备团队照片适配 */
+    .team-photo {
+        width: 80px;       /* 小屏幕进一步缩小 */
+        top: 1rem;
+        right: 1rem;
+    }
+    
+    .team-card {
+        padding: 1.5rem 1rem 1rem; /* 进一步调整内边距 */
     }
 }
 
