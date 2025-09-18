@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SAGE - 流式增强生成执行框架</title>
+    <title>SAGE</title>
     <link rel="icon" href="assets/img/isage_light.svg">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css">
@@ -218,52 +218,6 @@
         </div>
     </section>
 
-    <!-- Enhanced Features Section -->
-    <section class="features section-animate">
-        <div class="container">
-            <h2 class="section-title">核心特性</h2>
-            <p class="section-subtitle">强大的功能特性，助力您构建下一代智能应用</p>
-            
-            <div class="features-grid">
-                <div class="feature-card">
-                    <div class="feature-icon">🔧</div>
-                    <h3 class="feature-title">声明式模块化组合</h3>
-                    <p class="feature-description">提供类型化、可复用的算子，支持声明式API构建复杂的数据处理管道，让AI工作流开发变得简单直观。</p>
-                </div>
-                
-                <div class="feature-card">
-                    <div class="feature-icon">🌊</div>
-                    <h3 class="feature-title">统一数据与控制流</h3>
-                    <p class="feature-description">原生支持条件分支和循环控制，将数据流和控制流统一在同一个执行模型中，简化复杂逻辑的实现。</p>
-                </div>
-                
-                <div class="feature-card">
-                    <div class="feature-icon">🧠</div>
-                    <h3 class="feature-title">原生状态算子</h3>
-                    <p class="feature-description">将内存作为一等公民，内置向量数据库、KV缓存、图内存等多种存储算子，支持复杂的状态管理。</p>
-                </div>
-                
-                <div class="feature-card">
-                    <div class="feature-icon">⚡</div>
-                    <h3 class="feature-title">异步弹性运行时</h3>
-                    <p class="feature-description">流感知的执行引擎，支持异步处理、故障恢复和动态调度，确保高性能和高可用性。</p>
-                </div>
-                
-                <div class="feature-card">
-                    <div class="feature-icon">📊</div>
-                    <h3 class="feature-title">内置可观测性</h3>
-                    <p class="feature-description">提供交互式仪表板，支持实时监控、性能分析和调试，让AI系统的运行过程完全透明。</p>
-                </div>
-                
-                <div class="feature-card">
-                    <div class="feature-icon">🔍</div>
-                    <h3 class="feature-title">深度内省能力</h3>
-                    <p class="feature-description">支持运行时状态检查、性能分析和调试工具，帮助开发者快速定位和解决问题。</p>
-                </div>
-            </div>
-        </div>
-    </section>
-
     <!-- Usage Examples Section -->
     <section class="usage-examples section-animate">
         <div class="container">
@@ -345,7 +299,7 @@
                     <h3><i class="fas fa-list-check"></i> 环境要求</h3>
                     <ul>
                         <li><strong>操作系统：</strong>Ubuntu ≥ 22.04</li>
-                        <li><strong>Python版本：</strong>≥ 3.11.10【推荐使用conda】</li>
+                        <li><strong>Python版本：</strong>≥ 3.11.10「推荐使用conda」</li>
                     </ul>
                 </div>
                 <div class="installation-methods">
@@ -374,12 +328,15 @@ python examples/tutorials/hello_world.py</code></pre>
                     
                     <div class="tab-content" id="developer">
                         <div class="code-block">
-<pre><code># 1. 克隆仓库 【请提前确保装有conda】
+<pre><code># 1. 克隆仓库 「请提前确保装有conda」
 git clone https://github.com/intellistream/SAGE.git
 cd SAGE
 
 # 2. 采用安装脚本快速安装
-./quickstart.sh</code></pre>
+./quickstart.sh
+
+# 3. 运行Hello World示例
+python examples/tutorials/hello_world.py</code></pre>
                         </div>
                     </div>
                 </div>
@@ -421,53 +378,69 @@ cd SAGE
                     </div>
                     
                     <div class="research-areas">
-                        <h3><i class="fas fa-microscope"></i> 研究方向</h3>
-                        <div class="research-grid">
-                            <div class="research-item">
-                                <i class="fas fa-search"></i>
-                                <span>RAG / Tool-LLM / 多智能体系统</span>
+                        <h3><i class="fas fa-handshake"></i> 联系我们</h3>
+                        <div class="contact-info-card">
+                            <div class="contact-header">
+                                <div class="contact-icon">
+                                    <img src="assets/img/shuhao.jpg" alt="张书豪教授" class="contact-photo">
+                                </div>
+                                <div class="contact-title">
+                                    <h4>团队负责人：张书豪教授</h4>
+                                </div>
                             </div>
-                            <div class="research-item">
-                                <i class="fas fa-server"></i>
-                                <span>系统调度、资源管理、可观测性</span>
-                            </div>
-                            <div class="research-item">
-                                <i class="fas fa-chart-line"></i>
-                                <span>AIOps / 多模态图神经网络</span>
-                            </div>
-                            <div class="research-item">
-                                <i class="fas fa-microchip"></i>
-                                <span>GPU优化、无服务器推理</span>
+                            <div class="contact-details">
+                                <div class="contact-item">
+                                    <i class="fas fa-envelope"></i>
+                                    <span>shuhao_zhang@hust.edu.cn</span>
+                                </div>
+                                <div class="contact-item">
+                                    <i class="fab fa-qq"></i>
+                                    <span>420444843 633549582「SAGE讨论群」</span>
+                                </div>
+                                <div class="contact-item">
+                                    <i class="fas fa-globe"></i>
+                                    <a href="https://faculty.hust.edu.cn/ZHANG_SHUHAO/zh_CN/index/2608525/list/" target="_blank">教师个人主页</a>
+                                </div>
+                                <div class="contact-item">
+                                    <i class="fab fa-slack"></i>
+                                    <a href="https://intellistream.slack.com" target="_blank">SAGE Slack频道</a>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
                 
                 <div class="collaboration-opportunities">
-                    <h3><i class="fas fa-handshake"></i> 合作机会</h3>
+                    <h3><i class="fas fa-microscope"></i> 研究方向</h3>
                     <div class="opportunities-grid">
                         <div class="opportunity-card">
-                            <div class="opportunity-icon">
-                                <i class="fas fa-graduation-cap"></i>
+                            <div class="opportunity-header">
+                                <div class="opportunity-icon">
+                                    <i class="fas fa-sign-language"></i>
+                                </div>
+                                <h4>应用开发方向-APP小组</h4>
                             </div>
-                            <h4>学术合作</h4>
-                            <p>欢迎学术机构和研究人员参与SAGE的研究与开发，共同推进AI系统的发展。</p>
+                            <p>APP小组致力于围绕SAGE打造多样化的应用，我们将创意转化为高效实用的产品，包括RAG、Agent等前沿技术应用。</p>
                         </div>
                         
                         <div class="opportunity-card">
-                            <div class="opportunity-icon">
-                                <i class="fas fa-building"></i>
+                            <div class="opportunity-header">
+                                <div class="opportunity-icon">
+                                    <i class="fas fa-database"></i>
+                                </div>
+                                <h4>中间件方向-Middleware小组</h4>
                             </div>
-                            <h4>产业合作</h4>
-                            <p>为企业提供定制化的AI解决方案，将SAGE应用到实际的生产环境中。</p>
+                            <p>Middleware小组专注于为SAGE平台提供高效的中间件解决方案，我们负责构建和优化核心技术，包括向量数据库、大模型记忆组件以及高性能向量计算引擎。</p>
                         </div>
                         
                         <div class="opportunity-card">
-                            <div class="opportunity-icon">
-                                <i class="fas fa-code"></i>
+                            <div class="opportunity-header">
+                                <div class="opportunity-icon">
+                                    <i class="fas fa-cogs"></i>
+                                </div>
+                                <h4>系统运行方向-Kernel小组</h4>
                             </div>
-                            <h4>开源贡献</h4>
-                            <p>加入我们的开源社区，为SAGE的发展贡献代码、文档和想法。</p>
+                            <p>Kernel小组负责SAGE系统的核心编排与调度。我们承担着运行时容错、资源调度和运行优化，以确保系统的稳定与高效。</p>
                         </div>
                     </div>
                 </div>
