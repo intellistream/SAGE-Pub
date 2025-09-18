@@ -345,52 +345,30 @@
                     <h3><i class="fas fa-list-check"></i> 环境要求</h3>
                     <ul>
                         <li><strong>操作系统：</strong>Ubuntu ≥ 22.04</li>
-                        <li><strong>Python版本：</strong>≥ 3.11.10【推荐 使用conda】</li>
+                        <li><strong>Python版本：</strong>≥ 3.11.10【推荐使用conda】</li>
                     </ul>
                 </div>
-                
-                <div class="steps-grid">
-                    <div class="step-card">
-                        <div class="step-number">1</div>
-                        <h3 class="step-title">安装SAGE</h3>
-                        <p class="step-description">使用Wheel方法安装（推荐）</p>
-                    </div>
-                    
-                    <div class="step-card">
-                        <div class="step-number">2</div>
-                        <h3 class="step-title">验证安装</h3>
-                        <p class="step-description">检查安装状态和版本信息</p>
-                    </div>
-                    
-                    <div class="step-card">
-                        <div class="step-number">3</div>
-                        <h3 class="step-title">运行示例</h3>
-                        <p class="step-description">执行hello_world.py验证功能</p>
-                    </div>
-                    
-                    <div class="step-card">
-                        <div class="step-number">4</div>
-                        <h3 class="step-title">构建管道</h3>
-                        <p class="step-description">使用Fluent API构建您的第一个管道</p>
-                    </div>
-                </div>
-                
                 <div class="installation-methods">
                     <div class="method-tabs">
-                        <button class="tab-button active" data-tab="wheel">Wheel安装 (推荐)</button>
-                        <button class="tab-button" data-tab="developer">开发者安装</button>
+                        <button class="tab-button active" data-tab="wheel">Pip安装</button>
+                        <button class="tab-button" data-tab="developer">开发者安装(推荐)</button>
                     </div>
                     
                     <div class="tab-content active" id="wheel">
                         <div class="code-block">
-<pre><code># 1. 下载并安装SAGE wheel包
-pip install sage-0.1.2-cp311-cp311-linux_x86_64.whl
+<pre><code># 1. 创建并激活conda环境
+conda create -n sage python=3.11.10
+conda activate sage
 
-# 2. 验证安装
-pip show sage-framework
+# 2. 安装SAGE
+pip install isage
 
-# 3. 运行Hello World示例
-python hello_world.py</code></pre>
+# 3. 克隆SAGE仓库
+git clone git@github.com:intellistream/SAGE.git
+cd SAGE
+
+# 4. 运行Hello World示例
+python examples/tutorials/hello_world.py</code></pre>
                         </div>
                     </div>
                     
@@ -404,40 +382,19 @@ cd SAGE
 conda create -n sage python=3.11.10
 conda activate sage
 
-# 3. 安装依赖
-pip install -r requirements.txt
-
-# 4. 开发模式安装
-pip install -e .</code></pre>
+# 3. 采用安装脚本快速安装
+./quickstart.sh</code></pre>
                         </div>
                     </div>
                 </div>
                 
-                <div class="code-block">
-<pre><code># 创建您的第一个RAG管道
-from sage import Environment, FileSource, DenseRetriever, QAPromptor, OpenAIGenerator
-
-# 初始化环境
-pipeline = Environment(name="my_first_rag_pipeline")
-
-# 构建声明式管道
-result = (pipeline
-    .from_source(FileSource, {"path": "documents/"})
-    .map(DenseRetriever, {"model": "sentence-transformers/all-MiniLM-L6-v2"})
-    .map(QAPromptor, {"template": "基于以下内容回答问题: {context}\n问题: {query}"})
-    .map(OpenAIGenerator, {"model": "gpt-3.5-turbo"})
-    .execute({"query": "什么是SAGE？"})
-)
-
-print(result)</code></pre>
-                </div>
                 
-                <div style="text-align: center;">
+                <div style="text-align: center; display: flex; justify-content: center; gap: 5.5rem; flex-wrap: wrap;">
                     <a href="get_start/install/" class="btn btn-primary">
                         <i class="fas fa-download"></i>
                         开始安装
                     </a>
-                    <a href="get_start/quickstart/" class="btn btn-secondary">
+                    <a href="get_start/quickstart/" class="btn btn-secondary" style="background: linear-gradient(135deg, #6366f1, #8b5cf6); color: white; border: 2px solid #6366f1; box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);">
                         <i class="fas fa-book"></i>
                         详细教程
                     </a>

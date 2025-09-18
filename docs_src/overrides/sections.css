@@ -17,8 +17,9 @@
     text-align: center;
     font-size: 1.2rem;
     color: #64748b;
-    margin-bottom: 4rem;
-    max-width: 600px;
+    margin-bottom: 2rem;
+    max-width: 800px;
+    line-height: 1.6;
     margin-left: auto;
     margin-right: auto;
 }
@@ -105,7 +106,7 @@
 
 /* Quick Start Section */
 .quickstart {
-    padding: 8rem 2rem;
+    padding: 4rem 2rem;
     background: white;
 }
 
@@ -151,7 +152,7 @@
     color: #e2e8f0;
     padding: 2rem;
     border-radius: 16px;
-    margin: 3rem 0;
+    margin: 1rem 0;
     overflow-x: auto;
     border: 1px solid #334155;
 }
@@ -586,9 +587,9 @@
 
 .prerequisites {
     background: #f8fafc;
-    padding: 2rem;
+    padding: 1rem 4rem 0.5rem ;
     border-radius: 16px;
-    margin-bottom: 3rem;
+    margin-bottom: 0.1rem;
     border: 1px solid #e2e8f0;
 }
 
@@ -598,7 +599,7 @@
     gap: 0.75rem;
     font-size: 1.3rem;
     font-weight: 600;
-    margin-bottom: 1rem;
+    margin-bottom: 0.15rem;
     color: #1e293b;
 }
 
@@ -622,7 +623,7 @@
 }
 
 .installation-methods {
-    margin: 3rem 0;
+    margin: 0;
 }
 
 .method-tabs {
