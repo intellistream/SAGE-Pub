@@ -786,7 +786,7 @@
 /* Contact Info Card */
 .contact-info-card {
     background: rgba(255, 255, 255, 0.1);
-    padding: 2rem 1.5rem 0.8rem;
+    padding: 2rem 1.5rem 2rem;
     border-radius: 16px;
     backdrop-filter: blur(10px);
     border: 1px solid rgba(255, 255, 255, 0.2);
@@ -880,7 +880,7 @@
 
 .opportunity-card {
     background: rgba(255, 255, 255, 0.1);
-    padding: 2rem;
+    padding: 1.85rem 2rem 1.5rem;
     border-radius: 16px;
     backdrop-filter: blur(10px);
     border: 1px solid rgba(255, 255, 255, 0.2);
