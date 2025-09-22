@@ -1987,3 +1987,157 @@ function initializeAutoScaling(containerId = 'autoScalingAnimation') {
     }
     window.autoScalingAnimation = new AutoScalingAnimation(containerId);
 }
+
+// Pipeline Connection Lines - 修复版本
+function updateConnectionLines() {
+    const svg = document.querySelector('.connection-svg');
+    if (!svg) return;
+
+    const container = document.querySelector('.pipeline-building-content');
+    if (!container) return;
+
+    // 获取所有需要的元素
+    const step1 = document.getElementById('step-1');
+    const step2 = document.getElementById('step-2');
+    const step3 = document.getElementById('step-3');
+    const queryInput = document.getElementById('query-input');
+    const vectorSearch = document.getElementById('vector-search');
+    const arrow2 = document.getElementById('arrow-2');
+
+    if (!step1 || !step2 || !step3 || !queryInput || !vectorSearch || !arrow2) return;
+
+    // 精确计算连接点，确保与垂直边缘对齐并保持距离
+    function getConnectionPoints(sourceElement, targetElement, gap = 8) {
+        const sourceRect = sourceElement.getBoundingClientRect();
+        const targetRect = targetElement.getBoundingClientRect();
+        const containerRect = container.getBoundingClientRect();
+
+        // 转换为相对坐标
+        const sourceBox = {
+            left: sourceRect.left - containerRect.left,
+            top: sourceRect.top - containerRect.top,
+            right: sourceRect.right - containerRect.left,
+            bottom: sourceRect.bottom - containerRect.top,
+            centerX: sourceRect.left - containerRect.left + sourceRect.width / 2,
+            centerY: sourceRect.top - containerRect.top + sourceRect.height / 2
+        };
+
+        const targetBox = {
+            left: targetRect.left - containerRect.left,
+            top: targetRect.top - containerRect.top,
+            right: targetRect.right - containerRect.left,
+            bottom: targetRect.bottom - containerRect.top,
+            centerX: targetRect.left - containerRect.left + targetRect.width / 2,
+            centerY: targetRect.top - containerRect.top + targetRect.height / 2
+        };
+
+        let fromPoint, toPoint;
+
+        // 根据垂直位置关系确定连接点
+        if (targetBox.centerY > sourceBox.centerY) {
+            // 目标在下方：从源元素底部连接到目标元素顶部
+            fromPoint = { x: sourceBox.centerX, y: sourceBox.bottom + gap };
+            toPoint = { x: targetBox.centerX, y: targetBox.top - gap };
+        } else if (targetBox.centerY < sourceBox.centerY) {
+            // 目标在上方：从源元素顶部连接到目标元素底部
+            fromPoint = { x: sourceBox.centerX, y: sourceBox.top - gap };
+            toPoint = { x: targetBox.centerX, y: targetBox.bottom + gap };
+        } else {
+            // 同一水平线：水平连接
+            if (targetBox.centerX > sourceBox.centerX) {
+                fromPoint = { x: sourceBox.right + gap, y: sourceBox.centerY };
+                toPoint = { x: targetBox.left - gap, y: targetBox.centerY };
+            } else {
+                fromPoint = { x: sourceBox.left - gap, y: sourceBox.centerY };
+                toPoint = { x: targetBox.right + gap, y: targetBox.centerY };
+            }
+        }
+
+        return { from: fromPoint, to: toPoint };
+    }
+
+    // 创建带圆角的路径，确保圆角不切入垂直边缘
+    function createRoundedPath(fromPoint, toPoint) {
+        const dx = toPoint.x - fromPoint.x;
+        const dy = toPoint.y - fromPoint.y;
+        
+        // 动态计算圆角半径，确保不超过可用距离
+        const maxRadius = Math.min(Math.abs(dx) / 3, Math.abs(dy) / 6, 6);
+        const radius = Math.max(3, maxRadius);
+        
+        // 如果水平距离太小，画直线
+        if (Math.abs(dx) < radius * 2) {
+            return `M ${fromPoint.x},${fromPoint.y} L ${toPoint.x},${toPoint.y}`;
+        }
+        
+        // 计算中点Y坐标和转折方向
+        const midY = fromPoint.y + dy / 2;
+        const direction = dx > 0 ? 1 : -1;
+        
+        // 确保转折点位置正确，圆角在垂直线的正确位置
+        const verticalLength1 = Math.abs(midY - fromPoint.y);
+        const verticalLength2 = Math.abs(toPoint.y - midY);
+        
+        // 调整圆角半径以适应实际的垂直距离
+        const actualRadius = Math.min(radius, verticalLength1 - 1, verticalLength2 - 1);
+        
+        if (actualRadius < 2) {
+            // 如果空间太小，绘制简单的直角线
+            return `M ${fromPoint.x},${fromPoint.y} L ${fromPoint.x},${midY} L ${toPoint.x},${midY} L ${toPoint.x},${toPoint.y}`;
+        }
+        
+        // 计算正确的圆角转折点
+        const corner1Y = fromPoint.y < toPoint.y ? midY - actualRadius : midY + actualRadius;
+        const corner2Y = fromPoint.y < toPoint.y ? midY + actualRadius : midY - actualRadius;
+        
+        // 创建路径：垂直线 -> 圆角 -> 水平线 -> 圆角 -> 垂直线
+        return `M ${fromPoint.x},${fromPoint.y} ` +
+               `L ${fromPoint.x},${corner1Y} ` +
+               `Q ${fromPoint.x},${midY} ${fromPoint.x + direction * actualRadius},${midY} ` +
+               `L ${toPoint.x - direction * actualRadius},${midY} ` +
+               `Q ${toPoint.x},${midY} ${toPoint.x},${corner2Y} ` +
+               `L ${toPoint.x},${toPoint.y}`;
+    }
+
+    // 更新三条连接线
+    const line1 = document.getElementById('line1');
+    const line2 = document.getElementById('line2');
+    const line3 = document.getElementById('line3');
+
+    if (line1) {
+        // 获取数据源 -> 问题输入
+        const points = getConnectionPoints(step1, queryInput, 10);
+        line1.setAttribute('d', createRoundedPath(points.from, points.to));
+        line1.setAttribute('stroke', '#3b82f6');
+    }
+
+    if (line2) {
+        // 编码算子 -> 向量检索
+        const points = getConnectionPoints(step2, vectorSearch, 10);
+        line2.setAttribute('d', createRoundedPath(points.from, points.to));
+        line2.setAttribute('stroke', '#10b981');
+    }
+
+    if (line3) {
+        // 连接Pipeline -> 箭头
+        const points = getConnectionPoints(step3, arrow2, 10);
+        line3.setAttribute('d', createRoundedPath(points.from, points.to));
+        line3.setAttribute('stroke', '#f59e0b');
+    }
+}
+
+// 当页面加载和窗口大小改变时更新连接线
+document.addEventListener('DOMContentLoaded', function() {
+    setTimeout(updateConnectionLines, 500); // 延迟执行确保DOM完全加载
+});
+
+window.addEventListener('resize', function() {
+    setTimeout(updateConnectionLines, 100);
+});
+
+// 监听滚动事件，因为可能影响元素位置
+window.addEventListener('scroll', function() {
+    updateConnectionLines();
+});
+
+

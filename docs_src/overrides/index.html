@@ -73,7 +73,7 @@
             </h1>
             <p class="hero-subtitle animate-fadeInUp" style="color: #ffffff;">
                 高性能分布式推理框架<br>
-                数据流原生的模块化、可控、透明的LLM工作流推理框架<br>
+                数据流原生的模块化、透明、可控的LLM工作流推理框架<br>
                 让AI应用开发变得简单、高效、可观测
             </p>
             
@@ -94,65 +94,108 @@
         </div>
     </section>
 
-    <!-- What is SAGE Section -->
+    <!-- Pipeline Building Process Section -->
     <section class="what-is-sage section-animate">
         <div class="container">
             <h2 class="section-title">什么是 SAGE？</h2>
-            <p class="section-subtitle">SAGE (Streaming-Augmented Generative Execution) 是一个数据流原生的推理框架，专为构建模块化、可控、透明的LLM工作流而设计</p>
+            <p class="section-subtitle">SAGE (Streaming-Augmented Generative Execution) 是一个数据流原生的推理框架，<br>专为构建模块化、可控、透明的LLM工作流而设计</p>
             
-            <div class="intro-content">
-                <div class="intro-text">
-                    <div class="intro-highlight">
-                        <div class="highlight-icon">
-                            <i class="fas fa-stream"></i>
-                        </div>
-                        <div class="highlight-content">
-                            <h3>数据流原生设计</h3>
-                            <p>基于数据流范式构建，天然支持流式处理和异步执行，为LLM工作流提供最佳的执行模型。</p>
+            <div class="pipeline-building-content">
+                <!-- 连接线容器 -->
+                <div class="connection-lines">
+                    <svg class="connection-svg" width="100%" height="100%">
+                        <!-- 获取数据源 -> 问题输入 -->
+                        <path class="connection-line" id="line1" d="M 0,0 Q 0,0 0,0" stroke="#3b82f6" stroke-width="2" fill="none" opacity="0.7" stroke-dasharray="5,5">
+                            <animate attributeName="stroke-dashoffset" values="0;-10" dur="1s" repeatCount="indefinite"/>
+                        </path>
+                        <!-- 编码算子 -> 向量检索 -->
+                        <path class="connection-line" id="line2" d="M 0,0 Q 0,0 0,0" stroke="#10b981" stroke-width="2" fill="none" opacity="0.7" stroke-dasharray="5,5">
+                            <animate attributeName="stroke-dashoffset" values="0;-10" dur="1s" repeatCount="indefinite"/>
+                        </path>
+                        <!-- 连接Pipeline -> 提问重构和向量检索之间的箭头 -->
+                        <path class="connection-line" id="line3" d="M 0,0 Q 0,0 0,0" stroke="#f59e0b" stroke-width="2" fill="none" opacity="0.7" stroke-dasharray="5,5">
+                            <animate attributeName="stroke-dashoffset" values="0;-10" dur="1s" repeatCount="indefinite"/>
+                        </path>
+                    </svg>
+                </div>
+
+                <!-- 上半部分：获取数据源和编码算子 -->
+                <div class="pipeline-top-section">
+                    <div class="step-explanation" id="step-1">
+                        <div class="step-card compact">
+                            <div class="step-number">1</div>
+                            <div class="step-info">
+                                <h3><i class="fas fa-database"></i> 轻松连接各类数据源</h3>
+                                <p>通过连接多种数据源（Socket、File、Kafka 等），实现日志、监控、交易等数据的实时接入，确保数据第一时间进入处理流水线，为后续分析奠定基础。</p>
+                            </div>
                         </div>
                     </div>
                     
-                    <div class="intro-highlight">
-                        <div class="highlight-icon">
-                            <i class="fas fa-cubes"></i>
-                        </div>
-                        <div class="highlight-content">
-                            <h3>模块化组合</h3>
-                            <p>提供类型化、可复用的算子，支持声明式组合，让复杂的AI管道构建变得简单直观。</p>
-                        </div>
-                    </div>
-                    
-                    <div class="intro-highlight">
-                        <div class="highlight-icon">
-                            <i class="fas fa-eye"></i>
-                        </div>
-                        <div class="highlight-content">
-                            <h3>内置可观测性</h3>
-                            <p>提供交互式仪表板，实时监控执行状态，让AI系统的运行过程完全透明可控。</p>
+                    <div class="step-explanation" id="step-2">
+                        <div class="step-card compact">
+                            <div class="step-number">2</div>
+                            <div class="step-info">
+                                <h3><i class="fas fa-code"></i> 预定义或自定义编码算子</h3>
+                                <p>借助 SAGE 丰富的预定义算子或自定义算子，灵活实现数据清洗、聚合、转换、建模等逻辑，让开发者能够高效构建可扩展的数据处理流程。</p>
+                            </div>
                         </div>
                     </div>
                 </div>
                 
-                <div class="intro-visual">
-                    <div class="dataflow-diagram">
-                        <div class="flow-node input">
-                            <i class="fas fa-file-alt"></i>
-                            <span>数据源</span>
+                <!-- 中央Pipeline可视化 -->
+                <div class="simple-pipeline">
+                    <div class="pipeline-flow">
+                        <div class="pipeline-node query-input" id="query-input">
+                            <i class="fas fa-question-circle"></i>
+                            <span>问题输入</span>
                         </div>
-                        <div class="flow-arrow">→</div>
-                        <div class="flow-node process">
-                            <i class="fas fa-cogs"></i>
-                            <span>处理算子</span>
+                        <div class="pipeline-arrow" id="arrow-1">→</div>
+                        <div class="pipeline-node query-rewrite" id="query-rewrite">
+                            <i class="fas fa-edit"></i>
+                            <span>提问重构</span>
                         </div>
-                        <div class="flow-arrow">→</div>
-                        <div class="flow-node output">
+                        <div class="pipeline-arrow" id="arrow-2">→</div>
+                        <div class="pipeline-node vector-search" id="vector-search">
+                            <i class="fas fa-search"></i>
+                            <span>向量检索</span>
+                        </div>
+                        <div class="pipeline-arrow" id="arrow-3">→</div>
+                        <div class="pipeline-node compress" id="compress">
+                            <i class="fas fa-compress-alt"></i>
+                            <span>语料压缩</span>
+                        </div>
+                        <div class="pipeline-arrow" id="arrow-4">→</div>
+                        <div class="pipeline-node llm-generation" id="llm-generation">
                             <i class="fas fa-brain"></i>
-                            <span>LLM推理</span>
+                            <span>LLM生成</span>
                         </div>
-                        <div class="flow-arrow">→</div>
-                        <div class="flow-node result">
-                            <i class="fas fa-check-circle"></i>
+                        <div class="pipeline-arrow" id="arrow-5">→</div>
+                        <div class="pipeline-node result-output" id="result-output">
+                            <i class="fas fa-comment-dots"></i>
                             <span>结果输出</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 下半部分：连接Pipeline和提交运行 -->
+                <div class="pipeline-bottom-section">
+                    <div class="step-explanation" id="step-3">
+                        <div class="step-card compact">
+                            <div class="step-number">3</div>
+                            <div class="step-info">
+                                <h3><i class="fas fa-link"></i> 快速组装数据处理Pipeline</h3>
+                                <p>使用声明式 API 将算子自由组装成 Pipeline，SAGE 自动完成数据流的编排与转换，无需关心底层细节，轻松实现复杂数据管道。</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="step-explanation" id="step-4">
+                        <div class="step-card compact">
+                            <div class="step-number">4</div>
+                            <div class="step-info">
+                                <h3><i class="fas fa-play-circle"></i> 一键提交并高效运行</h3>
+                                <p>提交至 SAGE 执行引擎，系统自动完成资源分配与优化调度，保障作业高效运行，并支持实时与批量任务的稳定执行。</p>
+                            </div>
                         </div>
                     </div>
                 </div>

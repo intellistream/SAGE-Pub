@@ -246,8 +246,8 @@
 
 /* What is SAGE Section */
 .what-is-sage {
-    padding: 8rem 2rem;
-    background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%);
+    padding: 4rem 2rem 2rem;
+    background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);;
 }
 
 .intro-content {
@@ -353,7 +353,7 @@
 
 /* Why Choose SAGE Section */
 .why-choose-sage {
-    padding: 8rem 2rem;
+    padding: 4rem 2rem 2rem;
     background: white;
 }
 
@@ -406,7 +406,7 @@
 
 /* Usage Examples Section */
 .usage-examples {
-    padding: 8rem 2rem;
+    padding: 4rem 2rem 2rem;
     background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
 }
 
@@ -921,7 +921,7 @@
 
 /* How to Contribute Section */
 .how-to-contribute {
-    padding: 8rem 2rem;
+    padding: 4rem 2rem 2rem;
     background: white;
 }
 
@@ -1180,4 +1180,559 @@
     background: linear-gradient(135deg, #3b82f6, #8b5cf6);
     color: white;
     font-weight: 600;
+}
+
+/* Pipeline Building Process Styles */
+.pipeline-building-content {
+    max-width: 100%;
+    margin: 0 auto;
+    position: relative;
+}
+
+/* 上下半部分布局 */
+.pipeline-top-section,
+.pipeline-bottom-section {
+    display: flex;
+    justify-content: space-between;
+    gap: 2.5rem;
+    margin: 0rem 0;
+}
+
+.step-explanation {
+    flex: 1;
+    max-width: 48%;
+    min-width: 320px;
+    position: relative;
+}
+
+/* 紧凑卡片样式 */
+.step-card.compact {
+    padding: 1.8rem 2rem;
+    min-height: 140px;
+}
+
+.step-card.compact .step-info h3 {
+    font-size: 1.2rem;
+    margin-bottom: 1rem;
+    font-weight: 600;
+    line-height: 1.4;
+}
+
+.step-card.compact .step-info p {
+    font-size: 0.95rem;
+    margin-bottom: 0;
+    line-height: 1.6;
+}
+
+/* 步骤卡片 */
+.step-card {
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 18px;
+    padding: 1.8rem 2rem;
+    box-shadow: 0 6px 25px rgba(0, 0, 0, 0.08);
+    border: 2px solid rgba(59, 130, 246, 0.1);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    backdrop-filter: blur(10px);
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-height: 160px;
+}
+
+.step-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+    border-color: rgba(59, 130, 246, 0.4);
+}
+
+/* 连接线容器 */
+.connection-lines {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 10;
+}
+
+.connection-svg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.connection-line {
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+}
+
+.step-number {
+    position: absolute;
+    top: -12px;
+    right: -12px;
+    width: 32px;
+    height: 32px;
+    background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 0.95rem;
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+    z-index: 20;
+}
+
+
+
+.step-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.step-info h3 {
+    color: #1e293b;
+    font-size: 1.25rem;
+    margin-bottom: 0.8rem;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-weight: 600;
+}
+
+.step-info p {
+    color: #64748b;
+    line-height: 1.7;
+    margin-bottom: 0;
+    flex: 1;
+    font-size: 0.95rem;
+    text-align: left;
+}
+
+.code-snippet {
+    background: #f1f5f9;
+    border-left: 4px solid #3b82f6;
+    padding: 0.75rem 1rem;
+    border-radius: 0 8px 8px 0;
+    font-family: 'Courier New', monospace;
+    font-size: 0.9rem;
+}
+
+.code-snippet code {
+    color: #1e293b;
+    font-weight: 500;
+}
+
+
+
+.pipeline-container {
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+.pipeline-title {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.pipeline-title h3 {
+    color: #1e293b;
+    font-size: 1.4rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+/* Simple Pipeline布局 */
+.simple-pipeline {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 1.5rem 0;
+}
+
+.pipeline-building-content {
+    background: linear-gradient(135deg, rgba(248, 250, 252, 0.8), rgba(241, 245, 249, 0.8));
+    border-radius: 20px;
+    padding: 2rem 1.5rem;
+    position: relative;
+    border: 1px solid rgba(226, 232, 240, 0.5);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.05);
+}
+
+.pipeline-flow {
+    display: flex;
+    align-items: center;
+    gap: 1.8rem;
+    justify-content: center;
+    max-width: 100%;
+    width: 100%;
+    overflow-x: auto;
+    padding: 2rem 1rem 1rem;
+    position: relative;
+}
+
+.pipeline-description {
+    text-align: center;
+    margin-top: 1rem;
+}
+
+.pipeline-description p {
+    color: #64748b;
+    font-size: 0.95rem;
+    line-height: 1.6;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+/* Pipeline节点 */
+.pipeline-node {
+    background: white;
+    border: 2px solid #cbd5e1;
+    border-radius: 12px;
+    padding: 1rem 1.2rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    min-width: 100px;
+    max-width: 120px;
+    text-align: center;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    flex-shrink: 0;
+    position: relative;
+    animation: slideInUp 0.6s ease forwards;
+    opacity: 0;
+    transform: translateY(20px);
+}
+
+.pipeline-node:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    border-color: #3b82f6;
+}
+
+.pipeline-node i {
+    font-size: 1.5rem;
+    color: #3b82f6;
+    margin-bottom: 0.2rem;
+}
+
+.pipeline-node span {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #1e293b;
+    white-space: nowrap;
+    line-height: 1.2;
+}
+
+/* 特殊节点样式 */
+.pipeline-node.query-input {
+    background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+    border-color: #3b82f6;
+    box-shadow: 0 4px 15px rgba(59, 130, 246, 0.15);
+}
+
+.pipeline-node.query-input i {
+    color: #1d4ed8;
+}
+
+.pipeline-node.query-rewrite {
+    background: linear-gradient(135deg, #fef3c7, #fde68a);
+    border-color: #f59e0b;
+    box-shadow: 0 4px 15px rgba(245, 158, 11, 0.15);
+}
+
+.pipeline-node.query-rewrite i {
+    color: #d97706;
+}
+
+.pipeline-node.vector-search {
+    background: linear-gradient(135deg, #dcfce7, #bbf7d0);
+    border-color: #10b981;
+    box-shadow: 0 4px 15px rgba(16, 185, 129, 0.15);
+}
+
+.pipeline-node.vector-search i {
+    color: #059669;
+}
+
+.pipeline-node.compress {
+    background: linear-gradient(135deg, #fce7f3, #fbcfe8);
+    border-color: #ec4899;
+    box-shadow: 0 4px 15px rgba(236, 72, 153, 0.15);
+}
+
+.pipeline-node.compress i {
+    color: #be185d;
+}
+
+.pipeline-node.llm-generation {
+    background: linear-gradient(135deg, #f3e8ff, #ddd6fe);
+    border-color: #8b5cf6;
+    box-shadow: 0 4px 15px rgba(139, 92, 246, 0.15);
+}
+
+.pipeline-node.llm-generation i {
+    color: #7c3aed;
+}
+
+.pipeline-node.result-output {
+    background: linear-gradient(135deg, #e0f2fe, #b3e5fc);
+    border-color: #0ea5e9;
+    box-shadow: 0 4px 15px rgba(14, 165, 233, 0.15);
+}
+
+.pipeline-node.result-output i {
+    color: #0284c7;
+}
+
+/* Pipeline箭头 */
+.pipeline-arrow {
+    color: #3b82f6;
+    font-size: 2rem;
+    font-weight: bold;
+    min-width: 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    text-shadow: 0 2px 4px rgba(59, 130, 246, 0.2);
+}
+
+.pipeline-arrow:hover {
+    color: #2563eb;
+    transform: scale(1.1);
+}
+
+
+
+/* 提交执行部分 */
+.submission-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 3rem 0;
+    gap: 2rem;
+}
+
+.submission-arrow {
+    display: flex;
+    align-items: center;
+    background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+    border-radius: 25px;
+    padding: 1rem 2rem;
+    box-shadow: 0 4px 20px rgba(59, 130, 246, 0.3);
+    animation: pulse-glow 2s infinite;
+    position: relative;
+}
+
+.arrow-body {
+    display: flex;
+    align-items: center;
+}
+
+.arrow-content {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    color: white;
+    font-weight: 600;
+    font-size: 1.1rem;
+}
+
+.arrow-content i {
+    font-size: 1.3rem;
+}
+
+.arrow-tip {
+    width: 0;
+    height: 0;
+    border-left: 15px solid #8b5cf6;
+    border-top: 10px solid transparent;
+    border-bottom: 10px solid transparent;
+    margin-left: 0.5rem;
+}
+
+/* 执行状态指示器 */
+.execution-status {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+}
+
+.status-indicator {
+    position: relative;
+    width: 80px;
+    height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #1e293b, #334155);
+    border-radius: 50%;
+    color: white;
+    font-size: 1.8rem;
+}
+
+.pulse-ring {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border: 3px solid #3b82f6;
+    border-radius: 50%;
+    animation: pulse 2s cubic-bezier(0.455, 0.03, 0.515, 0.955) infinite;
+}
+
+.pulse-ring-delay-1 {
+    animation-delay: 0.33s;
+}
+
+.pulse-ring-delay-2 {
+    animation-delay: 0.66s;
+}
+
+.execution-status p {
+    color: #64748b;
+    font-weight: 500;
+    margin: 0;
+}
+
+/* 动画效果 */
+@keyframes slideInUp {
+    0% {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes pulse-glow {
+    0%, 100% {
+        box-shadow: 0 4px 20px rgba(59, 130, 246, 0.3);
+    }
+    50% {
+        box-shadow: 0 6px 25px rgba(59, 130, 246, 0.5);
+    }
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+        opacity: 1;
+    }
+    100% {
+        transform: scale(1.5);
+        opacity: 0;
+    }
+}
+
+/* Pipeline节点动画延迟 */
+.pipeline-node:nth-child(1) { animation-delay: 0.1s; }
+.pipeline-node:nth-child(3) { animation-delay: 0.2s; }
+.pipeline-node:nth-child(5) { animation-delay: 0.3s; }
+.pipeline-node:nth-child(7) { animation-delay: 0.4s; }
+.pipeline-node:nth-child(9) { animation-delay: 0.5s; }
+.pipeline-node:nth-child(11) { animation-delay: 0.6s; }
+
+/* 连接线样式 */
+.connection-lines {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 1;
+}
+
+.connection-svg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.connection-line {
+    stroke-width: 3;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+}
+
+/* 动画效果 */
+.connection-line {
+    stroke-dasharray: 8, 4;
+    animation: dash-flow 2s linear infinite;
+}
+
+@keyframes dash-flow {
+    0% {
+        stroke-dashoffset: 0;
+    }
+    100% {
+        stroke-dashoffset: -12;
+    }
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+    .pipeline-top-section,
+    .pipeline-bottom-section {
+        flex-direction: column;
+        gap: 2rem;
+    }
+    
+    .step-explanation {
+        max-width: none;
+        text-align: center;
+    }
+    
+    .step-explanation.left {
+        text-align: center;
+    }
+    
+    .pipeline-flow {
+        flex-direction: column;
+        gap: 1rem;
+        padding: 1.5rem 0.5rem;
+    }
+    
+    .simple-pipeline {
+        margin: 2rem 0;
+        padding: 1rem;
+    }
+    
+    .pipeline-arrow {
+        transform: rotate(90deg);
+        margin: 0.5rem 0;
+        font-size: 1.5rem;
+    }
+    
+    .pipeline-node {
+        min-width: 90px;
+        max-width: 140px;
+        padding: 0.8rem 1rem;
+    }
+    
+    .pipeline-node i {
+        font-size: 1.3rem;
+    }
+    
+    .pipeline-node span {
+        font-size: 0.75rem;
+    }
 }
