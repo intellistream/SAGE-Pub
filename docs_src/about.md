@@ -62,7 +62,7 @@ You will be prompted to select one of the following modes:
    Launches a pre-configured Docker container and sets up the Conda environment inside it.
 
 3. **Full Setup**  
-   Launches the Docker container, installs all required dependencies (including **CANDY**, our in-house vector database), and sets up the Conda environment.
+   Launches the Docker container, installs all required dependencies (including **sage.db**, our in-house vector database), and sets up the Conda environment.
 
 ---
 
