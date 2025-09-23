@@ -5,6 +5,12 @@
     margin: 0 auto;
 }
 
+.container-wide {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 1rem;
+}
+
 .section-title {
     text-align: center;
     font-size: 3rem;
@@ -437,8 +443,8 @@
 }
 
 .example-icon {
-    width: 60px;
-    height: 60px;
+    width: 55px;
+    height: 55px;
     background: linear-gradient(135deg, #8b5cf6, #7c3aed);
     border-radius: 50%;
     display: flex;
@@ -519,7 +525,7 @@
 }
 
 .example-description {
-    padding: 1rem 2rem 2rem;
+    padding: 1rem 2rem 0rem;
 }
 
 .example-description p {
@@ -540,8 +546,9 @@
 .example-title {
     font-size: 1.3rem;
     font-weight: 600;
-    margin-bottom: 1rem;
+    margin-bottom: 0.5rem;
     color: #1e293b;
+    text-align: center;
 }
 
 .example-description {
@@ -1117,8 +1124,10 @@
     }
 }
 
-/* Article Monitoring Animation Integration */
-.example-card .article-monitoring-container {
+/* Animation Containers Integration */
+.example-card .article-monitoring-container,
+.example-card .smart-home-container,
+.example-card .auto-scaling-container {
     width: 100%;
     height: 350px;
     border-radius: 8px;
@@ -1134,9 +1143,11 @@
     margin: 1rem 2rem;
 }
 
-/* Ensure animation container fits well in example card */
+/* Ensure animation containers fit well in example card */
 @media (max-width: 768px) {
-    .example-card .article-monitoring-container {
+    .example-card .article-monitoring-container,
+    .example-card .smart-home-container,
+    .example-card .auto-scaling-container {
         height: 280px;
     }
     
@@ -1155,7 +1166,9 @@
 }
 
 @media (max-width: 480px) {
-    .example-card .article-monitoring-container {
+    .example-card .article-monitoring-container,
+    .example-card .smart-home-container,
+    .example-card .auto-scaling-container {
         height: 240px;
     }
     
