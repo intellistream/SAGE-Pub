@@ -2006,7 +2006,7 @@ function updateConnectionLines() {
 
     if (!step1 || !step2 || !step3 || !queryInput || !vectorSearch || !arrow2) return;
 
-    // 精确计算连接点，确保与垂直边缘对齐并保持距离
+    // 精确计算连接点，支持移动端768px以下的水平布局
     function getConnectionPoints(sourceElement, targetElement, gap = 8) {
         const sourceRect = sourceElement.getBoundingClientRect();
         const targetRect = targetElement.getBoundingClientRect();
@@ -2033,70 +2033,124 @@ function updateConnectionLines() {
 
         let fromPoint, toPoint;
 
-        // 根据垂直位置关系确定连接点
-        if (targetBox.centerY > sourceBox.centerY) {
-            // 目标在下方：从源元素底部连接到目标元素顶部
-            fromPoint = { x: sourceBox.centerX, y: sourceBox.bottom + gap };
-            toPoint = { x: targetBox.centerX, y: targetBox.top - gap };
-        } else if (targetBox.centerY < sourceBox.centerY) {
-            // 目标在上方：从源元素顶部连接到目标元素底部
-            fromPoint = { x: sourceBox.centerX, y: sourceBox.top - gap };
-            toPoint = { x: targetBox.centerX, y: targetBox.bottom + gap };
-        } else {
-            // 同一水平线：水平连接
-            if (targetBox.centerX > sourceBox.centerX) {
+        // 检测是否为移动端布局 (768px以下)
+        const isMobile = window.innerWidth <= 768;
+        
+        if (isMobile) {
+            // 移动端水平布局：step-1,step-2在左侧，step-3在右侧，pipeline在中央
+            if (sourceElement.id === 'step-1' || sourceElement.id === 'step-2') {
+                // 左侧步骤连接到中央pipeline：从右边框中部连接到左边框中部
                 fromPoint = { x: sourceBox.right + gap, y: sourceBox.centerY };
                 toPoint = { x: targetBox.left - gap, y: targetBox.centerY };
-            } else {
+            } else if (sourceElement.id === 'step-3') {
+                // 右侧步骤连接到中央pipeline：从左边框中部连接到右边框中部
                 fromPoint = { x: sourceBox.left - gap, y: sourceBox.centerY };
                 toPoint = { x: targetBox.right + gap, y: targetBox.centerY };
+            } else {
+                // 默认水平连接
+                if (targetBox.centerX > sourceBox.centerX) {
+                    fromPoint = { x: sourceBox.right + gap, y: sourceBox.centerY };
+                    toPoint = { x: targetBox.left - gap, y: targetBox.centerY };
+                } else {
+                    fromPoint = { x: sourceBox.left - gap, y: sourceBox.centerY };
+                    toPoint = { x: targetBox.right + gap, y: targetBox.centerY };
+                }
+            }
+        } else {
+            // 桌面端垂直布局：按照原有逻辑
+            if (targetBox.centerY > sourceBox.centerY) {
+                // 目标在下方：从源元素底部连接到目标元素顶部
+                fromPoint = { x: sourceBox.centerX, y: sourceBox.bottom + gap };
+                toPoint = { x: targetBox.centerX, y: targetBox.top - gap };
+            } else if (targetBox.centerY < sourceBox.centerY) {
+                // 目标在上方：从源元素顶部连接到目标元素底部
+                fromPoint = { x: sourceBox.centerX, y: sourceBox.top - gap };
+                toPoint = { x: targetBox.centerX, y: targetBox.bottom + gap };
+            } else {
+                // 同一水平线：水平连接
+                if (targetBox.centerX > sourceBox.centerX) {
+                    fromPoint = { x: sourceBox.right + gap, y: sourceBox.centerY };
+                    toPoint = { x: targetBox.left - gap, y: targetBox.centerY };
+                } else {
+                    fromPoint = { x: sourceBox.left - gap, y: sourceBox.centerY };
+                    toPoint = { x: targetBox.right + gap, y: targetBox.centerY };
+                }
             }
         }
 
         return { from: fromPoint, to: toPoint };
     }
 
-    // 创建带圆角的路径，确保圆角不切入垂直边缘
+    // 创建带圆角的路径，支持移动端和桌面端不同布局
     function createRoundedPath(fromPoint, toPoint) {
         const dx = toPoint.x - fromPoint.x;
         const dy = toPoint.y - fromPoint.y;
+        const isMobile = window.innerWidth <= 768;
         
-        // 动态计算圆角半径，确保不超过可用距离
-        const maxRadius = Math.min(Math.abs(dx) / 3, Math.abs(dy) / 6, 6);
-        const radius = Math.max(3, maxRadius);
-        
-        // 如果水平距离太小，画直线
-        if (Math.abs(dx) < radius * 2) {
+        // 如果距离太小，直接画直线
+        if (Math.abs(dx) < 10 && Math.abs(dy) < 10) {
             return `M ${fromPoint.x},${fromPoint.y} L ${toPoint.x},${toPoint.y}`;
         }
         
-        // 计算中点Y坐标和转折方向
-        const midY = fromPoint.y + dy / 2;
-        const direction = dx > 0 ? 1 : -1;
-        
-        // 确保转折点位置正确，圆角在垂直线的正确位置
-        const verticalLength1 = Math.abs(midY - fromPoint.y);
-        const verticalLength2 = Math.abs(toPoint.y - midY);
-        
-        // 调整圆角半径以适应实际的垂直距离
-        const actualRadius = Math.min(radius, verticalLength1 - 1, verticalLength2 - 1);
-        
-        if (actualRadius < 2) {
-            // 如果空间太小，绘制简单的直角线
-            return `M ${fromPoint.x},${fromPoint.y} L ${fromPoint.x},${midY} L ${toPoint.x},${midY} L ${toPoint.x},${toPoint.y}`;
+        if (isMobile && Math.abs(dy) < 20) {
+            // 移动端水平连接：如果垂直距离很小，画直线或简单的水平线
+            return `M ${fromPoint.x},${fromPoint.y} L ${toPoint.x},${toPoint.y}`;
         }
         
-        // 计算正确的圆角转折点
-        const corner1Y = fromPoint.y < toPoint.y ? midY - actualRadius : midY + actualRadius;
-        const corner2Y = fromPoint.y < toPoint.y ? midY + actualRadius : midY - actualRadius;
+        // 动态计算圆角半径
+        const maxRadius = Math.min(Math.abs(dx) / 3, Math.abs(dy) / 6, 8);
+        const radius = Math.max(3, maxRadius);
         
-        // 创建路径：垂直线 -> 圆角 -> 水平线 -> 圆角 -> 垂直线
-        return `M ${fromPoint.x},${fromPoint.y} ` +
-               `L ${fromPoint.x},${corner1Y} ` +
-               `Q ${fromPoint.x},${midY} ${fromPoint.x + direction * actualRadius},${midY} ` +
-               `L ${toPoint.x - direction * actualRadius},${midY} ` +
-               `Q ${toPoint.x},${midY} ${toPoint.x},${corner2Y} ` +
-               `L ${toPoint.x},${toPoint.y}`;
+        if (isMobile) {
+            // 移动端：主要是水平连接，可能需要垂直调整
+            if (Math.abs(dy) < radius * 2) {
+                // 几乎在同一水平线上，画直线
+                return `M ${fromPoint.x},${fromPoint.y} L ${toPoint.x},${toPoint.y}`;
+            } else {
+                // 需要垂直调整的水平连接
+                const midX = fromPoint.x + dx / 2;
+                const actualRadius = Math.min(radius, Math.abs(dx) / 4, Math.abs(dy) / 4);
+                
+                if (actualRadius < 2) {
+                    return `M ${fromPoint.x},${fromPoint.y} L ${midX},${fromPoint.y} L ${midX},${toPoint.y} L ${toPoint.x},${toPoint.y}`;
+                }
+                
+                const directionX = dx > 0 ? 1 : -1;
+                const directionY = dy > 0 ? 1 : -1;
+                
+                return `M ${fromPoint.x},${fromPoint.y} ` +
+                       `L ${midX - directionX * actualRadius},${fromPoint.y} ` +
+                       `Q ${midX},${fromPoint.y} ${midX},${fromPoint.y + directionY * actualRadius} ` +
+                       `L ${midX},${toPoint.y - directionY * actualRadius} ` +
+                       `Q ${midX},${toPoint.y} ${midX + directionX * actualRadius},${toPoint.y} ` +
+                       `L ${toPoint.x},${toPoint.y}`;
+            }
+        } else {
+            // 桌面端：主要是垂直连接
+            if (Math.abs(dx) < radius * 2) {
+                return `M ${fromPoint.x},${fromPoint.y} L ${toPoint.x},${toPoint.y}`;
+            }
+            
+            const midY = fromPoint.y + dy / 2;
+            const direction = dx > 0 ? 1 : -1;
+            const verticalLength1 = Math.abs(midY - fromPoint.y);
+            const verticalLength2 = Math.abs(toPoint.y - midY);
+            const actualRadius = Math.min(radius, verticalLength1 - 1, verticalLength2 - 1);
+            
+            if (actualRadius < 2) {
+                return `M ${fromPoint.x},${fromPoint.y} L ${fromPoint.x},${midY} L ${toPoint.x},${midY} L ${toPoint.x},${toPoint.y}`;
+            }
+            
+            const corner1Y = fromPoint.y < toPoint.y ? midY - actualRadius : midY + actualRadius;
+            const corner2Y = fromPoint.y < toPoint.y ? midY + actualRadius : midY - actualRadius;
+            
+            return `M ${fromPoint.x},${fromPoint.y} ` +
+                   `L ${fromPoint.x},${corner1Y} ` +
+                   `Q ${fromPoint.x},${midY} ${fromPoint.x + direction * actualRadius},${midY} ` +
+                   `L ${toPoint.x - direction * actualRadius},${midY} ` +
+                   `Q ${toPoint.x},${midY} ${toPoint.x},${corner2Y} ` +
+                   `L ${toPoint.x},${toPoint.y}`;
+        }
     }
 
     // 更新三条连接线

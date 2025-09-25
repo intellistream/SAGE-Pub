@@ -37,6 +37,24 @@
         grid-template-columns: repeat(2, 1fr);
         gap: 2rem;
     }
+    
+    /* what-is-sage 部分的移动端优化 */
+    .what-is-sage {
+        padding: 3rem 1rem 2rem;
+    }
+    
+    .pipeline-building-content {
+        padding: 1.5rem 0.5rem;
+        margin: 0 auto;
+        max-width: 100%;
+        overflow: hidden;
+    }
+    
+    /* 确保step-explanation能够更好地利用空间 */
+    .pipeline-top-section,
+    .pipeline-bottom-section {
+        padding: 0 0.5rem;
+    }
 }
 
 @media (max-width: 480px) {
@@ -63,5 +81,19 @@
     
     .features, .quickstart, .stats {
         padding: 4rem 1rem;
+    }
+    
+    /* what-is-sage 在小屏幕下的进一步优化 */
+    .what-is-sage {
+        padding: 2.5rem 0.2rem 1.5rem;
+    }
+    
+    .pipeline-building-content {
+        padding: 1rem 0.1rem;
+    }
+    
+    .pipeline-top-section,
+    .pipeline-bottom-section {
+        padding: 0 0.2rem;
     }
 }

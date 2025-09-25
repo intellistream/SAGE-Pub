@@ -1703,49 +1703,211 @@
 
 /* 响应式设计 */
 @media (max-width: 768px) {
-    .pipeline-top-section,
+    /* what-is-sage 区域为pipeline预留足够高度 */
+    .what-is-sage {
+        padding: 2rem 1rem 4rem;
+        min-height: 800px; /* 增加最小高度以容纳完整的pipeline */
+    }
+    
+    /* 整体布局以pipeline-flow为中心设计 */
+    .pipeline-building-content {
+        padding: 2rem 0.5rem;
+        display: flex;
+        flex-direction: row;
+        align-items: stretch;
+        justify-content: space-between;
+        gap: 1rem;
+        position: relative;
+        /* 容器高度要足够显示完整的pipeline */
+        min-height: 700px; /* 改为min-height，确保能容纳所有pipeline节点 */
+        width: 100%;
+        box-sizing: border-box;
+    }
+    
+    /* pipeline-top-section 放在左边，充满可用高度 */
+    .pipeline-top-section {
+        flex-direction: column;
+        gap: 2rem; /* 增大间距以匹配更高的容器 */
+        margin: 0;
+        width: calc(50% - 70px); /* 精确为120px宽的pipeline预留空间 */
+        min-height: 100%; /* 使用min-height确保能够扩展 */
+        flex-shrink: 0;
+        display: flex;
+        align-items: stretch;
+        justify-content: center; /* 垂直居中排列step-explanation */
+        z-index: 5;
+        box-sizing: border-box;
+    }
+    
+    /* pipeline-bottom-section 放在右边，充满可用高度 */
     .pipeline-bottom-section {
         flex-direction: column;
-        gap: 2rem;
+        gap: 2rem; /* 增大间距以匹配更高的容器 */
+        margin: 0;
+        width: calc(50% - 70px); /* 精确为120px宽的pipeline预留空间 */
+        min-height: 100%; /* 使用min-height确保能够扩展 */
+        flex-shrink: 0;
+        display: flex;
+        align-items: stretch;
+        justify-content: center; /* 垂直居中排列step-explanation */
+        z-index: 5;
+        box-sizing: border-box;
     }
     
     .step-explanation {
-        max-width: none;
-        text-align: center;
+        width: 100% !important;
+        min-width: 0 !important;
+        max-width: none !important;
+        text-align: left;
+        flex: 1 !important; /* 平分可用的垂直空间 */
+        box-sizing: border-box;
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: center; /* 垂直居中内容 */
+        min-height: 200px; /* 确保每个step有足够的最小高度 */
     }
     
     .step-explanation.left {
-        text-align: center;
+        text-align: left; /* 保持左对齐 */
+    }
+    
+    /* 步骤卡片在移动端的样式调整 */
+    .step-card.compact {
+        padding: 1.5rem 1.2rem; /* 适当的内边距 */
+        min-height: 180px; /* 增加最小高度以更好利用空间 */
+        width: 100% !important;
+        max-width: none !important;
+        box-sizing: border-box;
+        flex: 1 !important;
+        display: flex;
+        flex-direction: column;
+        justify-content: center; /* 垂直居中卡片内容 */
+        position: relative; /* 为伪元素连接线提供定位上下文 */
+        overflow: visible; /* 确保连接线可见 */
+    }
+    
+    .step-card.compact .step-info h3 {
+        font-size: 1rem; /* 减小标题字体 */
+        margin-bottom: 0.6rem;
+    }
+    
+    .step-card.compact .step-info p {
+        font-size: 0.8rem; /* 减小正文字体 */
+        line-height: 1.4;
+    }
+    
+    .step-number {
+        width: 26px; /* 减小步骤数字圆圈 */
+        height: 26px;
+        font-size: 0.8rem;
+        top: -8px;
+        right: -8px;
+    }
+    
+    /* Pipeline 固定宽度，高度自适应内容 */
+    .simple-pipeline {
+        margin: 0;
+        padding: 3rem 0; /* 增加上下边距 */
+        width: 120px; /* 固定宽度 */
+        min-height: 600px; /* 改为最小高度，让内容自适应 */
+        max-height: none; /* 移除最大高度限制 */
+        flex-shrink: 0;
+        position: absolute;
+        left: 50%; /* 水平居中 */
+        top: 50%; /* 垂直居中 */
+        transform: translate(-50%, -50%); /* 水平和垂直居中 */
+        z-index: 10;
+        overflow: visible;
+        box-sizing: border-box;
     }
     
     .pipeline-flow {
         flex-direction: column;
-        gap: 1rem;
-        padding: 1.5rem 0.5rem;
-    }
-    
-    .simple-pipeline {
-        margin: 2rem 0;
-        padding: 1rem;
+        gap: 0.6rem; /* 适当的间距确保节点之间有足够空间 */
+        padding: 0;
+        width: 100%; /* 占满simple-pipeline的宽度 */
+        min-height: 100%; /* 使用最小高度而非固定高度 */
+        align-items: center;
+        justify-content: center; /* 垂直居中排列所有pipeline节点 */
+        display: flex;
+        box-sizing: border-box;
     }
     
     .pipeline-arrow {
         transform: rotate(90deg);
-        margin: 0.5rem 0;
-        font-size: 1.5rem;
+        margin: 0.05rem 0; /* 进一步缩减箭头上下间距 */
+        font-size: 0.9rem; /* 进一步减小字体 */
+        color: #64748b;
+        line-height: 0.8; /* 进一步减小行高，减少占用空间 */
+    }
+    
+    /* 768px以下连接线调整 - 继续显示SVG连接线 */
+    .connection-lines {
+        display: block; /* 继续显示SVG连接线 */
     }
     
     .pipeline-node {
         min-width: 90px;
-        max-width: 140px;
-        padding: 0.8rem 1rem;
+        max-width: 120px;
+        width: 100px; /* 固定宽度 */
+        padding: 0.6rem 0.4rem; /* 减小内边距 */
     }
     
     .pipeline-node i {
-        font-size: 1.3rem;
+        font-size: 1.2rem;
     }
     
     .pipeline-node span {
+        font-size: 0.7rem;
+        line-height: 1.1;
+    }
+}
+
+/* 更小屏幕的优化调整 */
+@media (max-width: 480px) {
+    .pipeline-building-content {
+        padding: 1rem 0.2rem;
+        min-height: auto; /* 改为自适应高度 */
+    }
+    
+    .pipeline-top-section,
+    .pipeline-bottom-section {
+        gap: 0.8rem;
+        max-width: calc(50% - 45px); /* 为更小的pipeline预留空间 */
+    }
+    
+    .step-card.compact {
+        padding: 1rem 0.8rem;
+        min-height: 90px;
+        width: 100%; /* 确保占满父容器宽度 */
+        box-sizing: border-box; /* 确保padding包含在宽度内 */
+    }
+    
+    .step-card.compact .step-info h3 {
+        font-size: 0.95rem;
+    }
+    
+    .step-card.compact .step-info p {
         font-size: 0.75rem;
+    }
+    
+    /* Pipeline 在小屏幕上稍微缩小 */
+    .simple-pipeline {
+        width: 90px; /* 与pipeline-node宽度完全一致 */
+    }
+    
+    .pipeline-node {
+        min-width: 80px;
+        max-width: 100px;
+        width: 90px;
+        padding: 0.6rem 0.4rem;
+    }
+    
+    .pipeline-node i {
+        font-size: 1.1rem;
+    }
+    
+    .pipeline-node span {
+        font-size: 0.65rem;
     }
 }
