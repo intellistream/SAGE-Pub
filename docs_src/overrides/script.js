@@ -2037,17 +2037,17 @@ function updateConnectionLines() {
         const isMobile = window.innerWidth <= 768;
         
         if (isMobile) {
-            // 移动端水平布局：step-1,step-2在左侧，step-3在右侧，pipeline在中央
+            // 移动端水平布局：step-1,step-2在左侧，step-3,step-4在右侧，pipeline在中央
             if (sourceElement.id === 'step-1' || sourceElement.id === 'step-2') {
                 // 左侧步骤连接到中央pipeline：从右边框中部连接到左边框中部
                 fromPoint = { x: sourceBox.right + gap, y: sourceBox.centerY };
-                toPoint = { x: targetBox.left - gap, y: targetBox.centerY };
-            } else if (sourceElement.id === 'step-3') {
+                toPoint = { x: targetBox.left - gap * 1.5, y: targetBox.centerY };
+            } else if (sourceElement.id === 'step-3' || sourceElement.id === 'step-4') {
                 // 右侧步骤连接到中央pipeline：从左边框中部连接到右边框中部
                 fromPoint = { x: sourceBox.left - gap, y: sourceBox.centerY };
-                toPoint = { x: targetBox.right + gap, y: targetBox.centerY };
+                toPoint = { x: targetBox.right + gap * 1.5, y: targetBox.centerY };
             } else {
-                // 默认水平连接
+                // 默认水平连接，考虑更精确的定位
                 if (targetBox.centerX > sourceBox.centerX) {
                     fromPoint = { x: sourceBox.right + gap, y: sourceBox.centerY };
                     toPoint = { x: targetBox.left - gap, y: targetBox.centerY };
