@@ -359,7 +359,7 @@
 
 /* Why Choose SAGE Section */
 .why-choose-sage {
-    padding: 3rem 2rem 1.5rem;
+    padding: 3rem 2rem 3rem;
     background: linear-gradient(135deg, #f8fafc 0%, #ffffff 50%, #f1f5f9 100%);
     position: relative;
     overflow: hidden;
@@ -381,7 +381,7 @@
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
     gap: 2rem;
-    margin-top: 1rem;
+    margin-top: 2rem;
     position: relative;
     z-index: 1;
 }
