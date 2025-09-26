@@ -55,6 +55,34 @@
     .pipeline-bottom-section {
         padding: 0 0.3rem;
     }
+    
+    /* 强制设置 step-1 和 step-3 的高度 - 覆盖所有可能的样式 */
+    div.step-explanation#step-1 > div.step-card.compact[style],
+    div.step-explanation#step-3 > div.step-card.compact[style],
+    div#step-1 .step-card.compact.visible, 
+    div#step-3 .step-card.compact.visible,
+    div#step-1 .step-card.compact, 
+    div#step-3 .step-card.compact {
+        height: 250px !important;
+        min-height: 250px !important;
+        max-height: 250px !important;
+        box-sizing: border-box !important;
+        flex-shrink: 0 !important;
+    }
+    
+    /* 强制设置 step-2 和 step-4 的高度 - 覆盖所有可能的样式 */
+    div.step-explanation#step-2 > div.step-card.compact[style],
+    div.step-explanation#step-4 > div.step-card.compact[style],
+    div#step-2 .step-card.compact.visible,
+    div#step-4 .step-card.compact.visible,
+    div#step-2 .step-card.compact, 
+    div#step-4 .step-card.compact {
+        height: 260px !important;
+        min-height: 260px !important;
+        max-height: 260px !important;
+        box-sizing: border-box !important;
+        flex-shrink: 0 !important;
+    }
 }
 
 @media (max-width: 480px) {
@@ -95,5 +123,26 @@
     .pipeline-top-section,
     .pipeline-bottom-section {
         padding: 0 0.25rem;
+    }
+    
+    /* 480px以下屏幕的 step-card 高度调整 - 最高优先级覆盖 */
+    div#step-1 .step-card.compact.visible, 
+    div#step-3 .step-card.compact.visible,
+    div#step-1 .step-card.compact, 
+    div#step-3 .step-card.compact {
+        height: 170px !important;
+        min-height: 170px !important;
+        max-height: 170px !important;
+        box-sizing: border-box !important;
+    }
+    
+    div#step-2 .step-card.compact.visible,
+    div#step-4 .step-card.compact.visible,
+    div#step-2 .step-card.compact, 
+    div#step-4 .step-card.compact {
+        height: 190px !important;
+        min-height: 190px !important;
+        max-height: 190px !important;
+        box-sizing: border-box !important;
     }
 }

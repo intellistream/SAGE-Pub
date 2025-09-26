@@ -22,6 +22,24 @@ const observer = new IntersectionObserver(function(entries) {
             entry.target.style.opacity = '1';
             entry.target.style.transform = 'translateY(0)';
             entry.target.classList.add('visible');
+            
+            // 强制设置step-card的高度以确保一致性
+            const el = entry.target;
+            if (el.classList.contains('step-card') && el.classList.contains('compact')) {
+                const stepExplanation = el.closest('.step-explanation');
+                if (stepExplanation) {
+                    const stepId = stepExplanation.id;
+                    if (stepId === 'step-1' || stepId === 'step-3') {
+                        el.style.height = '300px';
+                        el.style.minHeight = '300px';
+                        el.style.maxHeight = '300px';
+                    } else if (stepId === 'step-2' || stepId === 'step-4') {
+                        el.style.height = '300px';
+                        el.style.minHeight = '300px';
+                        el.style.maxHeight = '300px';
+                    }
+                }
+            }
         }
     });
 }, observerOptions);
@@ -43,6 +61,23 @@ document.addEventListener('DOMContentLoaded', function() {
                 el.style.opacity = '1';
                 el.style.transform = 'translateY(0)';
                 el.classList.add('visible');
+                
+                // 强制设置step-card的高度以确保一致性
+                if (el.classList.contains('step-card') && el.classList.contains('compact')) {
+                    const stepExplanation = el.closest('.step-explanation');
+                    if (stepExplanation) {
+                        const stepId = stepExplanation.id;
+                        if (stepId === 'step-1' || stepId === 'step-3') {
+                            el.style.height = '200px';
+                            el.style.minHeight = '200px';
+                            el.style.maxHeight = '200px';
+                        } else if (stepId === 'step-2' || stepId === 'step-4') {
+                            el.style.height = '220px';
+                            el.style.minHeight = '220px';
+                            el.style.maxHeight = '220px';
+                        }
+                    }
+                }
             }, 100);
         }
     });
@@ -2000,9 +2035,21 @@ function updateConnectionLines() {
     const step1 = document.getElementById('step-1');
     const step2 = document.getElementById('step-2');
     const step3 = document.getElementById('step-3');
+    
+    // 确保获取正确的pipeline节点
     const queryInput = document.getElementById('query-input');
     const vectorSearch = document.getElementById('vector-search');
     const arrow2 = document.getElementById('arrow-2');
+    
+    // 验证元素获取是否正确
+    if (queryInput && !queryInput.textContent.includes('问题输入')) {
+        console.error('queryInput元素获取错误!', queryInput.textContent);
+    }
+    if (vectorSearch && !vectorSearch.textContent.includes('向量检索')) {
+        console.error('vectorSearch元素获取错误!', vectorSearch.textContent);
+    }
+
+
 
     if (!step1 || !step2 || !step3 || !queryInput || !vectorSearch || !arrow2) return;
 
@@ -2035,17 +2082,45 @@ function updateConnectionLines() {
 
         // 检测是否为移动端布局 (768px以下)
         const isMobile = window.innerWidth <= 768;
+        const isVerySmallScreen = window.innerWidth <= 480;
         
         if (isMobile) {
             // 移动端水平布局：step-1,step-2在左侧，step-3,step-4在右侧，pipeline在中央
+            // 调试信息
+            console.log(`Connection: ${sourceElement.id} -> ${targetElement.id}, screen width: ${window.innerWidth}`);
+            
             if (sourceElement.id === 'step-1' || sourceElement.id === 'step-2') {
-                // 左侧步骤连接到中央pipeline：从右边框中部连接到左边框中部
+                console.log(`调试 ${sourceElement.id}: sourceBox.centerX=${sourceBox.centerX}, targetBox.centerX=${targetBox.centerX}`);
+                console.log(`sourceBox: left=${sourceBox.left}, right=${sourceBox.right}`);
+                console.log(`targetBox: left=${targetBox.left}, right=${targetBox.right}`);
+                
+                // 用户要求："上端朝右，下端朝左"
+                // 这意味着视觉上连接线应该从右边出发，向左边方向延伸
+                
+                // 正确的连接：从左侧step的右边连接到中央pipeline的左边
+                // 这样连接线从左向右流动，符合"上端朝右"的视觉效果
                 fromPoint = { x: sourceBox.right + gap, y: sourceBox.centerY };
-                toPoint = { x: targetBox.left - gap * 1.5, y: targetBox.centerY };
-            } else if (sourceElement.id === 'step-3' || sourceElement.id === 'step-4') {
-                // 右侧步骤连接到中央pipeline：从左边框中部连接到右边框中部
+                toPoint = { x: targetBox.left - gap, y: targetBox.centerY };
+                console.log(`正确连接: 从step右边到pipeline左边`);
+                console.log(`步骤 ${sourceElement.id}: from(${fromPoint.x}, ${fromPoint.y}) to(${toPoint.x}, ${toPoint.y})`);
+            } else if (sourceElement.id === 'step-3') {
+                // step-3在右侧连接到中央pipeline：从左边框中部连接到右边框中部
+                // step-3: 橙色线上端朝左，下端朝右
                 fromPoint = { x: sourceBox.left - gap, y: sourceBox.centerY };
-                toPoint = { x: targetBox.right + gap * 1.5, y: targetBox.centerY };
+                toPoint = { x: targetBox.right + gap, y: targetBox.centerY };
+                console.log(`右侧步骤 ${sourceElement.id}: from(${fromPoint.x}, ${fromPoint.y}) to(${toPoint.x}, ${toPoint.y})`);
+            } else if (sourceElement.id === 'step-4') {
+                // step-4连接到箭头，特殊处理
+                if (targetElement.id === 'arrow-2') {
+                    // step-4在右侧连接到箭头：从左边框中部连接到箭头左侧
+                    fromPoint = { x: sourceBox.left - gap, y: sourceBox.centerY };
+                    toPoint = { x: targetBox.left - gap, y: targetBox.centerY };
+                } else {
+                    // 其他情况，右侧步骤连接到中央pipeline
+                    fromPoint = { x: sourceBox.left - gap, y: sourceBox.centerY };
+                    toPoint = { x: targetBox.right + gap, y: targetBox.centerY };
+                }
+                console.log(`右侧步骤 ${sourceElement.id}: from(${fromPoint.x}, ${fromPoint.y}) to(${toPoint.x}, ${toPoint.y})`);
             } else {
                 // 默认水平连接，考虑更精确的定位
                 if (targetBox.centerX > sourceBox.centerX) {
@@ -2055,6 +2130,7 @@ function updateConnectionLines() {
                     fromPoint = { x: sourceBox.left - gap, y: sourceBox.centerY };
                     toPoint = { x: targetBox.right + gap, y: targetBox.centerY };
                 }
+                console.log(`默认连接: from(${fromPoint.x}, ${fromPoint.y}) to(${toPoint.x}, ${toPoint.y})`);
             }
         } else {
             // 桌面端垂直布局：按照原有逻辑
@@ -2086,6 +2162,7 @@ function updateConnectionLines() {
         const dx = toPoint.x - fromPoint.x;
         const dy = toPoint.y - fromPoint.y;
         const isMobile = window.innerWidth <= 768;
+        const isVerySmallScreen = window.innerWidth <= 480;
         
         // 如果距离太小，直接画直线
         if (Math.abs(dx) < 10 && Math.abs(dy) < 10) {
@@ -2159,30 +2236,61 @@ function updateConnectionLines() {
     const line3 = document.getElementById('line3');
 
     if (line1) {
-        // 获取数据源 -> 问题输入
-        const points = getConnectionPoints(step1, queryInput, 10);
+        // 获取数据源 -> 问题输入（确保连接到正确的元素）
+        const actualQueryInput = document.querySelector('.pipeline-node[id="query-input"]') || 
+                                document.querySelector('.pipeline-node:first-of-type');
+        const points = getConnectionPoints(step1, actualQueryInput, 10);
         line1.setAttribute('d', createRoundedPath(points.from, points.to));
         line1.setAttribute('stroke', '#3b82f6');
     }
 
     if (line2) {
-        // 编码算子 -> 向量检索
-        const points = getConnectionPoints(step2, vectorSearch, 10);
+        // 编码算子 -> 向量检索（确保连接到正确的元素）
+        const actualVectorSearch = document.querySelector('.pipeline-node[id="vector-search"]') ||
+                                  document.querySelector('.pipeline-node:nth-of-type(3)');
+        const points = getConnectionPoints(step2, actualVectorSearch, 10);
         line2.setAttribute('d', createRoundedPath(points.from, points.to));
         line2.setAttribute('stroke', '#10b981');
     }
 
     if (line3) {
-        // 连接Pipeline -> 箭头
+        // step-3 (组装Pipeline) -> arrow-2 (在提问重构和向量检索之间的箭头)
         const points = getConnectionPoints(step3, arrow2, 10);
         line3.setAttribute('d', createRoundedPath(points.from, points.to));
         line3.setAttribute('stroke', '#f59e0b');
     }
+
+    // 检查是否需要处理step-4的连接
+    // step-4通常连接到pipeline的结果输出或执行部分
+    const step4 = document.getElementById('step-4');
+    const resultOutput = document.getElementById('result-output');
+    if (step4 && resultOutput) {
+        // 如果有额外的连接线用于step-4，可以在这里添加
+        // 目前根据HTML结构，只有3条连接线
+        console.log('Step-4 positioned but no dedicated connection line in current design');
+    }
+}
+
+// 调试函数
+function debugElements() {
+    console.log('=== 元素调试信息 ===');
+    const nodes = document.querySelectorAll('.pipeline-node');
+    nodes.forEach((node, index) => {
+        console.log(`节点 ${index}: ${node.id} - ${node.textContent.trim()}`);
+    });
+    
+    const queryInput = document.getElementById('query-input');
+    const vectorSearch = document.getElementById('vector-search');
+    console.log('queryInput:', queryInput ? queryInput.textContent.trim() : 'NOT FOUND');
+    console.log('vectorSearch:', vectorSearch ? vectorSearch.textContent.trim() : 'NOT FOUND');
 }
 
 // 当页面加载和窗口大小改变时更新连接线
 document.addEventListener('DOMContentLoaded', function() {
-    setTimeout(updateConnectionLines, 500); // 延迟执行确保DOM完全加载
+    setTimeout(() => {
+        debugElements();
+        updateConnectionLines();
+    }, 500); // 延迟执行确保DOM完全加载
 });
 
 window.addEventListener('resize', function() {

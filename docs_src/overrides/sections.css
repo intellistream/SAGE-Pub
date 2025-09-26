@@ -1730,11 +1730,11 @@
         gap: 1.5rem; /* 优化间距 */
         margin: 0;
         width: calc(50% - 80px); /* 为130px宽的pipeline预留更合理的空间 */
-        height: 100%; /* 使用固定高度 */
+        height: auto; /* 改为自动高度 */
         flex-shrink: 0;
         display: flex;
         align-items: stretch;
-        justify-content: space-evenly; /* 更均匀分布 */
+        justify-content: flex-start; /* 改为flex-start，不强制平均分布 */
         z-index: 5;
         box-sizing: border-box;
     }
@@ -1745,11 +1745,11 @@
         gap: 1.5rem; /* 优化间距 */
         margin: 0;
         width: calc(50% - 80px); /* 为130px宽的pipeline预留更合理的空间 */
-        height: 100%; /* 使用固定高度 */
+        height: auto; /* 改为自动高度 */
         flex-shrink: 0;
         display: flex;
         align-items: stretch;
-        justify-content: space-evenly; /* 更均匀分布 */
+        justify-content: flex-start; /* 改为flex-start，不强制平均分布 */
         z-index: 5;
         box-sizing: border-box;
     }
@@ -1759,7 +1759,7 @@
         min-width: 0 !important;
         max-width: none !important;
         text-align: left;
-        flex: 1 !important; /* 平分可用的垂直空间 */
+        flex: none !important; /* 取消自动分配，使用固定高度 */
         box-sizing: border-box;
         display: flex !important;
         flex-direction: column !important;
@@ -1774,7 +1774,7 @@
     /* 步骤卡片在移动端的样式调整 */
     .step-card.compact {
         padding: 1.2rem 1rem; /* 优化内边距 */
-        min-height: 160px; /* 优化最小高度 */
+        /* min-height 由具体的 step-id 规则控制 */
         width: 100% !important;
         max-width: none !important;
         box-sizing: border-box;
@@ -1865,6 +1865,18 @@
         font-size: 0.68rem; /* 优化文字大小 */
         line-height: 1.1;
     }
+    
+    /* 确保 step-1 和 step-3 的 step-card 具有相同高度 - 放在最后确保优先级 */
+    #step-1 .step-card.compact, #step-3 .step-card.compact {
+        height: 220px !important;
+        min-height: 220px !important;
+    }
+    
+    /* 确保 step-2 和 step-4 的 step-card 具有相同高度 - 放在最后确保优先级 */
+    #step-2 .step-card.compact, #step-4 .step-card.compact {
+        height: 220px !important;
+        min-height: 220px !important;
+    }
 }
 
 /* 更小屏幕的优化调整 */
@@ -1886,9 +1898,20 @@
     
     .step-card.compact {
         padding: 1rem 0.8rem;
-        min-height: 130px; /* 增加最小高度保持可读性 */
+        /* height 和 min-height 由具体的 step-id 规则控制 */
         width: 100%; /* 确保占满父容器宽度 */
         box-sizing: border-box; /* 确保padding包含在宽度内 */
+    }
+    
+    /* 480px以下屏幕的 step-card 高度调整 */
+    #step-1 .step-card.compact, #step-3 .step-card.compact {
+        height: 170px !important;
+        min-height: 170px !important;
+    }
+    
+    #step-2 .step-card.compact, #step-4 .step-card.compact {
+        height: 190px !important;
+        min-height: 190px !important;
     }
     
     .step-card.compact .step-info h3 {
