@@ -23,20 +23,22 @@ const observer = new IntersectionObserver(function(entries) {
             entry.target.style.transform = 'translateY(0)';
             entry.target.classList.add('visible');
             
-            // 强制设置step-card的高度以确保一致性
+            // 先检测屏幕宽度，只在768px以下时强制设置step-card的高度
             const el = entry.target;
-            if (el.classList.contains('step-card') && el.classList.contains('compact')) {
-                const stepExplanation = el.closest('.step-explanation');
-                if (stepExplanation) {
-                    const stepId = stepExplanation.id;
-                    if (stepId === 'step-1' || stepId === 'step-3') {
-                        el.style.height = '300px';
-                        el.style.minHeight = '300px';
-                        el.style.maxHeight = '300px';
-                    } else if (stepId === 'step-2' || stepId === 'step-4') {
-                        el.style.height = '300px';
-                        el.style.minHeight = '300px';
-                        el.style.maxHeight = '300px';
+            if (window.innerWidth <= 768) {
+                if (el.classList.contains('step-card') && el.classList.contains('compact')) {
+                    const stepExplanation = el.closest('.step-explanation');
+                    if (stepExplanation) {
+                        const stepId = stepExplanation.id;
+                        if (stepId === 'step-1' || stepId === 'step-3') {
+                            el.style.height = '300px';
+                            el.style.minHeight = '300px';
+                            el.style.maxHeight = '300px';
+                        } else if (stepId === 'step-2' || stepId === 'step-4') {
+                            el.style.height = '300px';
+                            el.style.minHeight = '300px';
+                            el.style.maxHeight = '300px';
+                        }
                     }
                 }
             }
@@ -62,19 +64,21 @@ document.addEventListener('DOMContentLoaded', function() {
                 el.style.transform = 'translateY(0)';
                 el.classList.add('visible');
                 
-                // 强制设置step-card的高度以确保一致性
-                if (el.classList.contains('step-card') && el.classList.contains('compact')) {
-                    const stepExplanation = el.closest('.step-explanation');
-                    if (stepExplanation) {
-                        const stepId = stepExplanation.id;
-                        if (stepId === 'step-1' || stepId === 'step-3') {
-                            el.style.height = '200px';
-                            el.style.minHeight = '200px';
-                            el.style.maxHeight = '200px';
-                        } else if (stepId === 'step-2' || stepId === 'step-4') {
-                            el.style.height = '220px';
-                            el.style.minHeight = '220px';
-                            el.style.maxHeight = '220px';
+                // 先检测屏幕宽度，只在768px以下时强制设置step-card的高度
+                if (window.innerWidth <= 768) {
+                    if (el.classList.contains('step-card') && el.classList.contains('compact')) {
+                        const stepExplanation = el.closest('.step-explanation');
+                        if (stepExplanation) {
+                            const stepId = stepExplanation.id;
+                            if (stepId === 'step-1' || stepId === 'step-3') {
+                                el.style.height = '200px';
+                                el.style.minHeight = '200px';
+                                el.style.maxHeight = '200px';
+                            } else if (stepId === 'step-2' || stepId === 'step-4') {
+                                el.style.height = '220px';
+                                el.style.minHeight = '220px';
+                                el.style.maxHeight = '220px';
+                            }
                         }
                     }
                 }

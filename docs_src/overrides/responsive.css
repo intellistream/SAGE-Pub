@@ -33,6 +33,29 @@
         grid-template-columns: 1fr;
     }
     
+    .why-grid {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+    
+    .why-card-inner {
+        padding: 2rem 1.5rem;
+    }
+    
+    .icon-circle {
+        width: 60px;
+        height: 60px;
+        font-size: 1.8rem;
+    }
+    
+    .why-content h3 {
+        font-size: 1.2rem;
+    }
+    
+    .why-content p {
+        font-size: 0.9rem;
+    }
+    
     .stats-grid {
         grid-template-columns: repeat(2, 1fr);
         gap: 2rem;
@@ -144,5 +167,45 @@
         min-height: 190px !important;
         max-height: 190px !important;
         box-sizing: border-box !important;
+    }
+}
+
+/* Extra small devices (phones, 480px and down) */
+@media (max-width: 480px) {
+    .why-choose-sage {
+        padding: 3rem 1rem;
+    }
+    
+    .why-grid {
+        grid-template-columns: 1fr;
+        gap: 1.2rem;
+        margin-top: 2rem;
+    }
+    
+    .why-card-inner {
+        padding: 1.5rem 1rem;
+    }
+    
+    .icon-circle {
+        width: 50px;
+        height: 50px;
+        font-size: 1.5rem;
+    }
+    
+    .why-content h3 {
+        font-size: 1.1rem;
+        margin-bottom: 0.8rem;
+    }
+    
+    .why-content p {
+        font-size: 0.85rem;
+        line-height: 1.6;
+    }
+    
+    .why-badge {
+        top: 1rem;
+        right: 1rem;
+        padding: 0.25rem 0.6rem;
+        font-size: 0.6rem;
     }
 }

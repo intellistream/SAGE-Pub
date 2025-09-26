@@ -7,6 +7,7 @@
     <link rel="icon" href="assets/img/isage_light.svg">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
     
     <!-- Custom Styles -->
     <link rel="stylesheet" href="styles.css">
@@ -207,55 +208,103 @@
     <section class="why-choose-sage section-animate">
         <div class="container">
             <h2 class="section-title">为什么选择 SAGE？</h2>
-            <p class="section-subtitle">SAGE 是首个专为LLM工作流设计的数据流框架，提供生产级AI管道解决方案</p>
+            <p class="section-subtitle">SAGE 是首个专为LLM推理设计的数据流框架，提供生产级AI管道解决方案</p>
             
             <div class="why-grid">
-                <div class="why-card">
-                    <div class="why-icon">
-                        <i class="fas fa-rocket"></i>
+                <div class="why-card" data-aos="fade-up" data-aos-delay="100">
+                    <div class="why-card-inner">
+                        <div class="why-icon">
+                            <div class="icon-circle">
+                                <i class="fas fa-rocket"></i>
+                            </div>
+                            <div class="icon-glow"></div>
+                        </div>
+                        <div class="why-content">
+                            <h3>首创数据流范式</h3>
+                            <p>首个为LLM推理设计的数据流框架，提供原生的流式处理和异步执行能力</p>
+                        </div>
+                        <div class="why-badge">创新</div>
                     </div>
-                    <h3>首创数据流范式</h3>
-                    <p>首个专门为LLM工作流设计的数据流框架，提供原生的流式处理和异步执行能力。</p>
                 </div>
                 
-                <div class="why-card">
-                    <div class="why-icon">
-                        <i class="fas fa-industry"></i>
+                <div class="why-card" data-aos="fade-up" data-aos-delay="200">
+                    <div class="why-card-inner">
+                        <div class="why-icon">
+                            <div class="icon-circle">
+                                <i class="fas fa-industry"></i>
+                            </div>
+                            <div class="icon-glow"></div>
+                        </div>
+                        <div class="why-content">
+                            <h3>生产级AI管道</h3>
+                            <p>可观测与容错机制，支持大规模部署，让AI应用从原型到生产无缝过渡</p>
+                        </div>
+                        <div class="why-badge">可靠</div>
                     </div>
-                    <h3>生产级AI管道</h3>
-                    <p>内置可观测性和容错机制，支持大规模部署，让AI应用从原型到生产无缝过渡。</p>
                 </div>
                 
-                <div class="why-card">
-                    <div class="why-icon">
-                        <i class="fas fa-memory"></i>
+                <div class="why-card" data-aos="fade-up" data-aos-delay="300">
+                    <div class="why-card-inner">
+                        <div class="why-icon">
+                            <div class="icon-circle">
+                                <i class="fas fa-memory"></i>
+                            </div>
+                            <div class="icon-glow"></div>
+                        </div>
+                        <div class="why-content">
+                            <h3>统一内存与计算</h3>
+                            <p>集成多种数据库，提供统一内存管理接口，支持分布式流推理</p>
+                        </div>
+                        <div class="why-badge">高效</div>
                     </div>
-                    <h3>统一内存与计算</h3>
-                    <p>集成向量数据库、KV缓存、图内存等多种存储，提供统一的内存管理接口。</p>
                 </div>
                 
-                <div class="why-card">
-                    <div class="why-icon">
-                        <i class="fas fa-university"></i>
+                <!-- <div class="why-card" data-aos="fade-up" data-aos-delay="400">
+                    <div class="why-card-inner">
+                        <div class="why-icon">
+                            <div class="icon-circle">
+                                <i class="fas fa-university"></i>
+                            </div>
+                            <div class="icon-glow"></div>
+                        </div>
+                        <div class="why-content">
+                            <h3>学术工业桥梁</h3>
+                            <p>结合研究级严谨性和工业级实用性，为AI研究和应用提供统一的开发平台。</p>
+                        </div>
+                        <div class="why-badge">专业</div>
                     </div>
-                    <h3>学术工业桥梁</h3>
-                    <p>结合研究级严谨性和工业级实用性，为AI研究和应用提供统一的开发平台。</p>
-                </div>
+                </div> -->
                 
-                <div class="why-card">
-                    <div class="why-icon">
-                        <i class="fas fa-plug"></i>
+                <!-- <div class="why-card" data-aos="fade-up" data-aos-delay="500">
+                    <div class="why-card-inner">
+                        <div class="why-icon">
+                            <div class="icon-circle">
+                                <i class="fas fa-plug"></i>
+                            </div>
+                            <div class="icon-glow"></div>
+                        </div>
+                        <div class="why-content">
+                            <h3>开放生态系统</h3>
+                            <p>丰富的连接器和扩展接口，轻松集成现有的AI工具链和基础设施。</p>
+                        </div>
+                        <div class="why-badge">开放</div>
                     </div>
-                    <h3>开放生态系统</h3>
-                    <p>丰富的连接器和扩展接口，轻松集成现有的AI工具链和基础设施。</p>
-                </div>
+                </div> -->
                 
-                <div class="why-card">
-                    <div class="why-icon">
-                        <i class="fas fa-shield-alt"></i>
+                <div class="why-card" data-aos="fade-up" data-aos-delay="600">
+                    <div class="why-card-inner">
+                        <div class="why-icon">
+                            <div class="icon-circle">
+                                <i class="fas fa-shield-alt"></i>
+                            </div>
+                            <div class="icon-glow"></div>
+                        </div>
+                        <div class="why-content">
+                            <h3>弹性可靠运行</h3>
+                            <p>流感知的执行引擎，支持故障恢复和动态调度，确保AI服务的高可用性</p>
+                        </div>
+                        <div class="why-badge">稳定</div>
                     </div>
-                    <h3>弹性可靠运行</h3>
-                    <p>流感知的执行引擎，支持故障恢复和动态调度，确保AI服务的高可用性。</p>
                 </div>
             </div>
         </div>
@@ -500,33 +549,16 @@ python examples/tutorials/hello_world.py</code></pre>
                         <div class="contribute-icon">
                             <i class="fas fa-code-branch"></i>
                         </div>
-                        <h3>代码贡献</h3>
-                        <p>参与核心功能开发、算子实现、性能优化等工作</p>
+                        <h3>代码提交</h3>
+                        <p>参与SAGE Kernel、Middleware、Application、Tools等版块的开发工作</p>
                         <ul>
                             <li>新算子和连接器开发</li>
                             <li>性能优化和bug修复</li>
                             <li>测试用例编写</li>
                             <li>代码审查和重构</li>
                         </ul>
-                        <a href="https://github.com/intellistream" class="contribute-link">
+                        <a href="https://github.com/intellistream/SAGE" class="contribute-link">
                             <i class="fab fa-github"></i> 查看代码仓库
-                        </a>
-                    </div>
-                    
-                    <div class="contribute-card">
-                        <div class="contribute-icon">
-                            <i class="fas fa-book"></i>
-                        </div>
-                        <h3>文档贡献</h3>
-                        <p>完善文档、教程、示例，帮助更多开发者使用SAGE</p>
-                        <ul>
-                            <li>API文档完善</li>
-                            <li>使用教程编写</li>
-                            <li>最佳实践分享</li>
-                            <li>多语言文档翻译</li>
-                        </ul>
-                        <a href="join_sage/quick_start/" class="contribute-link">
-                            <i class="fas fa-edit"></i> 贡献文档
                         </a>
                     </div>
                     
@@ -535,14 +567,14 @@ python examples/tutorials/hello_world.py</code></pre>
                             <i class="fas fa-users"></i>
                         </div>
                         <h3>社区建设</h3>
-                        <p>参与社区讨论、问题解答、经验分享</p>
+                        <p>参与SAGE 的社区讨论、问题解答、经验分享</p>
                         <ul>
                             <li>问题反馈和讨论</li>
                             <li>使用经验分享</li>
                             <li>社区活动组织</li>
                             <li>新用户指导</li>
                         </ul>
-                        <a href="join_sage/overview_template/" class="contribute-link">
+                        <a href="https://github.com/intellistream/SAGE/discussions" class="contribute-link">
                             <i class="fas fa-comments"></i> 加入社区
                         </a>
                     </div>
@@ -552,14 +584,14 @@ python examples/tutorials/hello_world.py</code></pre>
                             <i class="fas fa-lightbulb"></i>
                         </div>
                         <h3>创新想法</h3>
-                        <p>提出新功能建议、架构改进、创新应用场景</p>
+                        <p>提出新的功能建议，架构层面的改进，创新新的应用场景</p>
                         <ul>
                             <li>新功能需求提议</li>
                             <li>架构设计建议</li>
                             <li>创新应用场景</li>
                             <li>技术路线讨论</li>
                         </ul>
-                        <a href="join_sage/template/" class="contribute-link">
+                        <a href="https://github.com/intellistream/SAGE/pulls" class="contribute-link">
                             <i class="fas fa-rocket"></i> 提交想法
                         </a>
                     </div>
@@ -572,7 +604,7 @@ python examples/tutorials/hello_world.py</code></pre>
                             <div class="step-circle">1</div>
                             <div class="step-content">
                                 <h4>Fork 仓库</h4>
-                                <p>从GitHub上fork SAGE仓库到您的账户</p>
+                                <p>fork SAGE仓库到您的账户</p>
                             </div>
                         </div>
                         <div class="process-arrow">→</div>
@@ -580,7 +612,7 @@ python examples/tutorials/hello_world.py</code></pre>
                             <div class="step-circle">2</div>
                             <div class="step-content">
                                 <h4>创建分支</h4>
-                                <p>为您的功能或修复创建新的分支</p>
+                                <p>为您的改动创建新的分支</p>
                             </div>
                         </div>
                         <div class="process-arrow">→</div>
@@ -588,7 +620,7 @@ python examples/tutorials/hello_world.py</code></pre>
                             <div class="step-circle">3</div>
                             <div class="step-content">
                                 <h4>提交更改</h4>
-                                <p>编写代码、测试并提交您的更改</p>
+                                <p>编写、测试并提交您的代码</p>
                             </div>
                         </div>
                         <div class="process-arrow">→</div>
@@ -596,7 +628,7 @@ python examples/tutorials/hello_world.py</code></pre>
                             <div class="step-circle">4</div>
                             <div class="step-content">
                                 <h4>创建PR</h4>
-                                <p>创建Pull Request并等待代码审查</p>
+                                <p>创建PR并等待团队审查</p>
                             </div>
                         </div>
                     </div>
@@ -648,6 +680,14 @@ python examples/tutorials/hello_world.py</code></pre>
         </div>
     </footer>
 
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
     <script src="script.js"></script>
+    <script>
+        AOS.init({
+            duration: 800,
+            easing: 'ease-out-cubic',
+            once: true
+        });
+    </script>
 </body>
 </html>
