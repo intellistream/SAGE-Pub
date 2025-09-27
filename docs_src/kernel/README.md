@@ -47,7 +47,24 @@ graph TB
     style E fill:#fff3e0
 ```
 
-## 📚 核心组件文档
+## � 技术文档索引
+
+### 运维和配置
+- [运维指南](guides/operations.md) - 系统运维、优雅关闭和配置优化
+- [改进建议](guides/improvements.md) - 功能改进建议和问题追踪
+- [配置详解](config/config.md) - 完整的配置参数说明和示例
+
+### 开发指南
+- [快速开始](guides/quickstart.md) - 快速上手指南
+- [最佳实践](best-practices.md) - 开发和部署最佳实践
+- [API 参考](api/) - 详细的 API 文档
+
+### 核心组件
+- [核心架构](core/) - 核心组件实现细节
+- [概念解释](concepts.md) - 重要概念和术语
+- [常见问题](faq.md) - 常见问题解答
+
+## �📚 核心组件文档
 
 ### DataStream API
 流数据处理的核心抽象，提供丰富的数据转换和处理操作：

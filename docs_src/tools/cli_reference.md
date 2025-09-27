@@ -263,6 +263,89 @@ class CustomCommand(BaseCommand):
 - 容器化部署
 - 云端部署
 
+## LLM 服务自动配置
+
+SAGE 提供了自动检测和配置本地 LLM 服务的功能，简化了 Ollama、vLLM 等服务的配置过程。
+
+### 支持的服务
+
+| 服务类型 | 默认端口 | API端点 | 检测方式 |
+|---------|----------|---------|----------|
+| Ollama | 11434 | `/api/tags` | HTTP GET |
+| vLLM | 8000 | `/v1/models` | HTTP GET |
+
+### 使用方法
+
+#### 自动检测配置
+```bash
+# 交互式配置，自动检测所有可用服务
+sage config llm auto --config-path config/config.yaml
+
+# 全自动模式，无需交互
+sage config llm auto --config-path config/config.yaml --yes
+
+# 优先检测特定服务类型
+sage config llm auto --prefer ollama --yes
+
+# 指定使用特定模型
+sage config llm auto --model-name llama2 --yes
+```
+
+#### 命令选项
+- `--config-path, -c`: 指定配置文件路径
+- `--prefer`: 优先检测的服务类型 (ollama/vllm)
+- `--model-name, -m`: 指定模型名称
+- `--section, -s`: 目标配置节
+- `--yes, -y`: 自动模式，无需交互确认
+- `--backup/--no-backup`: 是否创建配置文件备份
+
+#### 交互式示例
+```
+检测到以下LLM服务：
+1. Ollama (http://localhost:11434)
+   模型: llama2, codellama, mistral
+2. vLLM (http://localhost:8000) 
+   模型: microsoft/DialoGPT-medium, gpt2
+
+请选择要使用的服务 [1]: 1
+请选择模型 [llama2]: llama2
+✅ 配置已更新
+✅ 备份已创建: config/config.yaml.backup
+```
+
+### 配置更新示例
+
+自动配置功能会智能更新配置文件中的 generator 部分：
+
+**更新前**:
+```yaml
+generator:
+  type: remote
+  url: "http://old-api-server:8080/v1/chat/completions"
+  model: "old-model"
+  api_key: "${OPENAI_API_KEY}"
+  temperature: 0.7
+  max_tokens: 2000
+```
+
+**更新后**:
+```yaml
+generator:
+  type: remote
+  url: "http://localhost:11434/v1/chat/completions"  # 自动更新
+  model: "llama2"                                     # 自动更新
+  api_key: "${OPENAI_API_KEY}"                       # 保持不变
+  temperature: 0.7                                    # 保持不变
+  max_tokens: 2000                                    # 保持不变
+```
+
+### 特性
+- **自动检测**: 自动发现本地运行的 LLM 服务
+- **智能配置**: 仅更新必要的配置项，保留其他设置
+- **安全备份**: 自动创建配置文件备份
+- **容错处理**: 网络连接和服务异常的优雅处理
+- **用户友好**: 支持交互式和自动化两种模式
+
 ## 相关文档
 
 - [Kernel 概念](../kernel/concepts.md)

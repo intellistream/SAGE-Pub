@@ -75,7 +75,76 @@ fatal:unable to access'https://github.com/intellistream/SAGE-Pub.git/': Failed t
 
 这一般是因为网络原因导致无法与 github 建立连接，建议科学上网并切换到虚拟网卡模式重试。
 
-## *E*. 安装演示 （Installation Demo）
+## *E*. CI/CD 开发指南
+
+### 嵌入模型 CI/CD 集成
+
+在 CI/CD 环境中，neuromem 测试可能因为无法下载 HuggingFace 模型而失败。SAGE 提供了完整的解决方案来处理这个问题。
+
+#### 问题背景
+- CI/CD 环境中网络访问可能受限
+- HuggingFace 模型下载可能失败
+- 之前版本会静默回退到 MockEmbedder，导致测试结果不可靠
+
+#### 解决方案
+
+**1. 预缓存模型（推荐）**
+
+在 CI/CD pipeline 中添加模型缓存步骤：
+
+```yaml
+# GitHub Actions 示例
+- name: Cache embedding models
+  run: |
+    python tools/cache_embedding_models.py --cache
+```
+
+**2. 使用本地模型缓存**
+
+如果 CI/CD 环境支持缓存，可以缓存 transformers 模型：
+
+```yaml
+- name: Cache transformers models
+  uses: actions/cache@v3
+  with:
+    path: ~/.cache/huggingface/transformers
+    key: ${{ runner.os }}-transformers-${{ hashFiles('**/requirements.txt') }}
+```
+
+**3. 环境变量配置**
+
+设置 HuggingFace 镜像源以提高下载成功率：
+
+```yaml
+env:
+  HF_ENDPOINT: https://hf-mirror.com
+```
+
+#### 本地测试命令
+
+```bash
+# 验证模型缓存
+python tools/cache_embedding_models.py --check
+
+# 缓存模型
+python tools/cache_embedding_models.py --cache
+
+# 清除缓存（用于测试）
+python tools/cache_embedding_models.py --clear-cache
+
+# 自动模式（检查并在需要时缓存）
+python tools/cache_embedding_models.py
+```
+
+#### 脚本特性
+
+- ✅ **智能检查**: 首先检查本地缓存，避免不必要的网络请求
+- 🔄 **自动重试**: 网络失败时自动重试，使用指数退避策略  
+- 🌍 **镜像支持**: 自动使用 HuggingFace 镜像源提高下载成功率
+- ⏱️ **超时控制**: 合理的超时设置避免长时间等待
+- 🗑️ **缓存管理**: 支持清除缓存用于测试和故障排除
+
+## *F*. 安装演示 （Installation Demo）
 
 <iframe 
   src="https://player.bilibili.com/player.html?bvid=BV1uKYNz8EEm" 

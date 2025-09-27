@@ -98,6 +98,42 @@ refiner:
 - `model_name`: 使用的语言模型名称
 - `base_url`: API服务的基础URL
 - `api_key`: 访问API所需的密钥
+
+### 6. Sink 配置
+
+```yaml
+sink:
+  platform: "local"                        # Sink平台
+  drain_timeout: 10.0                       # 排空超时时间（秒）
+  drain_quiet_period: 0.3                   # 静默期（秒）
+```
+
+**配置说明：**
+- `platform`: Sink操作器运行平台
+- `drain_timeout`: 系统关闭时等待队列排空的最大时间
+- `drain_quiet_period`: 检查队列是否为空的间隔时间
+
+### 7. LLM Generator 配置
+
+```yaml
+generator:
+  type: "remote"                            # 生成器类型
+  url: "http://localhost:11434/v1/chat/completions"  # API服务URL
+  model: "llama2"                           # 模型名称
+  api_key: "${OPENAI_API_KEY}"             # API密钥
+  temperature: 0.7                          # 温度参数
+  max_tokens: 2000                          # 最大token数
+```
+
+**配置说明：**
+- `type`: 生成器类型，可选 `local` 或 `remote`
+- `url`: 远程API服务的完整URL
+- `model`: 使用的语言模型名称
+- `api_key`: API访问密钥，支持环境变量
+- `temperature`: 生成随机性控制，范围0-1
+- `max_tokens`: 单次生成的最大token数量
+
+> 💡 **提示**: 可以使用 `sage config llm auto` 命令自动检测和配置本地LLM服务。详见 [CLI参考](../../tools/cli_reference.md#llm-服务自动配置)。
 - `seed`: 随机种子，用于保证结果的可重现性
 
 ### 6. Generator 配置
