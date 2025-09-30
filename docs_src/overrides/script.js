@@ -438,23 +438,15 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
-// Article Monitoring Animation Controller
+// SAGE Article Monitoring Animation - Professional & Elegant Design
 class ArticleMonitoringAnimation {
     constructor(containerId) {
         this.container = document.getElementById(containerId);
         this.isPlaying = false;
-        this.currentPhase = 0;
-        this.phaseTimer = null;
         this.animationLoop = null;
-        this.phaseDuration = 7500; // 7.5 seconds per phase
-        this.totalDuration = 30000; // 30 seconds total
-        
-        this.phases = [
-            { name: 'Document Flow', duration: 7500 },
-            { name: 'Processing', duration: 7500 },
-            { name: 'Filtering', duration: 7500 },
-            { name: 'Delivery', duration: 7500 }
-        ];
+        this.processingInterval = null;
+        this.documentQueue = [];
+        this.stats = { collected: 0, processed: 0, stored: 0 };
         
         this.init();
     }
@@ -463,11 +455,11 @@ class ArticleMonitoringAnimation {
         if (!this.container) return;
         
         this.createControls();
-        this.createElements();
+        this.createLayout();
         this.bindEvents();
         
-        // Auto-start animation
-        setTimeout(() => this.play(), 1000);
+        // Auto-start animation after setup
+        setTimeout(() => this.play(), 800);
     }
     
     createControls() {
@@ -487,92 +479,100 @@ class ArticleMonitoringAnimation {
         this.restartBtn = this.container.querySelector('.restart-btn');
     }
     
-    createElements() {
-        const elementsHTML = `
-            <!-- ArXiv Source -->
-            <div class="arxiv-source">
-                <i class="fas fa-file-alt"></i>
+    createLayout() {
+        const layoutHTML = `
+            <!-- Data Source -->
+            <div class="data-source">
+                <div class="source-content">
+                    <i class="fas fa-database"></i>
+                    <span>ArXiv数据源</span>
+                </div>
+                <div class="source-indicator"></div>
             </div>
             
-            <!-- Document Flow -->
-            <div class="document-flow">
-                <div class="document" style="top: 45%;"></div>
-                <div class="document" style="top: 50%;"></div>
-                <div class="document" style="top: 55%;"></div>
-                <div class="document" style="top: 48%;"></div>
+            <!-- SAGE Processing Center -->
+            <div class="sage-processor">
+                <div class="processor-header">
+                    <div class="sage-brand">
+                        <img src="assets/img/isage_light.svg" alt="SAGE" class="sage-icon">
+                        <span class="sage-text">SAGE</span>
+                    </div>
+                </div>
+                
+                <div class="process-flow">
+                    <div class="animation-process-step" data-step="1">
+                        <i class="fas fa-cogs"></i>
+                        <span>文章解析</span>
+                    </div>
+                    <div class="animation-process-step" data-step="2">
+                        <i class="fas fa-filter"></i>
+                        <span>关键词筛选</span>
+                    </div>
+                    <div class="animation-process-step" data-step="3">
+                        <i class="fas fa-search"></i>
+                        <span>语义匹配</span>
+                    </div>
+                    <div class="animation-process-step" data-step="4">
+                        <i class="fas fa-file-alt"></i>
+                        <span>摘要提取</span>
+                    </div>
+                </div>
+                
+                <div class="processing-stats">
+                    <div class="animation-stat-item">
+                        <span class="animation-stat-number" id="stat-processed">0</span>
+                        <span class="animation-stat-label">已处理</span>
+                    </div>
+                    <div class="animation-stat-item">
+                        <span class="animation-stat-number" id="stat-filtered">0</span>
+                        <span class="animation-stat-label">已筛选</span>
+                    </div>
+                </div>
             </div>
             
-            <!-- Processing Pipeline -->
-            <div class="processing-pipeline">
-                <div class="process-stage text-parsing" data-label="文本解析">
-                    <i class="fas fa-file-text"></i>
+            <!-- Result Storage -->
+            <div class="result-storage">
+                <div class="storage-content">
+                    <i class="fas fa-folder-open"></i>
+                    <span>相关文章文件夹</span>
                 </div>
-                <div class="process-stage keyword-filter" data-label="关键词筛选">
-                    <i class="fas fa-filter"></i>
-                </div>
-                <div class="process-stage semantic-analysis" data-label="语义分析">
-                    <i class="fas fa-brain"></i>
-                </div>
+                <div class="storage-counter" id="storage-counter">0</div>
             </div>
             
-            <!-- Neural Network Visualization -->
-            <div class="neural-network">
-                <div class="neural-layer input">
-                    <div class="neural-node"></div>
-                    <div class="neural-node"></div>
-                    <div class="neural-node"></div>
-                </div>
-                <div class="neural-layer hidden">
-                    <div class="neural-node"></div>
-                    <div class="neural-node"></div>
-                    <div class="neural-node"></div>
-                    <div class="neural-node"></div>
-                </div>
-                <div class="neural-layer output">
-                    <div class="neural-node"></div>
-                    <div class="neural-node"></div>
-                </div>
-                <!-- Neural connections -->
-                <div class="neural-connection" style="top: 10px; left: 12px; width: 28px;"></div>
-                <div class="neural-connection" style="top: 18px; left: 12px; width: 28px;"></div>
-                <div class="neural-connection" style="top: 26px; left: 12px; width: 28px;"></div>
-                <div class="neural-connection" style="top: 10px; left: 52px; width: 28px;"></div>
-                <div class="neural-connection" style="top: 18px; left: 52px; width: 28px;"></div>
+            <!-- Data Flow Animation -->
+            <div class="data-flow">
+                <div class="flow-line input-flow"></div>
+                <div class="flow-line output-flow"></div>
+                <div class="flow-particles"></div>
             </div>
             
-            <!-- User Interface -->
-            <div class="user-interface">
-                <i class="fas fa-user"></i>
+            <!-- Status Display -->
+            <div class="status-display">
+                <div class="status-text" id="status-text">准备中...</div>
             </div>
-            
-            <!-- Particle Effects -->
-            <div class="particle accepted" style="top: 45%;"></div>
-            <div class="particle accepted" style="top: 50%;"></div>
-            <div class="particle rejected" style="top: 55%;"></div>
         `;
         
-        this.container.insertAdjacentHTML('beforeend', elementsHTML);
+        this.container.insertAdjacentHTML('beforeend', layoutHTML);
         
-        // Store references to key elements
-        this.documents = this.container.querySelectorAll('.document');
-        this.processStages = this.container.querySelectorAll('.process-stage');
-        this.particles = this.container.querySelectorAll('.particle');
-        this.neuralNetwork = this.container.querySelector('.neural-network');
-        this.userInterface = this.container.querySelector('.user-interface');
+        // Cache DOM references
+        this.dataSource = this.container.querySelector('.data-source');
+        this.sageProcessor = this.container.querySelector('.sage-processor');
+        this.resultStorage = this.container.querySelector('.result-storage');
+        this.processSteps = this.container.querySelectorAll('.animation-process-step');
+        this.flowParticles = this.container.querySelector('.flow-particles');
+        this.statusText = this.container.querySelector('#status-text');
+        this.stages = this.container.querySelectorAll('.stage');
+        this.processedCountEl = this.container.querySelector('#processed-count');
+        this.filteredCountEl = this.container.querySelector('#filtered-count');
+        this.folderCountEl = this.container.querySelector('#folder-count');
+        this.streams = this.container.querySelectorAll('.stream');
     }
     
     bindEvents() {
         this.playPauseBtn.addEventListener('click', () => this.togglePlayPause());
         this.restartBtn.addEventListener('click', () => this.restart());
         
-        // Hover effects
-        this.container.addEventListener('mouseenter', () => this.onHover());
-        this.container.addEventListener('mouseleave', () => this.onHoverEnd());
-        
-        // Phase indicators (optional)
-        this.processStages.forEach((stage, index) => {
-            stage.addEventListener('click', () => this.jumpToPhase(index + 1));
-        });
+        // Hover effects removed for sage-processor to keep it static
     }
     
     play() {
@@ -583,7 +583,8 @@ class ArticleMonitoringAnimation {
         this.playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
         this.playPauseBtn.classList.add('active');
         
-        this.startAnimationLoop();
+        this.statusText.textContent = '正在运行中...';
+        this.startMainAnimation();
     }
     
     pause() {
@@ -594,7 +595,20 @@ class ArticleMonitoringAnimation {
         this.playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
         this.playPauseBtn.classList.remove('active');
         
-        this.stopAnimationLoop();
+        this.statusText.textContent = '已暂停';
+        if (this.animationLoop) {
+            clearInterval(this.animationLoop);
+            this.animationLoop = null;
+        }
+        if (this.processingInterval) {
+            clearInterval(this.processingInterval);
+            this.processingInterval = null;
+        }
+        
+        // Reset all steps when paused
+        this.processSteps.forEach(step => {
+            step.classList.remove('active');
+        });
     }
     
     togglePlayPause() {
@@ -607,31 +621,167 @@ class ArticleMonitoringAnimation {
     
     restart() {
         this.pause();
-        this.currentPhase = 0;
         
-        // Reset all elements
-        this.container.classList.remove('playing');
+        // Reset stats
+        this.stats = { collected: 0, processed: 0, stored: 0 };
+        this.updateStatistics();
         
-        // Small delay before restarting
-        setTimeout(() => {
-            this.play();
-        }, 100);
+        // Reset visual states
+        this.container.classList.remove('phase-1', 'phase-2', 'phase-3', 'phase-4');
+        this.processSteps.forEach(step => step.classList.remove('active', 'completed'));
+        this.flowParticles.innerHTML = '';
+        
+        this.statusText.textContent = '准备重新开始...';
+        
+        setTimeout(() => this.play(), 300);
     }
     
-    startAnimationLoop() {
+    startMainAnimation() {
+        // Start continuous document flow
+        this.createDocumentFlow();
+        
+        // Start processing animation cycles
+        this.startProcessingCycle();
+        
+        // Update statistics periodically
         this.animationLoop = setInterval(() => {
-            this.updatePhase();
-        }, this.phaseDuration);
-        
-        // Initial phase
-        this.updatePhase();
+            this.updateProcessingSteps();
+            this.createFlowParticles();
+            this.updateStatistics();
+        }, 2000);
     }
     
-    stopAnimationLoop() {
-        if (this.animationLoop) {
-            clearInterval(this.animationLoop);
-            this.animationLoop = null;
+    createDocumentFlow() {
+        setInterval(() => {
+            if (!this.isPlaying) return;
+            
+            const particle = document.createElement('div');
+            particle.className = 'flow-particle';
+            particle.innerHTML = '<i class="fas fa-file-alt"></i>';
+            
+            this.flowParticles.appendChild(particle);
+            
+            // Animate particle movement
+            setTimeout(() => {
+                particle.style.transform = 'translateX(400px)';
+                particle.style.opacity = '0';
+            }, 100);
+            
+            // Remove particle after animation
+            setTimeout(() => {
+                if (particle.parentNode) {
+                    particle.parentNode.removeChild(particle);
+                }
+            }, 3000);
+            
+            // Update stats
+            this.stats.collected++;
+        }, 1500);
+    }
+    
+    startProcessingCycle() {
+        let stepIndex = 0;
+        
+        this.processingInterval = setInterval(() => {
+            if (!this.isPlaying) return;
+            
+            // Reset all steps
+            this.processSteps.forEach(step => {
+                step.classList.remove('active');
+            });
+            
+            // Activate current step
+            if (this.processSteps[stepIndex]) {
+                this.processSteps[stepIndex].classList.add('active');
+                
+                // Update status based on current step
+                const stepNames = ['解析文章内容', '筛选关键词', '语义匹配分析', '生成摘要'];
+                this.statusText.textContent = stepNames[stepIndex] || '处理中...';
+                
+                // When completing step 4 (摘要提取), trigger ArXiv data source animation
+                if (stepIndex === 3) { // 摘要提取步骤高亮时
+                    // Trigger ArXiv data source move up animation after a short delay
+                    setTimeout(() => {
+                        this.triggerArXivDataSourceAnimation();
+                    }, 600); // Wait for step highlight to be visible
+                }
+            }
+            
+            stepIndex = (stepIndex + 1) % this.processSteps.length;
+            
+            // Update processed count and trigger data source animation when cycle completes
+            if (stepIndex === 0) {
+                this.stats.processed++;
+                if (Math.random() > 0.3) { // 70% pass rate
+                    this.stats.stored++;
+                }
+            }
+        }, 1200);
+    }
+    
+    triggerArXivDataSourceAnimation() {
+        // Activate ArXiv data source with upward animation
+        this.dataSource.classList.add('active');
+        setTimeout(() => {
+            this.dataSource.classList.remove('active');
+        }, 800); // Longer duration for the animation
+    }
+    
+    updateProcessingSteps() {
+        // Remove SAGE processor glow effects to keep it static
+        // this.sageProcessor.classList.add('processing'); // Commented out
+        
+        // Remove periodic data source activation - now triggered by step completion
+        // this.dataSource.classList.add('active'); // Moved to triggerArXivDataSourceAnimation
+        
+        // Remove result storage animation to keep it static
+        // this.resultStorage.classList.add('receiving'); // Commented out
+    }
+    
+    createFlowParticles() {
+        // Create data flow visualization
+        const flowLines = this.container.querySelectorAll('.flow-line');
+        flowLines.forEach((line, index) => {
+            line.classList.add('flowing');
+            setTimeout(() => {
+                line.classList.remove('flowing');
+            }, 1000 + index * 200);
+        });
+    }
+    
+    updateStatistics() {
+        // Update counter displays with smooth animation
+        const statProcessed = this.container.querySelector('#stat-processed');
+        const statFiltered = this.container.querySelector('#stat-filtered');
+        const storageCounter = this.container.querySelector('#storage-counter');
+        
+        if (statProcessed) {
+            this.animateNumber(statProcessed, this.stats.processed);
         }
+        if (statFiltered) {
+            this.animateNumber(statFiltered, this.stats.processed);
+        }
+        if (storageCounter) {
+            this.animateNumber(storageCounter, this.stats.stored);
+        }
+    }
+    
+    animateNumber(element, targetValue) {
+        const currentValue = parseInt(element.textContent) || 0;
+        if (currentValue !== targetValue) {
+            element.textContent = targetValue;
+            element.style.transform = 'scale(1.2)';
+            setTimeout(() => {
+                element.style.transform = 'scale(1)';
+            }, 200);
+        }
+    }
+    
+    triggerResultStorageMoveUp() {
+        // Remove result storage animation to keep it static
+        // this.resultStorage.classList.add('receiving'); // Commented out
+        
+        // Animation removed - result storage stays in fixed position
     }
     
     updatePhase() {
@@ -651,72 +801,156 @@ class ArticleMonitoringAnimation {
         // Add current phase class
         this.container.classList.add(`phase-${phaseIndex}`);
         
+        // Update phase display
+        const phaseNames = ['数据收集阶段', 'SAGE处理阶段', '内容分析阶段', '结果存储阶段'];
+        if (this.currentPhase) {
+            this.currentPhase.textContent = phaseNames[phaseIndex];
+        }
+        
         switch (phaseIndex) {
-            case 0: // Document Flow
-                this.triggerDocumentFlow();
+            case 0: // Data Collection from ArXiv
+                this.triggerDataCollection();
                 break;
-            case 1: // Processing
-                this.triggerProcessing();
+            case 1: // SAGE Pipeline Processing
+                this.triggerSageProcessing();
                 break;
-            case 2: // Filtering
-                this.triggerFiltering();
+            case 2: // Content Analysis & Filtering
+                this.triggerContentAnalysis();
                 break;
-            case 3: // Delivery
-                this.triggerDelivery();
+            case 3: // Result Storage
+                this.triggerResultStorage();
                 break;
         }
     }
     
-    triggerDocumentFlow() {
-        // Documents start flowing from ArXiv
-        this.documents.forEach((doc, index) => {
+    triggerDataCollection() {
+        // Activate ArXiv source
+        const arxivSource = this.container.querySelector('.arxiv-source');
+        arxivSource.classList.add('collecting');
+        
+        // Start document flow
+        this.documentParticles.forEach((particle, index) => {
             setTimeout(() => {
-                doc.style.animationDelay = `${index * 1.5}s`;
-            }, index * 200);
-        });
-    }
-    
-    triggerProcessing() {
-        // Activate processing stages sequentially
-        this.processStages.forEach((stage, index) => {
-            setTimeout(() => {
-                stage.classList.add('active');
-                setTimeout(() => stage.classList.remove('active'), 2000);
-            }, index * 1000);
+                particle.classList.add('flowing');
+                particle.style.animationDelay = `${index * 0.8}s`;
+            }, index * 300);
         });
         
-        // Show neural network
-        if (this.neuralNetwork) {
-            this.neuralNetwork.style.opacity = '1';
-        }
-    }
-    
-    triggerFiltering() {
-        // Show filtering decisions
-        this.particles.forEach((particle, index) => {
+        // Activate input connection
+        const inputConnection = this.container.querySelector('.input-to-sage');
+        inputConnection.classList.add('active');
+        
+        // Start data pulses
+        this.dataPulses.forEach((pulse, index) => {
             setTimeout(() => {
-                particle.style.opacity = '1';
-                if (particle.classList.contains('rejected')) {
-                    particle.style.transform = 'translateY(-30%) translateX(100px) scale(0.5)';
-                }
+                pulse.classList.add('pulsing');
             }, index * 500);
         });
+        
+        // Update counter
+        this.animateCounter('processed', 15, 2000);
     }
     
-    triggerDelivery() {
-        // Highlight user interface
-        if (this.userInterface) {
-            this.userInterface.classList.add('active');
-            setTimeout(() => this.userInterface.classList.remove('active'), 3000);
-        }
+    triggerSageProcessing() {
+        // Highlight SAGE pipeline
+        this.sagePipeline.classList.add('processing');
         
-        // Reset particles
+        // Activate stages sequentially
+        this.stageIndicators.forEach((stage, index) => {
+            setTimeout(() => {
+                stage.classList.add('active');
+                this.animateStageProgress(stage, 1500);
+            }, index * 800);
+        });
+        
+        // Show processing metrics update
         setTimeout(() => {
-            this.particles.forEach(particle => {
-                particle.style.opacity = '0';
-                particle.style.transform = '';
-            });
-        }, 3000);
+            this.animateCounter('filtered', 12, 1500);
+        }, 2000);
+    }
+    
+    triggerContentAnalysis() {
+        // Emphasize semantic analysis stage
+        const semanticStage = this.container.querySelector('.stage-semantic');
+        semanticStage.classList.add('analyzing');
+        
+        // Show analysis process with visual feedback
+        setTimeout(() => {
+            const analysisIndicator = document.createElement('div');
+            analysisIndicator.className = 'analysis-indicator';
+            analysisIndicator.innerHTML = '<i class="fas fa-cogs"></i> 深度语义分析中...';
+            this.sagePipeline.appendChild(analysisIndicator);
+            
+            setTimeout(() => {
+                analysisIndicator.remove();
+            }, 3000);
+        }, 1000);
+    }
+    
+    triggerResultStorage() {
+        // Activate output connection
+        const outputConnection = this.container.querySelector('.sage-to-output');
+        outputConnection.classList.add('active');
+        
+        // Remove result storage animation to keep it static
+        // const resultStorage = this.container.querySelector('.result-storage');
+        // resultStorage.classList.add('storing'); // Commented out
+        
+        // Animate storage counter
+        this.animateCounter('stored', 8, 2000);
+        
+        // Reset all visual states after completion
+        setTimeout(() => {
+            this.resetAnimationStates();
+        }, 4000);
+    }
+    
+    animateCounter(type, targetValue, duration) {
+        const element = type === 'processed' ? this.processedCount : 
+                      type === 'filtered' ? this.filteredCount : this.storageCount;
+        
+        if (!element) return;
+        
+        const startValue = this.counters[type];
+        const increment = (targetValue - startValue) / (duration / 50);
+        let currentValue = startValue;
+        
+        const timer = setInterval(() => {
+            currentValue += increment;
+            if (currentValue >= targetValue) {
+                currentValue = targetValue;
+                clearInterval(timer);
+            }
+            this.counters[type] = Math.floor(currentValue);
+            element.textContent = Math.floor(currentValue);
+        }, 50);
+    }
+    
+    animateStageProgress(stage, duration) {
+        const progressBar = stage.querySelector('.stage-progress');
+        if (progressBar) {
+            progressBar.style.width = '0%';
+            progressBar.style.transition = `width ${duration}ms ease-in-out`;
+            setTimeout(() => {
+                progressBar.style.width = '100%';
+            }, 100);
+        }
+    }
+    
+    resetAnimationStates() {
+        // Remove all active classes
+        this.container.classList.remove('phase-0', 'phase-1', 'phase-2', 'phase-3');
+        
+        const activeElements = this.container.querySelectorAll('.collecting, .processing, .flowing, .active, .analyzing, .storing, .pulsing');
+        activeElements.forEach(el => {
+            el.classList.remove('collecting', 'processing', 'flowing', 'active', 'analyzing', 'storing', 'pulsing');
+        });
+        
+        // Reset progress bars
+        const progressBars = this.container.querySelectorAll('.stage-progress');
+        progressBars.forEach(bar => {
+            bar.style.width = '0%';
+        });
     }
     
     jumpToPhase(phaseIndex) {
@@ -726,14 +960,95 @@ class ArticleMonitoringAnimation {
         this.triggerPhaseEffects(phaseIndex);
     }
     
-    onHover() {
-        // Add hover effects
-        this.container.classList.add('hovered');
+    startDocumentFlow() {
+        // Create continuous document flow
+        this.animationLoop = setInterval(() => {
+            if (this.isPlaying) {
+                this.createDocument();
+            }
+        }, 2000); // New document every 2 seconds
     }
     
-    onHoverEnd() {
-        // Remove hover effects
-        this.container.classList.remove('hovered');
+    createDocument() {
+        const doc = document.createElement('div');
+        doc.className = 'document';
+        doc.innerHTML = '<i class="fas fa-file-alt"></i>';
+        
+        // Random vertical position
+        const topOffset = 45 + Math.random() * 10; // 45-55%
+        doc.style.top = topOffset + '%';
+        doc.style.left = '140px';
+        
+        this.documentFlow.appendChild(doc);
+        
+        // Animate document flow
+        setTimeout(() => {
+            doc.style.left = '50%';
+            doc.style.transform = 'translateX(-50%)';
+            
+            // Trigger processing animation
+            setTimeout(() => {
+                this.processDocument(doc);
+            }, 1500);
+        }, 100);
+        
+        // Remove document after animation
+        setTimeout(() => {
+            if (doc.parentNode) {
+                doc.remove();
+            }
+        }, 8000);
+    }
+    
+    processDocument(doc) {
+        // Highlight stages sequentially
+        this.stages.forEach((stage, index) => {
+            setTimeout(() => {
+                stage.classList.add('active');
+                setTimeout(() => stage.classList.remove('active'), 800);
+            }, index * 400);
+        });
+        
+        // Update counters
+        this.processedCounter++;
+        if (Math.random() > 0.3) { // 70% pass filter
+            this.filteredCounter++;
+            setTimeout(() => {
+                this.moveToFolder(doc);
+            }, 2000);
+        } else {
+            // Reject document
+            setTimeout(() => {
+                doc.classList.add('rejected');
+                setTimeout(() => doc.remove(), 500);
+            }, 2000);
+        }
+        
+        this.updateCounters();
+    }
+    
+    moveToFolder(doc) {
+        doc.style.left = 'calc(100% - 140px)';
+        doc.classList.add('accepted');
+        
+        setTimeout(() => {
+            this.documentCounter++;
+            this.updateCounters();
+            doc.remove();
+        }, 1500);
+    }
+    
+    updateCounters() {
+        if (this.processedCountEl) this.processedCountEl.textContent = this.processedCounter;
+        if (this.filteredCountEl) this.filteredCountEl.textContent = this.filteredCounter;
+        if (this.folderCountEl) this.folderCountEl.textContent = this.documentCounter;
+    }
+    
+    startProcessingAnimation() {
+        // Add flowing data streams
+        this.streams.forEach(stream => {
+            stream.classList.add('flowing');
+        });
     }
     
     destroy() {
