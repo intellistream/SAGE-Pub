@@ -60,6 +60,12 @@ sage deploy stop
 - `info` - 集群信息
 - `destroy` - 销毁集群
 
+### 智能助手 (`sage chat`)
+- *(默认)* `sage chat` - 启动交互式编程问答助手
+- `ingest` - 将 `docs-public/docs_src` 或自定义目录导入 SageDB
+- `show` - 查看当前索引元数据与统计信息
+- `--ask` - 在非交互模式下直接提出单个问题
+
 ## 🔧 配置
 
 配置文件位于 `~/.sage/config.yaml`:
@@ -104,6 +110,33 @@ jobmanager:
 3. **彩色输出**: 支持彩色状态显示
 4. **作业编号**: 支持使用作业编号（1,2,3...）简化操作
 5. **配置管理**: 支持配置文件自定义设置
+
+## 🤖 SAGE Chat 编程助手
+
+`sage chat` 将项目文档与 SageDB 检索和 LLM 生成结合起来，提供嵌入式编程问答体验。
+
+### 首次启动流程
+1. **准备 SageDB**: 确认已执行 `cd packages/sage-middleware && bash build.sh` 构建原生扩展。
+2. **本地文档导入**: 初次运行 `sage chat` 时会检测索引是否存在，若不存在将提示导入 `docs-public/docs_src`。
+3. **自动下载兜底**: 如果仓库中缺少 `docs-public/docs_src`，CLI 会自动下载官方公开文档并缓存到 `~/.sage/cache/chat/remote_docs`。
+4. **索引保存**: 构建完成后会在 `~/.sage/cache/chat` 内生成 `<index>.sagedb` 与 manifest 文件，后续运行将直接复用。
+
+### 常用命令
+- `sage chat`：进入交互式聊天模式，可与助手实时对话。
+- `sage chat --ask "问题"`：直接在命令行获取单个问题的回答。
+- `sage chat ingest --source docs-public/docs_src`：手动构建或更新索引，支持 `--chunk-size`、`--chunk-overlap`、`--embedding-method` 等参数。
+- `sage chat show`：查看当前索引的存储路径、文档数量与 embedding 配置。
+
+### LLM 后端设置
+- 默认后端为 `mock`，适合离线演示；可通过 `--backend openai` 或 `--backend compatible` 切换到真实的 OpenAI 或 OpenAI 兼容服务。
+- 若使用兼容接口，可配合 `--base-url https://your-endpoint/v1` 与 `--model` 指定模型名称。
+- API Key 可通过 `--api-key` 参数传入，也可在环境变量中设置 `SAGE_CHAT_API_KEY` 后直接运行。
+- 支持 `--stream` 启用流式输出（取决于所选后端能力）。
+
+### 常见问题
+- **索引不存在**：运行 `sage chat ingest` 或在首次启动提示时选择自动导入。
+- **SageDB 未构建**：按照提示执行 `packages/sage-middleware` 下的构建脚本再重试。
+- **网络受限**：如果无法下载远程文档，可先手动同步 `docs-public` 子模块，再执行 `ingest`。
 
 ## 📚 使用示例
 
