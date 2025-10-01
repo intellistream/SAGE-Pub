@@ -182,4 +182,90 @@ API层 → 核心层 → 运行时层 → 工具层
 CLI层 ←─────────────────────┘
 ```
 
+## Pipeline as Service 架构
+
+随着 SAGE 内核的演进，流水线（Pipeline）与服务（Service）的关系也逐步从分离走向统一。本节总结了最新的 “Pipeline as Service” 设计，重点讲解为什么要演进、核心设计原则以及开发者应该如何使用和迁移。
+
+### 📜 背景回顾
+
+- **传统 Flink 风格接口**：流水线与服务完全分离。流水线用于数据处理，服务需要单独声明与注册，两者在运行时走不同的代码路径。
+- **存在的问题**：
+  - 代码路径分叉导致维护复杂；
+  - 流批/服务之间的组合能力有限；
+  - 开发者需要维护重复的服务注册逻辑。
+
+### 🚀 新的统一式设计
+
+1. **流水线即服务**
+   - 部署 Pipeline 的同时完成服务注册，无需额外的声明步骤。
+   - 服务名与流水线名保持一致，统一通过 `process()` 接口对外暴露。
+   - 所有服务调用通过标准的 `call_service` / `call_service_async` API 完成。
+
+2. **统一的访问入口**
+   - 同一套 API 可以在算子、服务实现、用户脚本甚至批处理作业中复用。
+   - 用户脚本可以通过 `bind_runtime_context`/`call_service` 语法糖完成调用。
+
+3. **透明通信**
+   - 请求/响应流程完全统一，底层的队列发现、路由、超时控制由 `ProxyManager` 与 `ServiceManager` 负责。
+   - 支持同步 / 异步调用，异步调用返回 `Future` 对象。
+
+### 🧱 核心组件
+
+- **BaseRuntimeContext** (`sage.kernel.runtime.context.base_context`)
+  - 所有运行时上下文的基础类。
+  - 新增 `call_service` / `call_service_async` 方法，直接接入 `ProxyManager`。
+
+- **ProxyManager** (`sage.kernel.runtime.proxy.proxy_manager`)
+  - 负责服务发现、队列描述符缓存及调用调度。
+  - 对下委托 `ServiceManager`，对上暴露统一的同步 / 异步接口，默认方法名为 `process`。
+
+- **ServiceManager** (`sage.kernel.runtime.service.service_caller`)
+  - 维护请求/响应队列、超时与结果匹配。
+  - 新增 `cache_service_descriptor`，避免重复查询服务队列。
+
+- **Sugar API** (`sage.runtime.sugar`)
+  - 提供 `call_service`、`call_service_async`、`bind_runtime_context` 等工具，方便在算子之外的脚本中复用服务调用能力。
+
+### 🧰 开发者使用示例
+
+```python
+from sage import call_service, call_service_async
+
+# 同步调用另一个流水线
+result = call_service("data_cleaning_pipeline", payload)
+
+# 指定具体方法
+cached = call_service("cache", key, method="get", timeout=5.0)
+
+# 异步调用
+future = call_service_async("ml_inference_pipeline", features)
+prediction = future.result()
+```
+
+算子或服务内部可以通过上下文对象直接调用：
+
+```python
+class DataProcessor(ProcessorOperator):
+    def process(self, ctx: TaskContext, record):
+        enriched = ctx.call_service("enrichment_pipeline", record)
+        score = ctx.call_service("scoring", enriched, method="score")
+        return score
+```
+
+### ✅ 带来的收益
+
+- **统一的编程模型**：所有上下文都使用同一套调用接口，超时与错误处理逻辑一致。
+- **流水线灵活组合**：可以任意组合流式、批处理和服务化组件，形成复合工作流。
+- **减少运维负担**：部署流水线即完成服务注册，自动完成服务发现、队列缓存和通信。
+- **性能优化**：Proxy 层缓存队列描述符，减少控制面开销；支持异步调用提高吞吐。
+
+### 🔮 后续规划
+
+- 负载均衡与健康检查
+- 版本化服务调用与灰度发布
+- 链路追踪、指标采集以及依赖可视化
+- 服务调用鉴权与配额管理
+
+新的架构将 Pipeline 视为一等服务对象，让构建复杂的数据处理与 AI 工作流变得更加简单。开发者只需要专注于业务逻辑，其余的服务发现、通信、超时与资源管理均由框架自动处理。
+
 每一层都有清晰的职责边界，上层依赖下层，但下层不依赖上层，确保了架构的稳定性和可维护性。
