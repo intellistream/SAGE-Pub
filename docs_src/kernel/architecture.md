@@ -80,7 +80,7 @@ SAGE Kernel 完全由 Python 实现，主要分布在 `packages/sage-kernel/src/
    - 对于批处理作业，函数返回 `None` 或 `FutureTransformation` 被填充后会触发停止信号。
    - `autostop=True` 时，`_wait_for_completion()` 轮询 JobManager 状态并在管道结束后触发清理。
 
-## Pipeline-as-Service 与服务调用
+## 服务注册与调用机制
 
 相关代码：
 
