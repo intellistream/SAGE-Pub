@@ -1,338 +1,189 @@
-# 环境管理 (Environments)
+# Environment API
 
-环境 (Environment) 是 SAGE Kernel 的核心概念，它定义了数据流应用的执行上下文。环境负责管理计算资源、调度任务、处理服务注册等。
+`BaseEnvironment`（见 `packages/sage-kernel/src/sage/core/api/base_environment.py`）负责维护运行配置、构建 `Transformation` 管道以及与 JobManager 交互。本页只记录**当前源码中已经实现**的接口。
 
-## 🌍 环境类型
+## 核心属性与通用方法
 
-### 1. LocalEnvironment (本地环境)
+| 属性/方法 | 说明 |
+| --------- | ---- |
+| `name` | 环境名称，在提交到 JobManager 时会随配置一起传输。 |
+| `config` | 以 `dict` 形式保存的用户配置。构造函数会拷贝传入的字典，避免外部突变。 |
+| `pipeline` | `List[BaseTransformation]`，按照声明顺序记录所有算子。`from_*`/`map` 等接口都会向其中追加元素。 |
+| `set_console_log_level(level)` | 调整环境 logger 的控制台输出级别，仅接受 `DEBUG/INFO/WARNING/ERROR`。 |
+| `register_service(name, cls, *args, **kwargs)` | 使用 `ServiceFactory` 包装服务并在提交时交给 JobManager。 |
+| `register_service_factory(name, factory)` | 注册已有的 `ServiceFactory` 实例。 |
 
-适用于单机开发、测试和小规模数据处理。
+### 数据源创建
+
+`BaseEnvironment` 暴露了多种 `from_*` 方法，它们都会返回一个新的 `DataStream`：
+
+```python
+from sage.core.api.local_environment import LocalEnvironment
+from sage.core.api.function.map_function import MapFunction
+from sage.core.api.function.simple_batch_function import SimpleBatchIteratorFunction
+
+env = LocalEnvironment("demo")
+
+# 1. 批数据（列表、迭代器或者 BaseFunction 子类）
+numbers = env.from_batch([1, 2, 3, 4])
+
+# 2. 任意 SourceFunction / BatchFunction 子类
+records = env.from_source(SimpleBatchIteratorFunction(["a", "b"]))
+
+# 3. Kafka 数据源
+kafka_stream = env.from_kafka_source(
+    bootstrap_servers="localhost:9092",
+    topic="events",
+    group_id="demo-consumer",
+)
+
+# 4. Future 占位流，用于反馈边
+future_stream = env.from_future("feedback")
+```
+
+实现细节：
+
+- `from_batch` 会选择 `BatchTransformation`，当底层函数的 `execute()` 返回 `None` 时终止；
+- `from_collection` 是旧接口，内部同样会走 `BatchTransformation` 路径；
+- `from_source` 使用 `SourceTransformation`；
+- `from_future` 使用 `FutureTransformation`，需要配合 `DataStream.fill_future()`。
+
+## LocalEnvironment
+
+源代码：`packages/sage-kernel/src/sage/core/api/local_environment.py`
 
 ```python
 from sage.core.api.local_environment import LocalEnvironment
 
-# 创建本地环境
-env = LocalEnvironment("my_local_app")
+env = LocalEnvironment(name="local-demo")
 
-# 配置选项
-env = LocalEnvironment(
-    name="my_app",
-    config={
-        "parallelism": 4,          # 并行度
-        "buffer_size": 10000,      # 缓冲区大小
-        "checkpoint_interval": 30  # 检查点间隔(秒)
-    }
-)
+dataset = env.from_batch(["a", "b", "c"])
+dataset.print()
+
+# autostop=True 会阻塞至 JobManager 完成并执行 `_wait_for_completion()`
+env.submit(autostop=True)
 ```
 
-### 2. RemoteEnvironment (远程环境)
+### 行为说明
 
-适用于生产环境和分布式集群部署。
+- 构造函数将 `platform` 固定为 `"local"`，并把 `_engine_client` 设为 `None`，表示直接使用本地 `JobManager` 实例；
+- `jobmanager` 属性懒加载 `JobManager()` 单例，后续提交/停止都会复用该对象；
+- `submit(autostop: bool = False)` 会调用 `jobmanager.submit_job(self)`，返回生成的 `env_uuid`；
+- 当 `autostop=True` 时，`_wait_for_completion()` 会轮询 `jobmanager.jobs` 中的任务状态，最长等待 5 分钟，然后尝试调用 `stop()` 清理；
+- `stop()` 与 `close()` 都通过 `jobmanager.pause_job(env_uuid)` 停止任务，后者额外会清空 `pipeline` 并重置 `env_uuid`。
+
+> 注意：`LocalEnvironment` 默认不会启动后台线程或进程，一切逻辑都在 JobManager 的控制下运行。
+
+## RemoteEnvironment
+
+源代码：`packages/sage-kernel/src/sage/core/api/remote_environment.py`
 
 ```python
 from sage.core.api.remote_environment import RemoteEnvironment
 
-# 创建远程环境
 env = RemoteEnvironment(
-    name="my_cluster_app",
-    config={
-        "jobmanager_host": "cluster-master",
-        "jobmanager_port": 8081,
-        "taskmanager_slots": 8
-    }
-)
-```
-
-## 🔧 环境配置
-
-### 基础配置
-
-```python
-config = {
-    # 执行配置
-    "parallelism": 4,              # 默认并行度
-    "max_parallelism": 128,        # 最大并行度
-    "buffer_size": 10000,          # 数据缓冲区大小
-    
-    # 容错配置
-    "restart_strategy": "fixed-delay",
-    "restart_attempts": 3,
-    "restart_delay": "10s",
-    
-    # 检查点配置
-    "checkpointing_enabled": True,
-    "checkpoint_interval": "30s",
-    "checkpoint_timeout": "10m",
-    
-    # 日志配置
-    "log_level": "INFO",
-    "log_file": "./logs/sage.log"
-}
-
-env = LocalEnvironment("my_app", config=config)
-```
-
-### 高级配置
-
-```python
-# 性能调优配置
-performance_config = {
-    "network_buffer_size": "64mb",
-    "sort_buffer_size": "64mb", 
-    "hash_table_size": "1gb",
-    "managed_memory_fraction": 0.7,
-    "network_memory_fraction": 0.1,
-    "jvm_heap_size": "2g"
-}
-
-# 安全配置  
-security_config = {
-    "security_enabled": True,
-    "kerberos_principal": "sage@REALM.COM",
-    "ssl_enabled": True,
-    "ssl_keystore": "./ssl/keystore.jks"
-}
-```
-
-## 📊 数据源创建
-
-### 批处理数据源
-
-```python
-# 从集合创建
-stream = env.from_batch([1, 2, 3, 4, 5])
-
-# 从文件创建
-stream = env.from_text_file("./data/input.txt")
-
-# 从多个文件创建
-stream = env.from_text_files("./data/*.txt")
-```
-
-### 流数据源
-
-```python
-# Kafka数据源
-stream = env.from_kafka_source(
-    bootstrap_servers="localhost:9092",
-    topic="my_topic",
-    group_id="my_consumer_group",
-    auto_offset_reset="latest"
+    name="remote-demo",
+    host="127.0.0.1",
+    port=19001,
 )
 
-# Socket数据源
-stream = env.from_socket_text_stream("localhost", 9999)
+stream = env.from_batch(range(3))
+stream.print()
 
-# 自定义数据源
-class MySource(SourceFunction[str]):
-    def run(self, ctx):
-        for i in range(100):
-            ctx.emit(f"Message {i}")
-            time.sleep(1)
-
-stream = env.add_source(MySource())
+env.submit(autostop=True)
 ```
 
-## 🛠️ 服务管理
+### 行为说明
 
-### 服务注册
+- 构造函数会保存远程 JobManager 的 `host` / `port`，并把这些信息写入 `config`，便于调试；
+- `client` 属性延迟实例化 `JobManagerClient`，用于 RPC；
+- `submit(autostop=False)`：
+  1. 调用 `trim_object_for_ray(self)` 剔除不可序列化字段；
+  2. 使用 `serialize_object`（dill）对环境进行序列化；
+  3. 通过 `client.submit_job(serialized_env, autostop)` 将任务发送给远程 JobManager；
+- `autostop=True` 同样会触发 `_wait_for_completion()`，该方法周期性调用 `client.get_job_status` 检查作业状态；
+- 额外提供的运维接口：
+  - `stop()`：调用 `pause_job`，返回服务端响应；
+  - `close()`：在 `stop()` 的基础上重置本地状态；
+  - `health_check()`：调用 `client.health_check()`；
+  - `get_job_status()`：查询当前环境对应的远程作业状态。
+
+## 常见模式
+
+### 使用 autostop 等待批任务完成
 
 ```python
-# 注册服务类
-env.register_service("cache", RedisCacheService, 
-                    host="localhost", port=6379)
+env = LocalEnvironment("batch-job")
 
-# 注册服务工厂
-from sage.middleware import create_kv_service_factory
+env.from_batch(["a", "b", "c"]).print()
 
-kv_factory = create_kv_service_factory("my_kv", backend_type="memory")
-env.register_service_factory("my_kv", kv_factory)
+# 如果不传 autostop，submit 会立即返回，任务在后台继续运行
+env.submit(autostop=True)
 ```
 
-### 服务使用
+### 注册运行时服务
 
 ```python
-# 在处理函数中使用服务
-class ProcessFunction(MapFunction[str, str]):
-    def map(self, value: str) -> str:
-        # 获取服务代理
-        cache = self.get_runtime_context().get_service("cache")
-        
-        # 使用服务
-        result = cache.get(value)
-        if result is None:
-            result = expensive_computation(value)
-            cache.put(value, result)
-        
-        return result
+from sage.core.api.local_environment import LocalEnvironment
 
-stream.map(ProcessFunction())
+class KVService:
+    def __init__(self):
+        self.store = {}
+
+    def process(self, payload):
+        command, *args = payload
+        if command == "set":
+            key, value = args
+            self.store[key] = value
+            return "ok"
+        if command == "get":
+            (key,) = args
+            return self.store.get(key)
+        raise ValueError(f"Unknown command {command}")
+
+env = LocalEnvironment("service-demo")
+env.register_service("memory_kv", KVService)
+
+stream = env.from_batch([("set", "x", 1), ("get", "x")])
+
+class CallServiceFunction(MapFunction):
+    def execute(self, data):
+        return self.call_service("memory_kv", data)
+
+stream.map(CallServiceFunction).print()
+env.submit(autostop=True)
 ```
 
-## 🚀 任务提交和管理
-
-### 提交任务
+### 创建反馈边
 
 ```python
-# 同步提交 (阻塞)
-env.submit()
+future = env.from_future("loop")
 
-# 异步提交 (非阻塞)
-job_id = env.submit_async()
-
-# 带参数提交
-env.submit(
-    job_name="my_processing_job",
-    save_point_path="./savepoints/sp_001",
-    allow_non_restored_state=False
-)
-```
-
-### 任务控制
-
-```python
-# 停止任务
-env.stop()
-
-# 取消任务
-env.cancel()
-
-# 暂停任务
-env.pause()
-
-# 恢复任务
-env.resume()
-
-# 创建保存点
-savepoint_path = env.create_savepoint()
-
-# 从保存点恢复
-env.restore_from_savepoint("./savepoints/sp_001")
-```
-
-## 📊 监控和调试
-
-### 性能监控
-
-```python
-# 启用指标收集
-env.enable_metrics(
-    reporters=["jmx", "prometheus"],
-    interval="10s"
+updated = (
+    env.from_batch([1, 2, 3])
+       .connect(future)
+       .comap(MyCoMapFunction)
 )
 
-# 自定义指标
-counter = env.get_metric_group().counter("my_counter")
-histogram = env.get_metric_group().histogram("my_histogram")
-
-class MyMapFunction(MapFunction[str, str]):
-    def map(self, value: str) -> str:
-        counter.inc()  # 增加计数器
-        
-        start_time = time.time()
-        result = process(value)
-        histogram.update(time.time() - start_time)  # 记录处理时间
-        
-        return result
+updated.fill_future(future)
+env.submit(autostop=True)
 ```
 
-### 日志配置
+`fill_future` 会替换 `FutureTransformation` 的输入，确保 DAG 闭合。请确保在提交前完成 `fill_future` 调用。
 
-```python
-# 配置日志
-env.set_log_level("DEBUG")
-env.set_log_file("./logs/my_app.log")
+## 尚未提供的接口
 
-# 结构化日志
-logger = env.get_logger("MyFunction")
-logger.info("Processing record", extra={"record_id": 123})
-```
+以下方法目前**尚未在源码中实现**：
 
-## 🔧 最佳实践
+- `submit_async`、`cancel`、`resume`、`create_savepoint` 等运行时控制接口；
+- `set_parallelism`、`enable_object_reuse`、`set_managed_memory_fraction` 等执行参数调优接口；
+- Metric/Logger 管理相关的 `enable_metrics`、`set_log_file` 等方法。
 
-### 1. 环境生命周期管理
+若需要这些能力，请结合 `JobManager`／`JobManagerClient` 的现有实现自行扩展，并在文档或代码中明确标注。
 
-```python
-def main():
-    env = None
-    try:
-        env = LocalEnvironment("my_app")
-        
-        # 构建数据流管道
-        stream = env.from_batch(data)
-        stream.map(process).sink(output)
-        
-        # 提交执行
-        env.submit()
-        
-    except Exception as e:
-        logger.error(f"Job failed: {e}")
-    finally:
-        if env:
-            env.close()  # 确保资源清理
-```
+## 诊断建议
 
-### 2. 配置外部化
-
-```python
-# config.yaml
-parallelism: 4
-buffer_size: 10000
-checkpoint_interval: 30s
-
-# Python代码
-import yaml
-
-with open("config.yaml") as f:
-    config = yaml.safe_load(f)
-
-env = LocalEnvironment("my_app", config=config)
-```
-
-### 3. 错误处理
-
-```python
-# 设置重启策略
-env.set_restart_strategy(
-    strategy="exponential-delay",
-    max_attempts=5,
-    initial_delay="1s",
-    max_delay="1m",
-    backoff_multiplier=2.0
-)
-
-# 自定义错误处理
-class ErrorHandler(ProcessFunction[str, str]):
-    def process(self, value: str, ctx: ProcessContext) -> str:
-        try:
-            return risky_operation(value)
-        except Exception as e:
-            # 发送到错误流
-            ctx.output_to_side("errors", f"Error: {e}, Value: {value}")
-            return None  # 过滤掉错误数据
-
-main_stream, error_stream = stream.process(ErrorHandler()).split()
-```
-
-### 4. 资源优化
-
-```python
-# 合理设置并行度
-env.set_parallelism(min(cpu_count(), len(input_partitions)))
-
-# 启用对象重用
-env.enable_object_reuse()
-
-# 配置内存管理
-env.set_managed_memory_fraction(0.7)
-env.set_network_memory_fraction(0.1)
-```
-
-## 📚 相关文档
-
-- [数据流处理](datastreams.md) - 数据流操作详解
-- [函数接口](functions.md) - 用户自定义函数
-<!-- - [分布式部署](../guides/distributed-deployment.md) - 集群部署指南 -->
-- 分布式部署 - 集群部署指南
-<!-- - [性能优化](../guides/performance.md) - 性能调优技巧 -->
-- 性能优化 - 性能调优技巧
+1. 提交前检查 `env.pipeline` 是否为空；如果为空，JobManager 仍会创建任务但不会执行任何算子。
+2. 使用 `set_console_log_level("DEBUG")` 可以在控制台看到算子提交、服务注册等调试信息。
+3. 远程部署时，建议先调用 `health_check()`，确认 JobManager 端口可达。
+4. 如果 `autostop=True` 且任务超过 5 分钟未完成，`_wait_for_completion` 会尝试调用 `stop()`；可以根据需要在应用层捕获并重试。

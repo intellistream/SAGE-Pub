@@ -30,27 +30,24 @@
 ## 2. 代码结构
 
 ```python title="模块概览"
-PlanStep = Dict[str, Any]  # 计划步骤（MCP 风格）
+PlanStep = Dict[str, Any]  # MCP 风格步骤列表
 
-# 工具 Top-K 选择
 _top_k_tools(user_query, tools, k=6) -> Dict[str, Dict[str, Any]]
-
-# 生成 LLM 提示词（包含 Profile / Query / Tools）
 _build_prompt(profile_system_prompt, user_query, tools_subset) -> str
-
-# 剥离 ```fences```
 _strip_code_fences(text) -> str
-
-# JSON 容错解析：先 loads；失败再截取 [ ... ] 片段
 _coerce_json_array(text) -> Optional[List[Any]]
-
-# 轻量校验：结构正确、工具存在、必填参数齐全
 _validate_steps(steps, tools) -> List[PlanStep]
 
-class LLMPlanner:
-    def __init__(generator, max_steps=6, enable_repair=True, topk_tools=6): ...
-    def plan(profile_system_prompt, user_query, tools) -> List[PlanStep]: ...
+class LLMPlanner(MapFunction):
+    def __init__(self, generator, max_steps=6, enable_repair=True, topk_tools=6): ...
+    def _ask_llm(self, prompt: str, user_query: str) -> str: ...
+    def plan(self, profile_system_prompt: str, user_query: str, tools: Dict[str, Dict[str, Any]]) -> List[PlanStep]: ...
+    def _tools_to_manifest(self, tools_like: Any) -> Dict[str, Dict[str, Any]]: ...
+    def execute(self, data: Any) -> List[PlanStep]: ...
 ```
+
+!!! info "调试输出"
+    当第一次或修复后的 JSON 解析失败时，源码会打印 `🐛 Debug` 日志便于排查（不会抛异常，仍会按照兜底策略返回）。
 
 ---
 
@@ -66,7 +63,7 @@ sequenceDiagram
   C->>P: plan(profile_prompt, user_query, tools)
   P->>P: tools_subset = _top_k_tools(...)
   P->>P: prompt = _build_prompt(...)
-  P->>G: execute([user_query, prompt])
+  P->>G: execute([user_query, messages])
   G-->>P: raw_text
   P->>P: steps = _coerce_json_array(raw_text)
   alt steps is None and enable_repair
@@ -90,7 +87,7 @@ sequenceDiagram
 
 | 参数 | 类型 | 默认 | 说明 |
 |---|---|---:|---|
-| `generator` | `OpenAIGenerator | HFGenerator` | — | 你的 LLM 生成器，需实现 `.execute([user_query, prompt]) -> (user_query, text)` |
+| `generator` | `OpenAIGenerator | HFGenerator` | — | 你的 LLM 生成器，需实现 `.execute([user_query, messages]) -> (user_query, text)` |
 | `max_steps` | `int` | `6` | 计划最大步数（最终会截断） |
 | `enable_repair` | `bool` | `True` | 首次解析失败时，是否进行一次“简短修复”重试 |
 | `topk_tools` | `int` | `6` | 传给模型的工具子集上限 |
@@ -102,6 +99,16 @@ plan(profile_system_prompt: str, user_query: str, tools: Dict[str, Dict[str, Any
 ```
 
 - **返回**：`List[PlanStep]`，保证列表非空；若全被过滤，会返回 `[{"type":"reply","text":"（计划不可用）"}]`
+
+### 4.3 `LLMPlanner.execute(...)`
+
+```python
+execute(data: Dict[str, Any] | Tuple[str, str, Any]) -> List[PlanStep]
+```
+
+- **dict 形态**：支持一次性覆写 `topk`，并接受 `tools` 或 `registry` 对象（自动调用 `.describe()`）
+- **tuple 形态**：`(profile_prompt, user_query, tools_or_registry)`
+- 任意形态下都会回退到 `plan(...)`
 
 ---
 

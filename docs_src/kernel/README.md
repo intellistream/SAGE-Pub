@@ -1,402 +1,119 @@
-# SAGE Kernel 核心框架
+## SAGE Kernel 总览
 
-SAGE Kernel 是 SAGE 框架的核心引擎，为大规模语言模型推理提供强大的流数据处理和分布式计算能力。作为整个 SAGE 生态系统的基石，它为上层中间件服务和应用组件提供了统一的高性能运行时环境。
+SAGE Kernel 是 SAGE 平台中负责构建与提交数据处理流水线的运行时核心。它提供一组轻量级的 Python API，用于描述数据来源、转换算子和服务调用，并将这些描述交给本地或远程的 JobManager 执行。
 
-## 🏗️ 架构概览
+本章节聚焦于**源码中已经实现的能力**，帮助你快速定位可用的编程接口并避免依赖尚未落地的特性。
 
-SAGE Kernel 采用现代化的分层架构设计，各层职责清晰，协同工作：
+## 核心组成
 
-```mermaid
-graph TB
-    A[应用层] --> B[API 接口层]
-    B --> C[核心计算层]
-    C --> D[运行时环境层]
-    D --> E[资源管理层]
-    
-    subgraph API层
-        B1[DataStream API]
-        B2[Environment API]
-        B3[Functions API]
-        B4[Connected Streams API]
-    end
-    
-    subgraph 核心层
-        C1[算子系统]
-        C2[函数系统]
-        C3[转换系统]
-        C4[流水线引擎]
-    end
-    
-    subgraph 运行时层
-        D1[本地运行时]
-        D2[远程运行时]
-        D3[分布式调度器]
-        D4[状态管理器]
-    end
-    
-    subgraph 资源层
-        E1[内存管理]
-        E2[CPU调度]
-        E3[网络IO]
-        E4[存储系统]
-    end
-    
-    style B fill:#e1f5fe
-    style C fill:#f3e5f5
-    style D fill:#e8f5e8
-    style E fill:#fff3e0
-```
+- **Environment**：包装运行配置并维护流水线中产生的所有 `Transformation`。
+- **DataStream**：描述单输入算子链，提供 `map`、`filter`、`flatmap`、`keyby`、`sink` 等操作。
+- **ConnectedStreams**：在多个 `DataStream` 之间建立逻辑连接以支持 `comap`、`join` 等多流算子。
+- **Function 基类族**：约束算子实现所需的方法（例如 `MapFunction.execute`）。
 
-## � 技术文档索引
+所有 API 都位于 `packages/sage-kernel/src/sage/core/api` 目录下，可直接对照源码了解行为。
 
-### 运维和配置
-- [运维指南](guides/operations.md) - 系统运维、优雅关闭和配置优化
-- [改进建议](guides/improvements.md) - 功能改进建议和问题追踪
-- [配置详解](config/config.md) - 完整的配置参数说明和示例
+## 执行模型
 
-### 开发指南
-- [快速开始](guides/quickstart.md) - 快速上手指南
-- [最佳实践](best-practices.md) - 开发和部署最佳实践
-- [API 参考](api/) - 详细的 API 文档
+1. **创建环境**：实例化 `LocalEnvironment` 或 `RemoteEnvironment`。
+2. **声明数据源**：调用 `from_batch`、`from_collection`、`from_kafka_source` 等方法获取 `DataStream`。
+3. **链接转换算子**：在 `DataStream` 上调用 `map`、`filter`、`flatmap`、`keyby` 等操作。
+4. **选择输出方式**：使用 `sink`/`print` 或将多个流通过 `connect()`/`comap()` 组合。
+5. **提交运行**：调用 `env.submit(autostop=True)` 将流水线交给 JobManager 执行。
 
-### 核心组件
-- [核心架构](core/) - 核心组件实现细节
-- [概念解释](concepts.md) - 重要概念和术语
-- [常见问题](faq.md) - 常见问题解答
-
-## �📚 核心组件文档
-
-### DataStream API
-流数据处理的核心抽象，提供丰富的数据转换和处理操作：
-
-| 组件 | 功能描述 | 核心特性 |
-|------|----------|----------|
-| **基础数据流** | 数据流核心抽象 | 类型安全，延迟执行 |
-| **转换算子** | Map/Filter/Reduce等 | 链式调用，高性能 |
-| **窗口操作** | 时间/计数窗口 | 支持多种窗口类型 |
-| **状态管理** | 有状态计算支持 | 分布式状态存储 |
-
-### 执行环境 API
-统一的任务执行环境和资源管理：
-
-| 环境类型 | 适用场景 | 关键特性 |
-|----------|----------|----------|
-| **LocalEnvironment** | 开发测试 | 快速启动，易于调试 |
-| **RemoteEnvironment** | 生产环境 | 分布式执行，高可用 |
-| **HybridEnvironment** | 混合部署 | 灵活的资源调配 |
-
-### 函数系统 API
-用户自定义处理逻辑的标准化接口：
-
-```python
-# 函数开发示例
-class CustomProcessingFunction(BaseFunction):
-    def __init__(self, config: Dict):
-        self.config = config
-        self.model = None
-        
-    def open(self, context: FunctionContext):
-        # 初始化资源
-        self.model = load_model(self.config['model_path'])
-        
-    def process(self, value: Any) -> Any:
-        # 处理逻辑
-        result = self.model.predict(value)
-        return {"input": value, "output": result}
-        
-    def close(self):
-        # 清理资源
-        self.model.release()
-```
-
-## 🎯 核心特性矩阵
-
-| 特性类别 | 功能描述 | 技术优势 | 应用价值 |
-|---------|---------|---------|---------|
-| **流式处理** | 实时数据流水线 | 低延迟，高吞吐 | 实时推理场景 |
-| **分布式计算** | 集群协同处理 | 水平扩展，负载均衡 | 大规模部署 |
-| **类型安全** | 编译时类型检查 | 减少运行时错误 | 提高开发效率 |
-| **可扩展架构** | 插件化设计 | 自定义算子，灵活集成 | 适应多样需求 |
-| **企业级功能** | 高级特性支持 | 监控，安全，容错 | 生产环境就绪 |
-
-## 🔄 数据处理流水线示例
-
-```python
-from sage.core.api import LocalEnvironment
-from sage.core.api.function import MapFunction, FilterFunction
-from sage.core.api.datastream import DataStream
-
-# 创建优化后的数据处理流水线
-def create_optimized_pipeline():
-    # 初始化环境
-    env = LocalEnvironment(
-        name="llm-inference-pipeline",
-        config={
-            "parallelism": 8,
-            "buffer.timeout": 100,
-            "object.reuse": True
-        }
-    )
-    
-    # 构建数据处理流水线
-    pipeline = (env
-        .from_source(KafkaSource("input-topic"))
-        .map(InputParser(), name="input-parser")
-        .filter(QualityFilter(), name="quality-filter")
-        .key_by(lambda x: x["session_id"])
-        .map(EmbeddingGenerator(), name="embedding-generator")
-        .map(ContextRetriever(), name="context-retriever")
-        .map(LLMInference(), name="llm-inference")
-        .map(OutputFormatter(), name="output-formatter")
-        .sink(KafkaSink("output-topic"))
-    )
-    
-    return pipeline
-
-# 提交执行
-if __name__ == "__main__":
-    pipeline = create_optimized_pipeline()
-    env.submit(pipeline)
-```
-
-## 📊 性能指标对比
-
-| 指标类型 | LocalEnvironment | RemoteEnvironment | 优化建议 |
-|---------|------------------|-------------------|---------|
-| **吞吐量** | 10-50K records/s | 100-500K records/s | 增加并行度 |
-| **延迟** | 5-20ms | 10-50ms | 优化网络配置 |
-| **资源使用** | 单机资源 | 集群资源池 | 动态扩缩容 |
-| **容错能力** | 基础容错 | 完整故障恢复 | 配置检查点 |
-
-## 🛠️ 开发工具链
-
-### CLI 工具集
-```bash
-# 项目初始化
-sage init my-project --template=llm-pipeline
-
-# 本地执行
-sage run local --parallelism=4 pipeline.py
-
-# 集群部署
-sage deploy cluster --config=production.yaml
-
-# 监控查看
-sage monitor metrics --live
-sage monitor logs --tail=100
-```
-
-### 调试与诊断
-```python
-# 调试配置示例
-env.configure_debug(
-    enable_tracing=True,
-    metrics_interval="10s",
-    log_level="DEBUG"
-)
-
-# 性能分析工具
-from sage.utils.profiler import PipelineProfiler
-
-profiler = PipelineProfiler(env)
-stats = profiler.analyze(pipeline)
-print(f"瓶颈算子: {stats.bottleneck}")
-print(f"内存使用: {stats.memory_usage}")
-```
-
-## 🌐 生态系统集成
-
-### 与中间件服务集成
-```python
-# 中间件服务集成示例
-from sage.middleware.service import ModelService, VectorDBService
-
-# 集成模型服务
-model_service = ModelService(
-    endpoint="localhost:8080",
-    timeout=30000,
-    retry_policy={"max_attempts": 3}
-)
-
-# 集成向量数据库
-vector_db = VectorDBService(
-    host="vector-db-cluster",
-    port=6333,
-    collection="document_embeddings"
-)
-
-# 在流水线中使用
-pipeline = (env
-    .from_source(input_source)
-    .map(model_service.embedding)
-    .map(vector_db.retrieve)
-    .sink(output_sink)
-)
-```
-
-### 应用组件支持
-| 应用类型 | 集成方式 | 核心组件 | 特性支持 |
-|---------|----------|----------|----------|
-| **RAG系统** | 原生支持 | 检索器，生成器 | 低延迟检索 |
-| **智能代理** | SDK集成 | 对话引擎，工具调用 | 多轮对话 |
-| **数据分析** | 库集成 | 聚合算子，窗口函数 | 实时分析 |
-
-## 🚀 快速开始指南
-
-### 1. 环境安装
-```bash
-# 安装SAGE Kernel
-pip install sage-kernel
-
-# 验证安装
-sage --version
-sage check-env
-```
-
-### 2. 第一个流水线
-```python
-# simple_pipeline.py
-from sage.core.api import LocalEnvironment
-
-env = LocalEnvironment("hello-sage")
-
-# 创建简单流水线
-(env
- .from_collection(["Hello", "World", "SAGE"])
- .map(lambda x: f"Processed: {x}")
- .print()
-)
-
-env.submit()
-```
-
-### 3. 运行验证
-```bash
-# 本地执行
-sage run local simple_pipeline.py
-
-# 预期输出
-Processed: Hello
-Processed: World  
-Processed: SAGE
-```
-
-## 📋 最佳实践
-
-### 性能优化
-```python
-# 高性能配置模板
-high_perf_config = {
-    "execution": {
-        "parallelism": 16,
-        "buffer.timeout": 50,
-        "object.reuse": True
-    },
-    "state": {
-        "backend": "rocksdb",
-        "checkpoint.interval": "30s",
-        "incremental": True
-    },
-    "resources": {
-        "taskmanager.memory.process.size": "4gb",
-        "taskmanager.cpu.cores": "4"
-    }
-}
-```
-
-### 容错设计
-```python
-# 容错配置示例
-fault_tolerance_config = {
-    "restart.strategy": "exponential-delay",
-    "restart.attempts": 10,
-    "restart.delay": "10s",
-    "restart.max_delay": "5m",
-    "checkpointing": "exactly_once",
-    "checkpoint.timeout": "5m"
-}
-```
-
-
-
-## 📚 核心组件文档
-
-### DataStream API
-流数据处理的核心API，提供丰富的数据转换和处理操作：
-
-<!-- - [DataStream 概览](datastream/datastream_intro.md) - 基础概念和编程模式 -->
-- DataStream 概览 - 基础概念和编程模式
-<!-- - [Operator 与 Function](datastream/datastream_function.md) - 算子和函数的设计原理 -->
-- Operator 与 Function - 算子和函数的设计原理
-<!-- - [Transformation](datastream/datastream_trans.md) - 数据转换操作详解 -->
-- Transformation - 数据转换操作详解
-
-### 执行环境 API
-管理任务执行的环境和资源：
-
-- [Environments API](api/environments.md) - 本地和远程执行环境
-- [DataStreams API](api/datastreams.md) - 数据流处理和管道
-- [Functions API](api/functions.md) - 自定义函数开发
-- [Connected Streams API](api/connected-streams.md) - 多流处理和复杂事件处理
-
-### 系统配置和工具
-- [Config 配置](config/config.md) - 系统配置参数详解
-- [CLI Reference](components/cli.md) - 命令行工具使用指南
-
-## 📖 深入学习
-
-### 核心概念
-- [Architecture Overview](architecture.md) - 系统架构设计
-- [Core Concepts](concepts.md) - 核心概念和术语
-
-### 开发指南
-- [Quick Start Guide](guides/quickstart.md) - 快速入门教程
-- [Best Practices](best-practices.md) - 开发最佳实践
-- [FAQ](faq.md) - 常见问题解答
-
-### 示例代码
-- [Examples Collection](examples/README.md) - 实用示例集合
-
-## 🔗 与其他组件的关系
-
-### Middleware 层
-SAGE Kernel 为 [中间件服务](../middleware/service/service_intro.md) 提供运行时支持
-
-### Application 层
-上层应用组件基于 Kernel 构建：
-<!-- - [RAG 应用](../applications/rag.md) -->
-- RAG 应用
-<!-- - [智能代理](../applications/agents.md) -->
-- 智能代理
-<!-- - [工具集成](../applications/tools_intro.md) -->
-- 工具集成
-
-## 🚀 快速开始
+### 最小化示例
 
 ```python
 from sage.core.api.local_environment import LocalEnvironment
 
-# 创建本地环境
-env = LocalEnvironment("my_app")
+env = LocalEnvironment("numbers-demo")
 
-# 创建数据流管道
-stream = env.from_batch([1, 2, 3, 4, 5])
-result = stream.map(lambda x: x * 2).sink(print)
+stream = (
+    env.from_batch([1, 2, 3, 4, 5])
+       .map(lambda value: value * 2)
+       .filter(lambda value: value > 5)
+)
 
-# 提交执行
-env.submit()
+stream.print(prefix="[result]")
+
+# autostop=True 会等待批任务结束并清理资源
+env.submit(autostop=True)
 ```
 
-## 📋 主要特性
+以上代码与 `packages/sage-kernel/src/sage/core/api` 中的实现完全一致：
 
-- **🔄 流式处理**: 支持无限数据流的实时处理
-- **🌐 分布式**: 原生支持集群部署和分布式计算
-- **🎯 类型安全**: 基于Python泛型的编译时类型检查
-- **🔌 可扩展**: 插件化架构，支持自定义算子和服务
-- **🛠️ 工具完善**: 完整的CLI工具链和监控体系
-- **🏢 企业级**: 提供商业版高级功能
+- `from_batch` 使用 `BatchTransformation`，每次调用底层函数的 `execute`，返回 `None` 时结束批处理；
+- `map`/`filter` 自动将普通 `callable` 包装成匿名 `BaseFunction` 子类（参见 `lambda_function.wrap_lambda`）；
+- `print` 是 `sink(PrintSink, ...)` 的便捷写法，底层使用 `sage.libs.io_utils.sink.PrintSink`。
 
-## 📞 获取帮助
+## 数据源能力
+
+`BaseEnvironment` 当前提供的入口包括：
+
+| 方法 | 说明 |
+| ---- | ---- |
+| `from_batch(source)` | 批量数据迭代器，支持 `BaseFunction` 子类、`list/tuple` 以及任意可迭代对象。 |
+| `from_collection(function)` | 保留的历史 API，内部同样走批处理路径。 |
+| `from_source(function)` | 适合实现自定义实时数据源，`function` 通常继承 `SourceFunction`。 |
+| `from_kafka_source(...)` | 使用 `KafkaSourceFunction` 构建消费任务，要求传入 bootstrap、topic、group 等参数。 |
+| `from_future(name)` | 声明一个占位流，稍后可以通过 `DataStream.fill_future` 建立反馈边。 |
+
+所有方法都会返回 `DataStream` 对象并把对应的 `Transformation` 累加到 `env.pipeline`。因此，在提交前可以多次组合重用，无需立即执行。
+
+## 转换与终端算子
+
+`DataStream` 支持以下算子（位于 `datastream.py`）：
+
+- `map(function, *, parallelism=None)`
+- `filter(function, *, parallelism=None)`
+- `flatmap(function, *, parallelism=None)`
+- `keyby(function, strategy="hash", *, parallelism=None)`
+- `sink(function, *, parallelism=None)`
+- `print(prefix="", separator=" | ", colored=True)` —— `sink(PrintSink, ...)` 的语法糖
+- `connect(other)` —— 返回 `ConnectedStreams`
+- `fill_future(future_stream)` —— 与 `from_future` 配合形成反馈闭环
+
+所有算子都会创建对应的 `Transformation` 并追加到环境的 `pipeline`，但不会立即触发执行。你可以链式书写，也可以把中间 `DataStream` 保存为变量后继续扩展。
+
+### Feedback Loop 示例
+
+```python
+future = env.from_future("feedback")
+
+processed = (
+    env.from_batch(["a", "b", "c"])
+       .connect(future)
+       .comap(MyCoMapFunction)    # 详见 ConnectedStreams 文档
+)
+
+processed.fill_future(future)
+env.submit(autostop=True)
+```
+
+`fill_future` 会调用 `FutureTransformation.fill_with_transformation`，把真实的上游替换掉之前声明的占位符，从而形成 DAG 中的回边。
+
+## 服务注册
+
+`BaseEnvironment.register_service(name, service_class, *args, **kwargs)` 和 `register_service_factory` 会把服务包装成 `ServiceFactory` 并在 `submit()` 时交给 JobManager。算子内部可通过 `BaseFunction.call_service` 与运行时服务交互。若当前平台为 `local`，日志会以 "Registered local service" 的形式打印。
+
+## Local 与 Remote 环境
+
+| 能力 | `LocalEnvironment` | `RemoteEnvironment` |
+| ---- | ------------------ | ------------------- |
+| 提交 | `submit(autostop=False)`，依赖本地 `JobManager` 单例 | `submit(autostop=False)`，序列化后经 `JobManagerClient` 发送到远端 |
+| 任务监控 | `_wait_for_completion()` 轮询本地 `JobManager` 状态 | `_wait_for_completion()` 通过 `client.get_job_status` 轮询远程状态 |
+| 停止/关闭 | `stop()`、`close()` | `stop()`、`close()`、`health_check()`、`get_job_status()` |
+
+在两种环境下，`autostop=True` 都会调用 `_wait_for_completion`，默认超时 5 分钟，可根据需要在应用层自行扩展。
+
+## 后续阅读
+
+- [Environment API](api/environments.md)：详解 `LocalEnvironment` / `RemoteEnvironment` 的方法和行为。
+- [DataStream API](api/datastreams.md)：逐个说明支持的链式算子及其限制。
+- [ConnectedStreams API](api/connected-streams.md)：介绍多流连接、`comap` 与 `join` 的使用方式。
+- [Function 基类](api/functions.md)：列出各类函数接口的签名与实现注意事项。
+
+阅读这些文档时，可随时与 `packages/sage-kernel/src/sage/core/api`、`.../transformation`、`.../jobmanager` 等源码相比对，确保文档内容与实现保持一致。
 
 - [GitHub Issues](https://github.com/intellistream/SAGE/issues) - 报告问题
 - [讨论区](https://github.com/intellistream/SAGE/discussions) - 社区讨论
