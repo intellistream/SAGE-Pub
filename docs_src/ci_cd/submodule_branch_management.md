@@ -86,9 +86,14 @@ git commit -m "chore: update submodules to main-dev branch"
 仓库提供了 `tools/maintenance/git-hooks/post-checkout` 示例脚本，可在 `git checkout` 时自动运行 `switch` 命令。
 
 ```bash
-# 启用 hook（复制示例并赋予执行权限）
+```bash
+# 推荐：使用 helper 一键安装
+./tools/maintenance/setup_hooks.sh
+
+# 如需手动配置
 cp tools/maintenance/git-hooks/post-checkout .git/hooks/post-checkout
 chmod +x .git/hooks/post-checkout
+```
 
 # 禁用 hook
 mv .git/hooks/post-checkout .git/hooks/post-checkout.disabled

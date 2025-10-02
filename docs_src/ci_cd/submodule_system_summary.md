@@ -13,15 +13,20 @@
    - `help`：命令说明
 
 2. **Git Hook 示例**：`tools/maintenance/git-hooks/post-checkout`
-   - 可选，复制到 `.git/hooks/post-checkout` 后可在切换分支时自动执行 `switch`
+   - 可选，运行 helper 安装到 `.git/hooks/post-checkout` 后可在切换分支时自动执行 `switch`
+
+```bash
+# 安装一次即可自动生效
+./tools/maintenance/setup_hooks.sh
+
+# 如需自定义，可手动复制
+cp tools/maintenance/git-hooks/post-checkout .git/hooks/post-checkout
+chmod +x .git/hooks/post-checkout
+```
 
 3. **文档说明**：详见 [子模块分支管理](submodule_branch_management.md)
 
 ## 设计决策
-
-- **不自动创建分支**：子模块的 `main`/`main-dev` 需在各自仓库维护
-- **简洁命令界面**：保留必要命令，降低学习成本
-- **显式提交 `.gitmodules`**：保证版本控制清晰
 
 ## 典型流程
 
