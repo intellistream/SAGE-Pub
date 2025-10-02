@@ -1,404 +1,200 @@
-# 函数接口 (Functions)
+# Function 基类
 
-SAGE Kernel 提供了丰富的函数接口，支持用户定义各种数据处理逻辑。所有函数都继承自基础函数类，提供类型安全和性能优化。
+SAGE Kernel 中的算子函数全部继承自 `BaseFunction`（`packages/sage-kernel/src/sage/core/api/function/base_function.py`）。`BaseFunction` 定义了以下重要特性：
 
-## 🧩 函数类型概览
+- `execute(self, data)`：所有算子必须实现的方法；
+- `self.ctx`：运行时注入的任务上下文，可用于获取 logger、服务等；
+- `self.logger`：如果上下文尚未注入，默认返回根 logger；
+- `call_service` / `call_service_async`：与环境中注册的服务交互。
 
-```
-BaseFunction (抽象基类)
-├── MapFunction          # 一对一转换
-├── FlatMapFunction      # 一对多转换  
-├── FilterFunction       # 过滤操作
-├── ReduceFunction       # 归约操作
-├── AggregateFunction    # 聚合操作
-├── ProcessFunction      # 通用处理函数
-├── SinkFunction         # 输出函数
-├── SourceFunction       # 数据源函数
-├── KeySelector          # 键选择器
-├── JoinFunction         # 连接函数
-└── CoMapFunction        # 协同映射函数
-```
+为了满足不同算子的需求，Kernel 提供了一组派生基类。本页仅保留源码中已经实现的类型。
 
-## 🔄 转换函数
+## 一元算子
 
-### MapFunction - 一对一转换
+### MapFunction
 
 ```python
-from sage.core.api.function import MapFunction
-from typing import TypeVar
+from sage.core.api.function.map_function import MapFunction
 
-T = TypeVar('T')
-U = TypeVar('U')
+class Square(MapFunction):
+    def execute(self, data):
+        return data * data
+```
 
-class MapFunction(BaseFunction[T, U]):
-    """一对一转换函数基类"""
-    
-    def map(self, value: T) -> U:
-        """转换单个元素"""
-        raise NotImplementedError()
+配合 `DataStream.map` 使用。返回值会直接流向下游。
 
-# 示例实现
-class SquareFunction(MapFunction[int, int]):
-    def map(self, value: int) -> int:
-        return value * value
+### FilterFunction
 
-class ParseJsonFunction(MapFunction[str, dict]):
-    def map(self, json_str: str) -> dict:
+```python
+from sage.core.api.function.filter_function import FilterFunction
+
+class NonEmpty(FilterFunction):
+    def execute(self, data):
+        return bool(data)
+```
+
+要求返回布尔值；框架会调用 `_process_output` 强制转换为 `bool`。
+
+### FlatMapFunction
+
+```python
+from sage.core.api.function.flatmap_function import FlatMapFunction
+
+class Words(FlatMapFunction):
+    def execute(self, data):
+        # 方式一：直接返回可迭代对象
+        return data.split()
+
+class EmitChars(FlatMapFunction):
+    def execute(self, data):
+        # 方式二：使用 self.collect
+        for ch in data:
+            self.collect(ch)
+```
+
+FlatMap 函数可返回可迭代对象，也可通过 `self.collect` 发射多个元素。操作符会在执行前注入 `Collector` 到 `self.out`。
+
+### SinkFunction
+
+```python
+from sage.core.api.function.sink_function import SinkFunction
+
+class PrintSink(SinkFunction):
+    def execute(self, data):
+        print(f"[sink] {data}")
+```
+
+用于 `DataStream.sink` 或 `ConnectedStreams.sink`。返回值将被丢弃。
+
+### SourceFunction & BatchFunction
+
+`SourceFunction.execute` / `BatchFunction.execute` 不接收上游输入，用于产生数据。
+
+```python
+import time
+
+from sage.core.api.function.source_function import SourceFunction
+from sage.core.api.function.batch_function import BatchFunction
+
+class Counter(SourceFunction):
+    def execute(self):
+        # 返回单条数据；source operator 会持续调用
+        return time.time()
+
+class NumberBatch(BatchFunction):
+    def __init__(self, values):
+        super().__init__()
+        self.values = iter(values)
+
+    def execute(self):
         try:
-            return json.loads(json_str)
-        except json.JSONDecodeError:
-            return {"error": "invalid_json", "raw": json_str}
-
-class UserProfileExtractor(MapFunction[dict, UserProfile]):
-    def map(self, user_data: dict) -> UserProfile:
-        return UserProfile(
-            id=user_data["id"],
-            name=user_data["name"],
-            email=user_data.get("email"),
-            age=user_data.get("age", 0)
-        )
-
-# 使用方式
-numbers.map(SquareFunction())
-json_lines.map(ParseJsonFunction())
-user_data.map(UserProfileExtractor())
+            return next(self.values)
+        except StopIteration:
+            return None  # 返回 None 表示批处理完成
 ```
 
-### FlatMapFunction - 一对多转换
+批处理函数返回 `None` 时，`BatchTransformation` 会向下游发送结束信号。
+
+## 简化批处理工具
+
+`simple_batch_function.py` 提供了几个开箱即用的批处理函数实现：
+
+- `SimpleBatchIteratorFunction`：遍历内存列表；
+- `FileBatchIteratorFunction`：逐行读取文件；
+- `RangeBatchIteratorFunction`：遍历数值区间；
+- `GeneratorBatchIteratorFunction`：包装自定义生成器。
+
+它们都继承自 `BaseFunction`，并遵循“返回值为 `None` 时结束”这一约定，可直接用于 `env.from_batch`。
+
+## 键控与多流函数
+
+### KeyByFunction / FieldKeyByFunction
 
 ```python
-from sage.core.api.function import FlatMapFunction
-from typing import Iterable
+from sage.core.api.function.keyby_function import KeyByFunction, FieldKeyByFunction
 
-class FlatMapFunction(BaseFunction[T, Iterable[U]]):
-    """一对多转换函数基类"""
-    
-    def flat_map(self, value: T) -> Iterable[U]:
-        """将一个元素转换为多个元素"""
-        raise NotImplementedError()
+class ExtractUser(KeyByFunction):
+    def execute(self, data):
+        return data["user_id"]
 
-# 示例实现
-class SplitWordsFunction(FlatMapFunction[str, str]):
-    def flat_map(self, sentence: str) -> Iterable[str]:
-        return sentence.lower().split()
-
-class ExpandEventsFunction(FlatMapFunction[dict, dict]):
-    def flat_map(self, batch: dict) -> Iterable[dict]:
-        for event in batch.get("events", []):
-            event["batch_id"] = batch["id"]
-            event["batch_timestamp"] = batch["timestamp"]
-            yield event
-
-class GenerateNGramsFunction(FlatMapFunction[str, str]):
-    def __init__(self, n: int = 2):
-        self.n = n
-    
-    def flat_map(self, text: str) -> Iterable[str]:
-        words = text.split()
-        for i in range(len(words) - self.n + 1):
-            yield " ".join(words[i:i + self.n])
-
-# 使用方式
-sentences.flat_map(SplitWordsFunction())
-batches.flat_map(ExpandEventsFunction())
-text.flat_map(GenerateNGramsFunction(3))  # 3-grams
+class ExtractRegion(FieldKeyByFunction):
+    field_name = "location.region"
 ```
 
-### FilterFunction - 过滤操作
+- 用于 `DataStream.keyby` 或 `ConnectedStreams.keyby`；
+- 要求返回可哈希对象；
+- `FieldKeyByFunction` 支持通过 `field_name` 指定嵌套字段，并自带校验。
+
+### BaseCoMapFunction
 
 ```python
-from sage.core.api.function import FilterFunction
+from sage.core.api.function.comap_function import BaseCoMapFunction
 
-class FilterFunction(BaseFunction[T, bool]):
-    """过滤函数基类"""
-    
-    def filter(self, value: T) -> bool:
-        """判断是否保留该元素"""
-        raise NotImplementedError()
+class Route(BaseCoMapFunction):
+    def map0(self, data):
+        return {"stream": 0, "payload": data}
 
-# 示例实现
-class AdultUserFilter(FilterFunction[dict]):
-    def filter(self, user: dict) -> bool:
-        return user.get("age", 0) >= 18
-
-class ValidEmailFilter(FilterFunction[str]):
-    def filter(self, email: str) -> bool:
-        return "@" in email and "." in email.split("@")[1]
-
-class PriceRangeFilter(FilterFunction[dict]):
-    def __init__(self, min_price: float, max_price: float):
-        self.min_price = min_price
-        self.max_price = max_price
-    
-    def filter(self, product: dict) -> bool:
-        price = product.get("price", 0)
-        return self.min_price <= price <= self.max_price
-
-# 使用方式
-users.filter(AdultUserFilter())
-emails.filter(ValidEmailFilter())
-products.filter(PriceRangeFilter(10.0, 100.0))
+    def map1(self, data):
+        return {"stream": 1, "payload": data}
 ```
 
-## 🔑 键值函数
+- 与 `ConnectedStreams.comap` 搭配使用；
+- 需要实现与输入流数量一致的 `mapN` 方法；
+- `execute` 被重写为抛出 `NotImplementedError`，提醒不要直接调用。
 
-### KeySelector - 键选择器
-
-```python
-from sage.core.api.function import KeySelector
-
-K = TypeVar('K')  # 键类型
-
-class KeySelector(BaseFunction[T, K]):
-    """键选择器基类"""
-    
-    def get_key(self, value: T) -> K:
-        """提取元素的键"""
-        raise NotImplementedError()
-
-# 示例实现
-class UserIdKeySelector(KeySelector[dict, str]):
-    def get_key(self, user: dict) -> str:
-        return user["id"]
-
-class TimestampKeySelector(KeySelector[dict, int]):
-    def get_key(self, event: dict) -> int:
-        # 按小时分组
-        return event["timestamp"] // 3600
-
-class CompositeKeySelector(KeySelector[dict, tuple]):
-    def get_key(self, record: dict) -> tuple:
-        return (record["category"], record["region"])
-
-# 使用方式
-users.key_by(UserIdKeySelector())
-events.key_by(TimestampKeySelector())
-sales.key_by(CompositeKeySelector())
-```
-
-### ReduceFunction - 归约操作
+### BaseJoinFunction
 
 ```python
-from sage.core.api.function import ReduceFunction
+from sage.core.api.function.join_function import BaseJoinFunction
 
-class ReduceFunction(BaseFunction[T, T]):
-    """归约函数基类"""
-    
-    def reduce(self, value1: T, value2: T) -> T:
-        """合并两个相同键的值"""
-        raise NotImplementedError()
+class SimpleJoin(BaseJoinFunction):
+    def __init__(self):
+        super().__init__()
+        self.buffer = {}
 
-# 示例实现
-class SumReduceFunction(ReduceFunction[int]):
-    def reduce(self, value1: int, value2: int) -> int:
-        return value1 + value2
-
-class MaxReduceFunction(ReduceFunction[float]):
-    def reduce(self, value1: float, value2: float) -> float:
-        return max(value1, value2)
-
-class MergeUserFunction(ReduceFunction[dict]):
-    def reduce(self, user1: dict, user2: dict) -> dict:
-        # 合并用户信息，保留最新时间戳的数据
-        if user1.get("timestamp", 0) >= user2.get("timestamp", 0):
-            result = user1.copy()
-            result.update({k: v for k, v in user2.items() if k != "timestamp"})
-        else:
-            result = user2.copy()
-            result.update({k: v for k, v in user1.items() if k != "timestamp"})
-        return result
-
-# 使用方式
-numbers.key_by(lambda x: x % 2).reduce(SumReduceFunction())
-scores.key_by(lambda x: x["user_id"]).reduce(MaxReduceFunction())
-user_updates.key_by(lambda x: x["id"]).reduce(MergeUserFunction())
-```
-
-## 📊 聚合函数
-
-### AggregateFunction - 聚合操作
-
-```python
-from sage.core.api.function import AggregateFunction
-
-ACC = TypeVar('ACC')  # 累加器类型
-OUT = TypeVar('OUT')  # 输出类型
-
-class AggregateFunction(BaseFunction[T, ACC, OUT]):
-    """聚合函数基类"""
-    
-    def create_accumulator(self) -> ACC:
-        """创建累加器初始值"""
-        raise NotImplementedError()
-    
-    def add(self, accumulator: ACC, value: T) -> ACC:
-        """将新值添加到累加器"""
-        raise NotImplementedError()
-    
-    def get_result(self, accumulator: ACC) -> OUT:
-        """从累加器获取最终结果"""
-        raise NotImplementedError()
-    
-    def merge(self, acc1: ACC, acc2: ACC) -> ACC:
-        """合并两个累加器（用于分布式聚合）"""
-        raise NotImplementedError()
-
-# 示例实现
-class CountAggregateFunction(AggregateFunction[Any, int, int]):
-    def create_accumulator(self) -> int:
-        return 0
-    
-    def add(self, accumulator: int, value: Any) -> int:
-        return accumulator + 1
-    
-    def get_result(self, accumulator: int) -> int:
-        return accumulator
-    
-    def merge(self, acc1: int, acc2: int) -> int:
-        return acc1 + acc2
-
-class AvgAggregateFunction(AggregateFunction[float, tuple, float]):
-    def create_accumulator(self) -> tuple:
-        return (0.0, 0)  # (sum, count)
-    
-    def add(self, accumulator: tuple, value: float) -> tuple:
-        sum_val, count = accumulator
-        return (sum_val + value, count + 1)
-    
-    def get_result(self, accumulator: tuple) -> float:
-        sum_val, count = accumulator
-        return sum_val / count if count > 0 else 0.0
-    
-    def merge(self, acc1: tuple, acc2: tuple) -> tuple:
-        return (acc1[0] + acc2[0], acc1[1] + acc2[1])
-
-class TopKAggregateFunction(AggregateFunction[int, list, list]):
-    def __init__(self, k: int = 10):
-        self.k = k
-    
-    def create_accumulator(self) -> list:
+    def execute(self, payload, key, tag):
+        if tag == 0:  # 第一个流
+            self.buffer[key] = payload
+            return []
+        # 第二个流到达
+        left = self.buffer.get(key)
+        if left:
+            return [{"key": key, "left": left, "right": payload}]
         return []
-    
-    def add(self, accumulator: list, value: int) -> list:
-        accumulator.append(value)
-        accumulator.sort(reverse=True)
-        return accumulator[:self.k]
-    
-    def get_result(self, accumulator: list) -> list:
-        return accumulator
-    
-    def merge(self, acc1: list, acc2: list) -> list:
-        merged = acc1 + acc2
-        merged.sort(reverse=True)
-        return merged[:self.k]
 ```
 
-## 🔧 处理函数
+- 由 `ConnectedStreams.join` 调用；
+- `payload`、`key`、`tag` 会由运行时构造，其中 `tag` 标识输入流（0 或 1）；
+- 需要自行管理状态和输出格式（返回列表）。
 
-### ProcessFunction - 通用处理
+## Lambda 包装
+
+`DataStream` 与 `ConnectedStreams` 的大部分算子都允许传入普通 `callable`。实现位于 `lambda_function.wrap_lambda`，会根据操作类型生成一个临时的 `BaseFunction` 子类。例如：
 
 ```python
-from sage.core.api.function import ProcessFunction, ProcessContext
-
-class ProcessFunction(BaseFunction[T, U]):
-    """通用处理函数，支持副输出、定时器等高级功能"""
-    
-    def process(self, value: T, ctx: ProcessContext[U]) -> None:
-        """处理单个元素"""
-        raise NotImplementedError()
-    
-    def on_timer(self, timestamp: int, ctx: ProcessContext[U]) -> None:
-        """定时器回调"""
-        pass
-
-# 示例实现
-class ValidationFunction(ProcessFunction[dict, dict]):
-    def process(self, record: dict, ctx: ProcessContext[dict]):
-        # 数据验证
-        if self.is_valid(record):
-            ctx.emit(record)  # 输出到主流
-        else:
-            # 输出到错误流
-            ctx.output_to_side("errors", f"Invalid: {record}")
-    
-    def is_valid(self, record: dict) -> bool:
-        required_fields = ["id", "timestamp", "data"]
-        return all(field in record for field in required_fields)
-
-class SessionTimeoutFunction(ProcessFunction[dict, dict]):
-    def __init__(self, timeout_ms: int = 30000):
-        self.timeout_ms = timeout_ms
-        self.sessions = {}
-    
-    def process(self, event: dict, ctx: ProcessContext[dict]):
-        session_id = event["session_id"]
-        current_time = ctx.timestamp()
-        
-        # 更新会话
-        self.sessions[session_id] = current_time
-        
-        # 设置超时定时器
-        ctx.register_timer(current_time + self.timeout_ms)
-        
-        ctx.emit(event)
-    
-    def on_timer(self, timestamp: int, ctx: ProcessContext[dict]):
-        # 清理超时会话
-        expired_sessions = [
-            sid for sid, last_time in self.sessions.items()
-            if timestamp - last_time >= self.timeout_ms
-        ]
-        
-        for session_id in expired_sessions:
-            del self.sessions[session_id]
-            ctx.output_to_side("timeouts", {"session_id": session_id, "timeout": timestamp})
+stream.map(lambda value: value + 1)
 ```
 
-## 📤 输入输出函数
-
-### SourceFunction - 数据源
+内部会被转化为：
 
 ```python
-from sage.core.api.function import SourceFunction, SourceContext
+class _LambdaMap(MapFunction):
+    def execute(self, data):
+        return lambda_body(data)
+```
 
-class SourceFunction(BaseFunction[None, T]):
-    """数据源函数基类"""
-    
-    def run(self, ctx: SourceContext[T]) -> None:
-        """生成数据"""
-        raise NotImplementedError()
-    
-    def cancel(self) -> None:
-        """取消数据源"""
-        pass
+因此在调试日志中看到的函数名可能是 `_LambdaMap` 等包装类。
 
-# 示例实现
-class CounterSourceFunction(SourceFunction[int]):
-    def __init__(self, max_count: int = 100, interval_ms: int = 1000):
-        self.max_count = max_count
-        self.interval_ms = interval_ms
-        self.running = True
-    
-    def run(self, ctx: SourceContext[int]):
-        count = 0
-        while self.running and count < self.max_count:
-            ctx.emit(count)
-            count += 1
-            time.sleep(self.interval_ms / 1000.0)
-    
-    def cancel(self):
-        self.running = False
+## 使用建议
 
-class FileSourceFunction(SourceFunction[str]):
-    def __init__(self, file_path: str):
-        self.file_path = file_path
-    
-    def run(self, ctx: SourceContext[str]):
-        with open(self.file_path, 'r') as f:
-            for line in f:
-                ctx.emit(line.strip())
+1. **管理状态**：`BaseFunction` 没有内置状态快照功能，如需持久化请自行实现或关注 TODO。仓库内的 `StatefulFunction` 注释展示了潜在方向。
+2. **服务调用**：通过 `call_service` 获得环境中注册的服务，例如缓存、外部 API 客户端等。
+3. **日志记录**：合理使用 `self.logger.debug/info` 观察函数行为；环境可通过 `set_console_log_level` 控制输出级别。
+4. **异常处理**：抛出的异常会由运行时捕获并记录，必要时可在函数内自行捕获并返回默认值。
 
-class KafkaSourceFunction(SourceFunction[dict]):
+## 尚未实现的类型
+
+旧文档中提到的 `ProcessFunction`、`AggregateFunction`、`ReduceFunction`、副输出（Side Output）等接口目前尚未在 `sage.core.api.function` 目录下提供。如果需要这些能力，需要参考 `Operator` 层实现并自行扩展。
     def __init__(self, bootstrap_servers: str, topic: str, group_id: str):
         self.bootstrap_servers = bootstrap_servers
         self.topic = topic

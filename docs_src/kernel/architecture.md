@@ -1,271 +1,116 @@
 # SAGE Kernel 架构概览
 
-SAGE Kernel 是一个现代化的流数据处理框架，采用分层架构设计，提供从API到底层运行时的完整解决方案。
+SAGE Kernel 完全由 Python 实现，主要分布在 `packages/sage-kernel/src/sage` 目录下。框架以“声明式 API → 执行图编译 → JobManager 调度 → Runtime 执行”的流程组织代码。下面的内容全部可在仓库中对应的模块找到实现。
 
-## 🏗️ 整体架构
-
-```
-┌─────────────────────────────────────────────────────┐
-│                   用户应用层                        │
-├─────────────────────────────────────────────────────┤
-│              API 层 (sage.core.api)              │
-│  ┌─────────────┐ ┌─────────────┐ ┌─────────────┐   │
-│  │  环境管理   │ │  数据流API  │ │  函数接口   │   │
-│  └─────────────┘ └─────────────┘ └─────────────┘   │
-├─────────────────────────────────────────────────────┤
-│            核心层 (sage.kernel.kernels)            │
-│  ┌─────────────┐ ┌─────────────┐ ┌─────────────┐   │
-│  │  核心引擎   │ │  变换算子   │ │  执行图     │   │
-│  └─────────────┘ └─────────────┘ └─────────────┘   │
-├─────────────────────────────────────────────────────┤
-│           运行时层 (sage.kernel.runtime)           │
-│  ┌─────────────┐ ┌─────────────┐ ┌─────────────┐   │
-│  │  任务调度   │ │  通信机制   │ │  服务管理   │   │
-│  └─────────────┘ └─────────────┘ └─────────────┘   │
-├─────────────────────────────────────────────────────┤
-│            工具层 (sage.kernel.utils)              │
-│  ┌─────────────┐ ┌─────────────┐ ┌─────────────┐   │
-│  │  日志系统   │ │  配置管理   │ │  性能监控   │   │
-│  └─────────────┘ └─────────────┘ └─────────────┘   │
-├─────────────────────────────────────────────────────┤
-│             CLI层 (sage.cli)                │
-│  ┌─────────────┐ ┌─────────────┐ ┌─────────────┐   │
-│  │  命令工具   │ │  集群管理   │ │  部署工具   │   │
-│  └─────────────┘ └─────────────┘ └─────────────┘   │
-└─────────────────────────────────────────────────────┘
-```
-
-## 📦 核心模块
-### 1. **API 层** (`sage.core.api`)
-
-**职责**: 为用户提供简洁且功能强大的编程接口
-
-- **环境管理**: 
-  - `LocalEnvironment`, `RemoteEnvironment`  
-  - 管理本地与远程环境配置和连接。
-  
-- **数据流 API**: 
-  - `DataStream`, `ConnectedStreams`  
-  - 提供流数据的表示和处理能力，支持数据管道的构建。
-
-- **函数接口**: 
-  - 提供用户自定义函数基类的支持，允许用户定义特定的流处理函数。
-
-- **类型系统**: 
-  - 基于泛型的类型安全保证，编译时错误检查，确保类型安全。
-
-**设计特点**:
-- **声明式 API**，通过链式调用进行流数据操作。
-- **延迟执行**：构建计算图时仅定义任务，执行时才会触发计算。
-- **类型安全**：通过泛型和编译时检查减少运行时错误。
-
----
-
-### 2. **核心层** (`sage.kernel.kernels`)
-
-**职责**: 实现核心的流处理引擎和计算逻辑
-
-- **核心引擎**: 
-  - 流处理引擎，负责流数据的执行和计算调度。
-
-- **变换算子**: 
-  - 提供常见的流数据变换操作，如 `Map`, `Filter`, `Join` 等。
-
-- **执行图**: 
-  - 构建和优化流数据的 DAG（有向无环图），决定执行顺序和依赖关系。
-
-- **任务管理**: 
-  - 负责作业的调度和管理，确保计算任务高效执行。
-
-**设计特点**:
-- **高性能 C++ 内核**：核心计算模块采用高效的 C++ 编写。
-- **内存零拷贝优化**：优化内存传输，避免不必要的数据拷贝。
-- **动态负载均衡**：根据节点负载动态调整任务分配。
-
----
-
-### 3. **运行时层** (`sage.kernel.runtime`)
-
-**职责**: 提供底层的资源和任务调度支持
-
-- **任务调度**: 
-  - 提供分布式任务调度功能，确保任务合理调度。
-
-- **通信机制**: 
-  - 提供进程间和跨节点的高效通信支持。
-
-- **服务管理**: 
-  - 管理微服务生命周期，处理服务的启动、停止和监控。
-
-- **资源管理**: 
-  - 管理内存、CPU、网络等资源，保证资源的合理分配和使用。
-
-**设计特点**:
-- **异步 I/O 模型**：支持异步非阻塞操作，提高系统响应能力。
-- **容错和故障恢复**：支持任务失败重试，确保高可靠性。
-- **弹性伸缩**：根据负载情况动态调整资源。
-
----
-
-### 4. **工具层** (`sage.kernel.utils`)
-
-**职责**: 提供通用的工具和辅助功能
-
-- **日志系统**: 
-  - 提供结构化日志和监控功能，支持实时日志分析。
-
-- **配置管理**: 
-  - 管理配置文件和环境变量，支持灵活的配置方式。
-
-- **性能监控**: 
-  - 收集并分析性能指标，帮助优化系统性能。
-
-- **安全认证**: 
-  - 提供认证和授权机制，确保系统安全性。
-
----
-
-### 5. **CLI 层** (`sage.cli`)
-
-**职责**: 提供命令行工具和运维支持
-
-- **开发工具**: 
-  - 提供项目脚手架、调试工具、代码生成工具等。
-
-- **集群管理**: 
-  - 提供节点管理、服务发现、集群状态监控等功能。
-
-- **部署工具**: 
-  - 支持应用打包、容器化部署等，简化部署流程。
-
-- **监控工具**: 
-  - 提供实时监控和日志查看功能，帮助运维人员监控系统健康。
-
----实时监控、日志查看
-
-## 🔄 数据流向
+## 分层全景
 
 ```
-用户代码 → API抽象 → 执行图 → 任务调度 → 分布式执行
-    ↓         ↓        ↓        ↓         ↓
-   DSL    变换算子   DAG优化   资源分配   数据处理
+┌─────────────────────────┐
+│ 用户代码 (examples/, 应用) │
+├─────────────────────────┤
+│ sage.core.api           │ 公开 API：Environment / DataStream / Function
+├─────────────────────────┤
+│ sage.core.transformation│ 计算图节点、算子定义
+│ sage.core.operator      │ (进行中) operator 封装
+├─────────────────────────┤
+│ sage.kernel.jobmanager  │ 执行图编译、作业生命周期
+├─────────────────────────┤
+│ sage.kernel.runtime     │ Dispatcher、Task、Service、Proxy
+└─────────────────────────┘
 ```
 
-## 🌟 设计原则
+## `sage.core`：声明式 API 与算子描述
 
-### 1. **分层解耦**
-- 清晰的模块边界，确保各层次之间的职责明确。
-- **接口与实现分离**，提高模块的可测试性和可维护性。
-- **易于测试和维护**：每层都可以单独进行单元测试，确保模块功能的独立性。
+目录：`packages/sage-kernel/src/sage/core`
 
-### 2. **性能优先**
-- **零拷贝数据传输**：优化数据流传输，减少内存消耗。
-- **异步并发处理**：提高任务的并发执行效率。
-- **内存池管理**：通过内存池管理优化内存分配和回收，避免内存泄漏。
+- **`api/`**：向用户暴露的编程接口。
+  - `base_environment.py` 定义 `BaseEnvironment` 以及 `LocalEnvironment`/`RemoteEnvironment` 的公共行为。
+  - `datastream.py`、`connected_streams.py` 描述数据流以及多流连接算子的链式 API。
+  - `function/` 下的基类（`MapFunction`、`FlatMapFunction`、`SinkFunction`、`KeyByFunction`、`BaseCoMapFunction`、`BaseJoinFunction` 等）约束算子代码需要实现的 `execute`/`mapN` 方法。
+- **`transformation/`**：每个链式调用都会生成一个 `BaseTransformation` 子类实例（`MapTransformation`、`FilterTransformation`、`SinkTransformation` 等），用于构建执行图节点。
+- **`factory/`**：`ServiceFactory` 将用户注册的服务描述为可序列化的构造信息，提交时注入 JobManager。
+- **`communication/`** 与 **`operator/`**：提供运行时通信、算子包装等基础设施，随着 runtime 改造逐步完善。
 
-### 3. **可扩展性**
-- **插件化架构**：允许用户根据需求扩展框架功能。
-- **服务化组件**：各模块服务化，支持灵活的扩展和替换。
-- **水平扩展支持**：支持通过增加节点扩展系统处理能力。
+小结：`sage.core` 负责“描述”流水线，不直接执行任务。所有 API 都以 Python 对象存在，方便 `JobManager` 序列化后传递给执行端。
 
-### 4. **易用性**
-- **声明式 API**：简洁的代码编写方式，提高开发效率。
-- **自动类型推导**：通过类型推导减少显式类型声明，提高代码简洁性。
-- **丰富的工具支持**：集成了各种开发、调试、监控工具，简化运维工作。
+## `sage.kernel.jobmanager`：执行图编译与生命周期管理
 
+目录：`packages/sage-kernel/src/sage/kernel/jobmanager`
 
-## 🔗 模块依赖关系
+- **`job_manager.py`**：`JobManager` 单例，负责
+  1. 接收 `Environment`，生成作业 UUID；
+  2. 调用 `compiler/execution_graph.py` 把 `env.pipeline` 转换成执行图；
+  3. 创建 `Dispatcher` 并提交运行；
+  4. 维护 `jobs` 字典、`pause_job` 等运维操作。
+- **`job_manager_server.py`** 与 **`jobmanager_client.py`**：提供可选的 TCP Daemon，支持 `RemoteEnvironment` 通过网络提交作业并获取状态。
+- **`compiler/`**：`ExecutionGraph`、`logical_plan`、`physical_plan` 等组件将 `Transformation` 链编译为运行时可消费的节点描述。
+- **`job_info.py`**：记录作业状态、是否启用 `autostop`、关联的 `Dispatcher` 等信息。
 
-```
-API层 → 核心层 → 运行时层 → 工具层
- ↓       ↓       ↓       ↓
-CLI层 ←─────────────────────┘
-```
+小结：JobManager 层面没有 C++ 依赖，也未引入外部调度器。一切控制逻辑都在 `job_manager.py` 及其子模块里。
 
-## Pipeline as Service 架构
+## `sage.kernel.runtime`：Dispatcher 与运行时服务
 
-随着 SAGE 内核的演进，流水线（Pipeline）与服务（Service）的关系也逐步从分离走向统一。本节总结了最新的 “Pipeline as Service” 设计，重点讲解为什么要演进、核心设计原则以及开发者应该如何使用和迁移。
+目录：`packages/sage-kernel/src/sage/kernel/runtime`
 
-### 📜 背景回顾
+- **`dispatcher.py`**：根据执行图创建任务、管理生命周期、处理停止/暂停。
+- **`task/`**：实现任务抽象以及本地任务执行循环。
+- **`service/`**：`service_caller.py`、`service_worker.py` 等模块用于处理服务化算子，负责队列监听、请求/响应调度。
+- **`proxy/`**：`proxy_manager.py` 为 `TaskContext` 提供 `call_service`/`call_service_async`，并缓存服务队列描述符。
+- **`context/`**：`task_context.py`、`base_context.py` 把日志、服务代理、配置注入到函数实例中。
+- **`communication/`**：维护队列、管道和消息分发；当前实现主要面向本地进程通信。
 
-- **传统 Flink 风格接口**：流水线与服务完全分离。流水线用于数据处理，服务需要单独声明与注册，两者在运行时走不同的代码路径。
-- **存在的问题**：
-  - 代码路径分叉导致维护复杂；
-  - 流批/服务之间的组合能力有限；
-  - 开发者需要维护重复的服务注册逻辑。
+小结：Runtime 接管编译好的执行图，启动任务进程/线程，负责数据通路与服务调用，最终驱动用户实现的函数运行。
 
-### 🚀 新的统一式设计
+## 流水线生命周期
 
-1. **流水线即服务**
-   - 部署 Pipeline 的同时完成服务注册，无需额外的声明步骤。
-   - 服务名与流水线名保持一致，统一通过 `process()` 接口对外暴露。
-   - 所有服务调用通过标准的 `call_service` / `call_service_async` API 完成。
+1. **构建管道** (`sage.core.api`)
+   - 用户调用 `env.from_batch(...).map(...).sink(...)`，每一步都会把新的 `Transformation` 附加到 `env.pipeline` 列表。
 
-2. **统一的访问入口**
-   - 同一套 API 可以在算子、服务实现、用户脚本甚至批处理作业中复用。
-   - 用户脚本可以通过 `bind_runtime_context`/`call_service` 语法糖完成调用。
+2. **提交执行** (`JobManager`)
+   - `env.submit(autostop=True)` → `JobManager.submit_job` 创建 UUID，编译执行图，实例化 `Dispatcher`。
 
-3. **透明通信**
-   - 请求/响应流程完全统一，底层的队列发现、路由、超时控制由 `ProxyManager` 与 `ServiceManager` 负责。
-   - 支持同步 / 异步调用，异步调用返回 `Future` 对象。
+3. **任务部署** (`Dispatcher`)
+   - 为每个算子节点创建任务对象；为注册的服务创建服务任务；连接消息队列。
 
-### 🧱 核心组件
+4. **运行与监控**
+   - 任务循环从上游队列读取数据，调用用户函数（`BaseFunction.execute`/`mapN`），把结果写入下游。
+   - 服务化调用通过 `ProxyManager` → `ServiceManager` 走消息队列，支持同步/异步调用、超时控制。
 
-- **BaseRuntimeContext** (`sage.kernel.runtime.context.base_context`)
-  - 所有运行时上下文的基础类。
-  - 新增 `call_service` / `call_service_async` 方法，直接接入 `ProxyManager`。
+5. **收尾**
+   - 对于批处理作业，函数返回 `None` 或 `FutureTransformation` 被填充后会触发停止信号。
+   - `autostop=True` 时，`_wait_for_completion()` 轮询 JobManager 状态并在管道结束后触发清理。
 
-- **ProxyManager** (`sage.kernel.runtime.proxy.proxy_manager`)
-  - 负责服务发现、队列描述符缓存及调用调度。
-  - 对下委托 `ServiceManager`，对上暴露统一的同步 / 异步接口，默认方法名为 `process`。
+## Pipeline-as-Service 与服务调用
 
-- **ServiceManager** (`sage.kernel.runtime.service.service_caller`)
-  - 维护请求/响应队列、超时与结果匹配。
-  - 新增 `cache_service_descriptor`，避免重复查询服务队列。
+相关代码：
 
-- **Sugar API** (`sage.runtime.sugar`)
-  - 提供 `call_service`、`call_service_async`、`bind_runtime_context` 等工具，方便在算子之外的脚本中复用服务调用能力。
+- `sage.core.api.base_environment.register_service`
+- `sage.core.api.function.base_function.BaseFunction.call_service`
+- `sage.kernel.runtime.proxy.proxy_manager.ProxyManager`
+- `sage.kernel.runtime.service.service_caller.ServiceManager`
 
-### 🧰 开发者使用示例
+设计要点：
+
+1. **服务注册即部署**：`register_service("cache", ServiceClass)` 会把构造信息放入 `env.service_factories`，提交时由 JobManager 插入执行图并创建对应服务任务。
+2. **统一调用接口**：无论在算子内部还是在独立脚本中，都通过 `call_service`/`call_service_async` 访问服务。默认方法名为 `process`，也可以显式传入 `method`。
+3. **队列描述符缓存**：`ProxyManager` 在首次调用时保留服务描述符，后续调用避免重复查询控制面，提升吞吐。
+4. **超时与 Future**：同步调用允许自定义超时；异步调用返回可等待的 Future 对象。
+
+示例：
 
 ```python
-from sage import call_service, call_service_async
-
-# 同步调用另一个流水线
-result = call_service("data_cleaning_pipeline", payload)
-
-# 指定具体方法
-cached = call_service("cache", key, method="get", timeout=5.0)
-
-# 异步调用
-future = call_service_async("ml_inference_pipeline", features)
-prediction = future.result()
+class Enrich(MapFunction):
+    def execute(self, data):
+        profile = self.call_service("user_profile", data["user_id"])
+        return {**data, "profile": profile}
 ```
 
-算子或服务内部可以通过上下文对象直接调用：
+## 设计原则（与实现对齐）
 
-```python
-class DataProcessor(ProcessorOperator):
-    def process(self, ctx: TaskContext, record):
-        enriched = ctx.call_service("enrichment_pipeline", record)
-        score = ctx.call_service("scoring", enriched, method="score")
-        return score
-```
+- **声明式 + 延迟执行**：`DataStream` 只负责描述算子链，真正的执行延后到 `env.submit()`。
+- **纯 Python、易追踪**：没有额外的 C++ 内核或 CLI 依赖，定位问题时可直接在源码中查找。
+- **单实例 JobManager**：`JobManager` 作为单例保障提交入口唯一，`RemoteEnvironment` 通过 TCP 客户端复用相同逻辑。
+- **服务化优先**：运行时提供统一的服务调用通道，让“流水线调用流水线”成为常规操作。
+- **可扩展执行后端**：`task/` 和 `communication/` 中保留了针对多进程、Ray 等模式的扩展点，通过新增 Task 实现即可接入新的后端。
 
-### ✅ 带来的收益
-
-- **统一的编程模型**：所有上下文都使用同一套调用接口，超时与错误处理逻辑一致。
-- **流水线灵活组合**：可以任意组合流式、批处理和服务化组件，形成复合工作流。
-- **减少运维负担**：部署流水线即完成服务注册，自动完成服务发现、队列缓存和通信。
-- **性能优化**：Proxy 层缓存队列描述符，减少控制面开销；支持异步调用提高吞吐。
-
-### 🔮 后续规划
-
-- 负载均衡与健康检查
-- 版本化服务调用与灰度发布
-- 链路追踪、指标采集以及依赖可视化
-- 服务调用鉴权与配额管理
-
-新的架构将 Pipeline 视为一等服务对象，让构建复杂的数据处理与 AI 工作流变得更加简单。开发者只需要专注于业务逻辑，其余的服务发现、通信、超时与资源管理均由框架自动处理。
-
-每一层都有清晰的职责边界，上层依赖下层，但下层不依赖上层，确保了架构的稳定性和可维护性。
+以上就是当前仓库中 SAGE Kernel 的实际结构。阅读时建议结合相应模块的 README 与源码一起查看，能快速定位到具体的实现细节。

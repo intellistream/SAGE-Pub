@@ -1,249 +1,107 @@
 # Kernel Runtime Services
 
-Runtime Service 模块提供服务任务的执行框架，支持本地和分布式服务调用机制。
+流水线在提交时会自动把注册的服务转换成运行时任务，形成 “Pipeline as Service” 模式。本页根据 `packages/sage-kernel/src/sage/kernel/runtime/service` 与 `proxy` 模块的实现，说明当前可用的能力。
 
-## 模块架构
+## 目录速览
 
-### 核心组件
+- `base_service_task.py`：公共的服务任务基类，包含请求队列监听、调用调度、响应回写与资源清理。
+- `local_service_task.py`：默认的本地实现，基于 Python 标准队列。
+- `ray_service_task.py`：可选的 Ray Actor 封装，配合 `RemoteEnvironment` 使用。
+- `service_caller.py`：`ServiceManager`，统一同步/异步调用、响应匹配、Future 管理与队列缓存。
+- `proxy/proxy_manager.py`：运行时上下文内的轻量代理，为 `call_service` / `call_service_async` 提供缓存和默认超时时间。
 
-- **`BaseServiceTask`**: 服务任务基类，集成高性能 mmap 队列监听和消息处理
-- **`LocalServiceTask`**: 本地进程内的服务任务执行，使用本地队列进行服务通信
-- **`RayServiceTask`**: 基于 Ray Actor 的分布式服务，支持跨节点的服务调用
-- **`ServiceManager`**: 统一的服务调用管理器，支持同步和异步服务调用
+## 生命周期概览
 
-## 服务类型对比
+1. **注册**：`BaseEnvironment.register_service("name", ServiceClass)` 保存到环境的 `service_factories`。
+2. **编译**：JobManager 构建 `ExecutionGraph` 时，为每个服务生成 `ServiceContext`，包含请求队列/响应队列描述符。
+3. **部署**：Dispatcher 在 `submit()` 中调用 `service_task_factory.create_service_task(ctx)`，得到 `BaseServiceTask` 子类实例并启动监听线程。
+4. **调用**：算子或脚本通过 `TaskContext.call_service` → `ProxyManager.call_sync` 发送请求，`ServiceManager` 负责写入服务队列并等待结果。
+5. **执行**：`BaseServiceTask` 从请求队列取出消息，调用目标方法（默认 `process`），将结果放入响应队列。
+6. **清理**：Dispatcher 停止任务时会调用 `service_task.stop()/cleanup()`，同时重置 Proxy 缓存并关闭队列。
 
-### 本地服务任务 (LocalServiceTask)
+## 关键组件
 
-**特性**：
-- 进程内服务执行
-- 使用本地队列通信
-- 低延迟服务调用
-- 简单的部署模式
+### BaseServiceTask
 
-**适用场景**：
-- 开发和测试环境
-- 单机应用部署
-- 需要低延迟的服务调用
+- 构造时使用 `ServiceFactory.create_service(ctx)` 实例化用户服务，并注入 `ServiceContext`。
+- 启动独立的监听线程 `_queue_listener_loop`，从请求队列读取 `dict` 结构的请求：
+  ```python
+  {
+      "request_id": str,
+      "method_name": "process" | 自定义,
+      "args": tuple,
+      "kwargs": dict,
+      "response_queue": queue.Queue 实例,
+      "timeout": float,
+  }
+  ```
+- 调用 `call_method` 执行服务逻辑，构造包含 `success/result/error/execution_time` 的响应并写回指定队列。
+- 提供 `start_running()`、`stop()`、`cleanup()` 等生命周期钩子，保证监听线程与队列被正确关闭。
 
-**使用示例**：
+### Local vs. Ray Service Task
+
+| 功能点 | `LocalServiceTask` | `RayServiceTask` |
+| --- | --- | --- |
+| 队列实现 | Python `queue.Queue` | Ray 队列/Actor | 
+| 服务实例 | 直接在当前进程持有 | 运行在 Ray Actor 内，通过远程调用执行 |
+| 适用场景 | 默认模式、开发/单机部署 | 远程平台或需要跨节点伸缩时 |
+
+Ray 模式会在 Dispatcher 初始化时调用 `ensure_ray_initialized()`，并用 `ActorWrapper` 托管服务任务；当前仓库仍以本地模式为主。
+
+### ServiceManager & ProxyManager
+
+- `ServiceManager.call_sync()` 负责：
+  1. 获取/缓存服务请求队列（来自 `TaskContext.service_qds` 或传入的描述符）。
+  2. 构造请求并写入队列。
+  3. 在单独的 listener 线程里消费响应队列，将结果写入 `_request_results`，唤醒等待的事件。
+  4. 超时时抛出 `TimeoutError`，失败时抛出 `RuntimeError`。
+- `call_async()` 简单地把同步调用包进线程池返回 `Future`。
+- `ProxyManager` 内置在 `BaseRuntimeContext`，提供缓存和默认超时：
+  ```python
+  result = ctx.call_service("profile", user_id)
+  future = ctx.call_service_async("model", payload, timeout=15)
+  ```
+- 首次调用会读取 `context.service_qds` 的队列描述符，并缓存在 Proxy 内，后续调用不需要再次触达 JobManager。
+
+## 与执行图的集成
+
+- 服务请求队列、响应队列、日志记录器全部由 `ServiceContext` 统一提供；`BaseServiceTask` 不创建新的队列，而是复用 Graph 上的描述符。
+- Task 侧通过 `TaskContext.response_qd` 接收响应，确保一个算子可以发起多个并发请求。
+- 停止信号：批处理场景下，Dispatcher 在所有计算任务结束后会调用 `_cleanup_services_after_batch_completion()`，主动停止服务线程，避免遗留后台线程。
+
+## 使用示例
+
 ```python
-from sage.kernel.runtime.service.local_service_task import LocalServiceTask
+from sage.core.api import LocalEnvironment, MapFunction
 
-# 创建本地服务任务
-service_task = LocalServiceTask(service_factory, runtime_context)
+env = LocalEnvironment("demo")
 
-# 启动服务
-service_task.start_service()
+@env.register_service("profile")
+class ProfileService:
+    def process(self, user_id: str):
+        return {"user_id": user_id, "score": 0.9}
 
-# 检查服务状态
-status = service_task.get_service_status()
+class Enrich(MapFunction):
+    def execute(self, record):
+        profile = self.call_service("profile", record["user_id"])
+        return {**record, "profile": profile}
+
+env.from_batch([{"user_id": "42"}]).map(Enrich()).sink(print)
+env.submit()
 ```
 
-### Ray 服务任务 (RayServiceTask)
+## 当前特性与局限
 
-**特性**：
-- 基于 Ray Actor 的分布式服务
-- 跨节点服务调用支持
-- 自动负载均衡和故障恢复
-- 水平可扩展
+- ✅ 同步/异步调用、超时控制、请求 ID 匹配、Future 支持。
+- ✅ 可复用的 Proxy 缓存，避免重复查询服务队列。
+- ✅ 支持在算子内部、独立脚本（通过 sugar API）进行服务调用。
+- ⚠️ 监控、健康检查、自动重试等功能暂无正式实现；如需这些能力需自行扩展。
+- ⚠️ Ray 模式仍在演进中，生产部署前需要补充持久化和容错策略。
 
-**适用场景**：
-- 生产环境集群部署
-- 大规模服务集群
-- 需要高可用性的服务
+## 延伸阅读
 
-## 服务通信机制
-
-### 请求/响应模式
-```python
-@dataclass
-class ServiceRequest:
-    request_id: str
-    service_name: str
-    method_name: str
-    args: tuple
-    kwargs: dict
-    response_queue_name: str
-
-@dataclass
-class ServiceResponse:
-    success: bool
-    result: Any = None
-    error: str = None
-```
-
-### 队列通信
-- **请求队列**: 接收服务调用请求
-- **响应队列**: 返回服务调用结果
-- **队列命名**: 基于服务名和实例的唯一队列命名
-
-### 消息处理流程
-1. **请求接收**: 从请求队列接收调用请求
-2. **参数解析**: 解析调用方法和参数
-3. **服务执行**: 调用具体的服务方法
-4. **结果返回**: 将结果发送到响应队列
-
-## 服务调用
-
-### 同步调用
-```python
-from sage.kernel.runtime.service.service_caller import ServiceManager
-
-# 创建服务管理器
-service_manager = ServiceManager(environment)
-
-# 同步调用服务
-response = service_manager.call_service_sync(
-    service_name="my_service",
-    method="process_data",
-    args=(data,),
-    kwargs={"timeout": 30}
-)
-```
-
-### 异步调用
-```python
-# 异步调用服务
-future = service_manager.call_service_async(
-    service_name="my_service", 
-    method="process_data",
-    args=(data,)
-)
-result = future.result()
-```
-
-## 高性能特性
-
-### mmap 队列集成
-```python
-# 使用高性能队列适配器
-self._request_queue = create_queue(
-    name=self._request_queue_name
-)
-```
-
-### 队列监听优化
-- **独立线程**: 使用专门的线程监听队列
-- **非阻塞模式**: 支持超时和中断机制
-- **批量处理**: 支持批量请求处理
-
-### 连接池管理
-- **队列缓存**: 缓存常用的服务队列连接
-- **连接复用**: 复用队列连接减少开销
-- **资源清理**: 自动清理不活跃的连接
-
-## 服务发现和注册
-
-### 服务注册
-```python
-# 服务自动注册到环境
-service_task = LocalServiceTask(service_factory, ctx)
-environment.register_service(service_name, service_task)
-```
-
-### 服务发现
-```python
-# 通过服务管理器发现服务
-service_manager = ServiceManager(environment)
-service_queue = service_manager.get_service_queue(service_name)
-```
-
-### 健康检查
-- **服务状态监控**: 定期检查服务健康状态
-- **故障检测**: 检测服务故障和恢复
-- **负载监控**: 监控服务的请求负载
-
-## 并发和线程安全
-
-### 线程池执行
-```python
-self._executor = ThreadPoolExecutor(
-    max_workers=10, 
-    thread_name_prefix="ServiceCall"
-)
-```
-
-### 同步原语
-- **线程锁**: 保护共享资源的访问
-- **事件对象**: 用于请求/响应同步
-- **原子操作**: 确保计数器等操作的原子性
-
-### 异步支持
-- **Future 对象**: 支持异步服务调用
-- **回调机制**: 支持异步回调处理
-- **超时控制**: 提供调用超时控制
-
-## 配置管理
-
-### 服务配置
-```yaml
-service:
-  local:
-    max_workers: 10
-    queue_timeout: 30
-    request_queue_size: 10000
-    
-  ray:
-    resources: {"CPU": 2}
-    lifetime: "detached"
-    max_restarts: 3
-```
-
-### 调用配置
-```yaml
-service_call:
-  default_timeout: 30
-  max_retries: 3
-  retry_interval: 1
-  async_pool_size: 20
-```
-
-## 扩展接口
-
-### 自定义服务任务
-```python
-class CustomServiceTask(BaseServiceTask):
-    def __init__(self, service_factory, ctx):
-        super().__init__(service_factory, ctx)
-        # 自定义初始化
-    
-    def custom_handle_request(self, request):
-        # 自定义请求处理逻辑
-        return self.service.process(request)
-```
-
-### 服务中间件
-```python
-class ServiceMiddleware:
-    def before_call(self, request):
-        # 调用前的处理逻辑
-        pass
-    
-    def after_call(self, response):
-        # 调用后的处理逻辑
-        pass
-```
-
-## 最佳实践
-
-### 服务设计
-- **无状态设计**: 尽量设计无状态的服务
-- **幂等性**: 确保服务操作的幂等性
-- **资源管理**: 合理管理服务的资源使用
-
-### 性能优化
-- **批量处理**: 支持批量请求处理
-- **缓存机制**: 适当使用缓存提高性能
-- **连接复用**: 复用连接减少开销
-
-### 故障处理
-- **优雅降级**: 在部分故障时提供降级服务
-- **重试机制**: 合理的重试策略
-- **监控告警**: 及时发现和处理问题
-
-## 相关文档
-
-- [Task 执行系统](./task.md)
-- [通信框架](./communication.md)
-- [Kernel 核心概念](../concepts.md)
+- `packages/sage-kernel/src/sage/kernel/runtime/service/README.md`
+- `packages/sage-kernel/src/sage/kernel/runtime/proxy/proxy_manager.py`
+- `docs-public/docs_src/kernel/runtime_tasks.md`
+- `docs-public/docs_src/kernel/runtime_communication.md`
+- `docs-public/docs_src/kernel/architecture.md`

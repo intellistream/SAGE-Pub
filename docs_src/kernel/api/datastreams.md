@@ -1,404 +1,170 @@
-# 数据流处理 (DataStreams)
+# DataStream API
 
-DataStream 是 SAGE Kernel 的核心抽象，代表一个数据流。它提供了丰富的转换操作，支持函数式编程风格的链式调用。
+`DataStream`（`packages/sage-kernel/src/sage/core/api/datastream.py`）是 SAGE Kernel 中对“单输入算子链”的抽象。它负责记录上游 `Transformation`，在链式调用时持续构建执行图，而不会立即启动任务。
 
-## 🌊 DataStream 基础
+本文档覆盖源码中已经实现的操作，帮助你在阅读/修改代码时快速定位相关接口。
 
-### 创建数据流
+## 创建 DataStream
+
+只有 `Environment` 可以创建 `DataStream` 实例。常见入口：
 
 ```python
 from sage.core.api.local_environment import LocalEnvironment
 
-env = LocalEnvironment("stream_demo")
+env = LocalEnvironment("stream-demo")
 
-# 从集合创建
-numbers = env.from_batch([1, 2, 3, 4, 5])
+# 批处理源（列表、迭代器、BatchFunction 子类等）
+numbers = env.from_batch([1, 2, 3, 4])
 
-# 从文件创建
-lines = env.from_text_file("data.txt")
+# 自定义实时源
+custom = env.from_source(MySourceFunction)
 
-# 从Kafka创建
-events = env.from_kafka_source(
+# Kafka 源
+kafka = env.from_kafka_source(
     bootstrap_servers="localhost:9092",
     topic="events",
-    group_id="processors"
+    group_id="demo-consumer",
 )
 ```
 
-### 基本概念
+每个 `DataStream` 都持有一个 `_environment` 引用和一个 `transformation`，后续操作会基于这些信息创建新的 `Transformation` 并返回新的 `DataStream`。
+
+## 可用算子
+
+### map
 
 ```python
-from typing import TypeVar, Generic
+numbers = env.from_batch([1, 2, 3])
 
-T = TypeVar('T')  # 元素类型
-U = TypeVar('U')  # 转换后类型
+doubled = numbers.map(lambda value: value * 2)
 
-class DataStream(Generic[T]):
-    """类型安全的数据流"""
-    
-    def map(self, func: Callable[[T], U]) -> DataStream[U]:
-        """一对一转换"""
-        
-    def filter(self, predicate: Callable[[T], bool]) -> DataStream[T]:
-        """过滤操作"""
-        
-    def flat_map(self, func: Callable[[T], Iterable[U]]) -> DataStream[U]:
-        """一对多转换"""
+class Multiply(MapFunction):
+    def execute(self, data):
+        return data * 10
+
+times_ten = doubled.map(Multiply)
 ```
 
-## 🔄 转换操作
+- 传入的 `function` 可以是 `BaseFunction` 子类或普通 `callable`；普通函数会通过 `wrap_lambda(function, "map")` 自动封装成内置的匿名函数。
+- `parallelism` 参数当前主要用于透传到 `Transformation`，默认值为 1。
 
-### Map 转换
-
-一对一的元素转换操作。
+### filter
 
 ```python
-# 使用Lambda函数
-numbers = env.from_batch([1, 2, 3, 4, 5])
-squared = numbers.map(lambda x: x * x)
+evens = numbers.filter(lambda value: value % 2 == 0)
 
-# 使用命名函数
-def double(x: int) -> int:
-    return x * 2
+class NonEmpty(FilterFunction):
+    def execute(self, data):
+        return bool(data)
 
-doubled = numbers.map(double)
-
-# 使用自定义函数类
-class SquareFunction(MapFunction[int, int]):
-    def map(self, value: int) -> int:
-        return value * value
-
-squared = numbers.map(SquareFunction())
-
-# 复杂转换
-class ParseJson(MapFunction[str, dict]):
-    def map(self, json_str: str) -> dict:
-        try:
-            return json.loads(json_str)
-        except:
-            return {"error": "invalid_json", "raw": json_str}
-
-parsed = json_lines.map(ParseJson())
+non_empty = stream.filter(NonEmpty)
 ```
 
-### Filter 操作
+过滤函数应返回布尔值；源码中通过 `FilterTransformation` 和 `FilterFunction._process_output` 统一转换为 `bool`。
 
-根据条件过滤元素。
+### flatmap
 
 ```python
-# 简单过滤
-even_numbers = numbers.filter(lambda x: x % 2 == 0)
+sentences = env.from_batch(["hello world", "sage kernel"])
 
-# 复杂过滤条件
-class ValidUserFilter(FilterFunction[dict]):
-    def filter(self, user: dict) -> bool:
-        return (user.get("age", 0) >= 18 and 
-                user.get("email") is not None and
-                "@" in user.get("email", ""))
+words = sentences.flatmap(lambda text: text.split())
 
-valid_users = users.filter(ValidUserFilter())
+class EmitChars(FlatMapFunction):
+    def execute(self, data):
+        for ch in data:
+            self.collect(ch)
 
-# 空值过滤
-non_null = stream.filter(lambda x: x is not None)
+letters = sentences.flatmap(EmitChars)
 ```
 
-### FlatMap 转换
+- 可以返回可迭代对象，也可以调用 `self.collect()` 多次发送数据；
+- 当返回值为 `None` 时，仅保留通过 `collect` 发出的元素。
 
-一对多的转换操作，将每个元素转换为多个元素。
+### sink
 
 ```python
-# 字符串分词
-sentences = env.from_batch(["hello world", "sage kernel", "stream processing"])
-words = sentences.flat_map(lambda s: s.split())
+numbers.sink(lambda value: print(f"sink: {value}"))
 
-# 自定义FlatMap
-class SplitLines(FlatMapFunction[str, str]):
-    def flat_map(self, value: str) -> Iterable[str]:
-        return value.strip().split('\n')
+class PrintSink(SinkFunction):
+    def execute(self, data):
+        print(f"[sink] {data}")
 
-lines = text_blocks.flat_map(SplitLines())
-
-# 数据展开
-class ExpandEvents(FlatMapFunction[dict, dict]):
-    def flat_map(self, batch: dict) -> Iterable[dict]:
-        events = batch.get("events", [])
-        for event in events:
-            event["batch_id"] = batch["id"]
-            yield event
-
-events = batches.flat_map(ExpandEvents())
+numbers.map(lambda v: v * 2).sink(PrintSink)
 ```
 
-## 🔑 键值操作
+`sink` 是终端算子，执行后返回当前 `DataStream`（而不是新建一个），以便在调用链上继续使用同一个引用。
 
-### KeyBy 分组
-
-根据键对数据流进行分区，相同键的元素会路由到同一个处理器。
+### print
 
 ```python
-# 简单键提取
-user_events = events.key_by(lambda event: event["user_id"])
-
-# 复杂键提取
-class UserRegionKeySelector(KeySelector[dict, tuple]):
-    def get_key(self, event: dict) -> tuple:
-        return (event["user_id"], event["region"])
-
-grouped = events.key_by(UserRegionKeySelector())
-
-# 聚合操作
-class SumAggregator(AggregateFunction[int, int, int]):
-    def add(self, acc: int, value: int) -> int:
-        return acc + value
-    
-    def get_result(self, acc: int) -> int:
-        return acc
-    
-    def create_accumulator(self) -> int:
-        return 0
-
-# 按键聚合
-sums = numbers.key_by(lambda x: x % 2).aggregate(SumAggregator())
+numbers.print(prefix="[result]")
 ```
 
-### Reduce 操作
+`print` 是对 `sink(PrintSink, ...)` 的封装，使用 `sage.libs.io_utils.sink.PrintSink`（请注意命名空间，与 `ConnectedStreams.print` 中的 sink 实现不完全相同）。
 
-对相同键的元素进行归约操作。
+### keyby
 
 ```python
-# 简单归约
-max_values = keyed_stream.reduce(lambda a, b: max(a, b))
+from sage.core.api.function.keyby_function import KeyByFunction
 
-# 自定义归约
-class MergeUsers(ReduceFunction[dict]):
-    def reduce(self, user1: dict, user2: dict) -> dict:
-        # 合并用户信息，保留最新数据
-        result = user1.copy()
-        result.update(user2)
-        result["last_updated"] = max(
-            user1.get("last_updated", 0),
-            user2.get("last_updated", 0)
-        )
-        return result
+class UserKey(KeyByFunction):
+    def execute(self, data):
+        return data["user_id"]
 
-merged_users = user_updates.key_by(lambda u: u["id"]).reduce(MergeUsers())
+keyed = events.keyby(UserKey)
 ```
 
-## 🏪 窗口操作
+- 传入的函数需要返回可哈希的键；
+- 支持传入 `BaseFunction` 子类或普通 `callable`，后者同样会通过 `wrap_lambda` 适配；
+- `strategy` 参数目前接受 `"hash"`、`"broadcast"`、`"round_robin"`，实际行为取决于下游调度实现。
 
-### 时间窗口
+### connect
 
 ```python
-from sage.core.api.window import TumblingTimeWindows, SlidingTimeWindows
-from datetime import timedelta
+stream_a = env.from_batch([1, 2])
+stream_b = env.from_batch(["a", "b"])
 
-# 滚动时间窗口
-windowed = events.key_by(lambda e: e["sensor_id"]) \
-    .window(TumblingTimeWindows.of(timedelta(minutes=5))) \
-    .aggregate(AvgAggregator())
-
-# 滑动时间窗口  
-sliding = events.key_by(lambda e: e["user_id"]) \
-    .window(SlidingTimeWindows.of(
-        size=timedelta(minutes=10),
-        slide=timedelta(minutes=1)
-    )) \
-    .aggregate(CountAggregator())
+connected = stream_a.connect(stream_b)
 ```
 
-### 计数窗口
+返回 `ConnectedStreams`，可用于 `comap`、`join` 等多流操作（见 `connected-streams.md`）。
+
+### fill_future
 
 ```python
-from sage.core.api.window import TumblingCountWindows
+future = env.from_future("loop")
 
-# 每100个元素一个窗口
-count_windowed = stream.key_by(key_selector) \
-    .window(TumblingCountWindows.of(100)) \
-    .aggregate(SumAggregator())
+upstream = env.from_batch(["hello"])
+upstream.fill_future(future)
 ```
 
-### 会话窗口
+如果尝试向非 `FutureTransformation` 填充或重复填充，会抛出错误。`fill_future` 常与 `ConnectedStreams` 配合构建反馈边。
 
-```python
-from sage.core.api.window import SessionWindows
+## 类型追踪
 
-# 会话窗口 - 30秒不活跃则关闭窗口
-session_windowed = events.key_by(lambda e: e["session_id"]) \
-    .window(SessionWindows.with_gap(timedelta(seconds=30))) \
-    .aggregate(SessionAggregator())
-```
+构造函数中会尝试通过 `__orig_class__` 捕获泛型参数，用于调试日志输出；若无法解析，则默认为 `typing.Any`。这不会影响运行结果，主要用于观察。
 
-## 🔗 连接操作
+## 调试建议
 
-### Join 连接
+1. 所有算子都会把新建的 `Transformation` 追加到 `env.pipeline`。在提交前打印 `len(env.pipeline)` 可以快速核对算子数量。
+2. `DataStream.logger` 默认使用 `CustomLogger`（`sage.common.utils.logging.custom_logger`），可通过环境的 `set_console_log_level` 控制输出级别。
+3. 如果链式调用中需要复用中间结果，可直接保存 `DataStream` 引用，API 不会进行真实复制：
 
-```python
-# 内连接
-joined = stream1.join(stream2) \
-    .where(lambda x: x["id"]) \
-    .equal_to(lambda y: y["user_id"]) \
-    .window(TumblingTimeWindows.of(timedelta(minutes=5))) \
-    .apply(JoinFunction())
+   ```python
+   base = env.from_batch(range(10))
+   evens = base.filter(lambda v: v % 2 == 0)
+   odds = base.filter(lambda v: v % 2 == 1)
+   ```
 
-# 自定义连接函数
-class UserOrderJoin(JoinFunction[dict, dict, dict]):
-    def join(self, user: dict, order: dict) -> dict:
-        return {
-            "user_name": user["name"],
-            "order_id": order["id"],
-            "order_amount": order["amount"],
-            "join_time": time.time()
-        }
+4. `sink` 返回原始 `DataStream`，避免了 `None` 破坏链式写法；若需要阻止后续调用，可自行忽略返回值。
 
-result = users.join(orders) \
-    .where(lambda u: u["id"]) \
-    .equal_to(lambda o: o["user_id"]) \
-    .window(TumblingTimeWindows.of(timedelta(hours=1))) \
-    .apply(UserOrderJoin())
-```
+## 尚未实现的能力
 
-### CoMap 协同处理
+- DataStream 目前不包含 `reduce`、`aggregate`、`window`、`process`、`union` 等接口；
+- 并行度控制仅在算子创建时接受参数，尚未提供 `set_parallelism` 之类的链式方法；
+- 侧输出、副输出流、定时器等功能在源码中暂未实现。
 
-```python
-# 连接两个流
-connected = stream1.connect(stream2)
-
-# 协同处理函数
-class AlertCoMapFunction(CoMapFunction[dict, dict, str]):
-    def map1(self, user_event: dict) -> str:
-        if user_event["action"] == "login_failed":
-            return f"Failed login: {user_event['user_id']}"
-        return None
-    
-    def map2(self, system_event: dict) -> str:
-        if system_event["level"] == "ERROR":
-            return f"System error: {system_event['message']}"
-        return None
-
-alerts = connected.map(AlertCoMapFunction()).filter(lambda x: x is not None)
-```
-
-## 📤 输出操作
-
-### Sink 操作
-
-```python
-# 简单输出
-numbers.sink(print)
-
-# 自定义Sink
-class DatabaseSink(SinkFunction[dict]):
-    def __init__(self, connection_string: str):
-        self.connection_string = connection_string
-        self.connection = None
-    
-    def open(self, context):
-        self.connection = create_connection(self.connection_string)
-    
-    def sink(self, record: dict):
-        insert_query = "INSERT INTO events VALUES (%s, %s, %s)"
-        self.connection.execute(insert_query, 
-            (record["id"], record["timestamp"], record["data"]))
-    
-    def close(self):
-        if self.connection:
-            self.connection.close()
-
-events.sink(DatabaseSink("postgresql://localhost/mydb"))
-
-# 文件输出
-results.sink_to_file("./output/results.txt")
-
-# Kafka输出
-events.sink_to_kafka(
-    bootstrap_servers="localhost:9092",
-    topic="processed_events",
-    serializer="json"
-)
-```
-
-### 副输出流
-
-```python
-# 定义副输出标签
-error_tag = OutputTag("errors", str)
-warning_tag = OutputTag("warnings", str)
-
-# 在处理函数中使用副输出
-class ValidateAndRoute(ProcessFunction[dict, dict]):
-    def process(self, record: dict, ctx: ProcessContext[dict]):
-        if not self.is_valid(record):
-            ctx.output(error_tag, f"Invalid record: {record}")
-            return
-        
-        if self.is_suspicious(record):
-            ctx.output(warning_tag, f"Suspicious record: {record}")
-        
-        yield record  # 主输出
-
-main_stream = events.process(ValidateAndRoute())
-error_stream = main_stream.get_side_output(error_tag)
-warning_stream = main_stream.get_side_output(warning_tag)
-```
-
-## 🔀 流控制操作
-
-### Split 分流
-
-```python
-# 条件分流
-even_tag = OutputTag("even", int)
-odd_tag = OutputTag("odd", int)
-
-class SplitByParity(ProcessFunction[int, int]):
-    def process(self, value: int, ctx: ProcessContext[int]):
-        if value % 2 == 0:
-            ctx.output(even_tag, value)
-        else:
-            ctx.output(odd_tag, value)
-
-split_stream = numbers.process(SplitByParity())
-even_stream = split_stream.get_side_output(even_tag)
-odd_stream = split_stream.get_side_output(odd_tag)
-```
-
-### Union 合流
-
-```python
-# 合并多个流
-all_events = stream1.union(stream2, stream3)
-
-# 类型必须相同
-numbers1 = env.from_batch([1, 2, 3])
-numbers2 = env.from_batch([4, 5, 6])
-all_numbers = numbers1.union(numbers2)
-```
-
-## ⚡ 性能优化
-
-### 并行度设置
-
-```python
-# 设置算子并行度
-processed = stream.map(heavy_computation).set_parallelism(8)
-
-# 设置全局并行度
-env.set_parallelism(4)
-```
-
-### 对象重用
-
-```python
-# 启用对象重用（减少GC压力）
-env.enable_object_reuse()
-
-# 在函数中重用对象
-class ReuseObjectMap(MapFunction[str, dict]):
-    def __init__(self):
-        self.reuse_dict = {}  # 重用的字典对象
-    
-    def map(self, value: str) -> dict:
-        self.reuse_dict.clear()
+如果需要这些高级特性，请关注仓库中的相关 Issue 或自行扩展 `transformation` 与 `operator` 层，并同步更新文档。
         self.reuse_dict["input"] = value
         self.reuse_dict["processed"] = process(value)
         return self.reuse_dict

@@ -251,8 +251,14 @@ nav:
       - CLI 命令行工具: tools/cli_reference.md
   
   - Extensions: get_start/remote_mode/sage_cil.md
+  
+  - 安全:
+      - 安全概览: security/README.md
+      - API Key 安全配置: security/api_key_security.md
+  
   - 加入 SAGE:
     - 我们是谁: join_sage/intellistream.md
+    - 社区交流: join_sage/community.md
     - 欢迎进组: join_sage/rookie.md 
     - 周会排班: join_sage/weekly_meeting.md
     - 文档模板:
