@@ -2,6 +2,22 @@
 
 SAGE Kernel 中的算子函数全部继承自 `BaseFunction`（`packages/sage-kernel/src/sage/core/api/function/base_function.py`）。`BaseFunction` 定义了以下重要特性：
 
+## 函数类型支持情况一览
+
+| 函数类型                  | 状态     | 说明                         |
+|--------------------------|----------|------------------------------|
+| MapFunction              | 已实现   | 支持                         |
+| FlatMapFunction          | 已实现   | 支持                         |
+| FilterFunction           | 已实现   | 支持                         |
+| KeyByFunction            | 已实现   | 支持                         |
+| JoinFunction             | 已实现   | 支持                         |
+| SourceFunction           | 已实现   | 支持                         |
+| SinkFunction             | 已实现   | 支持                         |
+| SimpleBatchIteratorFunction | 已实现 | 支持                         |
+| ProcessFunction          | 未支持   | 计划中，尚未实现             |
+| AggregateFunction        | 未支持   | 计划中，尚未实现             |
+| ReduceFunction           | 未支持   | 计划中，尚未实现             |
+| Side Output（副输出）    | 未支持   | 计划中，尚未实现             |
 ## 尚未实现的类型
 
 目前仓库尚未提供 `ProcessFunction`、`AggregateFunction`、`ReduceFunction`、副输出（Side Output）等接口，已实现的算子能力仅限于前文列出的 `Map` / `FlatMap` / `Filter` / `KeyBy` / `Join` 等类型。如果需要更细粒度的算子语义，可以：
