@@ -47,6 +47,8 @@ git clone git@github.com:intellistream/SAGE.git
 
 [![成功安装](../assets/img/quickstart_install_2.png "成功安装")](../assets/img/quickstart_install_2.png)
 
+> 💡 **扩展提示**：安装脚本只会准备 Python 层依赖。如需启用 C++ 原生扩展，请在激活环境后执行 `sage extensions install`（或指定 `sage_db` / `sage_flow`）以完成本地编译。
+
 ---
 
 ## *C*. 验证安装 (Verify Installation)

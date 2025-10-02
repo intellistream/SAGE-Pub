@@ -30,6 +30,11 @@ SAGE Middleware 提供一组面向 AI 推理的通用“服务与计算接口”
 	- 面向各组件的硬件亲和后端：GPU 加速向量相似度、CXL 内存后端等。
 	- 由组件/服务选择并绑定最优执行后端。
 
+## 关于 SAGE DB 的角色
+
+- SAGE DB 原生扩展：提供高性能的向量存储与检索能力，可通过 `sage extensions install sage_db` 构建。本质上是组件层的数据库引擎，服务层可将其包装成 Memory Service、语义检索服务等。
+- 在 Function 中：通过 `call_service` 接口访问对应服务，即可透明地使用 GPU/多模态能力，调用前可使用 `sage extensions status` 确认扩展已启用。
+
 ## 关于 SAGE Flow 的位置与理解
 
 - 单个 Flow 算子：其具体计算执行在“硬件层”；从职责看可视为“组件层”的一个 function。

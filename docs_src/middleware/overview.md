@@ -74,8 +74,15 @@ flowchart TB
 
 - API 层：Service 调用接口（BaseFunction/BaseService 的 call_service/call_service_async）
 - 服务层：Memory Service、SAGE-DB Service 等
-- 组件层：SAGE-DB、NeuroMem 等
+- 组件层：SAGE-DB、NeuroMem、SAGE Flow 等
 - 硬件层：GPU 加速、CXL 内存
+
+### 原生扩展组件
+
+- **SAGE DB**：高性能向量数据库组件，提供多模态向量索引、元数据过滤与 Hybrid 查询。位于 `packages/sage-middleware/src/sage/middleware/components/sage_db`，通过 `sage extensions install sage_db` 构建后可供 Memory、RAG 等服务直接调用。
+- **SAGE Flow**：向量流式处理引擎，为实时语境维护与窗口算子提供底层支持。源码位于 `packages/sage-middleware/src/sage/middleware/components/sage_flow`，可用 `sage extensions install sage_flow` 完成编译并在服务层注册为计算接口。
+
+使用 `sage extensions status` 可以检查扩展可用性，`tools/tests/test_cpp_extensions.py` 提供了针对两大扩展的导入与功能自检。
 
 ## 使用场景
 

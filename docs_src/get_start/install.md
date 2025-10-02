@@ -137,6 +137,29 @@ Hello World 批处理示例结束
 
 ---
 
+## *C-Plus*. 构建原生扩展 (Optional)
+
+若需要启用高性能的向量数据库与流式算子，请在激活环境后构建随发行提供的原生扩展：
+
+```bash
+# 安装全部扩展
+sage extensions install
+
+# 或按需安装
+sage extensions install sage_db
+sage extensions install sage_flow
+```
+
+构建完成后可运行状态检查命令确保扩展可用：
+
+```bash
+sage extensions status
+```
+
+命令会列出每个扩展的编译结果与缺失依赖，必要时按照提示安装 `cmake`、`gcc` 等工具。
+
+---
+
 ## *D*.pip install时可能遇到的问题以及解决方案
 
 :octicons-info-16: **Python版本过高，报错如下**：

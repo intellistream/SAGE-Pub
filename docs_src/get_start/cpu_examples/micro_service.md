@@ -36,8 +36,8 @@ class HelloBatch(BatchFunction):
 
 class PrintSink(SinkFunction):
     def execute(self, data):
-        # 调用服务
-        self.call_service["hello_service"].hello()
+        # 调用服务，默认调用方法名为 "process"，此处显式指定 hello
+        self.call_service("hello_service", method="hello")
         print(data)
 
 # 继承BaseService创建一个简单的服务
@@ -87,16 +87,18 @@ class HelloService(BaseService):
 
 ---
 
-### **B**. call_service 算子服务调用
+### **B**. `call_service` 算子服务调用
 
 ```Python
 # 调用服务
-self.call_service["hello_service"].hello()
+self.call_service("hello_service", method="hello")
 ```
 
  **说明：**
 
- * 算子内部通过 `call_service["服务名"].服务方法()` 进行服务调用。
+ * 算子内部通过 `self.call_service("服务名", method="方法名")` 进行服务调用。
+ * 如果不显式指定 `method`，默认调用被注册服务的 `process` 方法。
+ * 也可以使用 `call_service_async` 获取 `Future` 对象以异步方式交互。
 
 ---
 

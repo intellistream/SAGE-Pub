@@ -80,7 +80,8 @@ def main():
         .map(WordToPair) \
         .sink(PrintResult)
 
-    env.submit() # 设置为 False 以保持流式执行
+    # 默认 autostop=False，保持流式执行直到手动停止
+    env.submit()
 
     # 模拟流式数据源持续运行一段时间（这里设定为 10 秒）
     time.sleep(10)
@@ -166,4 +167,4 @@ ai: 175
 
 ## 结语
 
-`env.from_source()` 和 `SourceFunction` 共同组成了有界流处理的基础。SAGE的 `LocalEnvironment` 中，主线程会将提交的任务分配给 Python 从线程执行，需要用户继续显式的阻塞，否则会自动结束从而关闭从线程的 Pipeline。有界流处理的相关接口可以处理持续产生的数据流，适合实时数据分析、监控和交互式应用。
+`env.from_source()` 和 `SourceFunction` 共同组成了无界流处理的基础。SAGE 的 `LocalEnvironment` 会将提交的任务分配给后台线程执行，主线程若不阻塞，流水线会被自动停止。无界流处理的相关接口可以承载持续产生的数据流，适合实时数据分析、监控和交互式应用。

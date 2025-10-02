@@ -13,7 +13,7 @@ docs_dir: docs_src
 theme:
   name: material
   language: zh
-  custom_dir: docs_src/overrides
+  custom_dir: theme
   favicon: assets/img/isage_light.svg
   logo: assets/logo/sage.svg
   features:
@@ -260,6 +260,7 @@ nav:
         - 导言模板: join_sage/overview_template.md
         - 章节模板: join_sage/detail_template.md
         - 快速入门模板: join_sage/quick_start.md
+    - 主题自定义指南: join_sage/theme_overrides.md
 
         # - 连接测试工具: join_sage/gist_test.md
 

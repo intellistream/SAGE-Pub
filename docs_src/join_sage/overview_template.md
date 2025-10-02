@@ -1,66 +1,77 @@
-# SAGE Chapter
+# Join SAGE 导览模板
 
-<!-- 简要介绍本章内容 & 阐明哪些对象应该阅读 & 先决知识-->
-Chapter 为SAGE编程提供了XXX，XXX可以do something，例如something。
-
-对于某些人来说，Chapter 通过提供XXX为其提供更便捷/高效的组件/函数/等等。
-
-<small>*注意，在了解本章之前需要提前了解以下知识：*</small>
-
-!!! tip "先决条件（Prerequisites）"
-    - 基础概念：{例如RAG、Agent等等}
-    - 前置知识：{需读的前一章链接}
+本页为“加入 SAGE”章节的导览模板，旨在帮助撰写者快速搭建章节首页，同时为新同学提供入口地图。请根据实际内容替换示例文字；`{{ }}` 标记适合保留为占位符，方便后续批量替换。
 
 ---
 
-## 一、Chapter Example
+## 章节定位
 
-<!-- 写一个例子/一段故事/一次论证来简单介绍一下Chapter的某个作用/某个特性 -->
+用 2-3 句话说明本章节覆盖的主题、适合的读者与完成阅读后可获得的能力。例如：
 
-=== "Python"
-    ```python title="pip 安装与最小可运行示例" linenums="1"
-    import {{pkg}}
-    def main():
-        print("{{Hello from chapter}}")
-    if __name__ == "__main__":
-        main()
-    ```
-=== "JavaScript"
-    ```javascript title="npm 安装与最小示例" linenums="1"
-    import { {{fn}} } from "{{pkg}}";
-    console.log({{fn}}("{{input}}"));
-    ```
+> 本章面向 IntelliStream 课题组的新成员，介绍团队背景、开发环境准备、协作规范与常用工具。阅读完毕后你应当能够独立完成第一次环境部署，并熟悉周会、代码提交流程。
+
+可以补充一段“为什么需要这章”的背景动机，例如近半年常见的上手痛点、历史经验等。
+
+<small>*建议先阅读以下内容：*</small>
+
+!!! tip "Prerequisites"
+    - `join_sage/intellistream.md`：了解团队愿景及研究方向
+    - `docs/COMMUNITY.md`：加入 Slack / QQ / 微信等沟通渠道
+    - 若涉及开发：`docs-public/docs_src/get_start/quickstart.md`
 
 ---
 
-## 二、Chapter Detail Overview
+## 快速故事 / 场景化引入
 
-<!-- 这里主要简单一下各个组件/函数/类/的功能 -->
+使用一个精炼的小故事、历史案例或关键问题，引导读者对接下来章节的兴趣。可参考：
 
-### Section Ⅰ
-Section Ⅰ 包含XXX类，提供XXX支持/功能，具有XXX特性。
+- 新同学第一次拉起 `rapidstart` 环境踩到的坑
+- 为什么我们要维护统一的 `.env` / `~/.sage/config.yaml`
+- 典型的“周会 - 周报 - 代码评审”循环是什么样子
 
-XXX在设计之初是为了YYY，用户可通过XXX干ZZZ。详细信息，请参阅XXX。
+如需代码示例，可示范一个最小的 `LocalEnvironment` 流水线，提醒读者仓库中对应的 `examples/` 子目录。若要引用真实代码片段，可在 Markdown 中写入：
 
-!!! info "注"
-    补充说明。
+```markdown
+```python
+--8<-- "examples/tutorials/hello_world.py:1:60"
+```
+```
 
-### Section Ⅱ
-Same as above。
-
-### Section Ⅲ
-Same as above。
+> 使用 `pymdownx.snippets` 插入外部文件时，请确认 `mkdocs.yml` 已启用该扩展，并确保路径相对于 `docs_dir` 可达。
 
 ---
 
-## 三、快速索引
+## 结构导览
 
-<!-- 让“参考型信息”可扫读；深入细节放到子页面，章节页只保留索引与最快链接 -->
-| 组件 | 入口 | 快速链接 |
-|---|---|---|
-| HTTP API | `{{/v1/resources}}` | [一句话叙述作用](../join_sage/detail_template.md) |
-| SDK | `{{package/module}}` | [一句话叙述作用](../join_sage/detail_template.md) |
-| CLI | `{{tool}}` | [一句话叙述作用](../join_sage/detail_template.md) |
+逐一介绍章节内的子页，为读者提供扫读索引。可采用列表或卡片形式：
 
-<!-- 图片示例 -->
-[![DataStream Processing](../assets/img/streaming.png  "数据流处理流程")](../assets/img/streaming.png)
+| 主题 | 简介 | 适合读者 |
+| --- | --- | --- |
+| [我们是谁](intellistream.md) | IntelliStream 课题组简介、研究方向、联系方式 | 初识团队的同学 |
+| [欢迎进组](rookie.md) | 入组 TODO、周报模板、协作工具规范 | 新成员第一周 |
+| [周会排班](weekly_meeting.md) | 可视化安排周会轮值的 Web 组件 | 组长 / 协调人 |
+| [快速上手](quick_start.md) | 环境部署、示例运行、常用命令 | 所有人 |
+
+若本章节还有更多技术性子页面（如“贡献指南”、“代码模板”），请简要注明它们的目标读者与产出。
+
+---
+
+## 深入阅读 / 下一步
+
+给出进一步行动建议，例如：
+
+1. **完成环境检测**：`sage doctor`
+2. **加入沟通渠道**：Slack `#sage-dev`、QQ 群、微信群
+3. **认领 mentorship**：在 `docs/dev-notes/README.md` 查看当前专题小组
+4. **阅读代码贡献规范**：`CONTRIBUTING.md`
+
+同时提醒文档维护者定期回访：
+
+!!! info "维护建议"
+    - 每学期开始对 `rookie.md` / `quick_start.md` 做一次审阅
+    - 若有新的安装脚本或 CLI 子命令，请同步更新索引
+    - 保持链接有效，避免悬空页面
+
+---
+
+> 📌 *写作提示*：导览页不需要罗列所有细节，重点在于“告诉读者应该去哪”。将长篇操作步骤拆到子页面，便于长期维护。

@@ -66,6 +66,11 @@ sage deploy stop
 - `show` - 查看当前索引元数据与统计信息
 - `--ask` - 在非交互模式下直接提出单个问题
 
+### 扩展管理 (`sage extensions`)
+- `install [name]` - 编译并安装所有或指定的原生扩展（如 `sage_db`、`sage_flow`）
+- `status` - 检查扩展编译结果及缺失依赖
+- `clean` - 清理扩展构建产物
+
 ## 🔧 配置
 
 配置文件位于 `~/.sage/config.yaml`:
