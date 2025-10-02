@@ -1,13 +1,14 @@
 # MkDocs 主题覆盖与模板维护手册
 
-帮助贡献者快速理解并维护 `docs-public/theme` 与 `docs-public/docs_src/templates` 目录。该区域负责 Material for MkDocs 主题的定制首页、全局样式、交互脚本以及 Python API 文档渲染模板。
+帮助贡献者快速理解并维护 `docs-public/theme` 目录。该区域负责 Material for MkDocs 主题的定制首页、全局样式、交互脚本以及 Python API 文档渲染模板。
 
 ---
 
 ## 目录结构速览
 
+docs_src/
 ```text
-theme/                       # Material 主题覆盖文件（HTML/CSS/JS/片段）
+theme/                       # Material 主题覆盖文件（HTML/CSS/JS/片段/模板）
 ├─ index.html                # 首页重写，包含定制 hero/feature 区块
 ├─ main.html                 # 扩展 base.html，注入全局脚本与样式
 ├─ styles.css                # 全局基础与导航样式
@@ -20,11 +21,9 @@ theme/                       # Material 主题覆盖文件（HTML/CSS/JS/片段�
 ├─ smart-home.html           # 示例卡片嵌入片段
 ├─ auto-scaling.html         # 示例卡片嵌入片段
 ├─ test-*.html               # 片段独立调试页面
-└─ animations.css/...        # 其他辅助资源
-docs_src/
-└─ templates/
-   └─ python/material/
-      └─ function.html.jinja # Python 函数/方法的 API 渲染模板
+└─ templates/                # MkDocStrings 模板覆盖
+  └─ python/material/
+    └─ function.html.jinja # Python 函数/方法的 API 渲染模板
 ```
 
 > 📌 `mkdocs.yml` 通过 `theme.custom_dir = theme` 激活上述覆盖文件，无需额外配置即可生效。
