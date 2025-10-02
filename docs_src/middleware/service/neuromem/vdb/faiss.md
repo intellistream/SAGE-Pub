@@ -80,7 +80,15 @@ index.store("./faiss_index_store")
 
 - **字符串 ID 管理**：内部会维护双向映射，确保可以使用业务侧的字符串 ID。
 - **墓碑机制**：部分索引不支持原地删除，`delete` 会将向量标记为墓碑并在达到阈值时触发重建。
-- **向量归一化**：`VDBMemoryCollection` 会对向量做 L2 归一化，若直接使用 `FaissIndex` 请自行处理。
+- **向量归一化**：`VDBMemoryCollection` 会自动对向量进行 L2 归一化（即每个向量的模长为 1），适用于需要归一化的索引类型（如 `IndexFlatIP` 用于余弦相似度检索）。**如果你直接使用 `FaissIndex`，请根据所选索引类型自行判断是否需要归一化**。例如，使用 `IndexFlatIP` 时，建议在插入和查询前对向量进行归一化：
+
+  ```python
+  import numpy as np
+  def l2_normalize(vecs):
+      return vecs / np.linalg.norm(vecs, axis=1, keepdims=True)
+  # 示例：归一化一批向量
+  vectors = np.random.rand(10, 384)
+  normalized_vectors = l2_normalize(vectors)
 - **持久化**：`store` 会保存索引文件、ID 映射及配置；加载时需提供相同的 `name`。
 
 更多细节请阅读源码 `search_engine/vdb_index/faiss_index.py` 以及 `vdb_collection.py` 中的调用示例。
