@@ -24,7 +24,16 @@ cp tools/maintenance/git-hooks/post-checkout .git/hooks/post-checkout
 chmod +x .git/hooks/post-checkout
 ```
 
-3. **文档说明**：详见 [子模块分支管理](submodule_branch_management.md)
+3. **分支切换辅助脚本**：`tools/maintenance/prepare_branch_checkout.sh`
+   - 切换前比对目标分支 `.gitmodules`，自动清理不再需要的子模块目录，避免 `git checkout` 被未跟踪文件阻塞
+   - 切换完成后自动运行 `manage_submodule_branches.sh switch`
+
+```bash
+# 例如准备切换到 main 分支
+./tools/maintenance/prepare_branch_checkout.sh main
+```
+
+4. **文档说明**：详见 [子模块分支管理](submodule_branch_management.md)
 
 ## 设计决策
 

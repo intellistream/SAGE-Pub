@@ -86,7 +86,6 @@ git commit -m "chore: update submodules to main-dev branch"
 仓库提供了 `tools/maintenance/git-hooks/post-checkout` 示例脚本，可在 `git checkout` 时自动运行 `switch` 命令。
 
 ```bash
-```bash
 # 推荐：使用 helper 一键安装
 ./tools/maintenance/setup_hooks.sh
 
@@ -95,9 +94,20 @@ cp tools/maintenance/git-hooks/post-checkout .git/hooks/post-checkout
 chmod +x .git/hooks/post-checkout
 ```
 
+```bash
 # 禁用 hook
 mv .git/hooks/post-checkout .git/hooks/post-checkout.disabled
 ```
+
+## 切换前清理缺失的子模块
+
+某些分支（例如 `main`）可能不再跟踪特定子模块，直接 `git checkout` 会因为本地仍保留旧目录而失败。可以在切换前执行：
+
+```bash
+./tools/maintenance/prepare_branch_checkout.sh main
+```
+
+该脚本会比对当前与目标分支的 `.gitmodules`，对缺失的子模块执行 `git submodule deinit -f` 并删除工作目录，然后再执行 `git checkout` 和 `manage_submodule_branches.sh switch`，保证切换后的子模块状态正确。
 
 ## 工作场景
 
