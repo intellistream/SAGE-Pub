@@ -1,108 +1,131 @@
-# SAGE 章节小节模板
+# SAGE 子章节写作模板
 
-<!-- 简要介绍：一句话讲清这个 Section 解决什么问题、适用在什么场景 -->
+用于撰写章节内的“细分主题”页面（例如某个组件、工具、子系统）。保留此模板并复制一份到新的 Markdown 文件，根据实际情况替换占位符。建议在页面最上方注明最后更新时间与维护人，便于后续跟进。
 
-一句话概述：本节介绍 {{对象}}，用于 {{目标/场景}}，帮助你在 {{上下文/系统}} 中完成 {{任务}}。
-
-
-<small>*注意，在了解本节之前需要提前了解以下知识：*</small>
-!!! tip "先决条件（Prerequisites）"
-    - 基础概念：{{RAG / Agent / 并发 / 事务 等}}
-    - 推荐前置阅读：[\[返回 Chapter：{{所属章节名}}\]](../join_sage/overview_template.md)
+!!! info "主题定制提示"
+    如果需要同步调整首页或 MkDocs 主题样式，请参考《[主题自定义指南](theme_overrides.md)》，其中包含 overrides 与 Jinja 模板的维护说明。
 
 ---
 
-## 一、快速开始
+## Step 0 · 页面信息
 
-<!-- 写一个例子/一段故事/一次论证来简单介绍一下Section的某个作用/某个特性 -->
+- **一句话定位**：说明该子章节解决什么问题、适用场景和预期产出。
+- **读者画像**：`新成员 / 进阶用户 / 维护者` 等。
+- **前置阅读**：列出必读文档或先修知识（例如 “推荐先读 `get_start/quickstart.md`”）。
 
-=== "Python"
-    ```python title="最小可运行示例（可拷贝运行）" linenums="1"
-    from {{package}} import {{ClassOrFn}}
-
-    def main():
-        cli = {{ClassOrFn}}({{可选参数}})
-        result = cli.run({{输入}})
-        print(result)
-
-    if __name__ == "__main__":
-        main()
-    ```
-=== "JavaScript"
-    ```javascript title="最小可运行示例（ESM 或 TS）" linenums="1"
-    // npm i {{pkg}}  或  pnpm add {{pkg}}
-    import { {{fn}} } from "{{pkg}}";
-
-    const out = await {{fn}}({{输入}});
-    console.log(out);
-    ```
-=== "CLI"
-    ```bash title="命令行一把梭"
-    {{tool}} init {{project}}
-    {{tool}} run --input {{path/to/input}} --output {{path/to/out}}
-    ```
-
----
-
-## 二、API 概览（签名 / 入口 / 速查）
-
-> 这里放**最常用**的入口与签名；详细参数放到下一节“参数 & 返回”。
-
-```python title="Python API 签名"
-class {{ClassName}}:
-    def __init__(self, {{参数列表}}): ...
-    def run(self, {{参数}}) -> {{返回类型}}: ...
-    async def arun(self, {{参数}}) -> {{返回类型}}: ...
+```markdown
+!!! tip "Prerequisites"
+    - 基础概念：RAG / Agent / Ray Runtime
+    - 推荐阅读：[章节导览](../join_sage/overview_template.md)
 ```
 
 ---
 
-## 三、参数 & 返回 & 错误
+## Step 1 · 快速开始示例
 
-### 参数（Parameters）
+通过 1~2 个最小可运行的示例降低上手门槛，可选多种视角呈现：
 
-| 名称           |         类型 |  必填 |      默认值      | 说明            |
-| ------------ | ---------: | :-: | :-----------: | ------------- |
-| `{{param1}}` | `{{type}}` |  是  |       —       | {{作用 / 取值范围}} |
-| `{{param2}}` | `{{type}}` |  否  | `{{default}}` | {{影响 / 注意事项}} |
+=== "Python"
+    ```python title="Minimal Example" linenums="1"
+    from sage.core.api.local_environment import LocalEnvironment
+    from sage.core.api.function.map_function import MapFunction
 
-### 返回（Returns）
+    class {{Operator}}(MapFunction):
+        def execute(self, data):
+            return data
 
-| 字段          | 类型         | 说明          |
-| ----------- | ---------- | ----------- |
-| `{{field}}` | `{{type}}` | {{含义 / 例子}} |
+    env = LocalEnvironment("{{pipeline_name}}")
+    env.from_source(...).map({{Operator}}).sink(...)
+    env.submit(autostop=True)
+    ```
+=== "CLI"
+    ```bash title="命令行用法"
+    sage {{subcommand}} init {{project}}
+    sage {{subcommand}} run --config config.yaml
+    ```
 
-### 异常 / 错误码（Errors）
-
-| 错误                  | 触发条件     | 建议修复        |
-| ------------------- | -------- | ----------- |
-| `{{ErrInvalidArg}}` | {{何时出现}} | {{如何修复}}    |
-| `{{HTTP 429}}`      | {{限流}}   | {{退避/重试参数}} |
+若示例依赖配置文件或数据集，请提供下载方式与体积大小，并标记预计运行时间。
 
 ---
 
-## 四、工作机制（由浅入深）
+## Step 2 · API / CLI 速查
+
+列出最常用的入口、方法签名或命令行参数，帮助读者快速定位：
+
+```python title="核心类签名"
+class {{ClassName}}:
+    def __init__(self, *, option: int = 1): ...
+    def run(self, payload: dict) -> dict: ...
+    async def arun(self, payload: dict) -> dict: ...
+```
+
+| 命令 | 说明 | 常用参数 |
+| --- | --- | --- |
+| `sage {{sub}} start` | 启动 {{组件}} | `--config`, `--daemon` |
+| `sage {{sub}} status` | 查看运行状态 | `--verbose` |
+
+> 详细参数可链接到 API Reference 或源代码所在模块，例如 `packages/sage-tools/src/sage/tools/cli/commands`。
+
+---
+
+## Step 3 · Parameters · Returns · Errors
+
+采用表格说明关键参数、返回值与常见异常：
+
+| 参数 | 类型 | 必填 | 默认值 | 说明 |
+| --- | --- | --- | --- | --- |
+| `source_path` | `str` | ✅ | — | 数据输入路径 |
+| `batch_size` | `int` | ⭕ | `128` | 需根据 GPU 显存调节 |
+
+| 返回字段 | 类型 | 备注 |
+| --- | --- | --- |
+| `job_uuid` | `str` | 远程作业 ID，可用于 `sage job show` |
+
+| 错误 | 触发条件 | 解决方式 |
+| --- | --- | --- |
+| `ValueError` | 配置缺少必要字段 | 检查 YAML，参考示例 |
+| `HTTP 429` | 调用第三方 API 触发限流 | 增加退避或申请更高配额 |
+
+---
+
+## Step 4 · 工作机制 & 设计动机
+
+用文字 + 图示描述架构、数据流或状态机，便于读者理解原理：
 
 ```mermaid
 sequenceDiagram
-  participant U as User
-  participant S as {{Section 组件}}
-  participant D as Downstream
-  U->>S: {{输入/调用}}
-  S->>S: 校验/准备
-  S->>D: {{请求/事件}}
-  D-->>S: {{响应/回调}}
-  S-->>U: {{结果/错误}}
+    participant U as User
+    participant C as {{Component}}
+    participant JM as JobManager
+    U->>C: submit()
+    C->>JM: serialize & send
+    JM-->>C: job_uuid
+    C-->>U: status
 ```
 
-!!! info "设计动机 / 取舍"
-    - 选择 {{算法/协议/存储}} 的原因：{{简述}}
-    - 与 {{替代方案}} 相比的折中：{{性能、可维护性、成本}}
+!!! info "设计与取舍"
+    - 为什么选择 {{底层技术}}：{{原因}}
+    - 已知限制：例如「仅支持批处理」「需手动清理资源」
+    - TODO：后续计划或改进方向
 
 ---
 
-## 六、配置项（进阶）
+## Step 5 · 进阶配置 / 调优
 
-| 配置键           | 类型             | 默认            | 说明     | 调优建议               |
-| ------------- | -------------- | ------------- | ------ | ------------------ |
-| `{{cfg.key}}` | `bool/int/str` | `{{default}}` | {{作用}} | {{在何种负载/场景下调大/调小}} |
+| 配置键 | 类型 | 默认值 | 场景 | 调优建议 |
+| --- | --- | --- | --- | --- |
+| `autostop` | `bool` | `false` | 批处理 | 设置为 `true` 可在作业完成后自动清理 |
+| `max_retries` | `int` | `3` | 远程提交 | 根据网络稳定性调节 |
+
+可附上“常见组合配置”示例，或链接到 `configs/` 目录中的实际 YAML 文件。
+
+---
+
+## Step 6 · 参考与维护
+
+- 关联源码目录：`packages/{{module}}`、`examples/{{subdir}}`
+- 最近更新记录：`2025-09-xx by @username`
+- 维护人：`@owner`
+- 常见问题：链接到 FAQ or GitHub Issues
+
+保持这一节在每次重要改动后更新，帮助读者确认信息是否仍然有效。

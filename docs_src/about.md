@@ -23,6 +23,15 @@
 
 **透明可观测**: 内置可观测性和调试工具，提供执行路径和性能特征的完整可见性。
 
+## 🧩 核心原生扩展
+
+SAGE 随发行提供两大 C++ 原生扩展，覆盖向量存储与流式计算。安装包默认包含 Python 包装层，构建后可启用高性能内核：
+
+- **SAGE DB**：基于 FAISS 的高性能向量数据库，支持多模态数据、元数据过滤、Hybrid 检索等高级能力。配套 `sage extensions install sage_db` 脚本完成本地编译与依赖检测。
+- **SAGE Flow**：向量级流式处理引擎，提供窗口化算子、低延迟状态更新与 RAG 联动，适合实时 Agent 场景。通过 `sage extensions install sage_flow` 构建原生算子。
+
+更多扩展正在规划中，可在 `packages/sage-middleware/src/sage/middleware/components/` 下查看示例并提交提案。
+
 <!-- # <div align="center">🧬 SAGE: A Dataflow-Native Framework for LLM Reasoning<div> -->
 <!-- SAGE is a dataflow-native reasoning framework built from the ground up to support modular, controllable, and transparent workflows over Large Language Models (LLMs). It addresses common problems in existing LLM-augmented systems (like RAG and Agents), such as hard-coded orchestration logic, opaque execution paths, and limited runtime control. SAGE introduces a dataflow-centric abstraction, modeling reasoning workflows as directed acyclic graphs (DAGs) composed of typed operators.
 

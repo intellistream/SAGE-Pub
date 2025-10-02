@@ -555,7 +555,7 @@ $$
 ```yaml
 # 在 mkdocs.yml 中添加
 extra_javascript:
-  - overrides/hide_sidebar.js
+    - theme/script.js
   - https://polyfill.io/v3/polyfill.min.js?features=es6
   - https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js
 
@@ -563,7 +563,7 @@ extra_javascript:
 extra_css:
   - https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.7/katex.min.css
 extra_javascript:
-  - overrides/hide_sidebar.js
+    - theme/script.js
   - https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.7/katex.min.js
   - https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.7/contrib/auto-render.min.js
 ```

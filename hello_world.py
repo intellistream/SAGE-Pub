@@ -9,7 +9,6 @@ SAGE Framework Hello World 批处理示例
 3. 数据输出 (SinkFunction)
 
 Author: SAGE Team
-License: Apache 2.0
 """
 
 import time

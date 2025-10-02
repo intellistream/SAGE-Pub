@@ -36,9 +36,9 @@ class HelloBatch(BatchFunction):
         self.max_count = 10     
     
     def execute(self):
-        if self.counter = self.max_count:
+        if self.counter >= self.max_count:
+            # 返回 None 表示批处理完成
             return None         
-        # 返回None表示批处理完成
         self.counter += 1
         return f"Hello, World! #{self.counter}"
 
@@ -85,7 +85,7 @@ class HelloBatch(BatchFunction):
         self.max_count = 10 
 
     def execute(self):
-        if self.counter = self.max_count:
+        if self.counter >= self.max_count:
             return None 
         self.counter += 1
         return f"Hello, World! #{self.counter}"
