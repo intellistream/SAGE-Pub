@@ -1,119 +1,155 @@
 # Runtime 组件设计文档
 
 !!! note "定位"
-    **Runtime** 是 Agent 的“执行循环”，负责调度 **Profile / Planning / Action / Memory / Reflection** 各个组件，驱动 Agent 从用户请求到最终回复的全过程。
+    `AgentRuntime`（`packages/sage-libs/src/sage/libs/agents/runtime/agent.py`）提供了一个**最小可用的执行循环**：接受用户问题 → 调用 `LLMPlanner` 生成 MCP 计划 → 逐步调用 `MCPRegistry` 中的工具 → 返回回复或兜底总结。
 
 ---
 
-## 1. 设计目标
+## 1. 功能边界
 
-- **统一调度**：将 Planner 产出的计划依次执行。
-- **工具调用**：调用 MCPRegistry 中注册的工具，获取执行结果。
-- **容错处理**：在工具出错或计划无效时提供兜底策略（如 fallback reply）。
-- **可扩展性**：支持日志记录、事件追踪、记忆写入、反思更新。
-- **简单易用**：调用 `agent.step(dialog)` 即可完成一次完整的感知 → 规划 → 执行 → 反馈流程。
-
----
-
-## 2. 数据流
-
-```mermaid
-graph TD
-    U[用户请求] -->|dialog| R(Runtime)
-    R --> P(Planner)
-    P --> Plan
-    Plan --> R
-    R -->|for step in plan| A(Action via MCPRegistry)
-    A --> Obs[Observation]
-    Obs --> R
-    R --> Refl[Reflection]
-    Refl --> Mem[Memory]
-    R -->|最终回复| U2[用户]
-```
+- **核心流程**：`step(user_query: str) -> str`
+  1. 基于 `BaseProfile.render_system_prompt()` 和用户输入调用 `LLMPlanner.plan(...)`
+  2. 按照计划逐步执行 `tool` 步骤，记录成功/失败 `observations`
+  3. 若计划包含 `reply` 步骤则优先返回该文本；否则使用可选 `summarizer` 或内置模板整理观测
+- **输入形态**：`execute(...)` 既可以直接传入字符串，也可以传入字典以临时覆写 `max_steps`、`profile_overrides`
+- **当前缺省**：源码中未启用 Memory、Reflection、事件总线等扩展；如需记忆能力，可参考 [Memory 组件文档](./memory.md) 在调用端接入 `MemoryManager` 或自定义服务
 
 ---
 
-## 3. 核心类
+## 2. 核心实现摘录
 
 ```python title="runtime/agent.py"
-from typing import List, Dict
-from sage.libs.agents.planning.schema import Plan, PlanStep
-from sage.libs.agents.action.mcp_registry import MCPRegistry
-
-class AgentRuntime:
-    def __init__(self, profile, planner, registry: MCPRegistry, memory=None, reflector=None, llm=None):
+class AgentRuntime(MapFunction):
+    def __init__(
+        self,
+        profile: BaseProfile,
+        planner: LLMPlanner,
+        tools: MCPRegistry,
+        summarizer=None,
+        max_steps: int = 6,
+    ) -> None:
         self.profile = profile
         self.planner = planner
-        self.registry = registry
-        self.memory = memory
-        self.reflector = reflector
-        self.llm = llm
+        self.tools = tools
+        self.summarizer = summarizer
+        self.max_steps = max_steps
 
-    def step(self, dialog: List[dict]) -> dict:
-        # 1) Profile prompt
-        profile_prompt = self.profile.render_system_prompt()
+    def step(self, user_query: str) -> str:
+        plan = self.planner.plan(
+            profile_system_prompt=self.profile.render_system_prompt(),
+            user_query=user_query,
+            tools=self.tools.describe(),
+        )
 
-        # 2) 生成计划
-        plan: Plan = self.planner.plan(profile_prompt, dialog[-1]["content"], self.registry.describe())
+        observations: List[Dict[str, Any]] = []
+        reply_text: Optional[str] = None
 
-        results = []
-        reply = None
-        for step in plan.steps:
-            if step.type == "tool":
+        for i, step in enumerate(plan[: self.max_steps]):
+            if step.get("type") == "reply":
+                reply_text = step.get("text", "").strip()
+                break
+            if step.get("type") == "tool":
+                name = step.get("name")
+                arguments = step.get("arguments", {}) or {}
+                schema = self.tools.describe().get(name, {}).get("input_schema", {})
+                miss = _missing_required(arguments, schema)
+                if miss:
+                    observations.append({
+                        "step": i,
+                        "tool": name,
+                        "ok": False,
+                        "error": f"Missing required fields: {miss}",
+                        "arguments": arguments,
+                    })
+                    continue
+                t0 = time.time()
                 try:
-                    obs = self.registry.call(step.name, step.arguments)
-                    results.append({"tool": step.name, "output": obs})
+                    out = self.tools.call(name, arguments)
+                    observations.append({
+                        "step": i,
+                        "tool": name,
+                        "ok": True,
+                        "latency_ms": int((time.time() - t0) * 1000),
+                        "result": out,
+                    })
                 except Exception as e:
-                    results.append({"tool": step.name, "error": str(e)})
-            elif step.type == "reply":
-                reply = {"role": "assistant", "content": step.text}
+                    observations.append({
+                        "step": i,
+                        "tool": name,
+                        "ok": False,
+                        "latency_ms": int((time.time() - t0) * 1000),
+                        "error": str(e),
+                    })
 
-        # 3) Reflection + Memory
-        if self.reflector:
-            self.reflector.reflect(results, self.memory)
-        if self.memory:
-            self.memory.write(str(results))
+        if reply_text:
+            return reply_text
+        if not observations:
+            return "（没有可执行的步骤或工具返回空结果）"
+        if self.summarizer:
+            profile_hint = self.profile.render_system_prompt()
+            messages = [
+                {"role": "system", "content": "你是一个严谨的助理。只输出中文总结。"},
+                {"role": "user", "content": f"[Profile]\n{profile_hint}\n\n[Observations]\n{observations}"},
+            ]
+            _, summary = self.summarizer.execute([None, messages])
+            return summary.strip()
+        return "\n".join(
+            f"#{obs['step'] + 1} 工具 {obs['tool']} {'成功' if obs['ok'] else '失败'}：{obs.get('result') or obs.get('error')}"
+            for obs in observations
+        )
 
-        # 4) 返回最终回复
-        return reply or {"role": "assistant", "content": "(no valid reply)"}
+    def execute(self, data: Any) -> str:
+        if isinstance(data, str):
+            return self.step(data)
+        if isinstance(data, dict):
+            ...  # 支持一次性覆写 max_steps / profile_overrides
+        raise TypeError("AgentRuntime.execute 仅接受 str 或 dict 两种输入。")
 ```
+
+!!! info "容错要点"
+    - `_missing_required(...)` 定义在同文件顶部，用于根据工具 `input_schema.required` 做最小必填校验
+    - 所有工具调用（成功/失败）都会被记录，便于调试或在 summarizer 中使用
+    - 默认兜底输出会逐行列出每一步执行结果
 
 ---
 
-## 4. 使用示例
+## 3. 快速上手
 
 ```python
 from sage.libs.agents.profile.profile import BaseProfile
 from sage.libs.agents.planning.llm_planner import LLMPlanner
 from sage.libs.agents.action.mcp_registry import MCPRegistry
-from sage.libs.rag.generator import OpenAIGenerator
 
-# 1) Profile
 profile = BaseProfile(name="ResearchAgent", role="planner", language="zh")
+planner = LLMPlanner(generator=openai_generator)
 
-# 2) Generator + Planner
-gen = OpenAIGenerator({"method":"openai","model_name":"gpt-4o-mini","base_url":"http://localhost:8000/v1","api_key":"sk-..."})
-planner = LLMPlanner(generator=gen)
+registry = MCPRegistry()
+registry.register(Calculator())
+registry.register(ArxivSearcher())
 
-# 3) 工具注册
-reg = MCPRegistry()
-reg.register(Calculator())
-reg.register(ArxivSearcher())
+agent = AgentRuntime(profile, planner, registry, max_steps=4)
+print(agent.step("查两篇 LLM agent survey，再算 21*2+5"))
 
-# 4) Runtime
-agent = AgentRuntime(profile, planner, reg)
-
-# 5) 单轮对话
-dialog = [{"role": "user", "content": "帮我查 arXiv 上的 LLM agents 综述，并计算 21*2+5"}]
-resp = agent.step(dialog)
-print(resp)
+agent.execute({
+    "user_query": "输出一句祝福",
+    "max_steps": 2,
+    "profile_overrides": {"tone": "warm"},
+})
 ```
 
 ---
 
-## 5. 扩展方向
+## 4. 可扩展点
 
-- **多轮循环**：在 `step()` 内支持 `PLAN → ACT → OBSERVE → REPLAN` 的循环，而不是一次性计划。
-- **事件总线**：在执行过程中生成结构化事件流（可存储为 JSONL，用于调试/复现）。
-- **错误处理**：对工具报错时自动触发 replanning，而不是简单记录错误。
-- **并发执行**：当 Planner 产出可并行的工具调用时，Runtime 可并行调度。
+- **记忆集成**：源码中的 Memory 参数目前注释掉。需要时可以通过继承或装饰器在工具执行后写入记忆。
+- **观测事件**：可以在 `observations` 中附加耗时、token 等指标，或推送到外部监控。
+- **Re-plan**：若要实现多轮 `observe → replan`，建议在外层根据 `observations` 再次调用 `planner.plan(...)`。
+
+---
+
+## 5. 现状提示
+
+- 文件位置：`packages/sage-libs/src/sage/libs/agents/runtime/agent.py`
+- 依赖仅限 `BaseProfile`、`LLMPlanner`、`MCPRegistry` 与可选 `summarizer`
+- `BaseProfile` 默认语言为 `"zh"`、语气为 `"concise"`，因此默认输出偏中文简洁风格
+- `execute(...)` 会在调用结束后恢复原始 `max_steps` 与 Profile 配置

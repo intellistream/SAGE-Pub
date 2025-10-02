@@ -2,101 +2,49 @@
 
 SAGE Kernel 中的算子函数全部继承自 `BaseFunction`（`packages/sage-kernel/src/sage/core/api/function/base_function.py`）。`BaseFunction` 定义了以下重要特性：
 
-- `execute(self, data)`：所有算子必须实现的方法；
-- `self.ctx`：运行时注入的任务上下文，可用于获取 logger、服务等；
-- `self.logger`：如果上下文尚未注入，默认返回根 logger；
-- `call_service` / `call_service_async`：与环境中注册的服务交互。
+## 尚未实现的类型
 
-为了满足不同算子的需求，Kernel 提供了一组派生基类。本页仅保留源码中已经实现的类型。
+目前仓库尚未提供 `ProcessFunction`、`AggregateFunction`、`ReduceFunction`、副输出（Side Output）等接口，已实现的算子能力仅限于前文列出的 `Map` / `FlatMap` / `Filter` / `KeyBy` / `Join` 等类型。如果需要更细粒度的算子语义，可以：
 
-## 一元算子
+- 参考 `packages/sage-kernel/src/sage/core/operator` 下现有算子的实现方式，自行编写继承自 `BaseFunction` 的子类；
+- 或者直接在运算符层扩展新的 Operator，再在内部组合现有函数类型来完成需求。
 
-### MapFunction
+此外，Kafka Source 的示例实现位于 `KafkaSourceFunction`（`packages/sage-kernel/src/sage/core/api/function/kafka_source.py`），该类继承自 `SourceFunction` 并提供了 `run/execute/cancel` 等行为，能够满足实时消费 Kafka 的需求。
 
-```python
-from sage.core.api.function.map_function import MapFunction
+### SinkFunction - 数据输出
 
-class Square(MapFunction):
-    def execute(self, data):
-        return data * data
-```
-
-配合 `DataStream.map` 使用。返回值会直接流向下游。
-
-### FilterFunction
-
-```python
-from sage.core.api.function.filter_function import FilterFunction
-
-class NonEmpty(FilterFunction):
-    def execute(self, data):
-        return bool(data)
-```
-
-要求返回布尔值；框架会调用 `_process_output` 强制转换为 `bool`。
-
-### FlatMapFunction
-
-```python
-from sage.core.api.function.flatmap_function import FlatMapFunction
-
-class Words(FlatMapFunction):
-    def execute(self, data):
-        # 方式一：直接返回可迭代对象
-        return data.split()
-
-class EmitChars(FlatMapFunction):
-    def execute(self, data):
-        # 方式二：使用 self.collect
-        for ch in data:
-            self.collect(ch)
-```
-
-FlatMap 函数可返回可迭代对象，也可通过 `self.collect` 发射多个元素。操作符会在执行前注入 `Collector` 到 `self.out`。
-
-### SinkFunction
+`SinkFunction` 是 `BaseFunction` 的子类，实际接口非常精简：只需要实现 `execute(self, data) -> None`，框架不会期望额外的 `open/sink/close` 生命周期方法。
 
 ```python
 from sage.core.api.function.sink_function import SinkFunction
+
 
 class PrintSink(SinkFunction):
     def execute(self, data):
         print(f"[sink] {data}")
 ```
 
-用于 `DataStream.sink` 或 `ConnectedStreams.sink`。返回值将被丢弃。
-
-### SourceFunction & BatchFunction
-
-`SourceFunction.execute` / `BatchFunction.execute` 不接收上游输入，用于产生数据。
+如果需要管理外部资源（文件句柄、数据库连接等），可以在 `__init__` 中接受配置，通过惰性初始化或上下文注入的方式自行控制生命周期。下面给出一个更完整的示例：
 
 ```python
-import time
-
-from sage.core.api.function.source_function import SourceFunction
-from sage.core.api.function.batch_function import BatchFunction
-
-class Counter(SourceFunction):
-    def execute(self):
-        # 返回单条数据；source operator 会持续调用
-        return time.time()
-
-class NumberBatch(BatchFunction):
-    def __init__(self, values):
+class FileSink(SinkFunction):
+    def __init__(self, path: str):
         super().__init__()
-        self.values = iter(values)
+        self.path = path
+        self._fh = None
 
-    def execute(self):
-        try:
-            return next(self.values)
-        except StopIteration:
-            return None  # 返回 None 表示批处理完成
+    def execute(self, data):
+        if self._fh is None:
+            self._fh = open(self.path, "a", encoding="utf-8")
+        self._fh.write(f"{data}\n")
+        self._fh.flush()
+
+    def __del__(self):
+        if self._fh:
+            self._fh.close()
 ```
 
-批处理函数返回 `None` 时，`BatchTransformation` 会向下游发送结束信号。
-
-## 简化批处理工具
-
+在数据流中，通过 `DataStream.sink(PrintSink())` 或 `ConnectedStreams.sink(...)` 即可将流结束于一个输出函数。
 `simple_batch_function.py` 提供了几个开箱即用的批处理函数实现：
 
 - `SimpleBatchIteratorFunction`：遍历内存列表；
@@ -194,7 +142,7 @@ class _LambdaMap(MapFunction):
 
 ## 尚未实现的类型
 
-旧文档中提到的 `ProcessFunction`、`AggregateFunction`、`ReduceFunction`、副输出（Side Output）等接口目前尚未在 `sage.core.api.function` 目录下提供。如果需要这些能力，需要参考 `Operator` 层实现并自行扩展。
+`ProcessFunction`、`AggregateFunction`、`ReduceFunction`、副输出（Side Output）等接口目前尚未在 `sage.core.api.function` 目录下提供。如果需要这些能力，需要参考 `Operator` 层实现并自行扩展。
     def __init__(self, bootstrap_servers: str, topic: str, group_id: str):
         self.bootstrap_servers = bootstrap_servers
         self.topic = topic

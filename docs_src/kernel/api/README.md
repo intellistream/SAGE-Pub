@@ -43,7 +43,7 @@ env.submit(autostop=True)
 3. `DataStream.print` 对 `sink(PrintSink, ...)` 的封装。
 4. `submit(autostop=True)` 触发 `_wait_for_completion()`，等待本地 JobManager 运行结束。
 
-## 与旧文档的差异
+## 当前限制与说明
 
 - 本模块当前不提供窗口、侧输出、异步提交等 API；如需这些功能请参考源码中的 TODO 或 issue，避免在生产中使用尚未实现的接口。
 - `register_service` 与 `call_service` 已在核心中实现，可直接使用，无需外部 SDK。

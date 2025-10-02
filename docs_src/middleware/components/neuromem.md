@@ -1,6 +1,6 @@
 # Neuromem（长期记忆组件）
 
-Neuromem 是 SAGE Middleware 中的持久化记忆栈，当前仓库的实现集中在 Python 代码，提供向量化存储、检索和落盘能力。旧文档中提到的 `MemoryService` 并不存在；请直接使用 Neuromem 模块提供的类或微服务示例。
+Neuromem 是 SAGE Middleware 中的持久化记忆栈，当前仓库的实现集中在 Python 代码，提供向量化存储、检索和落盘能力。仓库未包含额外的 `MemoryService` 包装，请直接使用 Neuromem 模块提供的类或微服务示例。
 
 - **代码根目录**：`packages/sage-middleware/src/sage/middleware/components/neuromem/`
 - **核心组成**：

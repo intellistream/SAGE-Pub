@@ -125,7 +125,7 @@ joined_stream = users.connect(orders).join(MergeUserOrder)
 
 - `ConnectedStreams` 构造函数要求至少输入两个 `Transformation`，并确保它们来自同一个环境；否则会抛出 `ValueError`；
 - `comap`、`keyby` 等方法对 lambda 的支持有限，必要时请显式编写函数类；
-- 尚未实现的特性：窗口、状态共享、错误处理回调、背压配置等；如在旧文档看到相关内容，请以源码为准。
+- 尚未实现的特性：窗口、状态共享、错误处理回调、背压配置等；这些功能当前版本尚未提供，请以源码为准。
 
 ## 调试提示
 

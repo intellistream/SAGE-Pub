@@ -173,7 +173,7 @@ env.submit(autostop=True)
 
 ## 尚未提供的接口
 
-在旧版设计或需求文档中提到的以下方法目前**尚未在源码中实现**：
+以下方法目前**尚未在源码中实现**：
 
 - `submit_async`、`cancel`、`resume`、`create_savepoint` 等运行时控制接口；
 - `set_parallelism`、`enable_object_reuse`、`set_managed_memory_fraction` 等执行参数调优接口；
