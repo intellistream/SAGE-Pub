@@ -12,7 +12,8 @@
 
 ```
 SAGE/
-├── .git/hooks/post-checkout                    # 可选 Git hook
+├── tools/maintenance/git-hooks/post-checkout   # 可选 Git hook 示例
+├── .git/hooks/post-checkout                    # 启用时复制到此处
 ├── tools/maintenance/manage_submodule_branches.sh
 └── .gitmodules                                  # 子模块配置
 ```
@@ -82,10 +83,11 @@ git commit -m "chore: update submodules to main-dev branch"
 
 ## Git Hook（可选）
 
-`post-checkout` hook 已提供样例，可在 `git checkout` 时自动运行 `switch` 命令。
+仓库提供了 `tools/maintenance/git-hooks/post-checkout` 示例脚本，可在 `git checkout` 时自动运行 `switch` 命令。
 
 ```bash
-# 启用 hook（确保可执行）
+# 启用 hook（复制示例并赋予执行权限）
+cp tools/maintenance/git-hooks/post-checkout .git/hooks/post-checkout
 chmod +x .git/hooks/post-checkout
 
 # 禁用 hook

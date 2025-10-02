@@ -12,8 +12,8 @@
    - `status`：查看配置分支与实际分支
    - `help`：命令说明
 
-2. **Git Hook**：`.git/hooks/post-checkout`
-   - 可选，切换分支时自动执行 `switch`
+2. **Git Hook 示例**：`tools/maintenance/git-hooks/post-checkout`
+   - 可选，复制到 `.git/hooks/post-checkout` 后可在切换分支时自动执行 `switch`
 
 3. **文档说明**：详见 [子模块分支管理](submodule_branch_management.md)
 
