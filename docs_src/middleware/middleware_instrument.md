@@ -1,41 +1,37 @@
-# Middleware 简述与分层设计
+# Middleware 分层与实践指南
 
-SAGE Middleware 提供一组面向 AI 推理的通用“服务与计算接口”，用于支撑上层应用在效果、效率与效能之间取得平衡。
+SAGE Middleware 的代码现实主要围绕 Neuromem 记忆栈展开。下文从实际实现出发，重新梳理“中间件层”在当前仓库中的分层与用法，避免与历史文档中尚未落地的微服务网格、硬件调度等概念混淆。
 
-## 为什么需要单独的 Middleware 层？
+## 当前四层结构
 
-- 资源与硬件友好：聚焦底层硬件加速与资源利用，把复杂度下沉到中间件。
-- 服务逻辑统一：通过服务化抽象，复用成熟能力，减少业务重复造轮子。
-- 组合与编排：将组件以服务方式编排，形成从存储到检索的端到端路径。
+1. **API 层**（`sage.core.api`）
+	- `BaseFunction` / `BaseService` 的 `call_service` 与 `call_service_async` 构成了唯一稳定的对外接口。
+	- 目前没有专门的 Service API Gateway，函数直接依赖注册表中的服务实例。
 
-## 分层结构（4 层）
+2. **服务层**（示例封装）
+	- 现有示例包括 `NeuroMemVDBService`、`SageDBService`、`SageFlowService`，分别位于 `components/<component>/micro_service/`，用于把相应组件包装成 `BaseService` 风格的进程内服务。
+	- 不包含服务发现、注册中心或远程通信；所有调用路径依旧是进程内对象间的直接调用。
 
-1) API 层（接口）
+3. **组件层**（核心逻辑）
+	- `neuromem`、`sage_db`、`sage_flow` 共同构成组件层：前者提供纯 Python 的记忆栈，后两者提供可选的 C++ 加速与各自的数据结构实现。
+	- Neuromem 下的 `MemoryManager` 管理集合生命周期，`VDBMemoryCollection` / `KVMemoryCollection` / `GraphMemoryCollection` 提供多种读写能力（当前以 VDB 为主），并通过 `search_engine/` 与 `storage_engine/` 的工厂模式装配索引与存储。
+	- `sage_db`、`sage_flow` 在成功构建对应扩展时公开 Python 绑定与服务封装；若扩展缺失则在导入阶段降级为不可用状态。
 
-	- 抽象服务接口：类似 map_function，用户通过继承基类实现自定义服务。
-	- 计算接口：例如 SAGE Flow，对外提供可编程的计算与编排接口。
+4. **存储 / 执行层**
+	- 文本与元数据分别由 `TextStorage`、`MetadataStorage`（基于本地文件）持久化。
+	- 向量索引依赖 `index_factory`（默认 FAISS），可根据配置落盘并重建。
 
-2) 服务层（Service）
+## 实践要点
 
-	- 提供预定义服务，编排组件形成服务逻辑，对上暴露统一接口。
-	- 示例：语料查询、长期记忆存储、向量检索等。
+- **关注真实可用的入口**：默认构建仅包含 `NeuroMemVDB` / `NeuroMemVDBService`；`SageDBService`、`SageFlowService` 需先按各自仓库说明完成 C++ 扩展构建后方可启用。
+- **提前创建索引**：`NeuroMemVDBService` 假设集合存在 `global_index`；在实例化前先调用 `create_index` + `init_index`。
+- **嵌入模型准备**：默认走 HuggingFace 模型，若需离线/自定义模型，可通过 `EmbeddingModel(method="mockembedder", ...)` 或传入自定义参数。
+- **持久化路径**：默认写到当前工作目录下的 `data/neuromem_vdb/`，在容器或生产环境中请显式指定 `MemoryManager` 的 `data_dir`。
+- **测试策略**：利用 `NeuroMemVDB` 的批量插入与 `retrieve`，可以在不启动任何额外服务的情况下完成功能验证。
 
-3) 组件层（Components）
+## 后续演进方向（尚未实现）
 
-	- 被动组件与引擎：非结构化数据库、向量计算引擎、Neuromem 等。
-	- 作为服务的实现基石，由服务层进行组合与编排。
-
-4) 硬件层（Hardware）
-
-	- 面向各组件的硬件亲和后端：GPU 加速向量相似度、CXL 内存后端等。
-	- 由组件/服务选择并绑定最优执行后端。
-
-## 关于 SAGE DB 的角色
-
-- SAGE DB 原生扩展：提供高性能的向量存储与检索能力，可通过 `sage extensions install sage_db` 构建。本质上是组件层的数据库引擎，服务层可将其包装成 Memory Service、语义检索服务等。
-- 在 Function 中：通过 `call_service` 接口访问对应服务，即可透明地使用 GPU/多模态能力，调用前可使用 `sage extensions status` 确认扩展已启用。
-
-## 关于 SAGE Flow 的位置与理解
-
-- 单个 Flow 算子：其具体计算执行在“硬件层”；从职责看可视为“组件层”的一个 function。
-- SAGE Flow 本身：属于“计算组件”，既可以被定义为服务（自定义或预定义），也可以向上直接提供计算接口。
+- 真正的远程服务化（HTTP/gRPC）与服务注册中心。
+- 面向 KV / Graph 集合的完整实现与统一编排。
+- 与 Ray、消息队列等内核通信层的深度结合。
+- 基于可用扩展的 GPU / C++ 加速通路。

@@ -1,403 +1,141 @@
-# Connected Streams API
+# ConnectedStreams API
 
-The Connected Streams API provides advanced stream processing capabilities for building complex data pipelines with inter-stream dependencies.
+`ConnectedStreams`（`packages/sage-kernel/src/sage/core/api/connected_streams.py`）用于在同一 `Environment` 内组合多个 `DataStream`，并提供 `comap`、`join` 等多输入算子。本节介绍已经落地的接口以及主要约束。
 
-## Overview
+## 构造方式
 
-Connected streams allow you to:
-- Link multiple data streams together
-- Share state between stream operations
-- Build complex event processing pipelines
-- Handle stream dependencies and ordering
-
-## Core Classes
-
-### ConnectedStreams
-
-Main class for managing connected stream operations.
+通常不需要直接实例化 `ConnectedStreams`。`DataStream.connect()` 会自动创建：
 
 ```python
-from sage.core.api.connected_streams import ConnectedStreams
+stream_a = env.from_batch([1, 2, 3])
+stream_b = env.from_batch(["a", "b", "c"])
 
-# Create connected streams from multiple sources
-stream1 = environment.create_stream("source1")
-stream2 = environment.create_stream("source2")
-
-connected = ConnectedStreams([stream1, stream2])
+connected = stream_a.connect(stream_b)
 ```
 
-#### Methods
+`connect` 还支持将一个已有的 `ConnectedStreams` 再次连接新的 `DataStream` 或另一个 `ConnectedStreams`，内部会把 `_environment` 与 `transformation` 列表按顺序拼接。
 
-##### `process(processor_func, **kwargs)`
+## 链式操作
 
-Process connected streams with a custom function.
+### map / sink / print
+
+与 `DataStream` 上的同名方法类似，但作用于每个连接流：
 
 ```python
-def merge_processor(streams, state):
-    """Merge data from multiple streams"""
-    merged_data = []
-    for stream in streams:
-        for item in stream.read():
-            merged_data.append(item)
-    return merged_data
-
-result = connected.process(merge_processor)
+connected.map(lambda value: f"stream item: {value}")
+connected.sink(lambda value: print("sink", value))
+connected.print(prefix="[connected]")
 ```
 
-##### `join(join_type="inner", key_func=None)`
+- 支持 `callable` 与 `BaseFunction` 子类；
+- `print` 内部调用 `sage_libs.io.sink.PrintSink`（注意命名空间与 `DataStream.print` 略有不同）。
 
-Join streams based on keys or conditions.
+### connect
+
+在已有的 `ConnectedStreams` 上继续追加其他流：
 
 ```python
-# Join by key
-def get_user_id(item):
-    return item.get("user_id")
+third = env.from_batch([True, False])
 
-joined = connected.join(
-    join_type="inner",
-    key_func=get_user_id
-)
-
-# Custom join condition
-def join_condition(item1, item2):
-    return item1["timestamp"] == item2["timestamp"]
-
-joined = connected.join(
-    join_type="outer",
-    condition=join_condition
-)
+combined = connected.connect(third)
 ```
 
-##### `window(window_type, size, slide=None)`
+返回的新对象会包含前一个 `ConnectedStreams` 的所有 transformation，并保持原有顺序。
 
-Apply windowing operations across connected streams.
+### keyby
+
+为组合流统一或分别指定键选择函数：
 
 ```python
-# Tumbling window
-windowed = connected.window(
-    window_type="tumbling",
-    size=60  # 60 seconds
-)
+from sage.core.api.function.keyby_function import KeyByFunction
 
-# Sliding window
-windowed = connected.window(
-    window_type="sliding",
-    size=300,  # 5 minutes
-    slide=60   # 1 minute slide
-)
+class KeyA(KeyByFunction):
+    def execute(self, data):
+        return data["user_id"]
 
-# Session window
-windowed = connected.window(
-    window_type="session",
-    timeout=30  # 30 seconds timeout
-)
+class KeyB(KeyByFunction):
+    def execute(self, data):
+        return data["user"]
+
+# 相同的 key 规则应用于所有流
+same_key = connected.keyby(KeyA)
+
+# 针对每个流提供不同的 key 函数
+per_stream_key = connected.keyby([KeyA, KeyB])
 ```
 
-### StreamState
+- 目前只接受 `BaseFunction` 子类或可包装的 `callable`；
+- 当提供列表时，长度必须与连接的流数量一致。
 
-Shared state management for connected streams.
+## CoMap
+
+`comap` 适用于对每个输入流分别处理，再返回一个新的 `DataStream`。
 
 ```python
-from sage.core.api.connected_streams import StreamState
+from sage.core.api.function.comap_function import BaseCoMapFunction
 
-# Create shared state
-state = StreamState()
+class RouteEvents(BaseCoMapFunction):
+    def map0(self, data):
+        return {"user": data["user_id"], "type": "user_event"}
 
-# Store values
-state.set("counter", 0)
-state.set("last_timestamp", time.time())
+    def map1(self, data):
+        return {"user": data["user"], "type": "system_event"}
 
-# Retrieve values
-counter = state.get("counter", default=0)
-
-# Atomic operations
-state.increment("counter")
-state.append("events", new_event)
+result_stream = connected.comap(RouteEvents)
+result_stream.print()
 ```
 
-#### Methods
+关键点：
 
-##### `get(key, default=None)`
+- `comap` 仅接受 `BaseCoMapFunction` 的子类；传入 lambda 会触发 `NotImplementedError`；
+- 类必须实现与输入流数量匹配的 `mapN` 方法（`map0`、`map1`…）。源码会在调用前检查缺失的方法并抛出 `TypeError`；
+- 可选地，通过 `parallelism` 参数为底层 `CoMapTransformation` 设置并行度。
 
-Get value from shared state.
+## Join
 
-```python
-value = state.get("my_key", default=0)
-```
-
-##### `set(key, value)`
-
-Set value in shared state.
+`join` 用于两个 **已按键分区** 的流之间的操作。
 
 ```python
-state.set("status", "processing")
-```
+from sage.core.api.function.join_function import BaseJoinFunction
 
-##### `increment(key, amount=1)`
-
-Atomically increment a numeric value.
-
-```python
-state.increment("processed_count")
-state.increment("total_bytes", data_size)
-```
-
-##### `append(key, value)`
-
-Append to a list in shared state.
-
-```python
-state.append("errors", error_message)
-```
-
-##### `update(key, update_func)`
-
-Atomically update a value using a function.
-
-```python
-def update_stats(current_stats):
-    current_stats["last_update"] = time.time()
-    current_stats["count"] += 1
-    return current_stats
-
-state.update("statistics", update_stats)
-```
-
-## Advanced Features
-
-### Stream Synchronization
-
-Synchronize streams based on timestamps or events.
-
-```python
-# Timestamp-based synchronization
-synchronized = connected.synchronize(
-    sync_type="timestamp",
-    tolerance=1.0  # 1 second tolerance
-)
-
-# Event-based synchronization
-synchronized = connected.synchronize(
-    sync_type="event",
-    sync_event="marker"
-)
-```
-
-### Error Handling
-
-Handle errors across connected streams.
-
-```python
-def error_handler(stream_id, error, context):
-    print(f"Error in stream {stream_id}: {error}")
-    # Log error and continue processing
-    return "continue"
-
-connected.on_error(error_handler)
-```
-
-### Backpressure Management
-
-Control data flow when streams process at different rates.
-
-```python
-# Configure backpressure
-connected.configure_backpressure(
-    strategy="block",  # or "drop", "buffer"
-    buffer_size=1000,
-    timeout=30
-)
-```
-
-## Examples
-
-### Simple Stream Merge
-
-```python
-from sage.core.api import LocalEnvironment
-from sage.core.api.connected_streams import ConnectedStreams
-
-# Setup
-env = LocalEnvironment()
-stream1 = env.create_stream("data1")
-stream2 = env.create_stream("data2")
-
-# Connect and merge
-connected = ConnectedStreams([stream1, stream2])
-
-def merge_data(streams, state):
-    merged = []
-    for stream in streams:
-        while stream.has_data():
-            item = stream.read()
-            item["source"] = stream.name
-            merged.append(item)
-    return merged
-
-result_stream = connected.process(merge_data)
-```
-
-### Time-Window Aggregation
-
-```python
-def window_aggregator(window_data, state):
-    """Aggregate data within time windows"""
-    total = 0
-    count = 0
-    
-    for stream_data in window_data:
-        for item in stream_data:
-            total += item.get("value", 0)
-            count += 1
-    
-    return {
-        "window_start": window_data.start_time,
-        "window_end": window_data.end_time,
-        "total": total,
-        "average": total / count if count > 0 else 0,
-        "count": count
-    }
-
-# Apply windowing
-windowed = connected.window("tumbling", size=60)
-aggregated = windowed.process(window_aggregator)
-```
-
-### Complex Event Processing
-
-```python
-from sage.core.api.connected_streams import StreamState
-
-def event_processor(streams, state):
-    """Process complex event patterns"""
-    events = []
-    
-    # Collect events from all streams
-    for stream in streams:
-        while stream.has_data():
-            event = stream.read()
-            events.append(event)
-    
-    # Sort by timestamp
-    events.sort(key=lambda x: x["timestamp"])
-    
-    # Detect patterns
-    patterns = []
-    for i in range(len(events) - 1):
-        current = events[i]
-        next_event = events[i + 1]
-        
-        # Example: detect login followed by purchase
-        if (current["type"] == "login" and 
-            next_event["type"] == "purchase" and
-            current["user_id"] == next_event["user_id"]):
-            
-            patterns.append({
-                "pattern": "login_purchase",
-                "user_id": current["user_id"],
-                "login_time": current["timestamp"],
-                "purchase_time": next_event["timestamp"],
-                "purchase_amount": next_event["amount"]
-            })
-    
-    return patterns
-
-result = connected.process(event_processor)
-```
-
-### Stream Join Example
-
-```python
-# User activity and user profile streams
-activity_stream = env.create_stream("user_activity")
-profile_stream = env.create_stream("user_profiles")
-
-connected = ConnectedStreams([activity_stream, profile_stream])
-
-# Join on user_id
-def get_user_id(item):
-    return item.get("user_id")
-
-joined = connected.join(
-    join_type="inner",
-    key_func=get_user_id
-)
-
-def enrich_activity(joined_data, state):
-    """Enrich activity with profile data"""
-    enriched = []
-    
-    for activity, profile in joined_data:
-        enriched_activity = activity.copy()
-        enriched_activity.update({
-            "user_name": profile.get("name"),
-            "user_tier": profile.get("tier"),
-            "user_location": profile.get("location")
-        })
-        enriched.append(enriched_activity)
-    
-    return enriched
-
-enriched_stream = joined.process(enrich_activity)
-```
-
-## Best Practices
-
-### Performance Optimization
-
-1. **Minimize State Size**: Keep shared state minimal and clean up unused data
-2. **Efficient Joins**: Use appropriate join types and optimize key functions
-3. **Window Management**: Choose appropriate window sizes for your use case
-4. **Backpressure**: Configure backpressure to handle varying processing speeds
-
-### Error Handling
-
-1. **Graceful Degradation**: Handle stream failures without stopping the entire pipeline
-2. **Error Isolation**: Isolate errors to prevent cascade failures
-3. **Recovery Strategies**: Implement retry and recovery mechanisms
-
-### Memory Management
-
-1. **Buffer Limits**: Set appropriate buffer sizes to prevent memory overflow
-2. **State Cleanup**: Regularly clean up old state data
-3. **Window Expiry**: Ensure windows expire to free memory
-
-### Monitoring
-
-1. **Stream Health**: Monitor individual stream health and performance
-2. **Join Efficiency**: Track join hit rates and performance
-3. **State Growth**: Monitor shared state size and growth patterns
-
-## Error Handling
-
-Common error scenarios and solutions:
-
-```python
-def robust_processor(streams, state):
-    try:
-        # Processing logic
-        return process_streams(streams)
-    except Exception as e:
-        # Log error
-        state.append("errors", str(e))
-        # Return empty result or default
+class MergeUserOrder(BaseJoinFunction):
+    def execute(self, payload, key, tag):
+        # tag: 0 表示来自第一个流，1 表示来自第二个流
+        left, right = payload
+        user, order = left, right
+        if user and order:
+            return [{
+                "user_id": key,
+                "user_name": user.get("name"),
+                "order_id": order.get("id"),
+            }]
         return []
 
-# Configure error handling
-connected.on_error(lambda stream_id, error, context: "continue")
-connected.set_error_threshold(max_errors=10, time_window=60)
+users = stream_a.keyby(lambda data: data["user_id"])
+orders = stream_b.keyby(lambda data: data["user"])
+
+joined_stream = users.connect(orders).join(MergeUserOrder)
 ```
 
-## Integration with Other APIs
+- 只能在 **两个** 输入流上调用；否则会抛出 `ValueError`；
+- `function` 必须继承 `BaseJoinFunction`，并实现 `execute(self, payload, key, tag)`；
+- 当前实现中尚未强制校验输入是否已经 keyby，相关 TODO 见源码（issue #225）。
 
-### With DataStream API
+## 错误处理与限制
 
-```python
-from sage.core.api import DataStream
+- `ConnectedStreams` 构造函数要求至少输入两个 `Transformation`，并确保它们来自同一个环境；否则会抛出 `ValueError`；
+- `comap`、`keyby` 等方法对 lambda 的支持有限，必要时请显式编写函数类；
+- 尚未实现的特性：窗口、状态共享、错误处理回调、背压配置等；这些功能当前版本尚未提供，请以源码为准。
 
-# Create individual streams
-stream1 = DataStream("stream1")
-stream2 = DataStream("stream2")
+## 调试提示
+
+1. `connected.transformations` 保存了当前所有上游 transformation，可用于排查链路顺序。
+2. 通过 `connected.connect(other)` 生成的新对象会重新验证环境一致性，若混用了不同 Environment 创建的流，会立即报错。
+3. `comap` 里的 `BaseCoMapFunction` 可使用普通属性记录状态；执行时同样能通过 `self.call_service` 调用环境内注册的服务。
+
+了解更多：
+- [DataStream API](datastreams.md) —— 获取 `ConnectedStreams` 的入口；
+- `packages/sage-kernel/src/sage/core/transformation/join_transformation.py` —— 了解 join 的底层实现。
 
 # Connect them
 connected = ConnectedStreams([stream1, stream2])

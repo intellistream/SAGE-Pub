@@ -1,23 +1,27 @@
-<!-- 英文版内容已备注 -->
-# <div align="center">🧬SAGE: 用于大模型推理的原生流计算框架<div>
+# SAGE - Streaming-Augmented Generative Execution
 
-SAGE 是一个原生支持数据流的数据推理框架，从底层设计上就旨在为大语言模型（LLMs）提供模块化、可控、透明的工作流程。它解决了现有基于 LLM 的系统（如 RAG 和智能体）中常见的问题，比如硬编码的编排逻辑、不透明的执行路径，以及有限的运行时控制能力。SAGE 引入了一种以数据流为中心的抽象方式，将推理流程建模为由类型化算子组成的有向无环图（DAG），高效地执行实时数据处理任务。
+> 用于构建透明 LLM 系统的声明式、可组合框架
 
-## 如何使用 SAGE 框架？
+[![CI](https://github.com/intellistream/SAGE/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/intellistream/SAGE/actions/workflows/ci.yml)
+[![License](https://img.shields.io/badge/License-MIT-blue.svg)](https://github.com/intellistream/SAGE/blob/main/LICENSE)
+[![Python](https://img.shields.io/badge/Python-3.10%2B-blue.svg)](https://python.org)
+[![PyPI version](https://badge.fury.io/py/isage.svg)](https://badge.fury.io/py/isage)
 
-请查阅 [安装指南](get_start/install.md) 和 [快速开始](get_start/quickstart.md)。
+[![WeChat Group](https://img.shields.io/badge/WeChat-加入微信群-brightgreen?style=flat&logo=wechat)](join_sage/community.md)
+[![QQ Group](https://img.shields.io/badge/【IntelliStream课题组讨论QQ群】-blue?style=flat&logo=tencentqq)](https://qm.qq.com/q/bcnuyQVcvm)
+[![Slack](https://img.shields.io/badge/Slack-Join%20Slack-purple?style=flat&logo=slack)](https://join.slack.com/t/intellistream/shared_invite/zt-2qayp8bs7-v4F71ge0RkO_rn34hBDWQg)
 
-## ✨ Features
+**SAGE** 是一个用于构建 AI 驱动数据处理流水线的高性能流处理框架。通过声明式数据流抽象，将复杂的 LLM 推理工作流转换为透明、可扩展且易于维护的系统。
 
-- **声明式与模块化组合**: 使用类型化、可复用的算子构建复杂推理流水线。数据流图清晰分离计算内容与执行方式。
+## 为什么选择 SAGE？
 
-- **统一的数据与控制流**: 在图结构中声明式表达条件分支、工具路由和回退逻辑，消除脆弱的命令式控制代码。
+**生产就绪**: 为企业级应用构建，提供开箱即用的分布式处理、容错机制和全面的监控功能。
 
-- **原生有状态算子**: 可将会话、任务和长期记忆建模为图中的有状态节点，实现持久的上下文感知计算。
+**开发体验**: 使用直观的声明式 API，只需几行代码即可编写复杂的 AI 流水线，消除样板代码。
 
-- **异步且弹性的运行时**: 引擎以非阻塞、数据驱动方式异步执行 DAG，具备流感知队列、事件驱动调度和内建背压，稳健处理复杂负载。
+**性能优化**: 针对高吞吐量流式工作负载优化，具备智能内存管理和并行执行能力。
 
-- **内建可观测性与自省能力**: 提供交互式仪表盘，开箱即用的运行时监控。支持可视化执行图、算子级指标监控和实时流水线调试。
+**透明可观测**: 内置可观测性和调试工具，提供执行路径和性能特征的完整可见性。
 
 ## 🧩 核心原生扩展
 

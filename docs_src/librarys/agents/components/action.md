@@ -23,7 +23,7 @@
 ## 2. 接口简介
 
 ```python title="mcp_registry.py"
-class MCPRegistry:
+class MCPRegistry(MapFunction):
     def __init__(self) -> None: ...
 
     def register(self, tool_obj: Any) -> None:
@@ -35,6 +35,9 @@ class MCPRegistry:
 
     def call(self, name: str, arguments: Dict[str, Any]) -> Any:
         """按名调用工具：`tools[name].call(arguments)`。未注册则抛 `KeyError`。"""
+
+    def execute(self, data: Any = None) -> Any:
+        """支持 None/"describe"/dict 形式的统一入口。"""
 ```
 
 ---

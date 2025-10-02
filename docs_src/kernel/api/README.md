@@ -1,136 +1,54 @@
-# SAGE Kernel API 模块
+# Kernel API 索引
 
-SAGE Kernel API 模块为流数据处理提供了简洁而强大的编程接口。采用声明式编程范式，让开发者能够专注于业务逻辑而不是底层实现细节。
-
-## 📋 API 模块概览
+`sage.core.api` 目录下的 Python 模块构成了 SAGE Kernel 的公开接口层。本节总结每个子模块提供的能力，并指向更详细的文档与源码位置。
 
 ```
-sage.core.api/
-├── __init__.py              # API 主入口，导出所有公共接口
-├── base_environment.py      # 环境基类，定义通用接口
-├── local_environment.py     # 本地环境实现
-├── remote_environment.py    # 远程/分布式环境实现
-├── datastream.py           # 数据流核心类
-├── connected_streams.py     # 连接流管理
-└── function/               # 函数接口目录
-    ├── __init__.py
-    ├── base_function.py     # 函数基类
-    ├── map_function.py      # Map函数
-    ├── filter_function.py   # Filter函数
-    ├── sink_function.py     # Sink函数
-    ├── source_function.py   # Source函数
-    ├── keyby_function.py    # KeyBy函数
-    ├── flatmap_function.py  # FlatMap函数
-    ├── comap_function.py    # CoMap函数
-    └── join_function.py     # Join函数
+sage/core/api/
+├── base_environment.py   # Environment 抽象与通用逻辑
+├── local_environment.py  # 本地 JobManager 集成
+├── remote_environment.py # 远程 JobManager 客户端
+├── datastream.py         # 单输入数据流算子链
+├── connected_streams.py  # 多流连接、CoMap、Join
+└── function/             # 算子实现所依赖的函数基类族
 ```
 
-## 🎯 核心组件
+## 你会在这里找到什么
 
-### 1. 环境管理 (Environments)
-- **BaseEnvironment**: 环境抽象基类
-- **LocalEnvironment**: 本地单机环境
-- **RemoteEnvironment**: 分布式集群环境
+| 主题 | 文档 | 相关源码 |
+| ---- | ---- | -------- |
+| Environment 生命周期、提交与停止 | [environments.md](environments.md) | `base_environment.py`、`local_environment.py`、`remote_environment.py` |
+| DataStream 链式算子 | [datastreams.md](datastreams.md) | `datastream.py` |
+| ConnectedStreams（多流/CoMap/Join） | [connected-streams.md](connected-streams.md) | `connected_streams.py` |
+| 自定义函数签名 | [functions.md](functions.md) | `function/*.py` |
 
-### 2. 数据流处理 (DataStreams)
-- **DataStream**: 核心数据流类，支持链式操作
-- **ConnectedStreams**: 多流连接和协同处理
+阅读建议：先浏览上述文档了解概念，再结合源码确认实现细节。
 
-### 3. 函数接口 (Functions)
-- **转换函数**: Map, FlatMap, Filter等
-- **路由函数**: KeyBy, Partition等
-- **输出函数**: Sink, Print等
-- **连接函数**: Join, CoMap等
-
-## 🔄 典型工作流程
+## 工作流速览
 
 ```python
-# 1. 创建环境
-env = LocalEnvironment("my_app")
+from sage.core.api.local_environment import LocalEnvironment
 
-# 2. 创建数据源
-stream = env.from_batch([1, 2, 3, 4, 5])
+env = LocalEnvironment("example")
+stream = env.from_batch([1, 2, 3])
+stream = stream.map(lambda value: value + 1)
+stream.print()
 
-# 3. 数据转换 (构建计算图)
-result = (stream
-    .map(lambda x: x * 2)
-    .filter(lambda x: x > 5)
-    .sink(print))
-
-# 4. 提交执行
-env.submit()
+env.submit(autostop=True)
 ```
 
-## 📚 详细文档
+这段代码用到了以下 API：
 
-- [**环境管理**](environments.md) - 创建和管理执行环境
-- [**数据流处理**](datastreams.md) - 数据流操作和转换  
-- [**函数接口**](functions.md) - 用户自定义函数规范
-- [**连接流**](connected-streams.md) - 多流连接和协同处理
+1. `LocalEnvironment` 构造与 `from_batch`（`BatchTransformation`）。
+2. `DataStream.map` 以及 `lambda_function.wrap_lambda` 的自动封装。
+3. `DataStream.print` 对 `sink(PrintSink, ...)` 的封装。
+4. `submit(autostop=True)` 触发 `_wait_for_completion()`，等待本地 JobManager 运行结束。
 
-## 🌟 设计特性
+## 当前限制与说明
 
-### 类型安全
-```python
-from typing import TypeVar
+- 本模块当前不提供窗口、侧输出、异步提交等 API；如需这些功能请参考源码中的 TODO 或 issue，避免在生产中使用尚未实现的接口。
+- `register_service` 与 `call_service` 已在核心中实现，可直接使用，无需外部 SDK。
+- CLI、监控、指标等能力不在 `sage.core.api` 范围内，相关说明已移至其它章节。
 
-T = TypeVar('T')
-U = TypeVar('U')
+## 下一步
 
-class DataStream(Generic[T]):
-    def map(self, func: Callable[[T], U]) -> DataStream[U]:
-        # 编译时类型检查
-        pass
-```
-
-### 延迟执行
-```python
-# 构建阶段 - 只创建计算图，不执行
-stream = env.from_kafka("topic").map(process).sink(output)
-
-# 执行阶段 - 调用submit()时才开始处理数据
-env.submit()
-```
-
-### 链式调用
-```python
-# 支持流畅的链式API
-result = (data_stream
-    .map(transform1)
-    .filter(condition)
-    .map(transform2)
-    .sink(output))
-```
-
-## 🔌 扩展机制
-
-### 自定义函数
-```python
-class MyMapFunction(MapFunction[int, str]):
-    def map(self, value: int) -> str:
-        return f"Value: {value}"
-
-stream.map(MyMapFunction())
-```
-
-### 自定义数据源
-```python
-class MySourceFunction(SourceFunction[dict]):
-    def run(self, ctx: SourceContext[dict]):
-        # 自定义数据源逻辑
-        pass
-
-stream = env.add_source(MySourceFunction())
-```
-
-## 📖 最佳实践
-
-1. **环境隔离**: 不同应用使用独立环境
-2. **资源管理**: 及时关闭环境释放资源
-3. **错误处理**: 实现适当的错误处理逻辑
-4. **性能优化**: 合理设置并行度和缓冲区大小
-5. **类型注解**: 使用类型注解提高代码可读性
-
-## 🚀 快速开始
-
-查看 [快速开始指南](../guides/quickstart.md) 了解如何快速上手 SAGE Kernel API。
+继续阅读各子章节或者直接打开相应 Python 文件查看实现。若发现文档与源码不一致，以源码为准并欢迎提交修订。
