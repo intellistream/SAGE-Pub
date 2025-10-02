@@ -23,10 +23,10 @@
 ## 待执行 ⚠️
 
 ### 1. 撤销泄露的密钥
-- [ ] DashScope：`sk-8298f15945af41988281d7348b008c96`
-- [ ] DashScope：`sk-700a53a2a85344e09a82afa96ae072a8`
-- [ ] Web Search：`sk-b21a67cf99d14ead9d1c5bf8c2eb90ef`
-- [ ] Web Search：`sk-455d6a2c79464dd2959197477a908e53`
+- [ ] DashScope：`sk-****...**c96`
+- [ ] DashScope：`sk-****...**2a8`
+- [ ] Web Search：`sk-****...**0ef`
+- [ ] Web Search：`sk-****...**e53`
 
 ### 2. 配置 GitHub Secrets
 - [ ] `OPENAI_API_KEY`
