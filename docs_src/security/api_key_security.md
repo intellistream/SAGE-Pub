@@ -16,8 +16,8 @@
 #### `.env` 文件配置
 
 ```bash
-# OpenAI API Key (for GPT models)
-# qwen-turbo API key via DashScope compatible endpoint
+# DashScope OpenAI兼容API的API Key（用于GPT或qwen-turbo等模型）
+# 通过DashScope的OpenAI兼容端点访问所需的API Key
 OPENAI_API_KEY=sk-your-api-key-here
 OPENAI_BASE_URL=https://dashscope.aliyuncs.com/compatible-mode/v1
 OPENAI_MODEL_NAME=qwen-turbo-2025-02-11
