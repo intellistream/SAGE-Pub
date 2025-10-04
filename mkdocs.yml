@@ -249,6 +249,7 @@ nav:
   
   - 工具 (Tools):
       - CLI 命令行工具: tools/cli_reference.md
+      - Pipeline Builder: tools/pipeline_builder.md
   
   - Extensions: get_start/remote_mode/sage_cil.md
   
