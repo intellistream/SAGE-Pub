@@ -22,6 +22,18 @@ Mock 后端无需真实 LLM 服务，可用于离线体验。当改用 OpenAI �
 sage pipeline build --backend openai --model qwen-max --api-key $OPENAI_API_KEY
 ```
 
+### 运行生成的 Pipeline
+
+构建完成后，可直接使用 `sage pipeline run` 命令加载 YAML 并提交到本地 JobManager：
+
+```bash
+sage pipeline run .sage/output/pipelines/qa-helper.yaml
+```
+
+- 默认会阻塞直到批处理任务结束（可通过 `--no-autostop` 关闭）。
+- 若配置的 `pipeline.type` 为 `remote`，可配合 `--host`、`--port` 指定 JobManager 地址。
+- 命令会自动解析 `services`、`stages`、`sink` 并完成动态导入。运行前请确保相关组件可在当前 Python 环境中导入。
+
 ## 重要选项
 
 | 选项 | 说明 |
