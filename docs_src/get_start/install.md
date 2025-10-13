@@ -8,95 +8,156 @@
 
 在开始安装之前，请确保您的开发环境满足以下要求：
 
-* **操作系统 (OS)**：[Ubuntu 22.04及以上版本](https://ubuntu.com/)
-* **基础依赖**：[Anaconda/Miniconda](https://www.anaconda.com/) 
-* **备注**：建议使用版本 **≥ 3.11.10** 的 Python 解释器。
+* **操作系统 (OS)**：Ubuntu 22.04 及以上版本（推荐）/ macOS / Windows (WSL2)
+* **Python 版本**：Python 3.10 或更高版本（推荐 3.11）
+* **可选依赖**：[Anaconda/Miniconda](https://www.anaconda.com/)（推荐用于环境管理）
 
-利用 Conda 在虚拟环境中创建并激活环境：
+### 使用 Conda 创建虚拟环境（推荐）
 
 ```bash
-conda create -n sage python=3.11.10
+conda create -n sage python=3.11
 conda activate sage
 ```
 
 <small>*温馨提示：若 Conda 创建失败，可能是网络问题导致，请及时更换 Conda 源。*</small>
 
----
+### 使用系统 Python
 
-## *B*. 下载安装 (Installation)
-
-SAGE 提供简单的安装方式，您只需通过 `pip install isage` 命令，即可完成安装，无需下载源码，适合快速部署和使用。
-
-执行以下命令完成安装：
+如果不使用 Conda，确保您的系统 Python 版本 ≥ 3.10：
 
 ```bash
-# 安装前请确保您处在正确的Python环境下
+python --version  # 应显示 Python 3.10.x 或更高版本
+```
+
+---
+
+## *B*. 快速安装（推荐）
+
+### 方式 1：使用 quickstart.sh（开发者推荐）
+
+从源码安装可以获得最新功能和完整的开发环境配置：
+
+```bash
+# 克隆仓库
+git clone https://github.com/intellistream/SAGE.git
+cd SAGE
+
+# 切换到开发分支
+git checkout main-dev
+
+# 初始化子模块（C++ 扩展依赖）
+./tools/maintenance/sage-maintenance.sh submodule init
+
+# 交互式安装（推荐初次使用）
+./quickstart.sh
+
+# 或直接指定安装模式
+./quickstart.sh --dev --yes      # 开发模式（完整功能 + 开发工具）
+./quickstart.sh --standard --yes # 标准模式（完整功能）
+./quickstart.sh --minimal --yes  # 最小模式（仅核心组件）
+```
+
+**quickstart.sh 特性**：
+- 🎯 交互式菜单（首次使用友好）
+- 🤖 可选 vLLM 集成（使用 `--vllm` 标志）
+- 🐍 支持 Conda 或系统 Python（使用 `--pip` 跳过 Conda）
+- ⚡ 三种安装模式：minimal / standard / dev
+- 🔧 自动配置环境和依赖
+
+### 方式 2：使用 PyPI（快速部署）
+
+通过 pip 直接安装（适合生产环境快速部署）：
+
+```bash
+# 最小安装 - 仅核心组件
+pip install isage[minimal]
+
+# 标准安装 - 完整功能（推荐）
+pip install isage[standard]
+
+# 开发者安装 - 完整功能 + 开发工具
+pip install isage[dev]
+
+# 默认安装（包含数据科学基础库）
 pip install isage
 ```
+
+**安装模式说明**：
+- `minimal`：仅包含 sage-common 和 sage-kernel（核心流处理引擎）
+- `standard`：包含所有运行时组件（middleware、libs、tools）
+- `dev`：standard 模式 + 开发工具（pytest、pre-commit 等）
+- 默认：standard 模式 + 数据科学库（numpy、pandas、jupyter）
+
+> **注意**：PyPI 安装可能不包含所有系统依赖（如 C++ 编译工具）。如需完整的开发环境，建议使用 quickstart.sh。
 
 ---
 
 ## *C*. 验证安装 (Verify Installation)
-安装完成后，您可以通过以下任一方式来验证 SAGE 是否已成功安装。
 
-### 方法1：查看包信息
+安装完成后，您可以通过以下方式验证 SAGE 是否成功安装。
 
-运行 `pip show` 以检查 SAGE 的安装情况。
+### 方法 1：检查系统状态（推荐）
 
-```Bash
+```bash
+sage doctor
+```
+
+该命令会检查：
+- ✅ Python 版本
+- ✅ SAGE 包安装状态
+- ✅ C++ 扩展编译状态
+- ✅ 环境变量配置
+- ✅ 系统依赖
+
+### 方法 2：查看包信息
+
+```bash
 pip show isage
 ```
 
-您将会看到以下的类似输出：
+您将看到类似输出：
 
 ```
 Name: isage
-Version: 0.1.4
-Summary: SAGE (Meta Package)
+Version: 0.1.5
+Summary: SAGE - Streaming-Augmented Generative Execution
 Home-page: https://github.com/intellistream/SAGE
-Author: 
-Author-email: SAGE Team <shuhao_zhang@hust.edu.cn>
+Author: SAGE Team
 License: MIT
 Location: /path/to/your/python/site-packages
-Requires: isage-common, isage-kernel, isage-libs, isage-middleware
+Requires: isage-tools, numpy, pandas, matplotlib, scipy, jupyter, ipykernel
 Required-by:
 ```
 
-### 方法2：运行 SAGE HelloWorld 程序
+### 方法 3：运行 Hello World 示例
 
-执行 `hello_world.py` Python 文件。
+创建 `hello_world.py` 文件：
 
-```Bash
-python hello_world.py
-```
-
-hello_world.py代码如下：
-```Python linenums="1"
+```python
 from sage.core.api.local_environment import LocalEnvironment
 from sage.core.api.function.sink_function import SinkFunction
 from sage.core.api.function.batch_function import BatchFunction
 from sage.core.api.function.map_function import MapFunction
-from sage.common.utils.logging.custom_logger import CustomLogger
 
-# 批处理数据源：作用是生成10条"Hello, World!"字符串
+# 批处理数据源：生成 10 条 "Hello, World!" 字符串
 class HelloBatch(BatchFunction):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.counter = 0
-        self.max_count = 10     # 生成10个数据包后返回None
+        self.max_count = 10  # 生成 10 个数据包后返回 None
     
     def execute(self):
         if self.counter >= self.max_count:
-            return None         # 返回None表示批处理完成
+            return None  # 返回 None 表示批处理完成
         self.counter += 1
         return f"Hello, World! #{self.counter}"
 
-# 简单的 MapFunction，将内容转大写
+# MapFunction：将内容转为大写
 class UpperCaseMap(MapFunction):
     def execute(self, data):
         return data.upper()
 
-# 简单 SinkFunction，直接打印结果
+# SinkFunction：打印结果
 class PrintSink(SinkFunction):
     def execute(self, data):
         print(data)
@@ -104,22 +165,26 @@ class PrintSink(SinkFunction):
 def main():
     env = LocalEnvironment("Hello_World")
     
-    # 批处理源 -> map -> sink
+    # 构建数据流 Pipeline：批处理源 -> map -> sink
     env.from_batch(HelloBatch).map(UpperCaseMap).sink(PrintSink)
-
+    
+    # 提交执行（autostop=True 表示批处理完成后自动停止）
     env.submit(autostop=True)
     print("Hello World 批处理示例结束")
 
 if __name__ == "__main__":
-    # 关闭日志输出
-    CustomLogger.disable_global_console_debug()
     main()
 ```
 
-您将会看到一系列的终端输出，表明您顺利完成 SAGE 的安装。
+运行示例：
+
+```bash
+python hello_world.py
+```
+
+预期输出：
 
 ```
-Waiting for batch processing to complete...
 HELLO, WORLD! #1
 HELLO, WORLD! #2
 HELLO, WORLD! #3
@@ -133,48 +198,232 @@ HELLO, WORLD! #10
 Hello World 批处理示例结束
 ```
 
-至此，您已成功安装 SAGE，祝您使用愉快！
+至此，您已成功安装 SAGE！
 
 ---
 
-## *C-Plus*. 构建原生扩展 (Optional)
+## *D*. 构建 C++ 扩展（可选，推荐）
 
-若需要启用高性能的向量数据库与流式算子，请在激活环境后构建随发行提供的原生扩展：
+SAGE 提供高性能的 C++ 扩展，包括：
+- **sage_db**：向量数据库（用于 RAG、Embedding 检索）
+- **sage_flow**：高性能流式算子（加速数据处理）
+
+### 安装扩展
 
 ```bash
-# 安装全部扩展
-sage extensions install
+# 安装所有扩展（推荐）
+sage extensions install all
 
-# 或按需安装
+# 按需安装单个扩展
 sage extensions install sage_db
 sage extensions install sage_flow
 ```
 
-构建完成后可运行状态检查命令确保扩展可用：
+### 检查扩展状态
 
 ```bash
 sage extensions status
 ```
 
-命令会列出每个扩展的编译结果与缺失依赖，必要时按照提示安装 `cmake`、`gcc` 等工具。
+该命令会显示：
+- ✅ 已编译的扩展
+- ⚠️  未编译的扩展
+- ❌ 缺失的系统依赖（如 cmake、gcc）
+
+### 系统依赖
+
+C++ 扩展需要以下工具（quickstart.sh 会自动安装）：
+
+**Ubuntu/Debian**:
+```bash
+sudo apt-get update
+sudo apt-get install -y build-essential cmake git
+```
+
+**macOS**:
+```bash
+brew install cmake
+xcode-select --install
+```
+
+**Windows (WSL2)**:
+```bash
+sudo apt-get update
+sudo apt-get install -y build-essential cmake git
+```
+
+### 重新编译扩展
+
+如果需要重新编译（例如更新代码后）：
+
+```bash
+sage extensions install all --force
+```
 
 ---
 
-## *D*.pip install时可能遇到的问题以及解决方案
+## *E*. 环境配置
 
-:octicons-info-16: **Python版本过高，报错如下**：
+安装完成后，配置 API 密钥和环境变量以使用完整功能。
 
+### 交互式配置（推荐）
+
+```bash
+sage config env setup
 ```
-Building wheels for collected packages: faiss-cpu, sgmllib3k
-  Building wheel for faiss-cpu (pyproject.toml) ... error
-  error: subprocess-exited-with-error
 
-  × Building wheel for faiss-cpu (pyproject.toml) did not run successfully.
-  │ exit code: 1
-  ╰─> [138 lines of output]
-      /tmp/pip-build-env-08i_jo3h/overlay/lib/python3.13/site-packages/setuptools/config/_apply_pyprojecttoml.py:82: SetuptoolsDeprecationWarning: `project.license` as a TOML table is deprecated
-…
-note: This error originates from a subprocess, and is likely not a problem with pip.
-  ERROR: Failed building wheel for faiss-cpu
+该命令会引导您配置：
+- OpenAI API Key（用于 GPT 模型）
+- HuggingFace Token（用于模型下载）
+- 其他第三方服务密钥
+
+### 手动配置
+
+```bash
+# 复制环境模板
+cp .env.template .env
+
+# 编辑 .env 文件，添加您的 API 密钥
+nano .env  # 或使用您喜欢的编辑器
 ```
-问题分析：Faiss官方包还没支持到Python 3.13，支持范围为3.7~3.12，因此推荐使用3.11。
+
+**.env 文件示例**：
+```bash
+# OpenAI API（用于大多数 LLM 示例）
+OPENAI_API_KEY=sk-your-openai-api-key-here
+
+# HuggingFace Token（用于模型下载）
+HF_TOKEN=hf_your-huggingface-token-here
+
+# 其他可选服务
+JINA_API_KEY=your-jina-key
+ALIBABA_API_KEY=your-alibaba-key
+```
+
+### 验证配置
+
+```bash
+# 检查环境配置
+sage config env show
+
+# 测试 API 连接
+sage doctor
+```
+
+---
+
+## *F*. 常见问题与解决方案
+
+### 问题 1：Python 版本不兼容
+
+**错误信息**：
+```
+Building wheel for faiss-cpu (pyproject.toml) ... error
+ERROR: Failed building wheel for faiss-cpu
+```
+
+**原因分析**：Faiss 官方包支持 Python 3.8-3.12，不支持 Python 3.13+
+
+**解决方案**：
+```bash
+# 使用 Python 3.11（推荐）
+conda create -n sage python=3.11
+conda activate sage
+pip install isage
+```
+
+### 问题 2：C++ 扩展编译失败
+
+**错误信息**：
+```
+CMake Error: CMake was unable to find a build program
+```
+
+**原因分析**：缺少 C++ 编译工具
+
+**解决方案**：
+```bash
+# Ubuntu/Debian
+sudo apt-get install -y build-essential cmake
+
+# macOS
+brew install cmake
+xcode-select --install
+```
+
+### 问题 3：pip 安装超时
+
+**错误信息**：
+```
+ERROR: Operation cancelled by user
+ReadTimeoutError: HTTPSConnectionPool
+```
+
+**原因分析**：网络连接问题或下载源速度慢
+
+**解决方案**：
+```bash
+# 使用国内镜像源
+pip install -i https://pypi.tuna.tsinghua.edu.cn/simple isage
+
+# 或配置永久镜像源
+pip config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple
+```
+
+### 问题 4：导入 SAGE 失败
+
+**错误信息**：
+```python
+ModuleNotFoundError: No module named 'sage'
+```
+
+**原因分析**：
+1. SAGE 未正确安装
+2. Python 环境不正确
+
+**解决方案**：
+```bash
+# 检查安装状态
+pip show isage
+
+# 确认 Python 环境
+which python
+python --version
+
+# 重新安装
+pip install --force-reinstall isage
+```
+
+### 问题 5：Ray 初始化失败（分布式模式）
+
+**错误信息**：
+```
+ray.exceptions.RaySystemError: System error
+```
+
+**原因分析**：Ray 运行时配置问题
+
+**解决方案**：
+```bash
+# 停止所有 Ray 进程
+ray stop
+
+# 重新初始化
+ray start --head
+
+# 或在代码中设置本地模式
+env = LocalEnvironment("my_app")  # 使用本地模式
+```
+
+---
+
+## *G*. 下一步
+
+安装完成后，您可以：
+
+1. **学习基础教程**：[快速开始](./quickstart.md) 查看示例代码
+2. **浏览完整示例**：[Examples 目录](https://github.com/intellistream/SAGE/tree/main-dev/examples)
+3. **阅读开发指南**：[开发者文档](./developer.md)
+4. **加入社区**：[社区指南](../../docs/COMMUNITY.md) 获取帮助
+
+祝您使用愉快！🎉

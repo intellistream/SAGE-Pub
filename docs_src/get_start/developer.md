@@ -1,159 +1,474 @@
-# SAGE 安装指南
+# SAGE 开发者指南
 
-本文档将指导您如何以 **开发者模式** 安装 SAGE 源码及其相关依赖。
+本文档将指导您如何以 **开发者模式** 安装 SAGE 源码及其相关依赖，并开始贡献代码。
 
 ---
 
 ## *A*. 前置要求 (Prerequisites)
 
-在开始安装之前，请确保您的开发环境满足以下要求：
+在开始之前，请确保您的开发环境满足以下要求：
 
-* **操作系统 (OS)**：[Ubuntu 22.04及以上版本](https://ubuntu.com/)
-* **基础依赖**：[Anaconda/Miniconda](https://www.anaconda.com/)
-* **SAGE官方仓库**：[IntelliStreamSAGE](https://github.com/intellistream/SAGE)
-<!-- 仓库链接待修改 -->
-<small>您也可以通过以下命令快速拉取 SAGE 官方仓库</small>
+* **操作系统**：Ubuntu 22.04+ / macOS / Windows (WSL2)
+* **Python 版本**：Python 3.10+ （推荐 3.11）
+* **Git**：用于版本控制
+* **可选**：[Anaconda/Miniconda](https://www.anaconda.com/) 用于环境管理
 
-<!-- 仓库链接待修改 -->
+### 克隆 SAGE 仓库
+
 ```bash
+# 使用 SSH（推荐，需配置 SSH key）
 git clone git@github.com:intellistream/SAGE.git
+cd SAGE
+
+# 或使用 HTTPS
+git clone https://github.com/intellistream/SAGE.git
+cd SAGE
+
+# 切换到开发分支
+git checkout main-dev
 ```
 
 ---
 
-## *B*. 本地安装 (Installation)
+## *B*. 开发环境安装
 
-**第 1 步：运行安装脚本**
+### 方式 1：使用 quickstart.sh（推荐）
 
-在本地的 SAGE 目录下，可见一个quickstart.sh的脚本，提前 **拉长终端边框** ，运行该脚本一键式安装 SAGE：
+quickstart.sh 提供交互式和非交互式两种安装模式。
+
+#### 交互式安装
 
 ```bash
 ./quickstart.sh
 ```
 
-运行该脚本后，您的终端会显示以下输出：
+运行后会显示交互式菜单：
 
-[![启动快速安装脚本](../assets/img/quickstart_intro.png  "启动快速安装脚本")](../assets/img/quickstart_intro.png)
+1. 选择安装模式（选择 **开发模式**）
+2. 选择 Python 环境（Conda 或系统 Python）
+3. 输入环境名称（如 `sage-dev`）
+4. 确认并开始安装
 
+#### 非交互式安装（自动化）
 
-**第 2 步：选择环境名称**
+```bash
+# 开发模式 + Conda 环境
+./quickstart.sh --dev --yes
 
-在终端中，输入 ++3+enter++, 以指定创建 SAGE 环境的名称： 
+# 开发模式 + 系统 Python
+./quickstart.sh --dev --pip --yes
 
-指定您希望创建的 SAGE 环境名称并 ++enter++ ，等待安装程序开始安装。
-[![交互式安装](../assets/img/quickstart_install_1.png "交互式安装")](../assets/img/quickstart_install_1.png)
+# 开发模式 + vLLM 支持
+./quickstart.sh --dev --vllm --yes
+```
 
-静待片刻后，显示以下页面，完成 SAGE 环境部署：
+**开发模式特性**：
+- ✅ 安装所有 SAGE 包（9 个包）
+- ✅ 安装开发工具（pytest、pre-commit、ruff 等）
+- ✅ 可编辑模式（`pip install -e`）- 代码修改即时生效
+- ✅ 自动初始化 Git 子模块
+- ✅ 配置 pre-commit hooks
 
-[![成功安装](../assets/img/quickstart_install_2.png "成功安装")](../assets/img/quickstart_install_2.png)
+### 方式 2：手动安装
 
-> 💡 **扩展提示**：安装脚本只会准备 Python 层依赖。如需启用 C++ 原生扩展，请在激活环境后执行 `sage extensions install`（或指定 `sage_db` / `sage_flow`）以完成本地编译。
+如果您希望手动控制安装过程：
+
+```bash
+# 1. 创建并激活虚拟环境
+conda create -n sage-dev python=3.11
+conda activate sage-dev
+
+# 2. 初始化子模块（C++ 扩展依赖）
+./tools/maintenance/sage-maintenance.sh submodule init
+
+# 3. 安装 SAGE（开发模式）
+pip install -e packages/sage[dev]
+
+# 4. 安装 pre-commit hooks
+pre-commit install
+
+# 5. 编译 C++ 扩展
+sage extensions install all
+```
 
 ---
 
-## *C*. 验证安装 (Verify Installation)
+## *C*. 验证开发环境
 
-执行 SAGE 目录下的 [`hello_world.py`](https://github.com/intellistream/SAGE/blob/main/examples/tutorials/hello_world.py) 文件：
+### 1. 运行 Hello World 示例
 
 ```bash
 python examples/tutorials/hello_world.py
 ```
 
-出现如下输出，说明 SAGE 安装成功，祝您使用愉快~
+预期输出：
+```
+HELLO, WORLD! #1
+HELLO, WORLD! #2
+...
+HELLO, WORLD! #10
+Hello World 批处理示例结束
+```
 
-[![安装验证](../assets/img/quickstart_install_3.png "安装验证")](../assets/img/quickstart_install_3.png)
+### 2. 检查系统状态
+
+```bash
+sage doctor
+```
+
+该命令会检查：
+- Python 版本和环境
+- 已安装的 SAGE 包
+- C++ 扩展状态
+- 环境变量配置
+- 开发工具（pytest、pre-commit 等）
+
+### 3. 运行测试套件
+
+```bash
+# 运行所有测试
+pytest
+
+# 运行特定包的测试
+pytest packages/sage-common/tests/
+pytest packages/sage-kernel/tests/
+
+# 运行并行测试（更快）
+pytest -n auto
+
+# 跳过慢速测试
+pytest -m "not slow"
+```
+
+### 4. 检查代码格式
+
+```bash
+# 运行 pre-commit 检查（自动格式化）
+pre-commit run --all-files
+
+# 手动运行 ruff
+ruff check .
+ruff format .
+```
 
 ---
 
-## *D*. 常见问题 (Common Question)
+## *D*. 开发工作流
 
-:octicons-info-16: **SAGE-Pub Failed to connect / 子模块设置失败**
-
-报错内容大致如下：
-
-```bash title="bash error"
-fatal:unable to access'https://github.com/intellistream/SAGE-Pub.git/': Failed to connect_to github.com_port 443 after 118564 ms: Could not connect to server
-```
-
-这一般是因为网络原因导致无法与 github 建立连接，建议科学上网并切换到虚拟网卡模式重试。
-
-## *E*. CI/CD 开发指南
-
-### 嵌入模型 CI/CD 集成
-
-在 CI/CD 环境中，neuromem 测试可能因为无法下载 HuggingFace 模型而失败。SAGE 提供了完整的解决方案来处理这个问题。
-
-#### 问题背景
-- CI/CD 环境中网络访问可能受限
-- HuggingFace 模型下载可能失败
-- 之前版本会静默回退到 MockEmbedder，导致测试结果不可靠
-
-#### 解决方案
-
-**1. 预缓存模型（推荐）**
-
-在 CI/CD pipeline 中添加模型缓存步骤：
-
-```yaml
-# GitHub Actions 示例
-- name: Cache embedding models
-  run: |
-    python tools/cache_embedding_models.py --cache
-```
-
-**2. 使用本地模型缓存**
-
-如果 CI/CD 环境支持缓存，可以缓存 transformers 模型：
-
-```yaml
-- name: Cache transformers models
-  uses: actions/cache@v3
-  with:
-    path: ~/.cache/huggingface/transformers
-    key: ${{ runner.os }}-transformers-${{ hashFiles('**/requirements.txt') }}
-```
-
-**3. 环境变量配置**
-
-设置 HuggingFace 镜像源以提高下载成功率：
-
-```yaml
-env:
-  HF_ENDPOINT: https://hf-mirror.com
-```
-
-#### 本地测试命令
+### 1. 创建功能分支
 
 ```bash
-# 验证模型缓存
-python tools/cache_embedding_models.py --check
-
-# 缓存模型
-python tools/cache_embedding_models.py --cache
-
-# 清除缓存（用于测试）
-python tools/cache_embedding_models.py --clear-cache
-
-# 自动模式（检查并在需要时缓存）
-python tools/cache_embedding_models.py
+# 从 main-dev 创建新分支
+git checkout main-dev
+git pull origin main-dev
+git checkout -b feature/your-feature-name
 ```
 
-#### 脚本特性
+### 2. 编写代码
 
-- ✅ **智能检查**: 首先检查本地缓存，避免不必要的网络请求
-- 🔄 **自动重试**: 网络失败时自动重试，使用指数退避策略  
-- 🌍 **镜像支持**: 自动使用 HuggingFace 镜像源提高下载成功率
-- ⏱️ **超时控制**: 合理的超时设置避免长时间等待
-- 🗑️ **缓存管理**: 支持清除缓存用于测试和故障排除
+SAGE 使用可编辑安装（`pip install -e`），您的代码修改会立即生效，无需重新安装。
 
-## *F*. 安装演示 （Installation Demo）
+**包结构**：
+```
+packages/
+├── sage-common/      # 共享工具和配置
+├── sage-kernel/      # 核心流处理引擎
+├── sage-middleware/  # 服务和中间件
+├── sage-libs/        # 高层库（RAG、Agent等）
+├── sage-tools/       # CLI 和开发工具
+├── sage-apps/        # 应用模板
+├── sage-benchmark/   # 基准测试
+├── sage-studio/      # 可视化工具
+└── sage/            # 元包（入口）
+```
 
-<iframe 
-  src="https://player.bilibili.com/player.html?bvid=BV1uKYNz8EEm" 
-  scrolling="no" 
-  border="0" 
-  frameborder="no" 
-  framespacing="0" 
-  allowfullscreen="true" 
-  style="width: 800px; height: 500px;">
-</iframe>
+### 3. 编写测试
+
+遵循 pytest 约定：
+```python
+# packages/sage-common/tests/unit/test_feature.py
+import pytest
+from sage.common.your_module import YourClass
+
+class TestYourFeature:
+    def test_basic_functionality(self):
+        obj = YourClass()
+        assert obj.method() == expected_value
+    
+    @pytest.mark.slow
+    def test_slow_operation(self):
+        # 标记慢速测试
+        pass
+```
+
+### 4. 运行测试
+
+```bash
+# 运行您修改的包的测试
+pytest packages/sage-common/tests/ -v
+
+# 运行特定测试
+pytest packages/sage-common/tests/unit/test_feature.py::TestYourFeature::test_basic_functionality
+```
+
+### 5. 提交代码
+
+```bash
+# pre-commit 会自动运行（格式化、lint 检查）
+git add .
+git commit -m "feat: add your feature description"
+
+# 如果 pre-commit 失败，修复后重新提交
+git add .
+git commit -m "feat: add your feature description"
+```
+
+**提交信息规范**：
+- `feat:` - 新功能
+- `fix:` - Bug 修复
+- `docs:` - 文档更新
+- `test:` - 测试相关
+- `refactor:` - 代码重构
+- `perf:` - 性能优化
+- `chore:` - 构建/工具相关
+
+### 6. 推送并创建 Pull Request
+
+```bash
+# 推送到远程仓库
+git push origin feature/your-feature-name
+
+# 在 GitHub 上创建 Pull Request
+# 目标分支：main-dev
+```
+
+---
+
+## *E*. C++ 扩展开发
+
+如果您需要修改 C++ 扩展：
+
+### 编译扩展
+
+```bash
+# 强制重新编译所有扩展
+sage extensions install all --force
+
+# 编译单个扩展
+sage extensions install sage_db --force
+```
+
+### C++ 扩展位置
+
+```
+src/
+├── sage_db/      # 向量数据库扩展
+│   ├── bindings/ # Python 绑定
+│   └── src/      # C++ 源码
+└── sage_flow/    # 流式算子扩展
+    ├── bindings/
+    └── src/
+```
+
+### 调试 C++ 扩展
+
+```bash
+# 编译 Debug 版本
+cd build
+cmake -DCMAKE_BUILD_TYPE=Debug ..
+make -j$(nproc)
+
+# 使用 gdb 调试
+gdb python
+(gdb) run your_script.py
+```
+
+---
+
+## *F*. 常见开发问题
+
+### 问题 1：子模块初始化失败
+
+**错误信息**：
+```bash
+fatal: unable to access 'https://github.com/intellistream/SAGE-Pub.git/': 
+Failed to connect to github.com port 443
+```
+
+**原因**：网络连接问题（GitHub 访问受限）
+
+**解决方案**：
+```bash
+# 方案 1：使用代理
+git config --global http.proxy http://127.0.0.1:7890
+git config --global https.proxy https://127.0.0.1:7890
+
+# 方案 2：使用 SSH 而非 HTTPS
+git config --global url."git@github.com:".insteadOf "https://github.com/"
+
+# 重新初始化子模块
+./tools/maintenance/sage-maintenance.sh submodule init
+```
+
+### 问题 2：C++ 扩展编译失败
+
+**错误信息**：
+```
+CMake Error: CMake was unable to find a build program
+```
+
+**解决方案**：
+```bash
+# Ubuntu/Debian
+sudo apt-get update
+sudo apt-get install -y build-essential cmake git
+
+# macOS
+brew install cmake
+xcode-select --install
+```
+
+### 问题 3：pre-commit 检查失败
+
+**错误信息**：
+```
+ruff....................................................................Failed
+```
+
+**解决方案**：
+```bash
+# pre-commit 已自动格式化代码，重新添加并提交
+git add .
+git commit -m "your message"
+
+# 如果需要跳过 pre-commit（不推荐）
+git commit --no-verify -m "your message"
+```
+
+### 问题 4：测试失败
+
+**错误信息**：
+```
+ModuleNotFoundError: No module named 'sage.xxx'
+```
+
+**原因**：包未正确安装或环境问题
+
+**解决方案**：
+```bash
+# 重新安装开发环境
+pip install -e packages/sage[dev]
+
+# 检查安装状态
+pip list | grep isage
+
+# 运行 doctor 诊断
+sage doctor
+```
+
+### 问题 5：导入路径错误
+
+**错误信息**：
+```
+ImportError: attempted relative import with no known parent package
+```
+
+**原因**：相对导入路径问题
+
+**解决方案**：
+- 使用绝对导入：`from sage.common.xxx import YYY`
+- 不要使用相对导入：`from ..xxx import YYY`（仅在包内部使用）
+
+---
+
+## *G*. CI/CD 开发指南
+
+### GitHub Actions Workflow
+
+SAGE 使用 GitHub Actions 进行 CI/CD：
+
+```
+.github/workflows/
+├── dev-ci.yml          # 开发分支 CI（main-dev）
+└── release-ci.yml      # 发布分支 CI（main）
+```
+
+### 本地模拟 CI 环境
+
+```bash
+# 运行与 CI 相同的测试
+pytest -n auto -m "not slow" --ignore="packages/*/tests/pypi"
+
+# 检查代码格式（CI 会检查）
+pre-commit run --all-files
+
+# 构建所有包
+./scripts/dev.sh build
+
+# 运行完整测试套件
+./scripts/dev.sh test
+```
+
+### CI 缓存策略
+
+SAGE CI 使用以下缓存来加速构建：
+
+1. **pip 缓存**：Python 包缓存
+2. **C++ 构建缓存**：编译产物缓存
+3. **HuggingFace 模型缓存**：嵌入模型缓存
+
+如需清除缓存，在 GitHub Actions 中手动删除缓存。
+
+---
+
+## *H*. 贡献指南
+
+### 代码规范
+
+1. **Python 代码**：
+   - 遵循 PEP 8
+   - 使用 ruff 进行格式化和 lint
+   - 类型提示（推荐）：`def func(x: int) -> str:`
+   - 文档字符串：使用 Google 风格
+
+2. **测试覆盖率**：
+   - 新功能必须包含测试
+   - 单元测试覆盖率 > 80%
+   - 集成测试覆盖核心流程
+
+3. **提交信息**：
+   - 使用 Conventional Commits 规范
+   - 清晰描述修改内容和原因
+
+### Pull Request 流程
+
+1. Fork 仓库并创建功能分支
+2. 编写代码和测试
+3. 确保所有测试通过
+4. 运行 pre-commit 检查
+5. 提交 PR 到 `main-dev` 分支
+6. 等待 Code Review
+7. 根据反馈修改
+8. 合并后删除分支
+
+### 获取帮助
+
+- **文档**：[SAGE 文档](https://intellistream.github.io/SAGE-Pub/)
+- **Issue**：[GitHub Issues](https://github.com/intellistream/SAGE/issues)
+- **社区**：
+  - 微信群：参见 [COMMUNITY.md](../../docs/COMMUNITY.md)
+  - QQ 群：IntelliStream 课题组讨论群
+  - Slack：[加入 Slack](https://join.slack.com/t/intellistream/shared_invite/...)
+
+---
+
+## *I*. 下一步
+
+- 📖 阅读 [架构文档](../code_intro/architecture.md)
+- 🔧 查看 [开发命令参考](../../dev-notes/DEV_COMMANDS.md)
+- 📝 浏览 [示例代码](https://github.com/intellistream/SAGE/tree/main-dev/examples)
+- 🤝 参与 [社区讨论](../../docs/COMMUNITY.md)
+
+祝您开发愉快！🚀
+```
+
