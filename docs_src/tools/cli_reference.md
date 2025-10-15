@@ -135,7 +135,7 @@ jobmanager:
 ### LLM 后端设置
 - 默认后端为 `mock`，适合离线演示；可通过 `--backend openai` 或 `--backend compatible` 切换到真实的 OpenAI 或 OpenAI 兼容服务。
 - 若使用兼容接口，可配合 `--base-url https://your-endpoint/v1` 与 `--model` 指定模型名称。
-- API Key 可通过 `--api-key` 参数传入，也可在环境变量中设置 `SAGE_CHAT_API_KEY` 后直接运行。
+- API Key 可通过 `--api-key` 参数传入，也可在环境变量中设置 `TEMP_GENERATOR_API_KEY` 后直接运行。
 - 支持 `--stream` 启用流式输出（取决于所选后端能力）。
 
 ### 常见问题
