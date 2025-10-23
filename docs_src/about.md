@@ -42,11 +42,11 @@ SAGE 将其转换为**声明式、可组合的工作流**：
 
 ```python
 from sage.core.api.local_environment import LocalEnvironment
-from sage.libs.io_utils.source import FileSource
+from sage.libs.io.source import FileSource
 from sage.libs.rag.retriever import DenseRetriever
 from sage.libs.rag.promptor import QAPromptor
 from sage.libs.rag.generator import OpenAIGenerator
-from sage.libs.io_utils.sink import TerminalSink
+from sage.libs.io.sink import TerminalSink
 
 # 创建执行环境
 env = LocalEnvironment("rag_pipeline")
@@ -318,7 +318,7 @@ SAGE 提供丰富的内置功能库，覆盖常见的 AI 应用场景：
 
 ### I/O (输入输出)
 
-位于 `sage.libs.io_utils`:
+位于 `sage.libs.io`:
 
 - **Source**: FileSource、APISource、StreamSource
 - **Sink**: TerminalSink、FileSink、DatabaseSink

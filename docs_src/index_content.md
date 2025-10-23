@@ -43,11 +43,11 @@ SAGE transforms this into a **declarative, composable workflow**:
 
 ```python
 from sage.core.api.local_environment import LocalEnvironment
-from sage.libs.io_utils.source import FileSource
+from sage.libs.io.source import FileSource
 from sage.libs.rag.retriever import DenseRetriever
 from sage.libs.rag.promptor import QAPromptor
 from sage.libs.rag.generator import OpenAIGenerator
-from sage.libs.io_utils.sink import TerminalSink
+from sage.libs.io.sink import TerminalSink
 
 # Create execution environment  
 env = LocalEnvironment("rag_pipeline")
