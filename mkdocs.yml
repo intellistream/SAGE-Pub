@@ -166,6 +166,9 @@ nav:
     - Contributing: developers/commands.md
     - Development Setup: developers/development-setup.md
     - CI/CD: developers/ci-cd.md
+    - Dev Notes:
+      - Overview: dev-notes/index.md
+      - Package Architecture: dev-notes/package-architecture.md
   
   - Community:
     - Overview: community/README.md

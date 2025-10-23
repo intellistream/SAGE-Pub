@@ -68,6 +68,8 @@ quickstart.sh 提供交互式和非交互式两种安装模式。
 - ✅ 可编辑模式（`pip install -e`）- 代码修改即时生效
 - ✅ 自动初始化 Git 子模块
 - ✅ 配置 pre-commit hooks
+- ✅ 自动安装代码质量检查工具（black、isort、ruff、mypy 等）
+- ✅ 自动安装架构合规性检查工具
 
 ### 方式 2：手动安装
 
@@ -214,13 +216,48 @@ pytest packages/sage-common/tests/unit/test_feature.py::TestYourFeature::test_ba
 ### 5. 提交代码
 
 ```bash
-# pre-commit 会自动运行（格式化、lint 检查）
+# pre-commit 会自动运行两步检查
 git add .
 git commit -m "feat: add your feature description"
 
-# 如果 pre-commit 失败，修复后重新提交
+# 如果检查失败，修复后重新提交
 git add .
 git commit -m "feat: add your feature description"
+```
+
+**自动检查流程**：
+
+提交代码时会自动运行两步检查（无需手动操作）：
+
+**步骤 1：代码质量检查**
+- ✅ **black** - 代码格式化（自动修复）
+- ✅ **isort** - 导入语句排序（自动修复）
+- ✅ **ruff** - 快速 Linter 检查（自动修复）
+- ✅ **mypy** - 类型检查（需手动修复）
+- ✅ **shellcheck** - Shell 脚本检查
+- ✅ **detect-secrets** - 密钥泄露检查
+
+**步骤 2：架构合规性检查**
+- ✅ 检查包之间的依赖关系是否符合分层架构
+- ✅ 检查导入路径是否正确（禁止跨层级导入）
+- ✅ 检查是否使用了内部实现（禁止使用 `._internal`）
+- ✅ 验证 `__layer__` 标记是否正确
+
+**如果检查失败**：
+```bash
+# 1. 代码质量问题（black/isort/ruff）会自动修复
+#    只需重新添加并提交：
+git add .
+git commit -m "feat: add your feature description"
+
+# 2. 架构违规（如跨层级导入）需要手动修复：
+#    查看错误信息，修改代码后重新提交
+vim your_file.py  # 修复导入路径
+git add .
+git commit -m "feat: add your feature description"
+
+# 3. 如果需要跳过检查（不推荐，仅紧急情况）：
+git commit --no-verify -m "feat: your message"
 ```
 
 **提交信息规范**：
@@ -389,9 +426,25 @@ SAGE 使用 GitHub Actions 进行 CI/CD：
 
 ```
 .github/workflows/
+├── ci.yml              # 主 CI/CD 流程（包含架构检查）
 ├── dev-ci.yml          # 开发分支 CI（main-dev）
 └── release-ci.yml      # 发布分支 CI（main）
 ```
+
+**CI 自动检查**：
+
+提交 Pull Request 或 Push 代码时，CI 会自动运行：
+
+1. **代码质量检查**（pre-commit hooks）
+2. **单元测试**（pytest）
+3. **架构合规性检查**（架构检查工具）
+   - PR 模式：严格模式（`--strict`），任何违规都会失败
+   - Push 模式：宽松模式，仅警告不阻止
+
+**架构检查差异**：
+- **本地 pre-commit**：检查所有暂存文件
+- **CI Pull Request**：检查 PR 修改的文件（严格模式）
+- **CI Push**：检查最近 5 次提交的文件（宽松模式）
 
 ### 本地模拟 CI 环境
 
