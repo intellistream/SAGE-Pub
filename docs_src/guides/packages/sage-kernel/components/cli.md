@@ -117,16 +117,16 @@ sage create function MyMapFunction --type map --output-dir src/functions/
 
 ```bash
 # 启动本地开发环境
-sage dev start
+sage-dev start
 
 # 热重载模式运行
-sage dev run my_app.py --watch
+sage-dev run my_app.py --watch
 
 # 调试模式
-sage dev debug my_app.py --breakpoint MyFunction.map
+sage-dev debug my_app.py --breakpoint MyFunction.map
 
 # 性能分析
-sage dev profile my_app.py --output profile.html
+sage-dev profile my_app.py --output profile.html
 ```
 
 ### 测试工具
@@ -342,16 +342,16 @@ sage create project stream-analytics --template kafka-processing
 
 # 2. 启动开发环境
 cd stream-analytics
-sage dev start
+sage-dev start
 
 # 3. 运行应用
-sage dev run main.py --watch
+sage-dev run main.py --watch
 
 # 4. 运行测试
 sage test run --coverage
 
 # 5. 性能分析
-sage dev profile main.py --output profile.html
+sage-dev profile main.py --output profile.html
 ```
 
 ### 生产部署
@@ -423,7 +423,11 @@ sage --debug cluster status
 ## 📚 更多信息
 
 - 查看 `sage <command> --help` 获取详细帮助
+
 <!-- - 访问 [CLI 参考文档](../cli-reference.md) 了解所有命令 -->
+
 - 访问 CLI 参考文档 了解所有命令
+
 <!-- - 查看 [配置参考](../configuration.md) 了解配置选项 -->
+
 - 查看 配置参考 了解配置选项
