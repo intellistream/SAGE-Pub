@@ -179,7 +179,7 @@ class StatefulFunction(BaseFunction):
         super().__init__(**kwargs)
         # 恢复上次 checkpoint
         if self.ctx:
-            chkpt_dir = os.path.join(self.ctx.env_base_dir, ".sage_checkpoints")
+            chkpt_dir = os.path.join(self.ctx.env_base_dir, ".sage/checkpoints")
             chkpt_path = os.path.join(chkpt_dir, f"{self.ctx.name}.chkpt")
             load_function_state(self, chkpt_path)
 
@@ -188,7 +188,7 @@ class StatefulFunction(BaseFunction):
         将当前对象状态持久化到 disk
         """
         if self.ctx:
-            base = os.path.join(self.ctx.env_base_dir, ".sage_checkpoints")
+            base = os.path.join(self.ctx.env_base_dir, ".sage/checkpoints")
             os.makedirs(base, exist_ok=True)
             path = os.path.join(base, f"{self.ctx.name}.chkpt")
             save_function_state(self, path)
