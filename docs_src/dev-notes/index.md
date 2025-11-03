@@ -40,5 +40,5 @@
 ## 📖 更多资源
 
 - [开发者指南](../developers/development-setup.md)
-- [架构文档](../code_intro/architecture.md)
+- [架构文档](../concepts/architecture/overview.md)
 - [API 参考](../api-reference/overview.md)

@@ -541,7 +541,7 @@ ______________________________________________________________________
 
 ## *I*. 下一步
 
-- 📖 阅读 [架构文档](../code_intro/architecture.md)
+- 📖 阅读 [架构文档](../concepts/architecture/overview.md)
 - 🔧 查看 [开发命令参考](../../dev-notes/DEV_COMMANDS.md)
 - 📝 浏览 [示例代码](https://github.com/intellistream/SAGE/tree/main-dev/examples)
 - 🤝 参与 [社区讨论](../../docs/COMMUNITY.md)

@@ -7,7 +7,7 @@
 [![Python](https://img.shields.io/badge/Python-3.10%2B-blue.svg)](https://python.org)
 [![PyPI version](https://badge.fury.io/py/isage.svg)](https://badge.fury.io/py/isage)
 
-[![WeChat Group](https://img.shields.io/badge/WeChat-%E5%8A%A0%E5%85%A5%E5%BE%AE%E4%BF%A1%E7%BE%A4-brightgreen?style=flat&logo=wechat)](join_sage/community.md)
+[![WeChat Group](https://img.shields.io/badge/WeChat-%E5%8A%A0%E5%85%A5%E5%BE%AE%E4%BF%A1%E7%BE%A4-brightgreen?style=flat&logo=wechat)](community/community.md)
 [![QQ Group](https://img.shields.io/badge/%E3%80%90IntelliStream%E8%AF%BE%E9%A2%98%E7%BB%84%E8%AE%A8%E8%AE%BAQQ%E7%BE%A4%E3%80%91-blue?style=flat&logo=tencentqq)](https://qm.qq.com/q/bcnuyQVcvm)
 [![Slack](https://img.shields.io/badge/Slack-Join%20Slack-purple?style=flat&logo=slack)](https://join.slack.com/t/intellistream/shared_invite/zt-2qayp8bs7-v4F71ge0RkO_rn34hBDWQg)
 
@@ -375,10 +375,10 @@ sage chat
 
 ## 下一步
 
-- 📖 阅读 [安装指南](get_start/install.md)
-- 🚀 尝试 [快速开始](get_start/quickstart.md)
+- 📖 阅读 [安装指南](getting-started/installation.md)
+- 🚀 尝试 [快速开始](getting-started/quickstart.md)
 - 💻 查看 [示例代码](https://github.com/intellistream/SAGE/tree/main-dev/examples)
-- 🤝 加入 [社区](join_sage/community.md)
+- 🤝 加入 [社区](community/community.md)
 
 ## 许可证
 
