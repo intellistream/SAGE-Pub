@@ -14,7 +14,10 @@ copyright: Copyright &copy; 2023-2025 IntelliStream Lab
 
 theme:
   name: material
-  language: en
+  language: zh
+  custom_dir: theme
+  favicon: assets/img/isage_light.svg
+  logo: assets/logo/sage.svg
   palette:
   - scheme: default
     primary: indigo
