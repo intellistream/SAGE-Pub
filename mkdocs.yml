@@ -20,24 +20,23 @@ theme:
   logo: assets/logo/sage.svg
   palette:
   - scheme: default
-    primary: indigo
-    accent: indigo
+    primary: white
+    accent: blue
     toggle:
       icon: material/brightness-7
       name: Switch to dark mode
   - scheme: slate
-    primary: indigo
-    accent: indigo
+    primary: black
+    accent: blue
     toggle:
       icon: material/brightness-4
       name: Switch to light mode
   features:
   - navigation.instant
   - navigation.tracking
-  - navigation.tabs
-  - navigation.tabs.sticky
   - navigation.sections
   - navigation.expand
+  - navigation.indexes
   - navigation.top
   - navigation.footer
   - search.suggest
