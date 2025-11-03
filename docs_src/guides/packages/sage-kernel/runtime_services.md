@@ -109,6 +109,6 @@ env.submit()
 
 - `packages/sage-kernel/src/sage/kernel/runtime/service/README.md`
 - `packages/sage-kernel/src/sage/kernel/runtime/proxy/proxy_manager.py`
-- `docs-public/docs_src/kernel/runtime_tasks.md`
-- `docs-public/docs_src/kernel/runtime_communication.md`
+- `guides/packages/sage-kernel/runtime_tasks.md`
+- `guides/packages/sage-kernel/runtime_communication.md`
 - `guides/packages/sage-kernel/architecture.md`

@@ -438,7 +438,7 @@ stream.map(validate_input)
 - [API Reference](api/README.md)
 - [Architecture Guide](architecture.md)
 - [Best Practices](best-practices.md)
-- [Examples](examples/README.md)
+- [Examples](../../../tutorials/)
 
 ### How do I report bugs?
 

@@ -83,6 +83,6 @@ Dispatcher 在收到所有必需的停止信号后：
 ## 关联资源
 
 - 运行时主线文档：`guides/packages/sage-kernel/architecture.md`
-- 服务化调用详解：`docs-public/docs_src/kernel/runtime_services.md`
-- 通信层细节：`docs-public/docs_src/kernel/runtime_communication.md`
+- 服务化调用详解：`guides/packages/sage-kernel/runtime_services.md`
+- 通信层细节：`guides/packages/sage-kernel/runtime_communication.md`
 - 源码目录：`packages/sage-kernel/src/sage/kernel/runtime`
