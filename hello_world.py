@@ -9,15 +9,14 @@ SAGE Framework Hello World 批处理示例
 3. 数据输出 (SinkFunction)
 
 Author: SAGE Team
-License: Apache 2.0
 """
 
 import time
 
-from sage.core.api.function.batch_function import BatchFunction
-from sage.core.api.function.map_function import MapFunction
-from sage.core.api.function.sink_function import SinkFunction
-from sage.core.api.local_environment import LocalEnvironment
+from sage.common.core.functions.batch_function import BatchFunction
+from sage.common.core.functions.map_function import MapFunction
+from sage.common.core.functions.sink_function import SinkFunction
+from sage.kernel.api.local_environment import LocalEnvironment
 
 
 class HelloBatch(BatchFunction):
