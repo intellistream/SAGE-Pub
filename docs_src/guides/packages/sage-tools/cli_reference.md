@@ -421,4 +421,4 @@ generator:
 
 - [Kernel 概念](../kernel/concepts.md)
 - [作业管理](../kernel/jobmanager.md)
-- [配置指南](../get_start/quickstart.md)
+- [配置指南](../../getting-started/quickstart.md)

@@ -418,7 +418,7 @@ git push --tags
 
 ```bash
 # 1. 修改文档
-vim docs-public/docs_src/get_start/quickstart.md
+vim docs-public/docs_src/getting-started/quickstart.md
 
 # 2. 本地预览
 make docs-serve
