@@ -69,5 +69,5 @@ await queue.push(task)
 ## See Also
 
 - [Architecture Overview](../../architecture/overview.md)
-- [sage-kernel Documentation](../kernel/overview.md)
+- [sage-kernel Documentation](sage-kernel/README.md)
 - [sage-libs Documentation](../libs/overview.md)

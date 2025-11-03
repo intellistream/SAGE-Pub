@@ -91,7 +91,7 @@ SAGE (Streaming AI aGent Engine) 采用分层单体架构（Modular Monolith）�
 - **职责**: 领域特定算子（RAG, LLM）和组件（Memory, VectorDB）
 - **关键模块**: operators, components
 - **依赖**: common, platform, kernel, libs
-- **文档**: [Middleware →](../middleware/overview.md)
+- **文档**: [Middleware →](../../guides/packages/sage-middleware/overview.md)
 
 ### L5-L6: 应用与接口
 
