@@ -11,7 +11,7 @@
 了解 SAGE 的整体架构设计和分层理念：
 
 - 🏗️ **分层架构** - 从 L1 基础设施到 L6 接口层的 6 层架构体系
-- 📦 **9 个核心包** - sage-common、sage-kernel、sage-libs 等各包的职责定位
+- 📦 **10 个核心包** - sage-common、sage-kernel、sage-libs 等各包的职责定位
 - 🔄 **数据流模型** - 声明式流式处理的核心编程范式
 - 🎯 **设计原则** - 单向依赖、接口优先、最小依赖原则
 
@@ -23,7 +23,7 @@
 
 深入了解各包的职责边界、模块组成和依赖关系：
 
-- 📊 **完整包列表** - 9 个包的详细信息（职责、模块数、测试数）
+- 📊 **完整包列表** - 10 个包的详细信息（职责、模块数、测试数）
 - 🔗 **依赖关系图** - Mermaid 可视化依赖关系
 - 📋 **详细规范** - 每个包的核心模块、公共 API、依赖说明
 - ⚠️ **依赖规则** - 允许和禁止的依赖模式（向下依赖、同层独立）
@@ -52,7 +52,7 @@
     
     **包之间的关系**
     
-    → [包结构与依赖](architecture/package-structure.md) - 理解 9 个包的依赖关系和模块划分
+    → [包结构与依赖](architecture/package-structure.md) - 理解 10 个包的依赖关系和模块划分
     
     **架构演进历史**
     
@@ -69,7 +69,7 @@
     **贡献者**
     
     1. 详细阅读 [包结构与依赖](architecture/package-structure.md) 了解代码组织
-    2. 理解 [依赖规则](architecture/package-structure.md#依赖规则) 避免架构违规
+    2. 理解依赖规则（参考 [包结构文档](architecture/package-structure.md)）避免架构违规
     3. 查看 [开发者指南](../developers/commands.md) 了解贡献流程
     
     **架构师 / 技术决策者**
@@ -85,7 +85,7 @@
 SAGE 采用**模块化单体架构**，平衡了单体应用的简单性和微服务的模块化优势：
 
 ```
-L6: Interface Layer    → sage-studio, sage-tools (Web UI, CLI)
+L6: Interface Layer    → sage-studio, sage-cli, sage-tools (Web UI, CLI, 工具)
          ↓
 L5: Application Layer  → sage-apps, sage-benchmark (应用实现)
          ↓
@@ -115,7 +115,9 @@ L1: Foundation Layer   → sage-common (基础工具与类型)
 | **sage-libs**     | L3   | AI 算法库：Agents、RAG、I/O、工作流        | agents, rag, io, integrations   |
 | **sage-middleware** | L4 | 领域算子（RAG/LLM）+ 组件（Memory/DB）     | operators, components           |
 | **sage-apps**     | L5   | 应用实现（视频分析、医疗诊断）             | video, medical_diagnosis        |
-| **sage-tools**    | L6   | 命令行工具（开发、部署、管理）             | cli, pipeline_builder           |
+| **sage-studio**   | L6   | Web 可视化界面                            | ui, models, services            |
+| **sage-cli**      | L6   | 统一命令行接口（集群、作业管理）           | cluster, job, deploy            |
+| **sage-tools**    | L6   | 开发工具（开发、测试、Pipeline）           | cli, pipeline_builder           |
 
 ### 数据流编程模型
 
@@ -193,11 +195,11 @@ env.execute()  # 执行
 
     ---
 
-    了解 SAGE 的 6 层架构体系、9 个核心包和设计原则
+    了解 SAGE 的 6 层架构体系、10 个核心包和设计原则
 
     [:octicons-arrow-right-24: 查看详情](architecture/overview.md)
 
--   :material-package-variant:{ .lg .middle } __包结构与依赖__
+-   :material-package-variant:{ .lg .middle } **包结构与依赖**
 
     ---
 
@@ -205,7 +207,7 @@ env.execute()  # 执行
 
     [:octicons-arrow-right-24: 查看详情](architecture/package-structure.md)
 
--   :material-lightbulb-on:{ .lg .middle } __设计决策记录__
+-   :material-lightbulb-on:{ .lg .middle } **设计决策记录**
 
     ---
 
@@ -213,7 +215,7 @@ env.execute()  # 执行
 
     [:octicons-arrow-right-24: 浏览决策](architecture/design-decisions/sage-libs-restructuring.md)
 
--   :material-book-open-page-variant:{ .lg .middle } __开始实践__
+-   :material-book-open-page-variant:{ .lg .middle } **开始实践**
 
     ---
 
