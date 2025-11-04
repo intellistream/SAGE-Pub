@@ -460,14 +460,21 @@ class ArticleMonitoringAnimation {
     }
 
     init() {
-        if (!this.container) return;
+        if (!this.container) {
+            console.warn('Article monitoring container not found!');
+            return;
+        }
 
+        console.log('Article monitoring animation initializing...', this.container.id);
         this.createControls();
         this.createElements();
         this.bindEvents();
 
         // Auto-start animation
-        setTimeout(() => this.play(), 1000);
+        setTimeout(() => {
+            console.log('Auto-starting article monitoring animation');
+            this.play();
+        }, 1000);
     }
 
     createControls() {
@@ -816,14 +823,21 @@ class SmartHomeAnimation {
     }
 
     init() {
-        if (!this.container) return;
+        if (!this.container) {
+            console.warn('Smart home container not found!');
+            return;
+        }
 
+        console.log('Smart home animation initializing...', this.container.id);
         this.createControls();
         this.createElements();
         this.bindEvents();
 
         // Auto-start animation
-        setTimeout(() => this.play(), 1000);
+        setTimeout(() => {
+            console.log('Auto-starting smart home animation');
+            this.play();
+        }, 1000);
     }
 
     createControls() {
@@ -1361,14 +1375,21 @@ class AutoScalingAnimation {
     }
 
     init() {
-        if (!this.container) return;
+        if (!this.container) {
+            console.warn('Auto scaling container not found!');
+            return;
+        }
 
+        console.log('Auto scaling animation initializing...', this.container.id);
         this.createControls();
         this.createElements();
         this.bindEvents();
 
         // Auto-start animation
-        setTimeout(() => this.play(), 1000);
+        setTimeout(() => {
+            console.log('Auto-starting auto scaling animation');
+            this.play();
+        }, 1000);
     }
 
     createControls() {
