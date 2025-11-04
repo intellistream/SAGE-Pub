@@ -985,6 +985,156 @@
 
 
 
+/* Main Animation Classes */
+.article-monitoring-container.playing .document {
+    animation: documentFlow 7.5s infinite;
+}
+
+.article-monitoring-container.playing .document:nth-child(2) {
+    animation-delay: 1.5s;
+}
+
+.article-monitoring-container.playing .document:nth-child(3) {
+    animation-delay: 3s;
+}
+
+.article-monitoring-container.playing .document:nth-child(4) {
+    animation-delay: 4.5s;
+}
+
+.article-monitoring-container.playing .process-stage.text-parsing {
+    animation: stageActivation 2s infinite 7.5s;
+}
+
+.article-monitoring-container.playing .process-stage.keyword-filter {
+    animation: stageActivation 2s infinite 10s;
+}
+
+.article-monitoring-container.playing .process-stage.semantic-analysis {
+    animation: stageActivation 2s infinite 12.5s;
+}
+
+.article-monitoring-container.playing .neural-network {
+    opacity: 1;
+    animation: none;
+}
+
+.article-monitoring-container.playing .neural-node {
+    animation: neuralPulse 1.5s infinite 15s;
+}
+
+.article-monitoring-container.playing .neural-connection {
+    animation: connectionFlow 2s infinite 15s;
+}
+
+.article-monitoring-container.playing .user-interface {
+    animation: deliveryGlow 3s infinite 22.5s;
+}
+
+.article-monitoring-container.playing .particle {
+    animation: particleStream 7.5s infinite 22.5s;
+}
+
+.article-monitoring-container.playing .particle:nth-child(2) {
+    animation-delay: 23.5s;
+}
+
+.article-monitoring-container.playing .particle:nth-child(3) {
+    animation-delay: 24.5s;
+}
+
+/* Phase 1: Document Flow (0-7.5s) */
+@keyframes documentFlow {
+    0% {
+        left: 120px;
+        top: 50%;
+        opacity: 0;
+        transform: translateY(-50%) scale(0.8);
+    }
+    5% {
+        opacity: 1;
+        transform: translateY(-50%) scale(1);
+    }
+    25% {
+        left: 45%;
+        opacity: 1;
+    }
+    95% {
+        opacity: 1;
+    }
+    100% {
+        left: calc(100% - 120px);
+        opacity: 0;
+        transform: translateY(-50%) scale(0.8);
+    }
+}
+
+/* Phase 2: Processing Stages (7.5-15s) */
+@keyframes stageActivation {
+    0%, 20% { transform: scale(1); }
+    10% { transform: scale(1.2); }
+    100% { transform: scale(1); }
+}
+
+/* Phase 3: Neural Network (15-22.5s) */
+@keyframes neuralPulse {
+    0%, 100% {
+        opacity: 0.6;
+        transform: scale(1);
+    }
+    50% {
+        opacity: 1;
+        transform: scale(1.2);
+    }
+}
+
+@keyframes connectionFlow {
+    0% {
+        opacity: 0;
+        transform: scaleX(0);
+        transform-origin: left;
+    }
+    50% {
+        opacity: 1;
+        transform: scaleX(1);
+    }
+    100% {
+        opacity: 0;
+        transform: scaleX(0);
+        transform-origin: right;
+    }
+}
+
+/* Phase 4: Delivery (22.5-30s) */
+@keyframes deliveryGlow {
+    0%, 100% {
+        box-shadow: 0 0 0 rgba(16, 185, 129, 0);
+    }
+    50% {
+        box-shadow: 0 0 24px rgba(16, 185, 129, 0.8);
+    }
+}
+
+@keyframes particleStream {
+    0% {
+        left: 45%;
+        opacity: 0;
+        transform: scale(0);
+    }
+    10% {
+        opacity: 1;
+        transform: scale(1);
+    }
+    90% {
+        opacity: 1;
+    }
+    100% {
+        left: calc(100% - 120px);
+        opacity: 0;
+        transform: scale(0);
+    }
+}
+
 /* Main Animation Classes - Updated for SAGE Design */
 .article-monitoring-container.playing .document-particle {
     opacity: 1;
