@@ -70,6 +70,9 @@ markdown_extensions:
 - pymdownx.snippets
 - pymdownx.tabbed:
     alternate_style: true
+- pymdownx.emoji:
+    emoji_index: !!python/name:material.extensions.emoji.twemoji
+    emoji_generator: !!python/name:material.extensions.emoji.to_svg
 - tables
 - attr_list
 - md_in_html
@@ -109,7 +112,14 @@ nav:
   - 架构总览: concepts/architecture/overview.md
   - 包结构: concepts/architecture/package-structure.md
 
-- 高级教程: tutorials/advanced/
+- 高级教程:
+  - 概览: tutorials/advanced/index.md
+  - 分布式 Pipeline: tutorials/advanced/distributed-pipeline.md
+  - 自定义算子: tutorials/advanced/custom-operators.md
+  - 复杂工作流: tutorials/advanced/complex-workflows.md
+  - 高级 RAG 技术: tutorials/advanced/advanced-rag.md
+  - 性能调优: tutorials/advanced/performance-tuning.md
+  - 容错与可靠性: tutorials/advanced/fault-tolerance.md
 
 - 用户指南:
   - 概览: guides/index.md
@@ -125,6 +135,11 @@ nav:
     - 配置说明: guides/packages/sage-kernel/config/config.md
     - 最佳实践: guides/packages/sage-kernel/best-practices.md
     - 常见问题: guides/packages/sage-kernel/faq.md
+  - 具体应用:
+    - 概览: guides/applications.md
+    - 文章监控系统: guides/article-monitoring.md
+    - 分布式智能家居系统: guides/smart-home.md
+    - 智能扩缩容聊天系统: guides/auto-scaling-chat.md
   - Libs AI 组件库:
     - 概览: guides/packages/sage-libs/README.md
     - 设计哲学: guides/packages/sage-libs/philosophy.md
