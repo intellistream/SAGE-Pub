@@ -262,20 +262,15 @@ balancing and fault tolerance.
   [https://intellistream.github.io/SAGE-Pub/](https://intellistream.github.io/SAGE-Pub/)
 - **Examples**: [examples/](./examples/) (tutorials, rag, service, memory, etc.)
 - **Configurations**: [examples/config/](./examples/config/) sample pipeline configs
-- **Quick Reference**: [docs/QUICK_REFERENCE.md](./docs/QUICK_REFERENCE.md)
-- **Contribution Guide**: [CONTRIBUTING.md](./CONTRIBUTING.md)
-- **Changelog (planned)**: Add a `CHANGELOG.md` (see suggestions below)
 
 ## Contributing
 
-We welcome contributions! Please review the updated guidelines before opening a Pull Request.
+We welcome contributions! Please review the contribution guidelines before opening a Pull Request.
 
 **Essential Links**
 
-- 🚀 Quick Reference: [docs/QUICK_REFERENCE.md](./docs/QUICK_REFERENCE.md)
-- 📚 Contribution Guide: [CONTRIBUTING.md](./CONTRIBUTING.md)
-- 🐛 Issues & Features: [GitHub Issues](https://github.com/intellistream/SAGE/issues)
-- 💬 Discussions: [GitHub Discussions](https://github.com/intellistream/SAGE/discussions)
+- � Discussions: [GitHub Discussions](https://github.com/intellistream/SAGE/discussions)
+- � Issues & Features: [GitHub Issues](https://github.com/intellistream/SAGE/issues)
 
 **Quick Contributor Flow**
 
@@ -326,8 +321,7 @@ make docs          # Build documentation
 make docs-serve    # Serve docs locally
 ```
 
-**See [docs/dev-notes/DEV_COMMANDS.md](./docs/dev-notes/DEV_COMMANDS.md) for complete command
-reference and workflows.**
+查看开发者文档了解完整的命令参考和工作流程。
 
 **Post-Install Diagnostics**
 
@@ -338,9 +332,7 @@ python -c "import sage; print(sage.__version__)"
 
 ## 🤝 Join Our Community
 
-Connect with other sage-developers, get help, and stay updated on the latest developments:
-
-**💬 [Join SAGE Community](./docs/COMMUNITY.md)** - Complete guide to all our communication channels
+Connect with other sage-developers, get help, and stay updated on the latest developments.
 
 Quick links:
 

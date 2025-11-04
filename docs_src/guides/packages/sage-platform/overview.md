@@ -63,11 +63,11 @@ await queue.push(task)
 
 ## Design Decisions
 
-- [RPC Queue Refactoring](../../architecture/design-decisions/rpc-queue-refactoring.md)
-- [L2 Platform Layer Analysis](../../architecture/design-decisions/l2-platform-layer.md)
+- [RPC Queue Refactoring](../../../concepts/architecture/design-decisions/rpc-queue-refactoring.md)
+- [L2 Platform Layer Analysis](../../../concepts/architecture/design-decisions/l2-platform-layer.md)
 
 ## See Also
 
-- [Architecture Overview](../../architecture/overview.md)
-- [sage-kernel Documentation](sage-kernel/README.md)
-- [sage-libs Documentation](../libs/overview.md)
+- [Architecture Overview](../../../concepts/architecture/overview.md)
+- [sage-kernel Documentation](../sage-kernel/README.md)
+- [sage-libs Documentation](../sage-libs/README.md)

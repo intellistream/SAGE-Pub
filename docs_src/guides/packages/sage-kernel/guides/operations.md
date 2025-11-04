@@ -170,5 +170,5 @@ alerts:
 ## 相关文档
 
 - [配置参考](../config/config.md)
-- [CLI 工具](../../tools/cli_reference.md)
+- [CLI 工具](../../sage-tools/cli_reference.md)
 - [故障排除](../faq.md)

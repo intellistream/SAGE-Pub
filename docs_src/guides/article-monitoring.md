@@ -232,8 +232,8 @@ db.store("articles", recommended_articles)
 
 - [源代码](https://github.com/intellistream/SAGE/tree/main/packages/sage-apps/src/sage/apps/article_monitoring)
 - [示例脚本](https://github.com/intellistream/SAGE/tree/main/examples/apps/run_article_monitoring.py)
-- [API 文档](../../api-reference/index.md)
-- [SAGE Kernel](../packages/sage-kernel/README.md)
+- [API 文档](../api-reference/index.md)
+- [SAGE Kernel](packages/sage-kernel/README.md)
 
 ## 下一步
 

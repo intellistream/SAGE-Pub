@@ -342,6 +342,6 @@ env.get_profiler().print_report()
 
 ## See Also
 
-- [Getting Started](../getting-started/quickstart.md)
-- [Best Practices](best-practices/index.md)
-- [Architecture](../concepts/architecture/overview.md)
+- [Getting Started](../../getting-started/quickstart.md)
+- [Best Practices](../best-practices/index.md)
+- [Architecture](../../concepts/architecture/overview.md)

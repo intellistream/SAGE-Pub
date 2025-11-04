@@ -257,8 +257,8 @@ k8s = K8sIntegration(
 
 - [源代码](https://github.com/intellistream/SAGE/tree/main/packages/sage-apps/src/sage/apps/auto_scaling_chat)
 - [示例脚本](https://github.com/intellistream/SAGE/tree/main/examples/apps/run_auto_scaling_chat.py)
-- [云原生最佳实践](../best-practices/index.md)
-- [性能调优指南](../../tutorials/advanced/performance-tuning.md)
+- [云原生最佳实践](best-practices/index.md)
+- [性能调优指南](../tutorials/advanced/performance-tuning.md)
 
 ## 下一步
 
