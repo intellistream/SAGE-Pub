@@ -63,28 +63,28 @@ SAGE (Streaming AI aGent Engine) 采用分层单体架构（Modular Monolith）�
 - **职责**: 提供通用工具、配置、核心类型
 - **关键模块**: core, config, utils, components
 - **依赖**: 无
-- **文档**: [Common →](../core/common/overview.md)
+- **文档**: [Common 用户指南 →](../../guides/packages/sage-common/overview.md)
 
 ### L2: sage-platform (平台服务)
 
 - **职责**: 消息队列、存储、服务抽象
 - **关键模块**: queue, storage, service
 - **依赖**: common
-- **文档**: [Platform →](../core/platform/overview.md)
+- **文档**: [Platform 用户指南 →](../../guides/packages/sage-platform/overview.md)
 
 ### L3: sage-kernel (流式引擎)
 
 - **职责**: 流式数据处理、任务调度、分布式执行
 - **关键模块**: api, operators, runtime
 - **依赖**: common, platform
-- **文档**: [Kernel →](../core/kernel/overview.md)
+- **文档**: [Kernel 用户指南 →](../../guides/packages/sage-kernel/README.md)
 
 ### L3: sage-libs (算法库)
 
 - **职责**: Agents 框架、RAG 工具、I/O 工具、工作流优化
 - **关键模块**: agents, rag, io, workflow, integrations
 - **依赖**: common, kernel (可选)
-- **文档**: [Libs →](../core/libs/overview.md)
+- **文档**: [Libs 用户指南 →](../../guides/packages/sage-libs/README.md)
 
 ### L4: sage-middleware (中间件)
 
@@ -99,7 +99,8 @@ SAGE (Streaming AI aGent Engine) 采用分层单体架构（Modular Monolith）�
 - **sage-benchmark**: 性能基准测试
 - **sage-studio**: Web 可视化界面
 - **sage-tools**: CLI 命令行工具
-- **文档**: [Applications →](../applications/apps/overview.md)
+
+更多详情请参考 [用户指南](../../guides/index.md)。
 
 ## 🎯 设计原则
 
@@ -155,15 +156,13 @@ L3 → L4+
 
 ## 📚 深入阅读
 
-- [包结构与依赖](./package-structure.md) - 详细的包依赖图
-- [分层设计详解](./layer-design.md) - 各层设计理念
-- [重构历史](./restructuring-history.md) - 架构演进过程
-- [设计决策记录](./design-decisions/) - 重要架构决策
+- [包结构与依赖](./package-structure.md) - 详细的包依赖图和模块说明
+- [设计决策记录](./design-decisions/) - 重要架构决策和演进历史
 
 ## 🚀 快速开始
 
 从这里开始使用 SAGE:
 
-- [安装指南](../getting-started/installation.md)
-- [5分钟快速开始](../getting-started/quickstart.md)
-- [第一个 Pipeline](../getting-started/first-pipeline.md)
+- [安装指南](../../getting-started/installation.md)
+- [快速入门](../../getting-started/quickstart.md)
+- [基础教程](../../tutorials/basic/streaming-101.md)
