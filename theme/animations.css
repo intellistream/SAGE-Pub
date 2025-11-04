@@ -17,32 +17,32 @@
 }
 
 @keyframes nodeFloat {
-    0% {
+    0% { 
         transform: translate(0, 0) scale(1);
         opacity: 0;
     }
     10% {
         opacity: 1;
     }
-    50% {
+    50% { 
         transform: translate(100vw, -50px) scale(1.2);
         opacity: 0.8;
     }
     90% {
         opacity: 1;
     }
-    100% {
+    100% { 
         transform: translate(200vw, 0) scale(1);
         opacity: 0;
     }
 }
 
 @keyframes pulse {
-    0%, 100% {
+    0%, 100% { 
         opacity: 0.3;
         transform: scaleX(1);
     }
-    50% {
+    50% { 
         opacity: 0.8;
         transform: scaleX(1.1);
     }
@@ -213,7 +213,7 @@
     position: absolute;
     top: 15px;
     right: 15px;
-    z-index: 20;  /* 最高层级，确保控制按钮始终可点击 */
+    z-index: 10;
     display: flex;
     gap: 8px;
 }
@@ -893,35 +893,6 @@
     text-align: center;
 }
 
-/* ArXiv Source */
-.arxiv-source {
-    position: absolute;
-    left: 20px;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 80px;
-    height: 80px;
-    background: linear-gradient(135deg, #3b82f6, #1d4ed8);
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    font-size: 24px;
-    box-shadow: 0 4px 16px rgba(59, 130, 246, 0.3);
-}
-
-.arxiv-source::after {
-    content: 'ArXiv';
-    position: absolute;
-    bottom: -25px;
-    left: 50%;
-    transform: translateX(-50%);
-    font-size: 12px;
-    font-weight: 600;
-    color: #94a3b8;
-}
-
 /* Document Flow */
 .document-flow {
     position: absolute;
@@ -930,12 +901,11 @@
     width: 100%;
     height: 100%;
     pointer-events: none;
-    z-index: 10;  /* 最高层级，确保文档在所有元素之上 */
+    z-index: 2;
 }
 
 .document {
     position: absolute;
-    left: 120px;  /* 初始位置在 ArXiv 源附近 */
     width: 32px;
     height: 40px;
     background: linear-gradient(135deg, #f1f5f9, #e2e8f0);
@@ -947,7 +917,7 @@
     justify-content: center;
     color: #64748b;
     font-size: 14px;
-    opacity: 0;  /* 初始隐藏，动画时才显示 */
+    transition: all 1.5s ease;
     transform: translateY(-50%);
 }
 
@@ -964,138 +934,6 @@
     color: #dc2626;
     opacity: 0.6;
     transform: translateY(-50%) scale(0.8) translateX(50px);
-}
-
-/* Particle Effects */
-.particle {
-    position: absolute;
-    width: 4px;
-    height: 4px;
-    background: #3b82f6;
-    border-radius: 50%;
-    opacity: 0;
-    z-index: 15;  /* 高层级，确保粒子在所有元素之上 */
-}
-
-.particle.accepted {
-    background: #10b981;
-}
-
-.particle.rejected {
-    background: #ef4444;
-}
-
-/* Processing Stages */
-.process-stage {
-    position: relative;
-    width: 60px;
-    height: 60px;
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    font-size: 20px;
-    transition: all 0.3s ease;
-}
-
-.process-stage.text-parsing {
-    background: linear-gradient(135deg, #10b981, #059669);
-    box-shadow: 0 4px 16px rgba(16, 185, 129, 0.3);
-}
-
-.process-stage.keyword-filter {
-    background: linear-gradient(135deg, #f59e0b, #d97706);
-    box-shadow: 0 4px 16px rgba(245, 158, 11, 0.3);
-}
-
-.process-stage.semantic-analysis {
-    background: linear-gradient(135deg, #8b5cf6, #7c3aed);
-    box-shadow: 0 4px 16px rgba(139, 92, 246, 0.3);
-}
-
-.process-stage::after {
-    content: attr(data-label);
-    position: absolute;
-    bottom: -25px;
-    left: 50%;
-    transform: translateX(-50%);
-    font-size: 10px;
-    font-weight: 600;
-    color: #94a3b8;
-    white-space: nowrap;
-}
-
-.process-stage.active {
-    transform: scale(1.2);
-    box-shadow: 0 8px 32px rgba(59, 130, 246, 0.4);
-}
-
-/* Neural Network Visualization */
-.neural-network {
-    position: absolute;
-    top: 20px;
-    right: 20px;
-    width: 120px;
-    height: 80px;
-    opacity: 0;
-    transition: opacity 0.5s ease;
-    z-index: 8;  /* 在处理流程之上，但在流动元素之下 */
-}
-
-.neural-layer {
-    position: absolute;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-}
-
-.neural-layer.input { left: 0; }
-.neural-layer.hidden { left: 40px; }
-.neural-layer.output { right: 0; }
-
-.neural-node {
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, #3b82f6, #1d4ed8);
-    box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
-}
-
-.neural-connection {
-    position: absolute;
-    height: 1px;
-    background: linear-gradient(90deg, #3b82f6, transparent);
-    opacity: 0.6;
-}
-
-/* User Delivery Interface */
-.user-interface {
-    position: absolute;
-    right: 20px;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 80px;
-    height: 80px;
-    background: linear-gradient(135deg, #10b981, #059669);
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    font-size: 24px;
-    box-shadow: 0 4px 16px rgba(16, 185, 129, 0.3);
-}
-
-.user-interface::after {
-    content: 'User';
-    position: absolute;
-    bottom: -25px;
-    left: 50%;
-    transform: translateX(-50%);
-    font-size: 12px;
-    font-weight: 600;
-    color: #94a3b8;
 }
 
 /* Data Streams */
@@ -1146,156 +984,6 @@
 
 
 
-
-/* Main Animation Classes */
-.article-monitoring-container.playing .document {
-    animation: documentFlow 7.5s infinite;
-}
-
-.article-monitoring-container.playing .document:nth-child(2) {
-    animation-delay: 1.5s;
-}
-
-.article-monitoring-container.playing .document:nth-child(3) {
-    animation-delay: 3s;
-}
-
-.article-monitoring-container.playing .document:nth-child(4) {
-    animation-delay: 4.5s;
-}
-
-.article-monitoring-container.playing .process-stage.text-parsing {
-    animation: stageActivation 2s infinite 7.5s;
-}
-
-.article-monitoring-container.playing .process-stage.keyword-filter {
-    animation: stageActivation 2s infinite 10s;
-}
-
-.article-monitoring-container.playing .process-stage.semantic-analysis {
-    animation: stageActivation 2s infinite 12.5s;
-}
-
-.article-monitoring-container.playing .neural-network {
-    opacity: 1;
-    animation: none;
-}
-
-.article-monitoring-container.playing .neural-node {
-    animation: neuralPulse 1.5s infinite 15s;
-}
-
-.article-monitoring-container.playing .neural-connection {
-    animation: connectionFlow 2s infinite 15s;
-}
-
-.article-monitoring-container.playing .user-interface {
-    animation: deliveryGlow 3s infinite 22.5s;
-}
-
-.article-monitoring-container.playing .particle {
-    animation: particleStream 7.5s infinite 22.5s;
-}
-
-.article-monitoring-container.playing .particle:nth-child(2) {
-    animation-delay: 23.5s;
-}
-
-.article-monitoring-container.playing .particle:nth-child(3) {
-    animation-delay: 24.5s;
-}
-
-/* Phase 1: Document Flow (0-7.5s) */
-@keyframes documentFlow {
-    0% {
-        left: 120px;
-        top: 50%;
-        opacity: 0;
-        transform: translateY(-50%) scale(0.8);
-    }
-    5% {
-        opacity: 1;
-        transform: translateY(-50%) scale(1);
-    }
-    25% {
-        left: 45%;
-        opacity: 1;
-    }
-    95% {
-        opacity: 1;
-    }
-    100% {
-        left: calc(100% - 120px);
-        opacity: 0;
-        transform: translateY(-50%) scale(0.8);
-    }
-}
-
-/* Phase 2: Processing Stages (7.5-15s) */
-@keyframes stageActivation {
-    0%, 20% { transform: scale(1); }
-    10% { transform: scale(1.2); }
-    100% { transform: scale(1); }
-}
-
-/* Phase 3: Neural Network (15-22.5s) */
-@keyframes neuralPulse {
-    0%, 100% {
-        opacity: 0.6;
-        transform: scale(1);
-    }
-    50% {
-        opacity: 1;
-        transform: scale(1.2);
-    }
-}
-
-@keyframes connectionFlow {
-    0% {
-        opacity: 0;
-        transform: scaleX(0);
-        transform-origin: left;
-    }
-    50% {
-        opacity: 1;
-        transform: scaleX(1);
-    }
-    100% {
-        opacity: 0;
-        transform: scaleX(0);
-        transform-origin: right;
-    }
-}
-
-/* Phase 4: Delivery (22.5-30s) */
-@keyframes deliveryGlow {
-    0%, 100% {
-        box-shadow: 0 0 0 rgba(16, 185, 129, 0);
-    }
-    50% {
-        box-shadow: 0 0 24px rgba(16, 185, 129, 0.8);
-    }
-}
-
-@keyframes particleStream {
-    0% {
-        left: 45%;
-        opacity: 0;
-        transform: scale(0);
-    }
-    10% {
-        opacity: 1;
-        transform: scale(1);
-    }
-    90% {
-        opacity: 1;
-    }
-    100% {
-        left: calc(100% - 120px);
-        opacity: 0;
-        transform: scale(0);
-    }
-}
 
 /* Main Animation Classes - Updated for SAGE Design */
 .article-monitoring-container.playing .document-particle {
@@ -1462,17 +1150,17 @@
     .article-monitoring-container {
         height: 300px;
     }
-
+    
     .processing-pipeline {
         gap: 40px;
     }
-
+    
     .process-stage {
         width: 45px;
         height: 45px;
         font-size: 16px;
     }
-
+    
     .arxiv-source,
     .user-interface {
         width: 60px;
@@ -1528,7 +1216,6 @@
     box-shadow: 0 4px 16px rgba(59, 130, 246, 0.3);
     cursor: pointer;
     transition: all 0.3s ease;
-    z-index: 5;  /* 确保设备可点击 */
 }
 
 .laundry-robot::after {
@@ -1560,7 +1247,6 @@
     box-shadow: 0 4px 16px rgba(139, 92, 246, 0.3);
     cursor: pointer;
     transition: all 0.3s ease;
-    z-index: 5;  /* 确保设备可点击 */
 }
 
 .washing-machine::after {
@@ -1592,7 +1278,6 @@
     box-shadow: 0 4px 16px rgba(16, 185, 129, 0.3);
     cursor: pointer;
     transition: all 0.3s ease;
-    z-index: 5;  /* 确保设备可点击 */
 }
 
 .drying-rack::after {
@@ -1621,7 +1306,6 @@
     box-shadow: 0 2px 8px rgba(245, 158, 11, 0.3);
     cursor: pointer;
     transition: all 0.3s ease;
-    z-index: 5;  /* 确保传感器可点击 */
 }
 
 .environmental-sensor.temp-sensor {
@@ -1658,7 +1342,6 @@
     background: linear-gradient(90deg, transparent, #3b82f6, transparent);
     opacity: 0;
     pointer-events: none;
-    z-index: 5;  /* 中等层级，在设备之上但在数据包之下 */
 }
 
 .network-connection.robot-to-washer {
@@ -1697,7 +1380,6 @@
     border-radius: 50%;
     opacity: 0;
     pointer-events: none;
-    z-index: 15;  /* 高层级，确保数据包在设备之上 */
 }
 
 .data-packet.sensor-data {
@@ -2058,31 +1740,31 @@
     .smart-home-container {
         height: 300px;
     }
-
+    
     .laundry-robot {
         width: 32px;
         height: 32px;
         font-size: 14px;
     }
-
+    
     .washing-machine {
         width: 48px;
         height: 36px;
         font-size: 14px;
     }
-
+    
     .drying-rack {
         width: 40px;
         height: 24px;
         font-size: 12px;
     }
-
+    
     .environmental-sensor {
         width: 16px;
         height: 16px;
         font-size: 6px;
     }
-
+    
     .device-tooltip {
         font-size: 10px;
         padding: 6px 8px;
@@ -2093,19 +1775,19 @@
     .smart-home-container {
         height: 250px;
     }
-
+    
     .laundry-robot {
         left: 30px;
         width: 28px;
         height: 28px;
     }
-
+    
     .washing-machine {
         left: 150px;
         width: 40px;
         height: 30px;
     }
-
+    
     .drying-rack {
         right: 150px;
         width: 32px;
@@ -2273,7 +1955,6 @@
     transform: scale(0);
     transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
     cursor: pointer;
-    z-index: 5;  /* 确保服务器实例可点击 */
 }
 
 .server-instance.active {
@@ -2321,7 +2002,6 @@
     background: linear-gradient(90deg, transparent, #3b82f6, transparent);
     opacity: 0;
     pointer-events: none;
-    z-index: 15;  /* 高层级，确保流量线在其他元素之上 */
 }
 
 .traffic-flow.user-to-lb {
@@ -2731,43 +2411,43 @@
     .auto-scaling-container {
         height: 300px;
     }
-
+    
     .server-grid {
         width: 100px;
         grid-template-columns: repeat(2, 1fr);
     }
-
+    
     .server-instance {
         width: 32px;
         height: 48px;
     }
-
+    
     .load-balancer {
         width: 48px;
         height: 48px;
         font-size: 16px;
     }
-
+    
     .user-load-section {
         width: 100px;
         height: 80px;
     }
-
+    
     .user-icons-grid {
         grid-template-columns: repeat(6, 1fr);
     }
-
+    
     .user-icon {
         width: 10px;
         height: 10px;
     }
-
+    
     .metrics-dashboard {
         width: 160px;
         height: 60px;
         padding: 8px;
     }
-
+    
     .user-load-slider {
         width: 120px;
         padding: 8px;
@@ -2778,31 +2458,31 @@
     .auto-scaling-container {
         height: 250px;
     }
-
+    
     .server-grid {
         width: 80px;
     }
-
+    
     .server-instance {
         width: 28px;
         height: 40px;
     }
-
+    
     .load-balancer {
         width: 40px;
         height: 40px;
         font-size: 14px;
     }
-
+    
     .user-load-section {
         width: 80px;
         height: 60px;
     }
-
+    
     .user-icons-grid {
         grid-template-columns: repeat(4, 1fr);
     }
-
+    
     .metrics-dashboard {
         width: 140px;
         height: 50px;
