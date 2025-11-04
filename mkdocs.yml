@@ -109,7 +109,14 @@ nav:
   - 架构总览: concepts/architecture/overview.md
   - 包结构: concepts/architecture/package-structure.md
 
-- 高级教程: tutorials/advanced/
+- 高级教程:
+  - 概览: tutorials/advanced/index.md
+  - 分布式 Pipeline: tutorials/advanced/distributed-pipeline.md
+  - 自定义算子: tutorials/advanced/custom-operators.md
+  - 复杂工作流: tutorials/advanced/complex-workflows.md
+  - 高级 RAG 技术: tutorials/advanced/advanced-rag.md
+  - 性能调优: tutorials/advanced/performance-tuning.md
+  - 容错与可靠性: tutorials/advanced/fault-tolerance.md
 
 - 用户指南:
   - 概览: guides/index.md
