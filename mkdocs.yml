@@ -19,30 +19,44 @@ theme:
   favicon: assets/img/isage_light.svg
   logo: assets/logo/sage.svg
   palette:
-  - scheme: default
-    primary: white
-    accent: blue
+  - media: "(prefers-color-scheme: light)"
+    scheme: default
+    primary: indigo
+    accent: indigo
     toggle:
       icon: material/brightness-7
-      name: Switch to dark mode
-  - scheme: slate
-    primary: black
-    accent: blue
+      name: 切换到深色模式
+  - media: "(prefers-color-scheme: dark)"
+    scheme: slate
+    primary: indigo
+    accent: indigo
     toggle:
       icon: material/brightness-4
-      name: Switch to light mode
+      name: 切换到浅色模式
   features:
+  # Navigation
   - navigation.instant
+  - navigation.instant.progress
   - navigation.tracking
+  - navigation.tabs
+  - navigation.tabs.sticky
   - navigation.sections
-  - navigation.expand
+  - navigation.path
   - navigation.indexes
   - navigation.top
   - navigation.footer
+  - navigation.prune
+  # Search
   - search.suggest
   - search.highlight
+  - search.share
+  # Content
   - content.code.copy
   - content.code.annotate
+  - content.tabs.link
+  # Table of Contents
+  - toc.follow
+  - toc.integrate
   icon:
     repo: fontawesome/brands/github
 
@@ -74,93 +88,90 @@ extra:
     link: https://pypi.org/project/sage-framework/
 
 nav:
-- Home: index.md
+- 首页: index.md
 
-- 快速开始:
-  - 安装指南: getting-started/installation.md
-  - 快速入门: getting-started/quickstart.md
+- 入门指南:
+  - 快速开始:
+    - 安装: getting-started/installation.md
+    - 快速入门: getting-started/quickstart.md
+  - 教程:
+    - 基础教程:
+      - 流式处理 101: tutorials/basic/streaming-101.md
+      - 批处理示例: tutorials/basic/hello_batch.md
+      - 算子使用:
+        - Filter 过滤: tutorials/basic/operators/hello_filter_world.md
+        - FlatMap 映射: tutorials/basic/operators/hello_flatmap_world.md
+        - CoMap 联合映射: tutorials/basic/operators/hello_filter_world_comap.md
+        - Future 异步: tutorials/basic/operators/hello_future_world.md
+        - Join 连接: tutorials/basic/operators/hello_join_world.md
+    - 高级教程: tutorials/advanced/
+  - 核心概念:
+    - 架构总览: concepts/architecture/overview.md
+    - 包结构: concepts/architecture/package-structure.md
+    - 设计决策:
+      - sage-libs 重构: concepts/architecture/design-decisions/sage-libs-restructuring.md
+      - RPC 队列重构: concepts/architecture/design-decisions/rpc-queue-refactoring.md
+      - L2 平台层: concepts/architecture/design-decisions/l2-platform-layer.md
 
-- 教程:
-  - 基础教程:
-    - 流式处理入门: tutorials/basic/streaming-101.md
-    - 批处理示例: tutorials/basic/hello_batch.md
-    - 算子使用:
-      - Filter 过滤: tutorials/basic/operators/hello_filter_world.md
-      - FlatMap 映射: tutorials/basic/operators/hello_flatmap_world.md
-      - CoMap 联合映射: tutorials/basic/operators/hello_filter_world_comap.md
-      - Future 异步: tutorials/basic/operators/hello_future_world.md
-      - Join 连接: tutorials/basic/operators/hello_join_world.md
-  - 高级教程: tutorials/advanced/
+- 用户指南:
+  - Kernel 执行引擎:
+    - 概览: guides/packages/sage-kernel/README.md
+    - 架构设计: guides/packages/sage-kernel/architecture.md
+    - 核心概念: guides/packages/sage-kernel/concepts.md
+    - 使用指南:
+      - 快速开始: guides/packages/sage-kernel/guides/quickstart.md
+      - 基本操作: guides/packages/sage-kernel/guides/operations.md
+      - 性能优化: guides/packages/sage-kernel/guides/improvements.md
+    - 示例代码: guides/packages/sage-kernel/examples/
+    - 配置说明: guides/packages/sage-kernel/config/config.md
+    - 最佳实践: guides/packages/sage-kernel/best-practices.md
+    - 常见问题: guides/packages/sage-kernel/faq.md
+  - Libs AI 组件库:
+    - 概览: guides/packages/sage-libs/README.md
+    - 设计哲学: guides/packages/sage-libs/philosophy.md
+    - 核心组件:
+      - Embeddings: guides/packages/sage-libs/embedding.md
+      - RAG: guides/packages/sage-libs/rag.md
+      - Agents: guides/packages/sage-libs/agents.md
+      - Tools: guides/packages/sage-libs/tools_intro.md
+      - I/O: guides/packages/sage-libs/io.md
+      - Context: guides/packages/sage-libs/context.md
+    - 算子参考: guides/packages/sage-libs/operators_reference.md
+  - Middleware 中间件:
+    - 概览: guides/packages/sage-middleware/overview.md
+    - 组件:
+      - NeuroMem: guides/packages/sage-middleware/components/neuromem.md
+      - SageDB: guides/packages/sage-middleware/components/sage_db.md
+    - 服务:
+      - 服务介绍: guides/packages/sage-middleware/service/service_intro.md
+      - 服务 API: guides/packages/sage-middleware/service/service_api.md
+      - Memory 服务: guides/packages/sage-middleware/service/memory/memory_service.md
+      - Vector DB: guides/packages/sage-middleware/service/neuromem/vdb/vdb.md
+      - SageDB 服务: guides/packages/sage-middleware/service/sage-db/sage_db_service.md
+      - SageFlow 服务: guides/packages/sage-middleware/service/sage-flow/sage_flow_service.md
+    - GPU 加速: guides/packages/sage-middleware/hardware/gpu_acceleration.md
+  - Platform & Tools:
+    - sage-common: guides/packages/sage-common/overview.md
+    - sage-platform: guides/packages/sage-platform/overview.md
+    - CLI 工具: guides/packages/sage-tools/cli_reference.md
+    - Pipeline Builder: guides/packages/sage-tools/pipeline_builder.md
+  - 部署运维:
+    - 部署指南: guides/deployment/
+    - 最佳实践: guides/best-practices/
 
-- 核心概念:
-  - 架构总览: concepts/architecture/overview.md
-  - 包结构: concepts/architecture/package-structure.md
-  - 设计决策:
-    - sage-libs 重构: concepts/architecture/design-decisions/sage-libs-restructuring.md
-    - RPC 队列重构: concepts/architecture/design-decisions/rpc-queue-refactoring.md
-    - L2 平台层: concepts/architecture/design-decisions/l2-platform-layer.md
-
-- Kernel (执行引擎):
-  - 概览: guides/packages/sage-kernel/README.md
-  - 架构设计: guides/packages/sage-kernel/architecture.md
-  - 核心概念: guides/packages/sage-kernel/concepts.md
-  - API 参考:
+- API 参考:
+  - API 文档: api-reference/
+  - Kernel API:
     - DataStreams: guides/packages/sage-kernel/api/datastreams.md
     - Functions: guides/packages/sage-kernel/api/functions.md
     - Environments: guides/packages/sage-kernel/api/environments.md
     - Connected Streams: guides/packages/sage-kernel/api/connected-streams.md
-  - 使用指南:
-    - 快速开始: guides/packages/sage-kernel/guides/quickstart.md
-    - 基本操作: guides/packages/sage-kernel/guides/operations.md
-    - 性能优化: guides/packages/sage-kernel/guides/improvements.md
-  - 运行时:
+  - Kernel Runtime:
     - 通信机制: guides/packages/sage-kernel/runtime_communication.md
     - 任务管理: guides/packages/sage-kernel/runtime_tasks.md
     - 服务调用: guides/packages/sage-kernel/runtime_services.md
-  - 示例代码: guides/packages/sage-kernel/examples/
-  - 配置说明: guides/packages/sage-kernel/config/config.md
-  - 最佳实践: guides/packages/sage-kernel/best-practices.md
-  - 常见问题: guides/packages/sage-kernel/faq.md
-
-- Libs (AI 组件库):
-  - 概览: guides/packages/sage-libs/README.md
-  - 设计哲学: guides/packages/sage-libs/philosophy.md
-  - 核心组件:
-    - Embeddings 向量化: guides/packages/sage-libs/embedding.md
-    - RAG 检索增强: guides/packages/sage-libs/rag.md
-    - Agents 智能体: guides/packages/sage-libs/agents.md
-    - Tools 工具集: guides/packages/sage-libs/tools_intro.md
-    - I/O 数据读写: guides/packages/sage-libs/io.md
-    - Context 上下文: guides/packages/sage-libs/context.md
-  - 算子参考: guides/packages/sage-libs/operators_reference.md
-
-- Middleware (中间件):
-  - 概览: guides/packages/sage-middleware/overview.md
-  - 组件:
-    - NeuroMem 向量存储: guides/packages/sage-middleware/components/neuromem.md
-    - SageDB 图数据库: guides/packages/sage-middleware/components/sage_db.md
-  - 服务:
-    - 服务介绍: guides/packages/sage-middleware/service/service_intro.md
-    - 服务 API: guides/packages/sage-middleware/service/service_api.md
-    - Memory 服务: guides/packages/sage-middleware/service/memory/memory_service.md
-    - Vector DB 服务: guides/packages/sage-middleware/service/neuromem/vdb/vdb.md
-    - SageDB 服务: guides/packages/sage-middleware/service/sage-db/sage_db_service.md
-    - SageFlow 服务: guides/packages/sage-middleware/service/sage-flow/sage_flow_service.md
-  - GPU 加速: guides/packages/sage-middleware/hardware/gpu_acceleration.md
-  - API 参考: guides/packages/sage-middleware/api/service_api.md
-
-- Platform & Tools:
-  - sage-common: guides/packages/sage-common/overview.md
-  - sage-platform: guides/packages/sage-platform/overview.md
-  - sage-tools:
-    - CLI 命令: guides/packages/sage-tools/cli_reference.md
-    - Pipeline Builder: guides/packages/sage-tools/pipeline_builder.md
-
-- 部署运维:
-  - 部署指南: guides/deployment/
-  - 最佳实践: guides/best-practices/
-
-- API 文档: api-reference/
+  - Middleware API:
+    - 服务 API: guides/packages/sage-middleware/api/service_api.md
 
 - 开发者:
   - 贡献指南: developers/commands.md
