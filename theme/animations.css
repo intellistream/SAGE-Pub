@@ -893,6 +893,35 @@
     text-align: center;
 }
 
+/* ArXiv Source */
+.arxiv-source {
+    position: absolute;
+    left: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 80px;
+    height: 80px;
+    background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 24px;
+    box-shadow: 0 4px 16px rgba(59, 130, 246, 0.3);
+}
+
+.arxiv-source::after {
+    content: 'ArXiv';
+    position: absolute;
+    bottom: -25px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 12px;
+    font-weight: 600;
+    color: #94a3b8;
+}
+
 /* Document Flow */
 .document-flow {
     position: absolute;
@@ -934,6 +963,136 @@
     color: #dc2626;
     opacity: 0.6;
     transform: translateY(-50%) scale(0.8) translateX(50px);
+}
+
+/* Particle Effects */
+.particle {
+    position: absolute;
+    width: 4px;
+    height: 4px;
+    background: #3b82f6;
+    border-radius: 50%;
+    opacity: 0;
+}
+
+.particle.accepted {
+    background: #10b981;
+}
+
+.particle.rejected {
+    background: #ef4444;
+}
+
+/* Processing Stages */
+.process-stage {
+    position: relative;
+    width: 60px;
+    height: 60px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 20px;
+    transition: all 0.3s ease;
+}
+
+.process-stage.text-parsing {
+    background: linear-gradient(135deg, #10b981, #059669);
+    box-shadow: 0 4px 16px rgba(16, 185, 129, 0.3);
+}
+
+.process-stage.keyword-filter {
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+    box-shadow: 0 4px 16px rgba(245, 158, 11, 0.3);
+}
+
+.process-stage.semantic-analysis {
+    background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+    box-shadow: 0 4px 16px rgba(139, 92, 246, 0.3);
+}
+
+.process-stage::after {
+    content: attr(data-label);
+    position: absolute;
+    bottom: -25px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 10px;
+    font-weight: 600;
+    color: #94a3b8;
+    white-space: nowrap;
+}
+
+.process-stage.active {
+    transform: scale(1.2);
+    box-shadow: 0 8px 32px rgba(59, 130, 246, 0.4);
+}
+
+/* Neural Network Visualization */
+.neural-network {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    width: 120px;
+    height: 80px;
+    opacity: 0;
+    transition: opacity 0.5s ease;
+}
+
+.neural-layer {
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.neural-layer.input { left: 0; }
+.neural-layer.hidden { left: 40px; }
+.neural-layer.output { right: 0; }
+
+.neural-node {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+    box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+}
+
+.neural-connection {
+    position: absolute;
+    height: 1px;
+    background: linear-gradient(90deg, #3b82f6, transparent);
+    opacity: 0.6;
+}
+
+/* User Delivery Interface */
+.user-interface {
+    position: absolute;
+    right: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 80px;
+    height: 80px;
+    background: linear-gradient(135deg, #10b981, #059669);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 24px;
+    box-shadow: 0 4px 16px rgba(16, 185, 129, 0.3);
+}
+
+.user-interface::after {
+    content: 'User';
+    position: absolute;
+    bottom: -25px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 12px;
+    font-weight: 600;
+    color: #94a3b8;
 }
 
 /* Data Streams */
