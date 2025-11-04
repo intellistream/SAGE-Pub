@@ -83,7 +83,7 @@ python examples/apps/run_auto_scaling_chat.py
 python examples/apps/run_video_intelligence.py --video video.mp4
 ```
 
-**详细文档**：参见 [sage-apps 包文档](index.md#video-intelligence)
+**详细文档**：参见 [sage-apps 包文档](packages/sage-apps/index.md)
 
 ---
 
@@ -101,7 +101,7 @@ AI 辅助的医疗影像分析系统，使用多智能体架构。
 python examples/apps/run_medical_diagnosis.py
 ```
 
-**详细文档**：参见 [sage-apps 包文档](index.md#medical-diagnosis)
+**详细文档**：参见 [sage-apps 包文档](packages/sage-apps/index.md)
 
 ---
 
@@ -183,13 +183,13 @@ python examples/apps/run_auto_scaling_chat.py --duration 60 --peak-rate 80 --ver
 
 我们欢迎社区贡献新的应用示例！请参考：
 
-- [贡献指南](../../community/community.md)
-- [开发文档](../../developers/ci-cd.md)
-- [包结构](../../concepts/architecture/package-structure.md)
+- [贡献指南](../community/community.md)
+- [开发文档](../developers/ci-cd.md)
+- [包结构](../concepts/architecture/package-structure.md)
 
 ## 下一步
 
 - 深入了解每个应用的详细文档（点击上方链接）
-- 查看 [API 参考](../../api-reference/index.md)
-- 探索 [教程](../../tutorials/index.md)
-- 加入 [社区讨论](../../community/community.md)
+- 查看 [API 参考](../api-reference/index.md)
+- 探索教程（查看导航栏教程章节）
+- 加入 [社区讨论](../community/community.md)

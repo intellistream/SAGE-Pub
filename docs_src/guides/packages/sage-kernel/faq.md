@@ -438,7 +438,7 @@ stream.map(validate_input)
 - [API Reference](api/README.md)
 - [Architecture Guide](architecture.md)
 - [Best Practices](best-practices.md)
-- [Examples](../../../tutorials/)
+- Examples - 查看导航栏中的教程章节
 
 ### How do I report bugs?
 

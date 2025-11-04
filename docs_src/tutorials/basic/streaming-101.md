@@ -3,7 +3,7 @@
 SAGE 中主要以 **DataStream** 的形式进行编程。如图所示，数据流的起始是从各种源（例如消息队列、套接字流、文件）创建的，经过各种算子处理，结果通过 sink
 返回。例如，可以将数据写入文件然后再标准输出（例如命令行终端）。
 
-[![DataStream Processing](../assets/img/streaming.png "数据流处理流程")](../assets/img/streaming.png)
+[![DataStream Processing](../../assets/img/streaming.png "数据流处理流程")](../../assets/img/streaming.png)
 
 为了创建自己的 SAGE 程序，我们建议您从阅读下方的 Hello World 程序剖析开始，然后自定义个性化的DataStream程序。
 

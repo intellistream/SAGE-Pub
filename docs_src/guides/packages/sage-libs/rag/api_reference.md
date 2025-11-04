@@ -224,6 +224,5 @@ builder.save_index(index, "knowledge_base.faiss")
 
 ## 相关文档
 
-- [RAG 组件详解](./components/)
-- [RAG 示例](./examples/)
-- [性能调优指南](../performance.md)
+- RAG 组件详解 - 查看导航栏中的 RAG 组件各章节
+- RAG 示例 - 查看导航栏中的 RAG 示例各章节

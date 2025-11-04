@@ -180,8 +180,8 @@ Applications in `sage-apps` demonstrate:
 
 ## See Also
 
-- [Package Architecture](../../concepts/architecture/package-structure.md)
-- [Getting Started](../../getting-started/quickstart.md)
+- [Package Architecture](../../../concepts/architecture/package-structure.md)
+- [Getting Started](../../../getting-started/quickstart.md)
 - [Examples](https://github.com/intellistream/SAGE/tree/main/examples)
 
 ## Contributing
@@ -193,4 +193,4 @@ We welcome new application examples! Please:
 1. Follow SAGE architecture guidelines
 1. Include setup instructions and dependencies
 
-See [Contributing Guide](../../community/community.md) for details.
+See [Contributing Guide](../../../community/community.md) for details.
