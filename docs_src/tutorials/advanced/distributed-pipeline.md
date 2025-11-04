@@ -21,14 +21,13 @@ sage cluster start --worker --head-address=<head-node-ip>:10001
 ### 配置分布式环境
 
 ```python
-from sage.kernel.api import RemoteEnvironment
+from sage.kernel.api import LocalEnvironment
 
-# 创建远程分布式执行环境
-env = RemoteEnvironment(
-    name="distributed_app",
-    host="127.0.0.1",      # JobManager 服务地址
-    port=19001,            # JobManager 服务端口
+# 创建分布式执行环境
+env = LocalEnvironment(
+    "distributed_app",
     config={
+        "execution_mode": "distributed",
         "ray": {
             "address": "ray://localhost:10001",  # Ray 集群地址
             "num_cpus": 16,                       # 总 CPU 数
@@ -37,8 +36,6 @@ env = RemoteEnvironment(
     }
 )
 ```
-
-> **注意**：分布式执行需要使用 `RemoteEnvironment`，它会将作业提交到远程的 JobManager 服务。
 
 ## 并行处理
 
@@ -63,28 +60,8 @@ env.execute()
 
 ### 资源分配
 
-> **⚠️ 功能开发中**：当前版本的 `map()` 方法仅支持 `parallelism` 参数。
-> 
-> 细粒度的资源分配功能（如 `num_cpus`、`memory`、`num_gpus`）正在开发中。
-> 
-> 相关 Issue: [#TODO: 添加算子级别的资源配置支持](https://github.com/intellistream/SAGE/issues/)
-
-当前可用的并行度配置：
-
 ```python
-# 当前支持：设置并行度
-stream = (
-    env.from_source(source)
-    .map(HeavyComputeOperator(), parallelism=4)   # 4 个并行实例
-    .map(GPUInferenceOperator(), parallelism=2)   # 2 个并行实例
-    .sink(sink)
-)
-```
-
-**未来计划支持的资源配置**（开发中）：
-
-```python
-# 计划支持：细粒度资源分配
+# 为算子分配特定资源
 stream = (
     env.from_source(source)
     .map(
