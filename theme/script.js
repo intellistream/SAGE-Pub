@@ -478,12 +478,16 @@ class ArticleMonitoringAnimation {
                 <button class="control-btn restart-btn" title="重新开始">
                     <i class="fas fa-redo"></i>
                 </button>
+                <button class="control-btn info-btn" title="动画信息">
+                    <i class="fas fa-info"></i>
+                </button>
             </div>
         `;
         this.container.insertAdjacentHTML('afterbegin', controlsHTML);
         
         this.playPauseBtn = this.container.querySelector('.play-pause-btn');
         this.restartBtn = this.container.querySelector('.restart-btn');
+        this.infoBtn = this.container.querySelector('.info-btn');
     }
     
     createLayout() {
@@ -578,8 +582,16 @@ class ArticleMonitoringAnimation {
     bindEvents() {
         this.playPauseBtn.addEventListener('click', () => this.togglePlayPause());
         this.restartBtn.addEventListener('click', () => this.restart());
-        
-        // Hover effects removed for sage-processor to keep it static
+        this.infoBtn.addEventListener('click', () => this.showInfo());
+
+        // Hover effects
+        this.container.addEventListener('mouseenter', () => this.onHover());
+        this.container.addEventListener('mouseleave', () => this.onHoverEnd());
+
+        // Phase indicators (optional)
+        this.processStages.forEach((stage, index) => {
+            stage.addEventListener('click', () => this.jumpToPhase(index + 1));
+        });
     }
     
     play() {
@@ -966,14 +978,27 @@ class ArticleMonitoringAnimation {
         this.currentPhase = phaseIndex;
         this.triggerPhaseEffects(phaseIndex);
     }
-    
-    startDocumentFlow() {
-        // Create continuous document flow
-        this.animationLoop = setInterval(() => {
-            if (this.isPlaying) {
-                this.createDocument();
-            }
-        }, 2000); // New document every 2 seconds
+
+    showInfo() {
+        const infoText = `
+文章监控系统动画
+
+动画阶段：
+1. 文档流动 (0-7.5s): ArXiv文章从源头流向处理管道
+2. 处理阶段 (7.5-15s): 文本解析、关键词筛选、语义分析
+3. 过滤阶段 (15-22.5s): 神经网络分析，过滤相关文章
+4. 交付阶段 (22.5-30s): 将筛选后的文章推送给用户
+
+点击处理阶段可以跳转到该阶段。
+悬停动画可以看到增强效果。
+        `;
+
+        alert(infoText);
+    }
+
+    onHover() {
+        // Add hover effects
+        this.container.classList.add('hovered');
     }
     
     createDocument() {
@@ -2226,9 +2251,19 @@ class AutoScalingAnimation {
             connections: isActive ? Math.floor(Math.random() * 500 + 100) : 0,
             uptime: isActive ? `${Math.floor(Math.random() * 24)}h ${Math.floor(Math.random() * 60)}m` : '0h 0m'
         };
-        
-        console.log('Server Details:', serverInfo);
-        
+
+        // Show alert with server details
+        const infoText = `
+服务器详情
+
+ID: ${serverInfo.id}
+状态: ${serverInfo.status}
+利用率: ${serverInfo.utilization}
+连接数: ${serverInfo.connections}
+运行时间: ${serverInfo.uptime}
+        `;
+        alert(infoText.trim());
+
         // Visual feedback
         server.style.transform += ' scale(0.95)';
         setTimeout(() => {
@@ -2244,9 +2279,19 @@ class AutoScalingAnimation {
             averageResponseTime: `${Math.floor(Math.random() * 100 + 50)}ms`,
             algorithm: 'Round Robin with Health Checks'
         };
-        
-        console.log('Load Balancer Status:', lbInfo);
-        
+
+        // Show alert with load balancer details
+        const infoText = `
+负载均衡器状态
+
+总连接数: ${lbInfo.totalConnections}
+活跃服务器: ${lbInfo.activeServers}
+每秒请求数: ${lbInfo.requestsPerSecond}
+平均响应时间: ${lbInfo.averageResponseTime}
+算法: ${lbInfo.algorithm}
+        `;
+        alert(infoText.trim());
+
         // Visual feedback
         this.loadBalancer.style.transform += ' scale(0.95)';
         setTimeout(() => {
