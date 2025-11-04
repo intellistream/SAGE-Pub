@@ -6,17 +6,18 @@
 
 ## 📦 完整包列表
 
-| 包名            | 层级 | 职责     | 模块数 | 测试数 |
-| --------------- | ---- | -------- | ------ | ------ |
-| sage-common     | L1   | 基础设施 | 15+    | 119    |
-| sage-platform   | L2   | 平台服务 | 3      | 30     |
-| sage-kernel     | L3   | 流式引擎 | 268    | 753    |
-| sage-libs       | L3   | 算法库   | 65     | 169    |
-| sage-middleware | L4   | 中间件   | 150    | 22     |
-| sage-apps       | L5   | 应用     | 24     | 21     |
-| sage-benchmark  | L5   | 基准测试 | 42     | 17     |
-| sage-studio     | L6   | Web UI   | 8      | 51     |
-| sage-tools      | L6   | CLI      | 106    | 78     |
+| 包名            | 层级 | 职责           | 模块数 | 测试数 |
+| --------------- | ---- | -------------- | ------ | ------ |
+| sage-common     | L1   | 基础设施       | 15+    | 119    |
+| sage-platform   | L2   | 平台服务       | 3      | 30     |
+| sage-kernel     | L3   | 流式引擎       | 268    | 753    |
+| sage-libs       | L3   | 算法库         | 65     | 169    |
+| sage-middleware | L4   | 中间件         | 150    | 22     |
+| sage-apps       | L5   | 应用           | 24     | 21     |
+| sage-benchmark  | L5   | 基准测试       | 42     | 17     |
+| sage-studio     | L6   | Web UI         | 8      | 51     |
+| sage-cli        | L6   | 统一 CLI       | 45     | 32     |
+| sage-tools      | L6   | 开发工具       | 106    | 78     |
 
 ## 🔗 依赖关系图
 
@@ -35,7 +36,8 @@ graph TD
     benchmark[sage-benchmark<br/>L5: 基准测试]
 
     studio[sage-studio<br/>L6: Web UI]
-    tools[sage-tools<br/>L6: CLI]
+    cli[sage-cli<br/>L6: 统一 CLI]
+    tools[sage-tools<br/>L6: 开发工具]
 
     platform --> common
 
@@ -63,6 +65,11 @@ graph TD
     studio --> kernel
     studio --> libs
     studio --> middleware
+
+    cli --> common
+    cli --> kernel
+    cli --> libs
+    cli --> middleware
 
     tools --> common
     tools --> kernel
@@ -248,17 +255,39 @@ ______________________________________________________________________
 
 ______________________________________________________________________
 
+### L6: sage-cli
+
+**位置**: `packages/sage-cli/`
+
+**核心命令**:
+
+- `sage cluster`: Ray 集群管理
+- `sage head`: 头节点管理
+- `sage worker`: 工作节点管理
+- `sage job`: 作业管理
+- `sage deploy`: 应用部署
+
+**公共 API**:
+
+```python
+from sage.cli import cluster, job, deploy
+```
+
+**依赖**: sage-common, sage-kernel, sage-libs, sage-middleware
+
+______________________________________________________________________
+
 ### L6: sage-tools
 
 **位置**: `packages/sage-tools/`
 
-**CLI 命令**:
+**开发工具**:
 
-- `sage studio`: Web UI 管理
-- `sage-dev`: 开发工具
-- `sage pipeline`: Pipeline 构建
-- `sage llm/embedding`: 服务管理
-- `sage job/cluster`: 作业管理
+- `sage-dev`: 开发辅助工具
+- `sage studio`: Web UI 管理（调用 sage-studio）
+- `sage pipeline`: Pipeline 构建工具
+- `sage llm/embedding`: LLM 服务管理
+- 测试、代码质量检查等
 
 **依赖**: sage-common, sage-kernel, sage-libs, sage-middleware, sage-studio
 
@@ -280,7 +309,7 @@ ______________________________________________________________________
 
    - kernel ⊥ libs (都是 L3)
    - apps ⊥ benchmark (都是 L5)
-   - studio ⊥ tools (都是 L6)
+   - studio ⊥ cli ⊥ tools (都是 L6)
 
 ### ❌ 禁止的依赖模式
 
