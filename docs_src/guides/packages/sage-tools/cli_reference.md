@@ -419,6 +419,5 @@ generator:
 
 ## 相关文档
 
-- [Kernel 概念](sage-kernel/concepts.md)
-- [作业管理](sage-kernel/jobmanager.md)
-- [配置指南](../../getting-started/quickstart.md)
+- [Kernel 概念](../sage-kernel/concepts.md)
+- [配置指南](../../../getting-started/quickstart.md)

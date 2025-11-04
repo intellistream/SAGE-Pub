@@ -166,12 +166,12 @@ stream = (env
 ### Agents
 
 - [Agents Guide](../../guides/packages/sage-libs/agents.md)
-- [Agent Components](../../guides/packages/sage-libs/agents/components/)
+- Agent Components - 查看导航栏 Libs AI 组件库 > Agents 章节
 
 ### Tools
 
 - [Tools Introduction](../../guides/packages/sage-libs/tools_intro.md)
-- [Individual Tool Docs](../../guides/packages/sage-libs/tools/)
+- Individual Tool Docs - 查看导航栏 Libs AI 组件库 > Tools 章节
 
 ## Design Decisions
 
@@ -180,5 +180,5 @@ stream = (env
 ## See Also
 
 - [Libraries Guide](../../guides/packages/sage-libs/README.md)
-- [RAG Examples](../../guides/packages/sage-libs/rag/examples/)
-- [Agent Examples](../../guides/packages/sage-libs/agents/examples/)
+- RAG Examples - 查看导航栏 Libs AI 组件库 > RAG > 示例章节
+- Agent Examples - 查看导航栏 Libs AI 组件库 > Agents > 示例章节

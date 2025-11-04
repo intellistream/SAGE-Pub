@@ -122,5 +122,5 @@ sink:
 
 - [运维指南](operations.md)
 - [配置参考](../config/config.md)
-- [开发者指南](../../../developers/development-setup.md)
-- [CLI 工具](../../tools/cli_reference.md)
+- [开发者指南](../../../../developers/development-setup.md)
+- [CLI 工具](../../sage-tools/cli_reference.md)

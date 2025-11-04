@@ -169,8 +169,6 @@ Studio supports various data sources and sinks:
 - Print (with formatting)
 - Memory (for testing)
 
-See [Source/Sink Configuration Guide](../../../sage-studio/docs/SOURCE_SINK_CONFIG.md) for details.
-
 ### Node Configuration
 
 Each node type has specific configuration parameters:
@@ -326,9 +324,9 @@ pytest tests/ -v
 
 ## See Also
 
-- [SAGE Architecture](../../concepts/architecture/overview.md)
-- [Pipeline Builder](sage-tools/pipeline_builder.md)
-- [Getting Started](../../getting-started/quickstart.md)
+- [SAGE Architecture](../../../concepts/architecture/overview.md)
+- [Pipeline Builder](../sage-tools/pipeline_builder.md)
+- [Getting Started](../../../getting-started/quickstart.md)
 
 ## Contributing
 
@@ -339,4 +337,4 @@ Contributions to sage-studio are welcome:
 - Add pipeline templates
 - Enhance visualization
 
-See [Community Guide](../../community/community.md) for details.
+See [Community Guide](../../../community/community.md) for details.

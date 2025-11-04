@@ -56,6 +56,6 @@ class MyDocument(BaseDocument):
 
 ## See Also
 
-- [Architecture Overview](../../architecture/overview.md)
-- [Package Structure](../../architecture/package-structure.md)
-- [sage-platform Documentation](../platform/overview.md)
+- [Architecture Overview](../../../concepts/architecture/overview.md)
+- [Package Structure](../../../concepts/architecture/package-structure.md)
+- [sage-platform Documentation](../sage-platform/overview.md)

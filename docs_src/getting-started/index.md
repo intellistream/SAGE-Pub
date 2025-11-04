@@ -48,9 +48,9 @@
 
 探索 SAGE 的高级特性：
 
-- [分布式 Pipeline](../tutorials/advanced/index.md#distributed-pipeline)
-- [自定义算子](../tutorials/advanced/index.md#custom-operators)
-- [复杂工作流](../tutorials/advanced/index.md#complex-workflows)
+- [分布式 Pipeline](../tutorials/advanced/distributed-pipeline.md)
+- [自定义算子](../tutorials/advanced/custom-operators.md)
+- [复杂工作流](../tutorials/advanced/complex-workflows.md)
 
 ## 🎯 学习路径建议
 
@@ -65,13 +65,13 @@
 
     1. ✅ [架构总览](../concepts/architecture/overview.md)
     2. ✅ [包结构](../concepts/architecture/package-structure.md)
-    3. ✅ [自定义算子](../tutorials/advanced/index.md#custom-operators)
-    4. ✅ [性能优化](../tutorials/advanced/index.md#performance-tuning)
+    3. ✅ [自定义算子](../tutorials/advanced/custom-operators.md)
+    4. ✅ [性能优化](../tutorials/advanced/performance-tuning.md)
 
 === "高级开发者"
 
-    1. ✅ [分布式部署](../tutorials/advanced/index.md#distributed-pipeline)
-    2. ✅ [容错机制](../tutorials/advanced/index.md#fault-tolerance)
+    1. ✅ [分布式部署](../tutorials/advanced/distributed-pipeline.md)
+    2. ✅ [容错机制](../tutorials/advanced/fault-tolerance.md)
     3. ✅ [设计决策文档](../concepts/architecture/design-decisions/sage-libs-restructuring.md)
     4. ✅ [贡献指南](../developers/commands.md)
 

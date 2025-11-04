@@ -206,7 +206,7 @@ if motion_detected and time > 22:00:
 
 - [源代码](https://github.com/intellistream/SAGE/tree/main/packages/sage-apps/src/sage/apps/smart_home)
 - [示例脚本](https://github.com/intellistream/SAGE/tree/main/examples/apps/run_smart_home.py)
-- [IoT 最佳实践](../best-practices/index.md)
+- [IoT 最佳实践](best-practices/index.md)
 
 ## 下一步
 

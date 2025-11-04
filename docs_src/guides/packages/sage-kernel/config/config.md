@@ -140,8 +140,7 @@ generator:
 - `temperature`: 生成随机性控制，范围0-1
 - `max_tokens`: 单次生成的最大token数量
 
-> 💡 **提示**: 可以使用 `sage config llm auto` 命令自动检测和配置本地LLM服务。详见
-> [CLI参考](../../tools/cli_reference.md#llm-%E6%9C%8D%E5%8A%A1%E8%87%AA%E5%8A%A8%E9%85%8D%E7%BD%AE)。
+> 💡 **提示**: 可以使用 `sage config llm auto` 命令自动检测和配置本地LLM服务。详见 [CLI参考](../../sage-tools/cli_reference.md)（查找"LLM 服务自动配置"章节）。
 
 - `seed`: 随机种子，用于保证结果的可重现性
 

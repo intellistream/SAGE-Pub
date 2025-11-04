@@ -131,7 +131,7 @@
 
 在学习本章内容前，建议您已经掌握：
 
-- ✅ [快速入门](../getting-started/quickstart.md) - SAGE 基础使用
+- ✅ [快速入门](../../getting-started/quickstart.md) - SAGE 基础使用
 - ✅ [基础教程](../basic/streaming-101.md) - 流式处理概念
 - ✅ [Kernel 用户指南](../../guides/packages/sage-kernel/README.md) - 执行引擎原理
 - ✅ Python 异步编程基础
