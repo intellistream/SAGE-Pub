@@ -935,6 +935,7 @@
 
 .document {
     position: absolute;
+    left: 120px;  /* 初始位置在 ArXiv 源附近 */
     width: 32px;
     height: 40px;
     background: linear-gradient(135deg, #f1f5f9, #e2e8f0);
@@ -946,7 +947,7 @@
     justify-content: center;
     color: #64748b;
     font-size: 14px;
-    transition: all 1.5s ease;
+    opacity: 0;  /* 初始隐藏，动画时才显示 */
     transform: translateY(-50%);
 }
 
