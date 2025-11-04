@@ -9,7 +9,6 @@
         <div class="sync-status" id="sync-status">未同步</div>
     </div>
 
-```
 <!-- Token 配置弹窗 -->
 <div id="token-config-modal" class="modal" style="display: none;">
     <div class="modal-content">
@@ -83,7 +82,6 @@
         </div>
     </div>
 </div>
-```
 
 </div>
 

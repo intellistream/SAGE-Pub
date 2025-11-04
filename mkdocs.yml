@@ -262,10 +262,6 @@ nav:
   - 开发笔记:
     - 总览: dev-notes/index.md
     - 包架构: dev-notes/package-architecture.md
-    - 重构记录:
-      - sage-libs 重构: concepts/architecture/design-decisions/sage-libs-restructuring.md
-      - RPC 队列重构: concepts/architecture/design-decisions/rpc-queue-refactoring.md
-      - L2 平台层创建: concepts/architecture/design-decisions/l2-platform-layer.md
 
 - 社区:
   - 社区总览: community/README.md
