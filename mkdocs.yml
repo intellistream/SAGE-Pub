@@ -105,12 +105,14 @@ nav:
       - Join 连接: tutorials/basic/operators/hello_join_world.md
 
 - 核心概念:
+  - 概览: concepts/index.md
   - 架构总览: concepts/architecture/overview.md
   - 包结构: concepts/architecture/package-structure.md
 
 - 高级教程: tutorials/advanced/
 
 - 用户指南:
+  - 概览: guides/index.md
   - Kernel 执行引擎:
     - 概览: guides/packages/sage-kernel/README.md
     - 架构设计: guides/packages/sage-kernel/architecture.md
