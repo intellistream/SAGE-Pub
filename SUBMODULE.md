@@ -56,7 +56,7 @@ git commit -m "chore: update SAGE-Pub to latest"
 
 **Problem:** You're in the main repository trying to commit submodule files.
 
-**Solution:** 
+**Solution:**
 ```bash
 cd docs-public  # Enter the submodule first
 git add .
