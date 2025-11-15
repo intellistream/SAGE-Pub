@@ -164,14 +164,14 @@ cd SAGE
 # Developer installation
 ./quickstart.sh --dev --yes
 
-# Minimal core only
-./quickstart.sh --minimal --yes
+# Core runtime only
+./quickstart.sh --core --yes
 
 # Standard + vLLM support
 ./quickstart.sh --standard --vllm --yes
 
 # Use system Python instead of conda
-./quickstart.sh --minimal --pip --yes
+./quickstart.sh --core --pip --yes
 
 # View all flags
 ./quickstart.sh --help

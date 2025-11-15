@@ -2,7 +2,21 @@
 
 > 用于构建透明 LLM 系统的声明式、可组合框架
 
-[![CI](https://github.com/intellistream/SAGE/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/intellistream/SAGE/actions/workflows/ci.yml)
+[![CI](https://github.com/intellistream/SAGE/actions/workflows/ci.yml/badge.svg?branch=main)](ht# 开发者安装
+./quickstart.sh --dev --yes
+
+# 核心运行时安装
+./quickstart.sh --core --yes
+
+# 标准安装 + vLLM 支持
+./quickstart.sh --standard --vllm --yes
+
+# 使用系统 Python 而非 conda
+./quickstart.sh --core --pip --yes
+
+# 查看所有标志
+./quickstart.sh --help
+```m/intellistream/SAGE/actions/workflows/ci.yml)
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](https://github.com/intellistream/SAGE/blob/main/LICENSE)
 [![Python](https://img.shields.io/badge/Python-3.10%2B-blue.svg)](https://python.org)
 [![PyPI version](https://badge.fury.io/py/isage.svg)](https://badge.fury.io/py/isage)
