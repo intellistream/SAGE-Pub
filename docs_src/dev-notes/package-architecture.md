@@ -264,8 +264,8 @@ from sage.libs.io import FileSource, TerminalSink
 from sage.libs.io.batch import JSONLBatch
 
 # Agents & Bots
-from sage.libs.agents import LangChainAgentAdapter
-from sage.libs.agents.bots import AnswerBot, QuestionBot, SearcherBot, CriticBot
+from sage.libs.agentic.agents import LangChainAgentAdapter
+from sage.libs.agentic.agents.bots import AnswerBot, QuestionBot, SearcherBot, CriticBot
 
 # 第三方集成 (新增)
 from sage.libs.integrations import OpenAIClient, MilvusBackend, ChromaBackend
@@ -817,7 +817,7 @@ L6 (sage-studio)       - 接口层
 # 从包的公共 API 导入
 from sage.kernel.api import LocalEnvironment
 from sage.middleware.operators.rag import ChromaRetriever
-from sage.libs.agents import LangChainAgentAdapter
+from sage.libs.agentic.agents import LangChainAgentAdapter
 ```
 
 **❌ 不推荐**:

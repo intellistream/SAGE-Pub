@@ -186,7 +186,7 @@ from sage.kernel.api import LocalEnvironment
 from sage.libs.io import FileSource, TerminalSink
 
 # Agents
-from sage.libs.agents.bots import AnswerBot, QuestionBot
+from sage.libs.agentic.agents.bots import AnswerBot, QuestionBot
 
 # RAG
 from sage.middleware.operators.rag import ChromaRetriever, OpenAIGenerator

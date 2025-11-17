@@ -1,7 +1,7 @@
 # Runtime 组件设计文档
 
 !!! note "定位"
-`AgentRuntime`（`packages/sage-libs/src/sage/libs/agents/runtime/agent.py`）提供了一个**最小可用的执行循环**：接受用户问题
+`AgentRuntime`（`packages/sage-libs/src/sage/libs/agentic/agents/runtime/agent.py`）提供了一个**最小可用的执行循环**：接受用户问题
 → 调用 `LLMPlanner` 生成 MCP 计划 → 逐步调用 `MCPRegistry` 中的工具 → 返回回复或兜底总结。
 
 ______________________________________________________________________
@@ -125,9 +125,9 @@ ______________________________________________________________________
 ## 3. 快速上手
 
 ```python
-from sage.libs.agents.profile.profile import BaseProfile
-from sage.libs.agents.planning.llm_planner import LLMPlanner
-from sage.libs.agents.action.mcp_registry import MCPRegistry
+from sage.libs.agentic.agents.profile.profile import BaseProfile
+from sage.libs.agentic.agents.planning.llm_planner import LLMPlanner
+from sage.libs.agentic.agents.action.mcp_registry import MCPRegistry
 
 profile = BaseProfile(name="ResearchAgent", role="planner", language="zh")
 planner = LLMPlanner(generator=openai_generator)
@@ -160,7 +160,7 @@ ______________________________________________________________________
 
 ## 5. 现状提示
 
-- 文件位置：`packages/sage-libs/src/sage/libs/agents/runtime/agent.py`
+- 文件位置：`packages/sage-libs/src/sage/libs/agentic/agents/runtime/agent.py`
 - 依赖仅限 `BaseProfile`、`LLMPlanner`、`MCPRegistry` 与可选 `summarizer`
 - `BaseProfile` 默认语言为 `"zh"`、语气为 `"concise"`，因此默认输出偏中文简洁风格
 - `execute(...)` 会在调用结束后恢复原始 `max_steps` 与 Profile 配置

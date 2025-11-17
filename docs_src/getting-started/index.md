@@ -113,7 +113,7 @@ env.submit()
 ### 构建 AI Agent
 
 ```python
-from sage.libs.agents.bots import AnswerBot, QuestionBot
+from sage.libs.agentic.agents.bots import AnswerBot, QuestionBot
 
 # 创建对话 Agent
 answer_bot = AnswerBot(model="gpt-4")

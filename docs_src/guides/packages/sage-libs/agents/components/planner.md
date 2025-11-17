@@ -1,6 +1,6 @@
 # `LLMPlanner` 组件设计文档
 
-> 模块路径：`sage/libs/agents/planning/llm_planner.py`
+> 模块路径：`sage/libs/agentic/agents/planning/llm_planner.py`
 
 !!! note "定位" `LLMPlanner` 负责把 **Profile + 用户请求 + 工具清单(MCP)** 转换为**可执行的 JSON 计划**（PlanSteps）。
 实现目标是：**简单、稳健、易接入** —— 不引入复杂的状态机，只做计划生成与最小校验。
@@ -156,7 +156,7 @@ ______________________________________________________________________
 === "调用示例"
 
 ```python
-from sage.libs.agents.planning.llm_planner import LLMPlanner
+from sage.libs.agentic.agents.planning.llm_planner import LLMPlanner
 from sage.libs.rag.generator import OpenAIGenerator
 
 conf = {

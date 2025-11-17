@@ -160,7 +160,7 @@ ______________________________________________________________________
 
 **核心模块** (10个):
 
-- `agents`: Agents 框架 + Pre-built Bots
+- `agentic`: Agents 框架 + Pre-built Bots
 - `rag`: RAG 工具和 Pipeline
 - `io`: I/O 工具 (重命名自 io_utils)
 - `workflow`: 工作流优化 (重命名自 workflow_optimizer)
@@ -174,7 +174,7 @@ ______________________________________________________________________
 
 ```python
 from sage.libs.io import FileSource, TerminalSink
-from sage.libs.agents.bots import AnswerBot, QuestionBot
+from sage.libs.agentic.agents.bots import AnswerBot, QuestionBot
 from sage.libs.workflow import WorkflowGraph
 from sage.libs.integrations import OpenAIClient
 ```

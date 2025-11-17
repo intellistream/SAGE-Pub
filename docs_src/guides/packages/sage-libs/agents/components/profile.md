@@ -1,6 +1,6 @@
 # Profile 组件设计文档
 
-!!! note "定位" `BaseProfile`（`packages/sage-libs/src/sage/libs/agents/profile/profile.py`）定义了 Agent
+!!! note "定位" `BaseProfile`（`packages/sage-libs/src/sage/libs/agentic/agents/profile/profile.py`）定义了 Agent
 的“身份卡片”，并可直接映射为 `MapFunction`。它负责描述角色、目标、任务、背景以及输出偏好，可随时渲染为系统提示词。
 
 ______________________________________________________________________

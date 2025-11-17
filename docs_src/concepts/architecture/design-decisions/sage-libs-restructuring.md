@@ -228,7 +228,7 @@ modules"
    find packages -name "*.py" -exec sed -i 's/from sage\.libs\.utils\.openai/from sage.libs.integrations.openai/g' {} \;
 
    # agents.*_bot → agents.bots.*_bot (test files)
-   sed -i 's/from sage\.libs\.agents\.(.*_bot)/from sage.libs.agents.bots.\1/g' packages/sage-libs/tests/lib/agents/test_bots.py
+   sed -i 's/from sage\.libs\.agentic\.agents\.(.*_bot)/from sage.libs.agentic.agents.bots.\1/g' packages/sage-libs/tests/lib/agents/test_bots.py
    ```
 
 1. **受影响的包** ✅
@@ -260,7 +260,7 @@ modules"
    - sage.libs.integrations.chroma.ChromaBackend ✅
    - sage.libs.integrations.milvus.MilvusBackend ✅
    - sage.libs.integrations.openaiclient.OpenAIClient ✅
-   - sage.libs.agents.bots.answer_bot.AnswerBot ✅
+   - sage.libs.agentic.agents.bots.answer_bot.AnswerBot ✅
 
 ### Phase 4: 清理和优化 ✅ **已完成**
 

@@ -1,6 +1,6 @@
 # Action 组件设计文档 —— `MCPRegistry`
 
-> 模块路径：`packages/sage-libs/src/sage/libs/agents/action/mcp_registry.py`
+> 模块路径：`packages/sage-libs/src/sage/libs/agentic/agents/action/mcp_registry.py`
 
 !!! note "定位" `MCPRegistry` 是 **MCP 风格工具** 的**进程内注册与调用**中心。Planner
 产出的步骤（`{"type":"tool", ...}`）会交给它执行。
@@ -77,7 +77,7 @@ ______________________________________________________________________
 ## 4. 进程内注册与调用（本地工具）
 
 ```python
-from sage.libs.agents.action.mcp_registry import MCPRegistry
+from sage.libs.agentic.agents.action.mcp_registry import MCPRegistry
 
 # 1) 实例化注册表
 reg = MCPRegistry()
@@ -191,7 +191,7 @@ ______________________________________________________________________
 
 ```python
 import pytest
-from sage.libs.agents.action.mcp_registry import MCPRegistry
+from sage.libs.agentic.agents.action.mcp_registry import MCPRegistry
 
 
 class EchoTool:

@@ -505,7 +505,7 @@ ______________________________________________________________________
 
 ### `BaseAgent`
 
-**路径**: `sage.libs.agents.agent.BaseAgent`
+**路径**: `sage.libs.agentic.agents.agent.BaseAgent`
 
 **功能**: 基础智能体类
 
@@ -513,7 +513,7 @@ ______________________________________________________________________
 
 ### `AgentRuntime`
 
-**路径**: `sage.libs.agents.runtime.agent.AgentRuntime`
+**路径**: `sage.libs.agentic.agents.runtime.agent.AgentRuntime`
 
 **功能**: 智能体运行时环境
 
@@ -534,7 +534,7 @@ ______________________________________________________________________
 stages:
   - id: agent-runtime
     kind: agent
-    class: sage.libs.agents.runtime.agent.AgentRuntime
+    class: sage.libs.agentic.agents.runtime.agent.AgentRuntime
     params:
       max_iterations: 10
 ```
@@ -543,7 +543,7 @@ ______________________________________________________________________
 
 ### `LLMPlanner`
 
-**路径**: `sage.libs.agents.planning.llm_planner.LLMPlanner`
+**路径**: `sage.libs.agentic.agents.planning.llm_planner.LLMPlanner`
 
 **功能**: 基于 LLM 的任务规划器
 
@@ -564,7 +564,7 @@ ______________________________________________________________________
 stages:
   - id: planner
     kind: agent
-    class: sage.libs.agents.planning.llm_planner.LLMPlanner
+    class: sage.libs.agentic.agents.planning.llm_planner.LLMPlanner
     params:
       model: "gpt-3.5-turbo"
       temperature: 0.7
@@ -574,7 +574,7 @@ ______________________________________________________________________
 
 ### `MCPRegistry`
 
-**路径**: `sage.libs.agents.action.mcp_registry.MCPRegistry`
+**路径**: `sage.libs.agentic.agents.action.mcp_registry.MCPRegistry`
 
 **功能**: Model Context Protocol 工具注册表
 
@@ -593,7 +593,7 @@ ______________________________________________________________________
 
 ### `BaseProfile`
 
-**路径**: `sage.libs.agents.profile.profile.BaseProfile`
+**路径**: `sage.libs.agentic.agents.profile.profile.BaseProfile`
 
 **功能**: 智能体配置文件
 

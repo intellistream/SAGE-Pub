@@ -66,7 +66,7 @@ API 文档按照 SAGE 的 **L1-L6 分层架构**组织，帮助您快速找到�
 AI 组件库，包含 RAG、Agents、Embeddings 等高级功能。
 
 **主要模块**：
-- `sage.libs.agents` - Agent 框架（Profile、Memory、Planner、Action）
+- `sage.libs.agentic.agents` - Agent 框架（Profile、Planner、Action、Runtime）
 - `sage.libs.rag` - RAG Pipeline（检索、生成、评估）
 - `sage.libs.embedding` - 向量嵌入
 - `sage.libs.tools` - 工具集（搜索、图像、文本处理）

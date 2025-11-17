@@ -20,14 +20,14 @@ Algorithm libraries: agents, RAG, tools, workflow optimization, and I/O utilitie
 
 ### Agents
 
-::: sage.libs.agents
+::: sage.libs.agentic.agents
     options:
       show_root_heading: true
       members:
-        - Agent
-        - AgentRuntime
-        - Planner
-        - ActionExecutor
+        - runtime
+        - planning
+        - action
+        - profile
 
 ### RAG (Retrieval-Augmented Generation)
 
@@ -129,18 +129,19 @@ stream = (env
 ### Agent Framework
 
 ```python
-from sage.libs.agents import Agent, AgentRuntime
+from sage.libs.agentic.agents.profile.profile import BaseProfile
+from sage.libs.agentic.agents.runtime.agent import AgentRuntime
+from sage.libs.agentic.agents.planning.llm_planner import LLMPlanner
+from sage.libs.agentic.agents.action.mcp_registry import MCPRegistry
 
-# Define agent
-agent = Agent(
-    name="assistant",
-    tools=[search_tool, calculator_tool],
-    planner=ReActPlanner()
-)
+profile = BaseProfile(name="assistant", role="research helper")
+registry = MCPRegistry()
+registry.register(search_tool)
+registry.register(calculator_tool)
 
-# Run agent
-runtime = AgentRuntime()
-result = runtime.run(agent, "What is 2+2 and search for AI news?")
+planner = LLMPlanner(generator=my_generator)
+runtime = AgentRuntime(profile=profile, planner=planner, tools=registry)
+result = runtime.execute({"query": "计算 2+2 并检索 AI 新闻"})
 ```
 
 ### I/O Sources and Sinks

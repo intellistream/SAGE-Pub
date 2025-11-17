@@ -33,10 +33,10 @@ import os, sys, json, importlib
 from typing import Any, Dict, Iterable
 
 from sage.common.utils.config.loader import load_config
-from sage.libs.agents.profile.profile import BaseProfile
-from sage.libs.agents.action.mcp_registry import MCPRegistry
-from sage.libs.agents.planning.llm_planner import LLMPlanner
-from sage.libs.agents.runtime.agent import AgentRuntime
+from sage.libs.agentic.agents.profile.profile import BaseProfile
+from sage.libs.agentic.agents.action.mcp_registry import MCPRegistry
+from sage.libs.agentic.agents.planning.llm_planner import LLMPlanner
+from sage.libs.agentic.agents.runtime.agent import AgentRuntime
 from sage.libs.rag.generator import OpenAIGenerator
 
 
