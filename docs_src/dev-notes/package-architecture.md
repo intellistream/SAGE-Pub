@@ -25,6 +25,7 @@
 | L6   | sage-studio     | 8      | ✅ 51    | ✅         | ✅       | -           |
 | L6   | sage-cli        | 5      | ⚠️ 待测试 | ✅         | ✅       | 新增包      |
 | L6   | sage-tools      | 106    | ⚠️ 78/82 | ✅         | ✅       | 4个CLI超时  |
+| L6   | sage-gateway    | 8      | ✅ 37    | ✅         | ✅       | API Gateway |
 
 **核心指标**:
 
@@ -46,6 +47,7 @@ SAGE 采用分层单体架构（Modular Monolith），由 **10 个独立包**组
 L6: sage-studio          # Web UI 可视化接口
     sage-tools          # 开发工具和测试框架
     sage-cli            # CLI 命令行接口
+    sage-gateway        # API Gateway (OpenAI/Anthropic 兼容)
     │
 L5: sage-apps           # 特定领域应用
     sage-benchmark      # 性能基准测试
