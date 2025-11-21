@@ -1,0 +1,3248 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="高性能分布式推理框架 - 数据流原生的模块化、透明、可控的LLM工作流推理框架">
+      
+      
+        <meta name="author" content="IntelliStream Lab">
+      
+      
+        <link rel="canonical" href="https://intellistream.github.io/SAGE/dev-notes/package-architecture/">
+      
+      
+        <link rel="prev" href="../">
+      
+      
+        <link rel="next" href="../../community/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/img/isage_light.svg">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.0">
+    
+    
+  
+    <title>包架构</title>
+  
+
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.618322db.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+<!-- Google Tag Manager -->
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-T35S4S46');</script>
+<!-- End Google Tag Manager -->
+
+    
+  <!-- pragma: allowlist secret -->
+  <meta name="algolia-site-verification" content="165B7E7C89E49946" />
+  <style>
+    @import url("https://fonts.googleapis.com/css2?family=Public+Sans&display=swap");
+    :root {
+      --md-primary-fg-color: #333333;
+      --md-accent-fg-color: #1E88E5;
+      --md-default-bg-color: #FFFFFF;
+      --md-default-fg-color: #333333;
+      --md-text-font-family: "Public Sans", sans-serif;
+    }
+
+    body {
+      font-family: var(--md-text-font-family);
+      background-color: var(--md-default-bg-color);
+      color: var(--md-default-fg-color);
+    }
+
+    .md-main {
+      background-color: #FFFFFF;
+    }
+
+    .md-footer {
+      background-color: #F5F5F5;
+      color: #666666;
+    }
+
+    .md-footer-meta {
+      background-color: #4d4d4d;
+    }
+
+    .md-typeset a {
+      color: #1E88E5;
+    }
+
+    .md-typeset a:hover {
+      color: #1565C0;
+    }
+
+    .md-nav__link--active,
+    .md-nav__link:active {
+      color: #1E88E5;
+    }
+
+    .md-search__input {
+      background-color: #F5F5F5;
+      color: #333333;
+    }
+
+    .md-search__input:hover,
+    .md-search__input:focus {
+      background-color: #EEEEEE;
+    }
+    /* Table of contents styles */
+    .md-nav--secondary .md-nav__item--active > .md-nav__link {
+      font-weight: bold;
+      color: var(--md-primary-fg-color);
+    }
+
+    .md-nav--secondary .md-nav__item--nested > .md-nav__link {
+      font-weight: normal;
+      color: var(--md-default-fg-color);
+    }
+
+    .md-header__button.md-logo img {
+      height: 30px;
+      max-height: 30px;
+      width: auto;
+      vertical-align: middle;
+    }
+
+    .md-nav--secondary .md-nav__item--nested > .md-nav__link::before {
+      content: "";
+      display: inline-block;
+      width: 6px;
+      height: 6px;
+      background-color: var(--md-default-fg-color);
+      border-radius: 50%;
+      margin-right: 0.5rem;
+    }
+
+    [data-md-color-scheme="slate"] {
+      --md-default-bg-color: #1E1E1E;
+      --md-default-fg-color: #FFFFFF;
+      --md-accent-fg-color: #64B5F6;
+    }
+
+    [data-md-color-scheme="slate"] .md-main {
+      background-color: #1E1E1E;
+    }
+
+    [data-md-color-scheme="slate"] .navbar {
+      background-color: #1E1E1E;
+      color: #FFFFFF;
+      box-shadow: none;
+    }
+
+    [data-md-color-scheme="slate"] .md-footer {
+      background-color: #1E1E1E;
+      color: #BDBDBD;
+    }
+
+    [data-md-color-scheme="slate"] .md-header {
+      background-color: #1E1E1E;
+      color: #BDBDBD;
+    }
+
+    [data-md-color-scheme="slate"] .md-tabs {
+      background-color: #1E1E1E;
+      color: #BDBDBD;
+    }
+
+    [data-md-color-scheme="slate"] .md-search__input {
+      background-color: #F5F5F5;
+      color: #333333;
+    }
+
+    [data-md-color-scheme="slate"] .md-search__icon {
+      color: #333333;
+    }
+
+    [data-md-color-scheme="slate"] .md-search__input::placeholder {
+      color: #333333;
+    }
+
+    [data-md-color-scheme="slate"] .md-footer-meta {
+      background-color: #4d4d4d;
+    }
+
+    [data-md-color-scheme="slate"] .md-typeset a {
+      color: #64B5F6;
+    }
+
+    [data-md-color-scheme="slate"] .md-typeset a:hover {
+      color: #90CAF9;
+    }
+
+    .notebook-links {
+      display: flex;
+      justify-content: flex-end;
+      margin-bottom: 1rem;
+    }
+    .notebook-links .md-content__button {
+      margin-left: 0.5rem;
+    }
+
+    [data-md-color-scheme=default] .logo-dark {
+      display: none !important;
+    }
+
+    [data-md-color-scheme=slate] .logo-light {
+      display: none !important;
+    }
+
+    .jupyter-wrapper .jp-CodeCell .jp-Cell-inputWrapper .jp-InputPrompt.jp-InputArea-prompt {
+      display: none !important;
+    }
+
+    .jupyter-wrapper .jp-Notebook .jp-Cell .jp-OutputPrompt {
+      display: none !important;
+    }
+
+    .md-banner {
+      background-color: #CFC9FA;
+      color: #000000;
+    }
+
+    .md-banner a {
+      color: #000000;
+      text-decoration: underline;
+    }
+
+    .md-banner a:hover {
+      color: #000000;
+    }
+
+    .md-header__title {
+      visibility: hidden;
+    }
+
+    /* Dark mode banner styling */
+    [data-md-color-scheme="slate"] .md-banner {
+      background-color: #CFC9FA; /* Same light purple for both modes */
+      color: #000000;
+    }
+
+    [data-md-color-scheme="slate"] .md-banner a {
+      color: #000000;
+    }
+
+    [data-md-color-scheme="slate"] .md-banner a:hover {
+      color: #000000;
+    }
+
+  </style>
+
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="blue" data-md-color-accent="blue">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#sage" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../.." title="SAGE Documentation" class="md-header__button md-logo" aria-label="SAGE Documentation" data-md-component="logo">
+      
+  <img src="../../assets/logo/sage.svg" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            SAGE Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              包架构
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="blue" data-md-color-accent="blue"  aria-label="切换到深色模式"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="切换到深色模式" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="blue" data-md-color-accent="blue"  aria-label="切换到浅色模式"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="切换到浅色模式" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+          <a href="javascript:void(0)" class="md-search__icon md-icon" title="分享" aria-label="分享" data-clipboard data-clipboard-text="" data-md-component="search-share" tabindex="-1">
+            
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.15c-.05.21-.08.43-.08.66 0 1.61 1.31 2.91 2.92 2.91s2.92-1.3 2.92-2.91A2.92 2.92 0 0 0 18 16.08"/></svg>
+          </a>
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/intellistream/SAGE" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    intellistream/SAGE
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+    
+      
+<nav class="md-tabs" aria-label="标签" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  首页
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../about/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  关于
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../getting-started/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  入门指南
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../concepts/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  核心概念
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../tutorials/advanced/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  高级教程
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../guides/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  用户指南
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../api-reference/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  API 参考
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../../developers/commands/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  开发者
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../community/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  社区
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+    
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="SAGE Documentation" class="md-nav__button md-logo" aria-label="SAGE Documentation" data-md-component="logo">
+      
+  <img src="../../assets/logo/sage.svg" alt="logo">
+
+    </a>
+    SAGE Documentation
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/intellistream/SAGE" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    intellistream/SAGE
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    首页
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../about/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    关于
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../getting-started/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    入门指南
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../concepts/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    核心概念
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../tutorials/advanced/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    高级教程
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../guides/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    用户指南
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../api-reference/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API 参考
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    开发者
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_8">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    开发者
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../developers/commands/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    贡献指南
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../developers/development-setup/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    开发环境
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../developers/ci-cd/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CI/CD
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8_4" checked>
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    开发笔记
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_8_4" id="__nav_8_4_label" tabindex="">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_8_4_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_8_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    开发笔记
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    包架构
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    包架构
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🎉 架构审查状态
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🎉 架构审查状态">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        审查成果
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        📦 包概览
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="📦 包概览">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        层级说明
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="层级说明">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#l2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        关于 L2 层
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#l2l3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        L2/L3 跨层依赖处理：工厂模式
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🔍 包详细说明
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🔍 包详细说明">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#sage-common-l1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        sage-common (L1)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sage-platform-l2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        sage-platform (L2)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sage-kernel-l3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        sage-kernel (L3)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sage-libs-l3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        sage-libs (L3)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sage-middleware-l4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        sage-middleware (L4)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sage-apps-l5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        sage-apps (L5)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sage-benchmark-l5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        sage-benchmark (L5)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sage-studio-l6" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        sage-studio (L6)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sage-cli-l6" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        sage-cli (L6)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sage-tools-l6" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        sage-tools (L6)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_6" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🔗 依赖关系图
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_7" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        📋 依赖规则
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="📋 依赖规则">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_8" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ✅ 允许的依赖
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_9" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ❌ 禁止的依赖
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_10" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🏗️ 设计原则
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🏗️ 设计原则">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. 单向依赖
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. 职责分离
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. 接口稳定
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. 最小依赖
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_11" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        📊 包统计
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_12" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🔄 重构历史
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🔄 重构历史">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#2025-10-kernel-api-issue-1041" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🚧 待办: 2025-10 Kernel API 层重构 (Issue #1041)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2025-10-sage-libs-issue-1040" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2025-10 sage-libs 模块重构 (Issue #1040)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2025-01" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2025-01 重大重构
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2025-01-top-layer-review" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2025-01 架构审查（Top-Layer Review）
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_13" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🚀 使用指南
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🚀 使用指南">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_14" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        导入最佳实践
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_15" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        添加新功能
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_16" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        📚 参考文档
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_17" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🛠️ 架构相关命令
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🛠️ 架构相关命令">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_18" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        查看架构信息
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_19" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        检查架构合规性
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_20" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        综合质量检查
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_21" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🤝 贡献
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../community/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    社区
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+                
+
+
+
+  
+
+
+  <nav class="md-path" aria-label="导航栏" >
+    <ol class="md-path__list">
+      
+        
+  
+  
+    <li class="md-path__item">
+      <a href="../.." class="md-path__link">
+        
+  <span class="md-ellipsis">
+    首页
+  </span>
+
+      </a>
+    </li>
+  
+
+      
+      
+        
+  
+  
+    
+    
+      <li class="md-path__item">
+        <a href="../../developers/commands/" class="md-path__link">
+          
+  <span class="md-ellipsis">
+    开发者
+  </span>
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+    
+    
+      <li class="md-path__item">
+        <a href="../" class="md-path__link">
+          
+  <span class="md-ellipsis">
+    开发笔记
+  </span>
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ol>
+  </nav>
+
+              
+              <article class="md-content__inner md-typeset">
+                
+<div class="notebook-links">
+  
+</div>
+
+
+                  
+
+
+  
+  
+
+
+<h1 id="sage">SAGE 包架构<a class="headerlink" href="#sage" title="Permanent link">&para;</a></h1>
+<blockquote>
+<p>本文档描述 SAGE 项目的包结构、依赖关系和职责划分。</p>
+<p>最后更新：2025-10-23（完整架构审查完成）</p>
+</blockquote>
+<h2 id="_1">🎉 架构审查状态<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h2>
+<p><strong>审查日期</strong>: 2025-10-23\
+<strong>审查日期</strong>: 2025-10-23\
+<strong>审查范围</strong>: 全部 10 个包，700+ 个 Python 文件\
+<strong>状态</strong>: ✅ <strong>完成</strong></p>
+<h3 id="_2">审查成果<a class="headerlink" href="#_2" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>层级</th>
+<th>包名</th>
+<th>文件数</th>
+<th>测试通过</th>
+<th>Layer 标记</th>
+<th>架构合规</th>
+<th>备注</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>L1</td>
+<td>sage-common</td>
+<td>22</td>
+<td>✅ 119</td>
+<td>✅</td>
+<td>✅</td>
+<td>-</td>
+</tr>
+<tr>
+<td>L2</td>
+<td>sage-platform</td>
+<td>7</td>
+<td>✅ 30</td>
+<td>✅</td>
+<td>✅</td>
+<td>-</td>
+</tr>
+<tr>
+<td>L3</td>
+<td>sage-kernel</td>
+<td>268</td>
+<td>✅ 753</td>
+<td>✅</td>
+<td>✅</td>
+<td>-</td>
+</tr>
+<tr>
+<td>L3</td>
+<td>sage-libs</td>
+<td>65</td>
+<td>✅ 169</td>
+<td>✅</td>
+<td>✅</td>
+<td>200 skipped</td>
+</tr>
+<tr>
+<td>L4</td>
+<td>sage-middleware</td>
+<td>150</td>
+<td>✅ 22</td>
+<td>✅</td>
+<td>✅</td>
+<td>-</td>
+</tr>
+<tr>
+<td>L5</td>
+<td>sage-apps</td>
+<td>24</td>
+<td>✅ 2</td>
+<td>✅</td>
+<td>✅</td>
+<td>-</td>
+</tr>
+<tr>
+<td>L5</td>
+<td>sage-benchmark</td>
+<td>42</td>
+<td>✅ 17</td>
+<td>✅</td>
+<td>✅</td>
+<td>-</td>
+</tr>
+<tr>
+<td>L6</td>
+<td>sage-studio</td>
+<td>8</td>
+<td>✅ 51</td>
+<td>✅</td>
+<td>✅</td>
+<td>-</td>
+</tr>
+<tr>
+<td>L6</td>
+<td>sage-cli</td>
+<td>5</td>
+<td>⚠️ 待测试</td>
+<td>✅</td>
+<td>✅</td>
+<td>新增包</td>
+</tr>
+<tr>
+<td>L6</td>
+<td>sage-tools</td>
+<td>106</td>
+<td>⚠️ 78/82</td>
+<td>✅</td>
+<td>✅</td>
+<td>4个CLI超时</td>
+</tr>
+<tr>
+<td>L6</td>
+<td>sage-gateway</td>
+<td>8</td>
+<td>✅ 37</td>
+<td>✅</td>
+<td>✅</td>
+<td>API Gateway (PyPI: isage-gateway)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>核心指标</strong>:</p>
+<ul>
+<li>✅ 架构违规: <strong>0</strong> (已全部修复)</li>
+<li>✅ Layer 标记覆盖: <strong>100%</strong> (10/10 包)</li>
+<li>✅ 核心测试通过率: <strong>100%</strong> (1,093/1,093 for L1-L4)</li>
+<li>✅ 应用层测试: <strong>1,241+/1,245+ (99.7%)</strong></li>
+<li>✅ 依赖关系: <strong>单向向下，清晰可控</strong></li>
+</ul>
+<p>详见: <a href="./dev-notes/RPC_QUEUE_REFACTORING_2025.md">RPC_QUEUE_REFACTORING_2025.md</a></p>
+<hr />
+<h2 id="_3">📦 包概览<a class="headerlink" href="#_3" title="Permanent link">&para;</a></h2>
+<p>SAGE 采用分层单体架构（Modular Monolith），由 <strong>10 个独立包</strong>组成：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>L6: sage-studio          # Web UI 可视化接口
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    sage-tools          # 开发工具和测试框架
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    sage-cli            # CLI 命令行接口
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    sage-gateway        # API Gateway (PyPI: isage-gateway, OpenAI/Anthropic 兼容)
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    │
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>L5: sage-apps           # 特定领域应用
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>    sage-benchmark      # 性能基准测试
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>    │
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>L4: sage-middleware     # 领域算子和组件
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>    │
+<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>L3: sage-kernel         # 流式执行引擎
+<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>    sage-libs           # 算法库和 Agents 框架
+<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>    │
+<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>L2: sage-platform       # 平台服务层
+<a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>    │
+<a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a>L1: sage-common         # 基础设施
+</code></pre></div>
+<h3 id="_4">层级说明<a class="headerlink" href="#_4" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>L1 (Foundation)</strong>: 基础设施，所有包都可以依赖</li>
+<li><strong>L2 (Platform)</strong>: 平台服务（队列、存储、服务抽象）</li>
+<li><strong>L3 (Core)</strong>: 核心功能，提供执行引擎和算法库</li>
+<li><strong>L4 (Domain)</strong>: 领域特定功能，基于 L1-L3 构建</li>
+<li><strong>L5 (Applications)</strong>: 应用层，组合使用下层功能</li>
+<li><strong>L6 (Interface)</strong>: 用户接口层（Web UI + CLI）</li>
+</ul>
+<h4 id="l2">关于 L2 层<a class="headerlink" href="#l2" title="Permanent link">&para;</a></h4>
+<p>✅ <strong>已完成</strong>: 通过 2025-01 架构审查和重构，成功创建了 <strong>sage-platform (L2) 层</strong>。</p>
+<p><strong>重构成果</strong> (commit 1da88c0a - 2025-01-22):</p>
+<ol>
+<li>
+<p><strong>Queue Descriptor</strong> - 从 sage-kernel (L3) 迁移到 sage-platform/queue</p>
+</li>
+<li>
+<p>提供 Python/Ray/RPC 队列的统一接口</p>
+</li>
+<li>
+<p>通用基础设施，支持多种分布式场景</p>
+</li>
+<li>
+<p><strong>KV Backend</strong> - 从 sage-middleware (L4) 迁移到 sage-platform/storage</p>
+</li>
+<li>
+<p>提供 Dict/Redis/RocksDB 的统一接口</p>
+</li>
+<li>
+<p>通用存储抽象，支持灵活的后端替换</p>
+</li>
+<li>
+<p><strong>BaseService</strong> - 从 sage-kernel (L3) 迁移到 sage-platform/service</p>
+</li>
+<li>
+<p>解决了 sage-common (L1) → sage-kernel (L3) 的依赖违规</p>
+</li>
+<li>服务基类现在位于正确的平台层</li>
+</ol>
+<p><strong>L2 层的价值</strong>:</p>
+<ol>
+<li>✅ <strong>架构正确性</strong>: 基础设施抽象独立于核心引擎</li>
+<li>✅ <strong>依赖清晰</strong>: L1 → L2 → L3 的单向依赖链</li>
+<li>✅ <strong>可复用性</strong>: 平台服务被多个上层组件复用</li>
+<li>✅ <strong>可扩展性</strong>: 易于添加新的队列/存储后端</li>
+</ol>
+<p><strong>当前职责分布</strong>:</p>
+<ul>
+<li><strong>sage-common (L1)</strong>: 工具函数、配置、日志（无业务依赖）</li>
+<li><strong>sage-platform (L2)</strong>: 平台服务（队列、存储、服务基类）✨ 新增</li>
+<li><strong>sage-kernel (L3)</strong>: 流式执行引擎（依赖 L2 的队列抽象）</li>
+<li><strong>sage-middleware (L4)</strong>: 领域组件（依赖 L2 的存储抽象）</li>
+</ul>
+<h4 id="l2l3">L2/L3 跨层依赖处理：工厂模式<a class="headerlink" href="#l2l3" title="Permanent link">&para;</a></h4>
+<p><strong>问题</strong>: RPCQueueDescriptor (L2) 需要创建 RPCQueue (L3) 实例，但不应直接导入 L3 代码。</p>
+<p><strong>解决方案</strong>: 工厂注册模式 (Factory Registration Pattern)</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="c1"># L2 (sage-platform) 定义接口和注册点</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="n">_rpc_queue_factory</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">QueueFactory</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="k">def</span><span class="w"> </span><span class="nf">register_rpc_queue_factory</span><span class="p">(</span><span class="n">factory</span><span class="p">:</span> <span class="n">QueueFactory</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;由 L3 层调用注册实现&quot;&quot;&quot;</span>
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>    <span class="k">global</span> <span class="n">_rpc_queue_factory</span>
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>    <span class="n">_rpc_queue_factory</span> <span class="o">=</span> <span class="n">factory</span>
+<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>
+<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>
+<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a><span class="c1"># L3 (sage-kernel) 在初始化时注册实现</span>
+<a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a><span class="kn">from</span><span class="w"> </span><span class="nn">sage.platform.queue</span><span class="w"> </span><span class="kn">import</span> <span class="n">register_rpc_queue_factory</span>
+<a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a><span class="kn">from</span><span class="w"> </span><span class="nn">sage.kernel.runtime.communication.rpc</span><span class="w"> </span><span class="kn">import</span> <span class="n">RPCQueue</span>
+<a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a>
+<a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a>
+<a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a><span class="k">def</span><span class="w"> </span><span class="nf">_rpc_queue_factory</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a>    <span class="k">return</span> <span class="n">RPCQueue</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+<a id="__codelineno-1-18" name="__codelineno-1-18" href="#__codelineno-1-18"></a>
+<a id="__codelineno-1-19" name="__codelineno-1-19" href="#__codelineno-1-19"></a>
+<a id="__codelineno-1-20" name="__codelineno-1-20" href="#__codelineno-1-20"></a><span class="n">register_rpc_queue_factory</span><span class="p">(</span><span class="n">_rpc_queue_factory</span><span class="p">)</span>
+</code></pre></div>
+<p><strong>优点</strong>:</p>
+<ul>
+<li>✅ L2 不直接导入 L3 代码</li>
+<li>✅ 运行时动态绑定实现</li>
+<li>✅ 保持层级依赖单向性</li>
+<li>✅ 易于测试和替换实现</li>
+</ul>
+<p><strong>文件位置</strong>:</p>
+<ul>
+<li>注册函数: <code>packages/sage-platform/src/sage/platform/queue/rpc_queue_descriptor.py</code></li>
+<li>注册调用: <code>packages/sage-kernel/src/sage/kernel/__init__.py</code></li>
+<li>RPC实现: <code>packages/sage-kernel/src/sage/kernel/runtime/communication/rpc/rpc_queue.py</code></li>
+</ul>
+<p>详见: <a href="./dev-notes/L2_LAYER_ANALYSIS.md">L2_LAYER_ANALYSIS.md</a>,
+<a href="./dev-notes/TOP_LAYER_REVIEW_2025.md">TOP_LAYER_REVIEW_2025.md</a></p>
+<h2 id="_5">🔍 包详细说明<a class="headerlink" href="#_5" title="Permanent link">&para;</a></h2>
+<h3 id="sage-common-l1">sage-common (L1)<a class="headerlink" href="#sage-common-l1" title="Permanent link">&para;</a></h3>
+<p><strong>职责</strong>: 基础设施和共享组件</p>
+<p><strong>提供</strong>:</p>
+<ul>
+<li><code>core</code>: 核心类型、异常、参数、数据结构</li>
+<li><code>components</code>: 基础组件（embedding, vllm, 向量数据库等）</li>
+<li><code>config</code>: 配置管理</li>
+<li><code>utils</code>: 通用工具函数</li>
+<li><code>model_registry</code>: 模型注册表</li>
+</ul>
+<p><strong>依赖</strong>: 无</p>
+<p><strong>公共 API</strong>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">sage.common</span><span class="w"> </span><span class="kn">import</span> <span class="n">core</span><span class="p">,</span> <span class="n">components</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">utils</span><span class="p">,</span> <span class="n">model_registry</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">sage.common.core</span><span class="w"> </span><span class="kn">import</span> <span class="n">Parameter</span><span class="p">,</span> <span class="n">Record</span><span class="p">,</span> <span class="n">WindowedRecord</span>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="kn">from</span><span class="w"> </span><span class="nn">sage.common.components</span><span class="w"> </span><span class="kn">import</span> <span class="n">sage_vllm</span><span class="p">,</span> <span class="n">sage_embedding</span>
+</code></pre></div>
+<hr />
+<h3 id="sage-platform-l2">sage-platform (L2)<a class="headerlink" href="#sage-platform-l2" title="Permanent link">&para;</a></h3>
+<p><strong>职责</strong>: 平台服务抽象</p>
+<p><strong>提供</strong>:</p>
+<ul>
+<li><code>queue</code>: 消息队列抽象（Python, Ray, RPC）</li>
+<li><code>storage</code>: KV 存储后端接口</li>
+<li><code>service</code>: 服务基类</li>
+</ul>
+<p><strong>依赖</strong>: <code>sage-common</code></p>
+<p><strong>公共 API</strong>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">sage.platform.queue</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseQueueDescriptor</span><span class="p">,</span> <span class="n">RayQueueDescriptor</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">sage.platform.storage</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseKVBackend</span><span class="p">,</span> <span class="n">DictKVBackend</span>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="kn">from</span><span class="w"> </span><span class="nn">sage.platform.service</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseService</span>
+</code></pre></div>
+<hr />
+<h3 id="sage-kernel-l3">sage-kernel (L3)<a class="headerlink" href="#sage-kernel-l3" title="Permanent link">&para;</a></h3>
+<p><strong>职责</strong>: 流式数据处理引擎和基础算子</p>
+<p><strong>提供</strong>:</p>
+<ul>
+<li><code>api</code>: LocalEnvironment, RemoteEnvironment, Function APIs</li>
+<li><code>operators</code>: 基础算子（map, filter, join, window, aggregate）</li>
+<li><code>runtime</code>: 执行引擎、调度器、任务管理</li>
+<li><code>service</code>: 服务基类和客户端</li>
+<li><code>distributed</code>: 分布式计算支持</li>
+</ul>
+<p><strong>依赖</strong>: <code>sage-common</code></p>
+<p><strong>公共 API</strong>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">sage.kernel</span><span class="w"> </span><span class="kn">import</span> <span class="n">api</span><span class="p">,</span> <span class="n">operators</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">sage.kernel.api</span><span class="w"> </span><span class="kn">import</span> <span class="n">LocalEnvironment</span>
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="kn">from</span><span class="w"> </span><span class="nn">sage.kernel.api.function</span><span class="w"> </span><span class="kn">import</span> <span class="n">MapFunction</span><span class="p">,</span> <span class="n">BatchFunction</span><span class="p">,</span> <span class="n">SinkFunction</span>
+</code></pre></div>
+<hr />
+<h3 id="sage-libs-l3">sage-libs (L3)<a class="headerlink" href="#sage-libs-l3" title="Permanent link">&para;</a></h3>
+<p><strong>职责</strong>: 算法库和 Agents 框架</p>
+<p><strong>最近更新</strong>: 2025-10-23 - 完成模块重构（Issue #1040）</p>
+<p><strong>提供</strong>:</p>
+<ul>
+<li><code>agents</code>: LangChain 风格的 Agents 框架 + Pre-built Bots</li>
+<li><code>agents.bots</code>: 预定义的智能体（AnswerBot, QuestionBot, SearcherBot, CriticBot）</li>
+<li><code>rag</code>: RAG 工具和实用函数（文档加载、pipeline）</li>
+<li><code>tools</code>: 工具函数和辅助类</li>
+<li><code>io</code>: I/O 工具（source, sink, batch）- <strong>重命名自 io_utils</strong></li>
+<li><code>workflow</code>: 工作流优化框架 - <strong>重命名自 workflow_optimizer</strong></li>
+<li><code>integrations</code>: 第三方服务集成 - <strong>新增</strong>（OpenAI, Milvus, Chroma, HF）</li>
+<li><code>filters</code>: 数据过滤器 - <strong>新增</strong>（tool_filter, evaluate_filter）</li>
+<li><code>context</code>: 上下文管理</li>
+<li><code>unlearning</code>: 隐私遗忘算法</li>
+</ul>
+<p><strong>重构成果</strong> (2025-10-23):</p>
+<ul>
+<li>✅ 规范化命名（io, workflow）</li>
+<li>✅ 功能分类（integrations, filters）</li>
+<li>✅ 删除废弃模块（utils, applications）</li>
+<li>✅ 添加 examples.py（agents, rag, unlearning）</li>
+<li>✅ 完整文档覆盖（10/10 modules）</li>
+<li>✅ 169 tests passed (0 failed)</li>
+</ul>
+<p>详见: <a href="./dev-notes/SAGE_LIBS_RESTRUCTURING_2025.md">SAGE_LIBS_RESTRUCTURING_2025.md</a></p>
+<p><strong>依赖</strong>: <code>sage-common</code>, <code>sage-kernel</code> (可选)</p>
+<p><strong>公共 API</strong>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="c1"># 核心模块</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">sage.libs</span><span class="w"> </span><span class="kn">import</span> <span class="n">agents</span><span class="p">,</span> <span class="n">rag</span><span class="p">,</span> <span class="n">tools</span><span class="p">,</span> <span class="n">io</span><span class="p">,</span> <span class="n">workflow</span><span class="p">,</span> <span class="n">unlearning</span>
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="c1"># I/O (已重命名)</span>
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="kn">from</span><span class="w"> </span><span class="nn">sage.libs.io</span><span class="w"> </span><span class="kn">import</span> <span class="n">FileSource</span><span class="p">,</span> <span class="n">TerminalSink</span>
+<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="kn">from</span><span class="w"> </span><span class="nn">sage.libs.io.batch</span><span class="w"> </span><span class="kn">import</span> <span class="n">JSONLBatch</span>
+<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a>
+<a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a><span class="c1"># Agents &amp; Bots</span>
+<a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a><span class="kn">from</span><span class="w"> </span><span class="nn">sage.libs.agentic.agents</span><span class="w"> </span><span class="kn">import</span> <span class="n">LangChainAgentAdapter</span>
+<a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a><span class="kn">from</span><span class="w"> </span><span class="nn">sage.libs.agentic.agents.bots</span><span class="w"> </span><span class="kn">import</span> <span class="n">AnswerBot</span><span class="p">,</span> <span class="n">QuestionBot</span><span class="p">,</span> <span class="n">SearcherBot</span><span class="p">,</span> <span class="n">CriticBot</span>
+<a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a>
+<a id="__codelineno-5-12" name="__codelineno-5-12" href="#__codelineno-5-12"></a><span class="c1"># 第三方集成 (新增)</span>
+<a id="__codelineno-5-13" name="__codelineno-5-13" href="#__codelineno-5-13"></a><span class="kn">from</span><span class="w"> </span><span class="nn">sage.libs.integrations</span><span class="w"> </span><span class="kn">import</span> <span class="n">OpenAIClient</span><span class="p">,</span> <span class="n">MilvusBackend</span><span class="p">,</span> <span class="n">ChromaBackend</span>
+<a id="__codelineno-5-14" name="__codelineno-5-14" href="#__codelineno-5-14"></a>
+<a id="__codelineno-5-15" name="__codelineno-5-15" href="#__codelineno-5-15"></a><span class="c1"># 工作流优化 (重命名)</span>
+<a id="__codelineno-5-16" name="__codelineno-5-16" href="#__codelineno-5-16"></a><span class="kn">from</span><span class="w"> </span><span class="nn">sage.libs.workflow</span><span class="w"> </span><span class="kn">import</span> <span class="n">WorkflowGraph</span><span class="p">,</span> <span class="n">BaseOptimizer</span>
+<a id="__codelineno-5-17" name="__codelineno-5-17" href="#__codelineno-5-17"></a>
+<a id="__codelineno-5-18" name="__codelineno-5-18" href="#__codelineno-5-18"></a><span class="c1"># 数据过滤 (新增)</span>
+<a id="__codelineno-5-19" name="__codelineno-5-19" href="#__codelineno-5-19"></a><span class="kn">from</span><span class="w"> </span><span class="nn">sage.libs.filters</span><span class="w"> </span><span class="kn">import</span> <span class="n">ToolFilter</span><span class="p">,</span> <span class="n">EvaluateFilter</span>
+</code></pre></div>
+<hr />
+<h3 id="sage-middleware-l4">sage-middleware (L4)<a class="headerlink" href="#sage-middleware-l4" title="Permanent link">&para;</a></h3>
+<p><strong>职责</strong>: 领域算子和中间件组件</p>
+<p><strong>提供</strong>:</p>
+<ul>
+<li><code>operators.rag</code>: RAG 算子（检索、提示、生成、评估）</li>
+<li><code>operators.llm</code>: LLM 算子（对话、工具调用）</li>
+<li><code>operators.tools</code>: 工具算子（网页抓取、API 调用）</li>
+<li><code>components</code>: 中间件组件（sage_mem, sage_db, sage_tsdb, sage_refiner 等）</li>
+</ul>
+<p><strong>依赖</strong>: <code>sage-common</code>, <code>sage-kernel</code>, <code>sage-libs</code></p>
+<p><strong>公共 API</strong>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">sage.middleware</span><span class="w"> </span><span class="kn">import</span> <span class="n">operators</span><span class="p">,</span> <span class="n">components</span>
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">sage.middleware.operators.rag</span><span class="w"> </span><span class="kn">import</span> <span class="n">ChromaRetriever</span><span class="p">,</span> <span class="n">QAPromptor</span><span class="p">,</span> <span class="n">OpenAIGenerator</span>
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="kn">from</span><span class="w"> </span><span class="nn">sage.middleware.components</span><span class="w"> </span><span class="kn">import</span> <span class="n">sage_mem</span><span class="p">,</span> <span class="n">sage_db</span>
+</code></pre></div>
+<hr />
+<h3 id="sage-apps-l5">sage-apps (L5)<a class="headerlink" href="#sage-apps-l5" title="Permanent link">&para;</a></h3>
+<p><strong>职责</strong>: 实际应用</p>
+<p><strong>提供</strong>:</p>
+<ul>
+<li><code>video</code>: 视频智能分析应用</li>
+<li><code>medical_diagnosis</code>: 医疗诊断应用</li>
+</ul>
+<p><strong>依赖</strong>: <code>sage-common</code>, <code>sage-kernel</code>, <code>sage-libs</code>, <code>sage-middleware</code></p>
+<p><strong>公共 API</strong>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">sage.apps</span><span class="w"> </span><span class="kn">import</span> <span class="n">video</span><span class="p">,</span> <span class="n">medical_diagnosis</span>
+</code></pre></div>
+<hr />
+<h3 id="sage-benchmark-l5">sage-benchmark (L5)<a class="headerlink" href="#sage-benchmark-l5" title="Permanent link">&para;</a></h3>
+<p><strong>职责</strong>: 基准测试和示例</p>
+<p><strong>提供</strong>:</p>
+<ul>
+<li><code>benchmark_rag</code>: RAG 基准测试</li>
+<li><code>benchmark_memory</code>: 内存性能测试</li>
+</ul>
+<p><strong>依赖</strong>: <code>sage-common</code>, <code>sage-kernel</code>, <code>sage-libs</code>, <code>sage-middleware</code></p>
+<p><strong>公共 API</strong>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">sage.benchmark</span><span class="w"> </span><span class="kn">import</span> <span class="n">benchmark_rag</span><span class="p">,</span> <span class="n">benchmark_memory</span>
+</code></pre></div>
+<hr />
+<h3 id="sage-studio-l6">sage-studio (L6)<a class="headerlink" href="#sage-studio-l6" title="Permanent link">&para;</a></h3>
+<p><strong>职责</strong>: Web UI 可视化接口</p>
+<p><strong>提供</strong>:</p>
+<ul>
+<li><code>StudioManager</code>: 主管理器</li>
+<li><code>models</code>: 数据模型</li>
+<li><code>services</code>: 服务层</li>
+<li><code>adapters</code>: Pipeline 适配器</li>
+<li><code>frontend</code>: 前端资源</li>
+</ul>
+<p><strong>依赖</strong>: <code>sage-common</code>, <code>sage-kernel</code>, <code>sage-libs</code>, <code>sage-middleware</code></p>
+<p><strong>公共 API</strong>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">sage.studio</span><span class="w"> </span><span class="kn">import</span> <span class="n">StudioManager</span><span class="p">,</span> <span class="n">models</span><span class="p">,</span> <span class="n">services</span><span class="p">,</span> <span class="n">adapters</span>
+</code></pre></div>
+<hr />
+<h3 id="sage-cli-l6">sage-cli (L6)<a class="headerlink" href="#sage-cli-l6" title="Permanent link">&para;</a></h3>
+<p><strong>职责</strong>: 统一命令行接口</p>
+<p><strong>提供</strong>:</p>
+<ul>
+<li><code>sage</code> 命令 - SAGE 平台的主要 CLI 入口</li>
+<li><code>sage studio</code> - 启动/管理 Web UI</li>
+<li><code>sage pipeline</code> - Pipeline 构建和管理</li>
+<li><code>sage llm</code> - LLM 服务管理</li>
+<li><code>sage embedding</code> - Embedding 服务管理</li>
+<li><code>sage job</code> - 作业管理</li>
+<li><code>sage cluster</code> - 集群管理</li>
+<li><code>sage config</code> - 配置管理</li>
+</ul>
+<p><strong>依赖</strong>: <code>sage-common</code>, <code>sage-platform</code>, <code>sage-kernel</code>, <code>sage-libs</code>, <code>sage-middleware</code></p>
+<p><strong>公共 API</strong>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="c1"># CLI 使用（不是 Python API）</span>
+<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>sage<span class="w"> </span>--help
+<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>sage<span class="w"> </span>studio<span class="w"> </span>start
+<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a>sage<span class="w"> </span>pipeline<span class="w"> </span>list
+</code></pre></div>
+<hr />
+<h3 id="sage-tools-l6">sage-tools (L6)<a class="headerlink" href="#sage-tools-l6" title="Permanent link">&para;</a></h3>
+<p><strong>职责</strong>: 开发工具和测试框架</p>
+<p><strong>提供</strong>:</p>
+<ul>
+<li><code>dev</code>: 开发工具套件</li>
+<li><code>sage-dev quality</code> - 代码质量检查（ruff, mypy, black）</li>
+<li><code>sage-dev architecture</code> - 架构合规性验证</li>
+<li><code>sage-dev test</code> - 测试运行器</li>
+<li><code>sage-dev docs</code> - 文档检查</li>
+<li><code>finetune</code>: 模型微调工具</li>
+<li><code>management</code>: 系统管理工具</li>
+<li><code>templates</code>: Pipeline 模板库</li>
+</ul>
+<p><strong>依赖</strong>: <code>sage-common</code>, <code>sage-kernel</code>, <code>sage-libs</code>, <code>sage-middleware</code>, <code>sage-studio</code></p>
+<p><strong>为什么在 L6？</strong></p>
+<ol>
+<li><strong>开发工具定位</strong>: 为所有下层包（L1-L5）提供开发、测试、质量检查能力</li>
+<li><strong>横向工具</strong>: 不是用户接口，而是开发者工具集</li>
+<li><strong>系统管理</strong>: 包管理、测试框架、代码质量检查</li>
+<li><strong>依赖方向</strong>: 需要依赖所有包以进行测试和验证</li>
+</ol>
+<p><strong>公共 API</strong>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">sage.tools</span><span class="w"> </span><span class="kn">import</span> <span class="n">dev</span><span class="p">,</span> <span class="n">management</span><span class="p">,</span> <span class="n">templates</span>
+</code></pre></div>
+<h2 id="_6">🔗 依赖关系图<a class="headerlink" href="#_6" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>graph TD
+<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>    common[sage-common&lt;br/&gt;L1: 基础设施]
+<a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a>
+<a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a>    platform[sage-platform&lt;br/&gt;L2: 平台服务]
+<a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a>
+<a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a>    kernel[sage-kernel&lt;br/&gt;L3: 执行引擎]
+<a id="__codelineno-12-7" name="__codelineno-12-7" href="#__codelineno-12-7"></a>    libs[sage-libs&lt;br/&gt;L3: 算法库]
+<a id="__codelineno-12-8" name="__codelineno-12-8" href="#__codelineno-12-8"></a>
+<a id="__codelineno-12-9" name="__codelineno-12-9" href="#__codelineno-12-9"></a>    middleware[sage-middleware&lt;br/&gt;L4: 领域算子]
+<a id="__codelineno-12-10" name="__codelineno-12-10" href="#__codelineno-12-10"></a>
+<a id="__codelineno-12-11" name="__codelineno-12-11" href="#__codelineno-12-11"></a>    apps[sage-apps&lt;br/&gt;L5: 应用]
+<a id="__codelineno-12-12" name="__codelineno-12-12" href="#__codelineno-12-12"></a>    benchmark[sage-benchmark&lt;br/&gt;L5: 基准测试]
+<a id="__codelineno-12-13" name="__codelineno-12-13" href="#__codelineno-12-13"></a>
+<a id="__codelineno-12-14" name="__codelineno-12-14" href="#__codelineno-12-14"></a>    studio[sage-studio&lt;br/&gt;L6: Web UI]
+<a id="__codelineno-12-15" name="__codelineno-12-15" href="#__codelineno-12-15"></a>    cli[sage-cli&lt;br/&gt;L6: CLI]
+<a id="__codelineno-12-16" name="__codelineno-12-16" href="#__codelineno-12-16"></a>    tools[sage-tools&lt;br/&gt;L6: 开发工具]
+<a id="__codelineno-12-17" name="__codelineno-12-17" href="#__codelineno-12-17"></a>
+<a id="__codelineno-12-18" name="__codelineno-12-18" href="#__codelineno-12-18"></a>    platform --&gt; common
+<a id="__codelineno-12-19" name="__codelineno-12-19" href="#__codelineno-12-19"></a>
+<a id="__codelineno-12-20" name="__codelineno-12-20" href="#__codelineno-12-20"></a>    kernel --&gt; common
+<a id="__codelineno-12-21" name="__codelineno-12-21" href="#__codelineno-12-21"></a>    kernel --&gt; platform
+<a id="__codelineno-12-22" name="__codelineno-12-22" href="#__codelineno-12-22"></a>    libs --&gt; common
+<a id="__codelineno-12-23" name="__codelineno-12-23" href="#__codelineno-12-23"></a>    libs --&gt; kernel
+<a id="__codelineno-12-24" name="__codelineno-12-24" href="#__codelineno-12-24"></a>
+<a id="__codelineno-12-25" name="__codelineno-12-25" href="#__codelineno-12-25"></a>    middleware --&gt; common
+<a id="__codelineno-12-26" name="__codelineno-12-26" href="#__codelineno-12-26"></a>    middleware --&gt; platform
+<a id="__codelineno-12-27" name="__codelineno-12-27" href="#__codelineno-12-27"></a>    middleware --&gt; kernel
+<a id="__codelineno-12-28" name="__codelineno-12-28" href="#__codelineno-12-28"></a>    middleware --&gt; libs
+<a id="__codelineno-12-29" name="__codelineno-12-29" href="#__codelineno-12-29"></a>
+<a id="__codelineno-12-30" name="__codelineno-12-30" href="#__codelineno-12-30"></a>    apps --&gt; common
+<a id="__codelineno-12-31" name="__codelineno-12-31" href="#__codelineno-12-31"></a>    apps --&gt; kernel
+<a id="__codelineno-12-32" name="__codelineno-12-32" href="#__codelineno-12-32"></a>    apps --&gt; libs
+<a id="__codelineno-12-33" name="__codelineno-12-33" href="#__codelineno-12-33"></a>    apps --&gt; middleware
+<a id="__codelineno-12-34" name="__codelineno-12-34" href="#__codelineno-12-34"></a>
+<a id="__codelineno-12-35" name="__codelineno-12-35" href="#__codelineno-12-35"></a>    benchmark --&gt; common
+<a id="__codelineno-12-36" name="__codelineno-12-36" href="#__codelineno-12-36"></a>    benchmark --&gt; kernel
+<a id="__codelineno-12-37" name="__codelineno-12-37" href="#__codelineno-12-37"></a>    benchmark --&gt; libs
+<a id="__codelineno-12-38" name="__codelineno-12-38" href="#__codelineno-12-38"></a>    benchmark --&gt; middleware
+<a id="__codelineno-12-39" name="__codelineno-12-39" href="#__codelineno-12-39"></a>
+<a id="__codelineno-12-40" name="__codelineno-12-40" href="#__codelineno-12-40"></a>    studio --&gt; common
+<a id="__codelineno-12-41" name="__codelineno-12-41" href="#__codelineno-12-41"></a>    studio --&gt; kernel
+<a id="__codelineno-12-42" name="__codelineno-12-42" href="#__codelineno-12-42"></a>    studio --&gt; libs
+<a id="__codelineno-12-43" name="__codelineno-12-43" href="#__codelineno-12-43"></a>    studio --&gt; middleware
+<a id="__codelineno-12-44" name="__codelineno-12-44" href="#__codelineno-12-44"></a>
+<a id="__codelineno-12-45" name="__codelineno-12-45" href="#__codelineno-12-45"></a>    cli --&gt; common
+<a id="__codelineno-12-46" name="__codelineno-12-46" href="#__codelineno-12-46"></a>    cli --&gt; platform
+<a id="__codelineno-12-47" name="__codelineno-12-47" href="#__codelineno-12-47"></a>    cli --&gt; kernel
+<a id="__codelineno-12-48" name="__codelineno-12-48" href="#__codelineno-12-48"></a>    cli --&gt; libs
+<a id="__codelineno-12-49" name="__codelineno-12-49" href="#__codelineno-12-49"></a>    cli --&gt; middleware
+<a id="__codelineno-12-50" name="__codelineno-12-50" href="#__codelineno-12-50"></a>
+<a id="__codelineno-12-51" name="__codelineno-12-51" href="#__codelineno-12-51"></a>    tools --&gt; common
+<a id="__codelineno-12-52" name="__codelineno-12-52" href="#__codelineno-12-52"></a>    tools --&gt; kernel
+<a id="__codelineno-12-53" name="__codelineno-12-53" href="#__codelineno-12-53"></a>    tools --&gt; libs
+<a id="__codelineno-12-54" name="__codelineno-12-54" href="#__codelineno-12-54"></a>    tools --&gt; middleware
+<a id="__codelineno-12-55" name="__codelineno-12-55" href="#__codelineno-12-55"></a>    tools --&gt; studio
+<a id="__codelineno-12-56" name="__codelineno-12-56" href="#__codelineno-12-56"></a>
+<a id="__codelineno-12-57" name="__codelineno-12-57" href="#__codelineno-12-57"></a>    style studio fill:#e1f5ff
+<a id="__codelineno-12-58" name="__codelineno-12-58" href="#__codelineno-12-58"></a>    style cli fill:#e1f5ff
+<a id="__codelineno-12-59" name="__codelineno-12-59" href="#__codelineno-12-59"></a>    style tools fill:#e1f5ff
+</code></pre></div>
+<h2 id="_7">📋 依赖规则<a class="headerlink" href="#_7" title="Permanent link">&para;</a></h2>
+<h3 id="_8">✅ 允许的依赖<a class="headerlink" href="#_8" title="Permanent link">&para;</a></h3>
+<ol>
+<li>
+<p><strong>向下依赖</strong>: 高层可以依赖低层</p>
+</li>
+<li>
+<p>L6 → L5, L4, L3, L2, L1</p>
+</li>
+<li>L5 → L4, L3, L2, L1</li>
+<li>L4 → L3, L2, L1</li>
+<li>L3 → L2, L1</li>
+<li>
+<p>L2 → L1</p>
+</li>
+<li>
+<p><strong>同层独立</strong>: 同层包之间相互独立</p>
+</li>
+<li>
+<p>kernel 和 libs 独立（都是 L3）</p>
+</li>
+<li>apps, benchmark, tools 独立（都是 L5）</li>
+</ol>
+<h3 id="_9">❌ 禁止的依赖<a class="headerlink" href="#_9" title="Permanent link">&para;</a></h3>
+<ol>
+<li>
+<p><strong>向上依赖</strong>: 低层不能依赖高层</p>
+</li>
+<li>
+<p>common ❌→ 任何其他包</p>
+</li>
+<li>platform ❌→ kernel, libs, middleware, apps, tools, studio</li>
+<li>kernel/libs ❌→ middleware, apps, tools, studio</li>
+<li>
+<p>middleware ❌→ apps, benchmark, tools, studio</p>
+</li>
+<li>
+<p><strong>反向依赖</strong>: 防止循环依赖</p>
+</li>
+<li>
+<p>如果 A → B，则 B ❌→ A</p>
+</li>
+<li>
+<p><strong>跨层依赖</strong>: 避免跨层直接依赖</p>
+</li>
+<li>
+<p>尽量依赖相邻层，避免跨多层依赖</p>
+</li>
+</ol>
+<h2 id="_10">🏗️ 设计原则<a class="headerlink" href="#_10" title="Permanent link">&para;</a></h2>
+<h3 id="1">1. 单向依赖<a class="headerlink" href="#1" title="Permanent link">&para;</a></h3>
+<p>依赖关系必须是单向的，形成有向无环图（DAG）：</p>
+<ul>
+<li>防止循环依赖</li>
+<li>便于理解和测试</li>
+<li>支持独立发布</li>
+</ul>
+<h3 id="2">2. 职责分离<a class="headerlink" href="#2" title="Permanent link">&para;</a></h3>
+<p>每个包有明确的职责边界：</p>
+<ul>
+<li><strong>common</strong>: 不包含业务逻辑</li>
+<li><strong>kernel</strong>: 不包含领域算子</li>
+<li><strong>libs</strong>: 不包含 SAGE 算子实现</li>
+<li><strong>middleware</strong>: 组合 kernel + libs 提供领域算子</li>
+</ul>
+<h3 id="3">3. 接口稳定<a class="headerlink" href="#3" title="Permanent link">&para;</a></h3>
+<p>低层包提供稳定的公共 API：</p>
+<ul>
+<li>通过 <code>__init__.py</code> 明确导出</li>
+<li>避免直接依赖内部实现</li>
+<li>版本化的 API 变更</li>
+</ul>
+<h3 id="4">4. 最小依赖<a class="headerlink" href="#4" title="Permanent link">&para;</a></h3>
+<p>每个包只依赖必需的包：</p>
+<ul>
+<li>减少耦合</li>
+<li>加快构建速度</li>
+<li>便于独立部署</li>
+</ul>
+<h2 id="_11">📊 包统计<a class="headerlink" href="#_11" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>包</th>
+<th>层级</th>
+<th>模块数</th>
+<th>测试数</th>
+<th>代码行数</th>
+<th>依赖数</th>
+<th>测试状态</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>sage-common</td>
+<td>L1</td>
+<td>15+</td>
+<td>119</td>
+<td>~15K</td>
+<td>0</td>
+<td>✅ 通过</td>
+</tr>
+<tr>
+<td>sage-platform</td>
+<td>L2</td>
+<td>3</td>
+<td>30</td>
+<td>~1K</td>
+<td>1</td>
+<td>✅ 通过</td>
+</tr>
+<tr>
+<td>sage-kernel</td>
+<td>L3</td>
+<td>268</td>
+<td>753</td>
+<td>~20K</td>
+<td>2</td>
+<td>✅ 通过</td>
+</tr>
+<tr>
+<td>sage-libs</td>
+<td>L3</td>
+<td>10</td>
+<td>169</td>
+<td>~18K</td>
+<td>2</td>
+<td>✅ 通过</td>
+</tr>
+<tr>
+<td>sage-middleware</td>
+<td>L4</td>
+<td>150</td>
+<td>22</td>
+<td>~25K</td>
+<td>4</td>
+<td>✅ 通过</td>
+</tr>
+<tr>
+<td>sage-apps</td>
+<td>L5</td>
+<td>24</td>
+<td>2</td>
+<td>~8K</td>
+<td>4</td>
+<td>✅ 通过</td>
+</tr>
+<tr>
+<td>sage-benchmark</td>
+<td>L5</td>
+<td>42</td>
+<td>17</td>
+<td>~12K</td>
+<td>4</td>
+<td>✅ 通过</td>
+</tr>
+<tr>
+<td>sage-studio</td>
+<td>L6</td>
+<td>8</td>
+<td>51</td>
+<td>~8K</td>
+<td>4</td>
+<td>✅ 通过</td>
+</tr>
+<tr>
+<td>sage-cli</td>
+<td>L6</td>
+<td>5</td>
+<td>-</td>
+<td>~2K</td>
+<td>5</td>
+<td>⚠️ 待测试</td>
+</tr>
+<tr>
+<td>sage-tools</td>
+<td>L6</td>
+<td>106</td>
+<td>78</td>
+<td>~10K</td>
+<td>5</td>
+<td>✅ 通过</td>
+</tr>
+<tr>
+<td><strong>总计</strong></td>
+<td>-</td>
+<td><strong>631+</strong></td>
+<td><strong>1,241+</strong></td>
+<td><strong>~119K</strong></td>
+<td>-</td>
+<td><strong>99.7%</strong> ✅</td>
+</tr>
+</tbody>
+</table>
+<h2 id="_12">🔄 重构历史<a class="headerlink" href="#_12" title="Permanent link">&para;</a></h2>
+<h3 id="2025-10-kernel-api-issue-1041">🚧 待办: 2025-10 Kernel API 层重构 (Issue #1041)<a class="headerlink" href="#2025-10-kernel-api-issue-1041" title="Permanent link">&para;</a></h3>
+<p><strong>问题</strong>:</p>
+<ol>
+<li>sage-libs (L3) 依赖 sage-kernel (L3) - 同层依赖不清晰</li>
+<li>kernel.api 在 L3，但 BaseService 在 L2 - 层级不一致</li>
+<li>kafka_source.py 重复实现（kernel 和 libs 都有）</li>
+</ol>
+<p><strong>依赖统计</strong>:</p>
+<ul>
+<li>sage-libs → sage.kernel: 14次导入 (MapFunction, FilterFunction, SinkFunction等)</li>
+<li>sage-middleware → sage.kernel: 15次导入 (MapOperator)</li>
+</ul>
+<p><strong>解决方案</strong>: 将函数接口下沉到 sage-common (L1)</p>
+<p><strong>核心决策</strong> (2025-10-24):</p>
+<ol>
+<li>
+<p>✅ <strong>函数接口 → L1 (common/core/functions)</strong></p>
+</li>
+<li>
+<p>13个基础函数接口迁移到 common</p>
+</li>
+<li>PrintSink 迁移到 common/components/debug</li>
+<li>
+<p>理由: libs 需要继承这些接口，应该独立于 kernel</p>
+</li>
+<li>
+<p>✅ <strong>删除 kafka_source.py</strong></p>
+</li>
+<li>
+<p>删除 kernel 中的重复实现</p>
+</li>
+<li>
+<p>改进 libs 中的实现为完整版本</p>
+</li>
+<li>
+<p>✅ <strong>一次性迁移</strong> + 保留兼容层</p>
+</li>
+</ol>
+<p><strong>新架构分层</strong>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>L1 (sage-common)
+<a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a>└── core/functions/     # ✅ 新增: BaseFunction, MapFunction等 (13个)
+<a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a>
+<a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a>L2 (sage-platform)
+<a id="__codelineno-13-5" name="__codelineno-13-5" href="#__codelineno-13-5"></a>└── queue/storage/service  # 平台服务
+<a id="__codelineno-13-6" name="__codelineno-13-6" href="#__codelineno-13-6"></a>
+<a id="__codelineno-13-7" name="__codelineno-13-7" href="#__codelineno-13-7"></a>L3 (sage-kernel)
+<a id="__codelineno-13-8" name="__codelineno-13-8" href="#__codelineno-13-8"></a>└── api/                # Environment + DataStream (执行环境)
+<a id="__codelineno-13-9" name="__codelineno-13-9" href="#__codelineno-13-9"></a>    ├── operator/       # 内部算子实现
+<a id="__codelineno-13-10" name="__codelineno-13-10" href="#__codelineno-13-10"></a>    └── transformation/ # 转换逻辑
+<a id="__codelineno-13-11" name="__codelineno-13-11" href="#__codelineno-13-11"></a>
+<a id="__codelineno-13-12" name="__codelineno-13-12" href="#__codelineno-13-12"></a>L3 (sage-libs)
+<a id="__codelineno-13-13" name="__codelineno-13-13" href="#__codelineno-13-13"></a>└── 使用 common.functions (不再依赖 kernel)
+</code></pre></div>
+<p><strong>预期成果</strong>:</p>
+<ul>
+<li>✅ sage-libs (L3) → sage-common (L1) - 清晰的向下依赖</li>
+<li>✅ 解决 L3 ↔ L3 同层依赖问题</li>
+<li>✅ 函数接口在最底层，最大化复用</li>
+<li>✅ libs 完全独立于 kernel</li>
+</ul>
+<p><strong>预计工作量</strong>: 7-8小时，影响~32-47个文件</p>
+<p>详见: <a href="./architecture/KERNEL_REFACTORING_ANALYSIS_1041.md">KERNEL_REFACTORING_ANALYSIS_1041.md</a></p>
+<hr />
+<h3 id="2025-10-sage-libs-issue-1040">2025-10 sage-libs 模块重构 (Issue #1040)<a class="headerlink" href="#2025-10-sage-libs-issue-1040" title="Permanent link">&para;</a></h3>
+<p><strong>问题</strong>:</p>
+<ol>
+<li>模块命名不规范（io_utils, workflow_optimizer）</li>
+<li>功能分类不清晰（utils 混杂多种功能）</li>
+<li>第三方集成和过滤器分散在不同模块</li>
+<li>缺少标准文档和示例</li>
+</ol>
+<p><strong>解决方案</strong> (4 个阶段):</p>
+<ol>
+<li>
+<p>✅ <strong>Phase 1 - 目录重组</strong>:</p>
+</li>
+<li>
+<p>重命名: <code>io_utils</code> → <code>io</code>, <code>workflow_optimizer</code> → <code>workflow</code></p>
+</li>
+<li>新建: <code>integrations/</code> (5个第三方集成), <code>filters/</code> (4个过滤器)</li>
+<li>重组: <code>agents/bots/</code> (4个预定义智能体)</li>
+<li>
+<p>删除: <code>utils/</code>, <code>applications/</code> (废弃模块)</p>
+</li>
+<li>
+<p>✅ <strong>Phase 2 - 模块标准化</strong>:</p>
+</li>
+<li>
+<p>添加 6 个 <code>__init__.py</code> (规范导出)</p>
+</li>
+<li>添加 4 个 <code>README.md</code> (文档)</li>
+<li>
+<p>添加 3 个 <code>examples.py</code> (agents, rag, unlearning)</p>
+</li>
+<li>
+<p>✅ <strong>Phase 3 - 导入路径更新</strong>:</p>
+</li>
+<li>
+<p>更新 29 个文件的导入路径</p>
+</li>
+<li>
+<p>覆盖 7 个包（libs, middleware, apps, benchmark, studio, tools, examples）</p>
+</li>
+<li>
+<p>✅ <strong>Phase 4 - 清理与验证</strong>:</p>
+</li>
+<li>
+<p>删除 <code>applications/</code> 空目录</p>
+</li>
+<li>修复 <code>tools/image_captioner.py</code> 导入</li>
+<li>完成所有示例代码</li>
+</ol>
+<p><strong>成果</strong>:</p>
+<ul>
+<li>✅ 10 个规范模块（vs 12 个混乱模块）</li>
+<li>✅ 169/169 测试通过 (0 失败)</li>
+<li>✅ 清晰的功能分类</li>
+<li>✅ 完整的文档覆盖 (10/10 modules)</li>
+<li>✅ 规范的 API 导出</li>
+</ul>
+<p>参见: <a href="./dev-notes/SAGE_LIBS_RESTRUCTURING_2025.md">SAGE_LIBS_RESTRUCTURING_2025.md</a></p>
+<h3 id="2025-01">2025-01 重大重构<a class="headerlink" href="#2025-01" title="Permanent link">&para;</a></h3>
+<p><strong>问题</strong>:</p>
+<ol>
+<li>libs → middleware 反向依赖（longrefiner）</li>
+<li>包导出不完整</li>
+<li>测试文件混合在源代码中</li>
+</ol>
+<p><strong>解决方案</strong>:</p>
+<ol>
+<li>✅ 删除 libs/rag/longrefiner 适配器</li>
+<li>✅ 更新所有 <code>__init__.py</code>，正确导出公共 API</li>
+<li>✅ 将所有测试文件移动到 <code>tests/</code> 目录</li>
+<li>✅ 更新导入路径（30+ 文件）</li>
+<li>✅ 创建架构文档</li>
+</ol>
+<p><strong>结果</strong>:</p>
+<ul>
+<li>无循环依赖</li>
+<li>清晰的包边界</li>
+<li>标准化的测试结构</li>
+<li>完整的文档</li>
+</ul>
+<p>参见: <a href="./dev-notes/ARCHITECTURE_REVIEW_2025.md">ARCHITECTURE_REVIEW_2025.md</a>,
+<a href="./dev-notes/RESTRUCTURING_SUMMARY.md">RESTRUCTURING_SUMMARY.md</a></p>
+<h3 id="2025-01-top-layer-review">2025-01 架构审查（Top-Layer Review）<a class="headerlink" href="#2025-01-top-layer-review" title="Permanent link">&para;</a></h3>
+<p><strong>审查范围</strong>: sage-studio (L6), sage-apps/benchmark/tools (L5)</p>
+<p><strong>已解决的问题</strong>:</p>
+<ol>
+<li>
+<p><strong>L2 层缺失</strong> ✅ (已解决)</p>
+</li>
+<li>
+<p><strong>Queue Descriptor</strong> - 已迁移到 <code>sage-platform/queue</code></p>
+</li>
+<li><strong>KV Backend</strong> - 已迁移到 <code>sage-platform/storage</code></li>
+<li>
+<p><strong>BaseService</strong> - 已迁移到 <code>sage-platform/service</code></p>
+</li>
+<li>
+<p><strong>跨层依赖问题</strong> ✅ (已解决)</p>
+</li>
+<li>
+<p><strong>sage-common → sage-kernel</strong> (L1 → L3 违规) - 已通过 L2 层解决</p>
+</li>
+<li>
+<p>BaseService 现在位于 sage-platform (L2)，依赖链正确: L1 → L2 → L3</p>
+</li>
+<li>
+<p><strong>代码位置问题</strong> ✅ (已修复)</p>
+</li>
+<li>
+<p><strong>sage-tools</strong>: TestFailureCache 已移动到 src/</p>
+</li>
+<li>
+<p><strong>sage-tools 层级</strong>: 已提升到 L6（接口层）</p>
+</li>
+<li>
+<p><strong>包依赖优化</strong> ✅ (已修复)</p>
+</li>
+<li>
+<p><strong>sage-tools</strong>: 移除了对 sage-apps 和 sage-benchmark 的不必要依赖</p>
+</li>
+<li>sage-tools 现在只依赖真正需要的包：common, kernel, libs, middleware, studio</li>
+</ol>
+<p><strong>已改进</strong>:</p>
+<ol>
+<li>
+<p><strong>测试覆盖提升</strong> ✅ (已完成)</p>
+</li>
+<li>
+<p><strong>sage-benchmark</strong>: 从 1 个测试 → 17 个测试 (+1600%)</p>
+<ul>
+<li>test_config_loading.py: 配置文件验证（5 tests）</li>
+<li>test_pipelines.py: Pipeline 结构和导入测试（12 tests）</li>
+</ul>
+</li>
+<li><strong>sage-apps</strong>: 从 2 个测试 → 21 个测试 (+950%)<ul>
+<li>test_medical_diagnosis.py: 医疗诊断应用结构测试（10 tests）</li>
+<li>test_video_app.py: 视频应用结构和算子测试（11 tests）</li>
+</ul>
+</li>
+<li>
+<p><strong>总提升</strong>: L5-L6 包从 68 个测试 → 103 个测试 (+51.5%)</p>
+</li>
+<li>
+<p><strong>层级代码审查</strong> ✅ (已完成)</p>
+</li>
+<li>
+<p>所有顶层包（sage-studio, sage-tools, sage-apps, sage-benchmark）已审查</p>
+</li>
+<li>无代码需要在层之间迁移</li>
+<li>所有包依赖关系符合层级架构（无向上依赖）</li>
+<li>详细报告: <code>docs/dev-notes/TEST_COVERAGE_REPORT_TOP_LAYERS.md</code></li>
+</ol>
+<p><strong>未来改进方向</strong>:</p>
+<ol>
+<li><strong>功能测试扩展</strong> (计划中)</li>
+<li>sage-benchmark: 为 16 个 Pipeline 实现添加功能测试</li>
+<li>sage-apps: 添加 Agent 和 Operator 功能测试</li>
+<li>添加端到端集成测试</li>
+</ol>
+<p><strong>建议的重构方案</strong>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a>创建新的 sage-platform (L2) 包：
+<a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a>
+<a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a>packages/
+<a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a>  sage-platform/          # L2 - 平台服务层（新建）
+<a id="__codelineno-14-5" name="__codelineno-14-5" href="#__codelineno-14-5"></a>    src/sage/platform/
+<a id="__codelineno-14-6" name="__codelineno-14-6" href="#__codelineno-14-6"></a>      queue/              # 从 sage-kernel/runtime/communication/queue_descriptor 移动
+<a id="__codelineno-14-7" name="__codelineno-14-7" href="#__codelineno-14-7"></a>        base_queue_descriptor.py
+<a id="__codelineno-14-8" name="__codelineno-14-8" href="#__codelineno-14-8"></a>        python_queue_descriptor.py
+<a id="__codelineno-14-9" name="__codelineno-14-9" href="#__codelineno-14-9"></a>        ray_queue_descriptor.py
+<a id="__codelineno-14-10" name="__codelineno-14-10" href="#__codelineno-14-10"></a>        rpc_queue_descriptor.py
+<a id="__codelineno-14-11" name="__codelineno-14-11" href="#__codelineno-14-11"></a>
+<a id="__codelineno-14-12" name="__codelineno-14-12" href="#__codelineno-14-12"></a>      storage/            # 从 sage-middleware/components/sage_mem 移动
+<a id="__codelineno-14-13" name="__codelineno-14-13" href="#__codelineno-14-13"></a>        kv_backend/
+<a id="__codelineno-14-14" name="__codelineno-14-14" href="#__codelineno-14-14"></a>          base_kv_backend.py
+<a id="__codelineno-14-15" name="__codelineno-14-15" href="#__codelineno-14-15"></a>          dict_kv_backend.py
+<a id="__codelineno-14-16" name="__codelineno-14-16" href="#__codelineno-14-16"></a>          # 未来扩展: redis_kv_backend.py, rocksdb_kv_backend.py
+<a id="__codelineno-14-17" name="__codelineno-14-17" href="#__codelineno-14-17"></a>
+<a id="__codelineno-14-18" name="__codelineno-14-18" href="#__codelineno-14-18"></a>      service/            # 从 sage-kernel 移动
+<a id="__codelineno-14-19" name="__codelineno-14-19" href="#__codelineno-14-19"></a>        base_service.py   # 解决 sage-common 的依赖问题
+</code></pre></div>
+<p><strong>更新后的架构层级</strong>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a>L1 (sage-common)       - 通用工具 (logging, config, decorators)
+<a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a>L2 (sage-platform)     - 平台服务 (queue, storage, service 基类) [待创建]
+<a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a>L3 (sage-kernel, libs) - 核心引擎 (runtime, jobmanager, compiler, algorithms)
+<a id="__codelineno-15-4" name="__codelineno-15-4" href="#__codelineno-15-4"></a>L4 (sage-middleware)   - 领域组件 (neuromem, sageDB, sageFlow, RAG operators)
+<a id="__codelineno-15-5" name="__codelineno-15-5" href="#__codelineno-15-5"></a>L5 (sage-apps, tools)  - 应用层
+<a id="__codelineno-15-6" name="__codelineno-15-6" href="#__codelineno-15-6"></a>L6 (sage-studio)       - 接口层
+</code></pre></div>
+<p><strong>状态</strong>:</p>
+<ul>
+<li>✅ 审查完成</li>
+<li>✅ 重构完成 (commit 1da88c0a - 2025-01-22)</li>
+</ul>
+<p><strong>重构成果</strong>:</p>
+<ul>
+<li>创建 sage-platform (L2) 包</li>
+<li>迁移 Queue Descriptor, KV Backend, BaseService 到 L2</li>
+<li>更新 60+ 个文件的导入路径</li>
+<li>修复 L1→L3 依赖违规</li>
+<li>所有测试通过</li>
+</ul>
+<p>参见: <a href="./dev-notes/L2_LAYER_ANALYSIS.md">L2_LAYER_ANALYSIS.md</a>,
+<a href="./dev-notes/TOP_LAYER_REVIEW_2025.md">TOP_LAYER_REVIEW_2025.md</a></p>
+<h2 id="_13">🚀 使用指南<a class="headerlink" href="#_13" title="Permanent link">&para;</a></h2>
+<h3 id="_14">导入最佳实践<a class="headerlink" href="#_14" title="Permanent link">&para;</a></h3>
+<p><strong>✅ 推荐</strong>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a><span class="c1"># 从包的公共 API 导入</span>
+<a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">sage.kernel.api</span><span class="w"> </span><span class="kn">import</span> <span class="n">LocalEnvironment</span>
+<a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a><span class="kn">from</span><span class="w"> </span><span class="nn">sage.middleware.operators.rag</span><span class="w"> </span><span class="kn">import</span> <span class="n">ChromaRetriever</span>
+<a id="__codelineno-16-4" name="__codelineno-16-4" href="#__codelineno-16-4"></a><span class="kn">from</span><span class="w"> </span><span class="nn">sage.libs.agentic.agents</span><span class="w"> </span><span class="kn">import</span> <span class="n">LangChainAgentAdapter</span>
+</code></pre></div>
+<p><strong>❌ 不推荐</strong>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a><span class="c1"># 不要直接导入内部模块</span>
+<a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">sage.kernel.runtime.dispatcher</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dispatcher</span>
+<a id="__codelineno-17-3" name="__codelineno-17-3" href="#__codelineno-17-3"></a><span class="kn">from</span><span class="w"> </span><span class="nn">sage.middleware.operators.rag.retriever.chroma_retriever</span><span class="w"> </span><span class="kn">import</span> <span class="n">ChromaRetrieverImpl</span>
+</code></pre></div>
+<h3 id="_15">添加新功能<a class="headerlink" href="#_15" title="Permanent link">&para;</a></h3>
+<ol>
+<li>
+<p><strong>确定合适的层级</strong>:</p>
+</li>
+<li>
+<p>基础类型/工具 → common</p>
+</li>
+<li>基础算子 → kernel</li>
+<li>算法/工具 → libs</li>
+<li>领域算子 → middleware</li>
+<li>
+<p>应用 → apps/benchmark/tools</p>
+</li>
+<li>
+<p><strong>遵循依赖规则</strong>:</p>
+</li>
+<li>
+<p>只依赖更低层的包</p>
+</li>
+<li>
+<p>通过公共 API 导入</p>
+</li>
+<li>
+<p><strong>更新导出</strong>:</p>
+</li>
+<li>
+<p>在 <code>__init__.py</code> 中导出公共 API</p>
+</li>
+<li>
+<p>编写 docstring 说明</p>
+</li>
+<li>
+<p><strong>添加测试</strong>:</p>
+</li>
+<li>
+<p>在包的 <code>tests/</code> 目录中添加</p>
+</li>
+</ol>
+<h2 id="_16">📚 参考文档<a class="headerlink" href="#_16" title="Permanent link">&para;</a></h2>
+<ul>
+<li><a href="./dev-notes/ARCHITECTURE_REVIEW_2025.md">架构评审 2025</a> - 问题分析和解决方案</li>
+<li><a href="./dev-notes/RESTRUCTURING_SUMMARY.md">重构总结</a> - 完整重构记录</li>
+<li><a href="../CONTRIBUTING.md">贡献指南</a> - 如何参与开发</li>
+</ul>
+<h2 id="_17">🛠️ 架构相关命令<a class="headerlink" href="#_17" title="Permanent link">&para;</a></h2>
+<p>SAGE 提供了便捷的命令来查看和检查架构：</p>
+<h3 id="_18">查看架构信息<a class="headerlink" href="#_18" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a><span class="c1"># 查看完整架构定义（层级和依赖关系）</span>
+<a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a>sage-dev<span class="w"> </span>architecture
+<a id="__codelineno-18-3" name="__codelineno-18-3" href="#__codelineno-18-3"></a>
+<a id="__codelineno-18-4" name="__codelineno-18-4" href="#__codelineno-18-4"></a><span class="c1"># 查看特定包的信息</span>
+<a id="__codelineno-18-5" name="__codelineno-18-5" href="#__codelineno-18-5"></a>sage-dev<span class="w"> </span>architecture<span class="w"> </span>--package<span class="w"> </span>sage-kernel
+<a id="__codelineno-18-6" name="__codelineno-18-6" href="#__codelineno-18-6"></a>
+<a id="__codelineno-18-7" name="__codelineno-18-7" href="#__codelineno-18-7"></a><span class="c1"># JSON 格式输出（用于工具集成）</span>
+<a id="__codelineno-18-8" name="__codelineno-18-8" href="#__codelineno-18-8"></a>sage-dev<span class="w"> </span>architecture<span class="w"> </span>--format<span class="w"> </span>json
+<a id="__codelineno-18-9" name="__codelineno-18-9" href="#__codelineno-18-9"></a>
+<a id="__codelineno-18-10" name="__codelineno-18-10" href="#__codelineno-18-10"></a><span class="c1"># Markdown 格式输出（用于文档生成）</span>
+<a id="__codelineno-18-11" name="__codelineno-18-11" href="#__codelineno-18-11"></a>sage-dev<span class="w"> </span>architecture<span class="w"> </span>--format<span class="w"> </span>markdown
+</code></pre></div>
+<h3 id="_19">检查架构合规性<a class="headerlink" href="#_19" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a><span class="c1"># 检查所有文件</span>
+<a id="__codelineno-19-2" name="__codelineno-19-2" href="#__codelineno-19-2"></a>sage-dev<span class="w"> </span>check-architecture
+<a id="__codelineno-19-3" name="__codelineno-19-3" href="#__codelineno-19-3"></a>
+<a id="__codelineno-19-4" name="__codelineno-19-4" href="#__codelineno-19-4"></a><span class="c1"># 仅检查变更的文件</span>
+<a id="__codelineno-19-5" name="__codelineno-19-5" href="#__codelineno-19-5"></a>sage-dev<span class="w"> </span>check-architecture<span class="w"> </span>--changed-only
+<a id="__codelineno-19-6" name="__codelineno-19-6" href="#__codelineno-19-6"></a>
+<a id="__codelineno-19-7" name="__codelineno-19-7" href="#__codelineno-19-7"></a><span class="c1"># 对比特定分支</span>
+<a id="__codelineno-19-8" name="__codelineno-19-8" href="#__codelineno-19-8"></a>sage-dev<span class="w"> </span>check-architecture<span class="w"> </span>--diff<span class="w"> </span>main
+</code></pre></div>
+<h3 id="_20">综合质量检查<a class="headerlink" href="#_20" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a><span class="c1"># 运行所有质量检查（包括架构检查）</span>
+<a id="__codelineno-20-2" name="__codelineno-20-2" href="#__codelineno-20-2"></a>sage-dev<span class="w"> </span>check-all
+<a id="__codelineno-20-3" name="__codelineno-20-3" href="#__codelineno-20-3"></a>
+<a id="__codelineno-20-4" name="__codelineno-20-4" href="#__codelineno-20-4"></a><span class="c1"># 仅检查变更文件</span>
+<a id="__codelineno-20-5" name="__codelineno-20-5" href="#__codelineno-20-5"></a>sage-dev<span class="w"> </span>check-all<span class="w"> </span>--changed-only
+</code></pre></div>
+<p>更多命令请参考 <a href="../../packages/sage-tools/README.md">sage-tools README</a>。</p>
+<h2 id="_21">🤝 贡献<a class="headerlink" href="#_21" title="Permanent link">&para;</a></h2>
+<p>如果您发现架构问题或有改进建议，请：</p>
+<ol>
+<li>查看现有 issues</li>
+<li>创建新 issue 讨论</li>
+<li>提交 PR 并附上说明</li>
+</ol>
+<p>遵循架构原则有助于保持代码库的健康和可维护性！</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  回到页面顶部
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="页脚" >
+        
+          
+          <a href="../" class="md-footer__link md-footer__link--prev" aria-label="上一页: 总览">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                上一页
+              </span>
+              <div class="md-ellipsis">
+                总览
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../../community/" class="md-footer__link md-footer__link--next" aria-label="下一页: 社区总览">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                下一页
+              </span>
+              <div class="md-ellipsis">
+                社区总览
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Copyright &copy; 2023-2025 IntelliStream Lab
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+        
+<div class="md-social">
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://github.com/intellistream/SAGE" target="_blank" rel="noopener" title="github.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+    </a>
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://pypi.org/project/sage-framework/" target="_blank" rel="noopener" title="pypi.org" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.8 200.5c-7.7-30.9-22.3-54.2-53.4-54.2h-40.1v47.4c0 36.8-31.2 67.8-66.8 67.8H172.7c-29.2 0-53.4 25-53.4 54.3v101.8c0 29 25.2 46 53.4 54.3 33.8 9.9 66.3 11.7 106.8 0 26.9-7.8 53.4-23.5 53.4-54.3v-40.7H226.2v-13.6h160.2c31.1 0 42.6-21.7 53.4-54.2 11.2-33.5 10.7-65.7 0-108.6M286.2 444.7a20.4 20.4 0 1 1 0-40.7 20.4 20.4 0 1 1 0 40.7M167.8 248.1h106.8c29.7 0 53.4-24.5 53.4-54.3V91.9c0-29-24.4-50.7-53.4-55.6-35.8-5.9-74.7-5.6-106.8.1-45.2 8-53.4 24.7-53.4 55.6v40.7h106.9v13.6h-147c-31.1 0-58.3 18.7-66.8 54.2-9.8 40.7-10.2 66.1 0 108.6 7.6 31.6 25.7 54.2 56.8 54.2H101v-48.8c0-35.3 30.5-66.4 66.8-66.4m-6.6-183.4a20.4 20.4 0 1 1 0 40.8 20.4 20.4 0 1 1 0-40.8"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+      <div class="md-progress" data-md-component="progress" role="progressbar"></div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.instant", "navigation.instant.progress", "navigation.tracking", "navigation.tabs", "navigation.tabs.sticky", "navigation.sections", "navigation.path", "navigation.indexes", "navigation.top", "navigation.footer", "navigation.prune", "search.suggest", "search.highlight", "search.share", "content.code.copy", "content.code.annotate", "content.tabs.link", "toc.follow", "toc.integrate"], "search": "../../assets/javascripts/workers/search.7a47a382.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.e71a0d61.min.js"></script>
+      
+    
+  </body>
+</html>
