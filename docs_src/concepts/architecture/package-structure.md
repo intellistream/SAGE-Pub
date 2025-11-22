@@ -145,7 +145,7 @@ ______________________________________________________________________
 
 ```python
 from sage.kernel.api import LocalEnvironment
-from sage.kernel.api.function import MapFunction, SinkFunction
+from sage.common.core.functions import MapFunction, SinkFunction
 ```
 
 **依赖**: sage-common, sage-platform

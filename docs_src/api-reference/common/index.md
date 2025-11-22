@@ -72,7 +72,7 @@ Common utilities, data types, and base classes used across all SAGE packages.
 
 #### vLLM Integration
 
-::: sage.common.components.sage_vllm
+::: sage.common.components.sage_llm
     options:
       show_root_heading: true
       show_source: false
@@ -192,7 +192,7 @@ vectors = embedding.encode_batch(texts)
 ### Using vLLM Service
 
 ```python
-from sage.common.components.sage_vllm import VLLMService
+from sage.common.components.sage_llm import VLLMService
 
 # Initialize vLLM service
 vllm = VLLMService(
@@ -315,7 +315,7 @@ sage.common/
 │   └── constants.py        # Constants
 ├── components/              # Reusable components
 │   ├── sage_embedding.py   # Embedding services
-│   └── sage_vllm.py        # vLLM integration
+│   └── sage_llm.py        # vLLM integration
 ├── config/                  # Configuration
 │   └── output_paths.py     # Output path management
 ├── model_registry/          # Model registry

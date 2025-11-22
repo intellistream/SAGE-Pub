@@ -274,7 +274,8 @@ Create reusable custom operators.
 ### Base Custom Operator
 
 ```python
-from sage.kernel.api.function import MapFunction, RuntimeContext
+from sage.common.core.functions import MapFunction
+from sage.kernel.runtime.context import RuntimeContext
 
 
 class CustomOperator(MapFunction):
@@ -371,7 +372,7 @@ class CustomLLMOperator(MapFunction):
 ### Filter Operator Example
 
 ```python
-from sage.kernel.api.function import FilterFunction
+from sage.common.core.functions import FilterFunction
 
 
 class CustomFilterOperator(FilterFunction):

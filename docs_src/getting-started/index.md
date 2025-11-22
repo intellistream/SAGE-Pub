@@ -98,7 +98,7 @@ env.submit()
 
 ```python
 from sage.kernel.api import LocalEnvironment
-from sage.kernel.api.function import MapFunction
+from sage.common.core.functions import MapFunction
 
 class ProcessData(MapFunction):
     def map(self, record):

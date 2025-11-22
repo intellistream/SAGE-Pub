@@ -11,7 +11,8 @@ SAGE 提供了灵活的算子开发框架，您可以通过继承基类来实现
 ### MapFunction - 转换算子
 
 ```python
-from sage.kernel.api.function import MapFunction, RuntimeContext
+from sage.common.core.functions import MapFunction
+from sage.kernel.runtime.context import RuntimeContext
 
 class CustomMapOperator(MapFunction):
     """自定义 Map 算子模板"""
@@ -57,7 +58,7 @@ class CustomMapOperator(MapFunction):
 ### FilterFunction - 过滤算子
 
 ```python
-from sage.kernel.api.function import FilterFunction
+from sage.common.core.functions import FilterFunction
 
 class CustomFilterOperator(FilterFunction):
     """自定义 Filter 算子"""
@@ -77,7 +78,7 @@ class CustomFilterOperator(FilterFunction):
 ### SinkFunction - 输出算子
 
 ```python
-from sage.kernel.api.function import SinkFunction
+from sage.common.core.functions import SinkFunction
 
 class CustomSinkOperator(SinkFunction):
     """自定义 Sink 算子"""

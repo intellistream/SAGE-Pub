@@ -172,7 +172,7 @@ register_rpc_queue_factory(_rpc_queue_factory)
 ```python
 from sage.common import core, components, config, utils, model_registry
 from sage.common.core import Parameter, Record, WindowedRecord
-from sage.common.components import sage_vllm, sage_embedding
+from sage.common.components import sage_llm, sage_embedding
 ```
 
 ______________________________________________________________________
@@ -218,7 +218,7 @@ ______________________________________________________________________
 ```python
 from sage.kernel import api, operators
 from sage.kernel.api import LocalEnvironment
-from sage.kernel.api.function import MapFunction, BatchFunction, SinkFunction
+from sage.common.core.functions import MapFunction, BatchFunction, SinkFunction
 ```
 
 ______________________________________________________________________

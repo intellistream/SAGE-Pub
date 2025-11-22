@@ -43,7 +43,7 @@
 ```
 sage-common/
 ├── components/
-│   ├── sage_vllm/service.py          # VLLMService (服务基类)
+│   ├── sage_llm/service.py          # VLLMService (服务基类)
 │   ├── sage_embedding/service.py     # EmbeddingService
 │   └── vectordb/                      # 向量数据库客户端
 ├── utils/

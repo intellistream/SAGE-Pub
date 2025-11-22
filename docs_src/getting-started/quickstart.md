@@ -58,7 +58,7 @@ sage doctor
 ```python
 from sage.kernel.api import LocalEnvironment
 from sage.libs.io import FileSource, TerminalSink
-from sage.kernel.api.function import MapFunction
+from sage.common.core.functions import MapFunction
 
 
 # 创建简单的处理函数
