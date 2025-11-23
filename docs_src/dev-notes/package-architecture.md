@@ -216,8 +216,9 @@ ______________________________________________________________________
 **公共 API**:
 
 ```python
-from sage.kernel import api, operators
+from sage.kernel import api
 from sage.kernel.api import LocalEnvironment
+# Note: Function interfaces (MapFunction, etc.) are now in sage.common.core.functions
 from sage.common.core.functions import MapFunction, BatchFunction, SinkFunction
 ```
 
