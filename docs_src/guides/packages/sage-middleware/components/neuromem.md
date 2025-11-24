@@ -9,7 +9,7 @@ Neuromem 是 SAGE Middleware 中的持久化记忆栈，当前仓库的实现集
   - `memory_collection/`（Base/VDB/KV/Graph 集合）
   - `search_engine/`、`storage_engine/`（索引与存储后端）
   - `micro_service/`（`NeuroMemVDB` 与 `NeuroMemVDBService` 封装）
-- **默认数据目录**：`data/neuromem_vdb/`（可通过 `MemoryManager(data_dir=...)` 自定义）
+- **默认数据目录**：`$SAGE_HOME/data/neuromem_vdb/`（若未设置则使用项目 `.sage/data/neuromem_vdb/`，可通过 `MemoryManager(data_dir=...)` 自定义）
 
 ______________________________________________________________________
 
