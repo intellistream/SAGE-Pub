@@ -1,20 +1,30 @@
-# 具体应用示例
+# 具体应用示例（L5 层）
 
-SAGE 提供了多个实际应用示例，展示如何使用 SAGE 框架构建端到端的 AI 应用。这些应用涵盖了不同的领域，展示了 SAGE 在各种场景下的能力。
+SAGE 的应用层（L5）由 `examples/apps/` 入口脚本和 `packages/sage-apps/` 实现组成：
+
+- `examples/tutorials/`：按照 L1-L6 重新编排的学习目录；其中 `L5-apps/` 目前提供文档占位。
+- `examples/apps/*.py`：5 个运行脚本，用于解析参数、校验依赖，并调用 `sage.apps.*` 中的真实逻辑。
+- `packages/sage-apps/`：应用实现所在的包（article_monitoring、auto_scaling_chat、smart_home、video、medical_diagnosis）。
+
+> **数据与配置**：教程示例使用就近的 `data/`、`config/` 子目录；体积较大的语料和评测素材统一收敛到 `packages/sage-benchmark/src/sage/data/`。历史上的 `examples/data/` 目录已移除，仅剩符号链接等待清理。
 
 ## 概览
 
-SAGE 应用示例位于 `packages/sage-apps` 包中，包括：
-
-1. **文章监控系统** - 智能论文推荐和筛选
-2. **分布式智能家居系统** - IoT 设备协调和自动化
-3. **智能扩缩容聊天系统** - 弹性资源管理
-4. **视频智能分析** - 多模型视频理解
-5. **医疗诊断系统** - AI 辅助医疗影像分析
+| 应用入口脚本 | 对应包路径 | 功能概述 |
+| --- | --- | --- |
+| `examples/apps/run_article_monitoring.py` | `sage.apps.article_monitoring` | arXiv 论文监控、关键词+语义筛选 |
+| `examples/apps/run_auto_scaling_chat.py` | `sage.apps.auto_scaling_chat` | 弹性扩缩容的聊天会话流量模拟 |
+| `examples/apps/run_smart_home.py` | `sage.apps.smart_home` | 多设备协作的智能家居自动化 |
+| `examples/apps/run_video_intelligence.py` | `sage.apps.video` | 多模型视频理解（CLIP + MobileNetV3） |
+| `examples/apps/run_medical_diagnosis.py` | `sage.apps.medical_diagnosis` | 多智能体的医疗影像分析 |
 
 ## 应用列表
 
-### 1. 文章监控系统
+所有入口脚本都包含 `@test_*` 元数据，供 `sage-dev project test` 分类识别。涉及外部资源（视频、医疗数据等）的示例默认标记为 `@test_skip_ci: true` 以避免在 CI 中阻塞。
+
+---
+
+### 1. 文章监控系统（Article Monitoring）
 
 智能监控 arXiv 最新论文，通过关键词和语义过滤为用户推荐相关文献。
 
@@ -25,14 +35,14 @@ SAGE 应用示例位于 `packages/sage-apps` 包中，包括：
 
 **快速开始**：
 ```bash
-python examples/apps/run_article_monitoring.py
+python examples/apps/run_article_monitoring.py --keywords "streaming ai" --max-articles 20
 ```
 
 **详细文档**：[文章监控系统](article-monitoring.md)
 
 ---
 
-### 2. 分布式智能家居系统
+### 2. 分布式智能家居系统（Smart Home）
 
 展示 SAGE 的互联互通能力，通过 IoT 设备网络实现智能家居自动化。
 
@@ -43,14 +53,14 @@ python examples/apps/run_article_monitoring.py
 
 **快速开始**：
 ```bash
-python examples/apps/run_smart_home.py
+python examples/apps/run_smart_home.py --cycles 3 --verbose
 ```
 
 **详细文档**：[智能家居系统](smart-home.md)
 
 ---
 
-### 3. 智能扩缩容聊天系统
+### 3. 智能扩缩容聊天系统（Auto-scaling Chat）
 
 展示 SAGE 的高资源利用能力，通过智能扩缩容实现弹性资源管理。
 
@@ -61,14 +71,14 @@ python examples/apps/run_smart_home.py
 
 **快速开始**：
 ```bash
-python examples/apps/run_auto_scaling_chat.py
+python examples/apps/run_auto_scaling_chat.py --duration 60 --peak-rate 80
 ```
 
 **详细文档**：[自动扩缩容系统](auto-scaling-chat.md)
 
 ---
 
-### 4. 视频智能分析
+### 4. 视频智能分析（Video Intelligence）
 
 使用 CLIP 和 MobileNetV3 进行多模型视频内容分析。
 
@@ -80,14 +90,14 @@ python examples/apps/run_auto_scaling_chat.py
 
 **快速开始**：
 ```bash
-python examples/apps/run_video_intelligence.py --video video.mp4
+python examples/apps/run_video_intelligence.py --video path/to/video.mp4 --max-frames 100
 ```
 
 **详细文档**：参见 [sage-apps 包文档](packages/sage-apps/index.md)
 
 ---
 
-### 5. 医疗诊断系统
+### 5. 医疗诊断系统（Medical Diagnosis）
 
 AI 辅助的医疗影像分析系统，使用多智能体架构。
 
@@ -98,7 +108,7 @@ AI 辅助的医疗影像分析系统，使用多智能体架构。
 
 **快速开始**：
 ```bash
-python examples/apps/run_medical_diagnosis.py
+python examples/apps/run_medical_diagnosis.py --case-id demo_case
 ```
 
 **详细文档**：参见 [sage-apps 包文档](packages/sage-apps/index.md)
@@ -116,13 +126,13 @@ pip install -e packages/sage-apps[all]
 安装特定应用：
 
 ```bash
-# 仅安装文章监控
+# 仅安装文章监控 / Auto-scaling / Smart Home（共享默认 extra）
 pip install -e packages/sage-apps
 
-# 视频智能（需要额外依赖）
+# 视频智能（额外的视觉推理依赖）
 pip install -e packages/sage-apps[video]
 
-# 医疗诊断
+# 医疗诊断（医学影像依赖）
 pip install -e packages/sage-apps[medical]
 ```
 
@@ -155,18 +165,7 @@ env.submit(autostop=True)
 
 ## 运行示例
 
-所有示例都提供了命令行接口：
-
-```bash
-# 文章监控
-python examples/apps/run_article_monitoring.py --keywords "machine learning" --max-articles 20
-
-# 智能家居
-python examples/apps/run_smart_home.py --cycles 3 --verbose
-
-# 自动扩缩容
-python examples/apps/run_auto_scaling_chat.py --duration 60 --peak-rate 80 --verbose
-```
+所有示例都提供了命令行接口，上文命令即可直接运行。任意入口都支持 `--help` 查看完整参数与配置说明。
 
 ## 自定义应用
 

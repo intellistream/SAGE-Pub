@@ -85,7 +85,7 @@ make lint
 等价于：
 
 ```bash
-sage-dev quality --check-only
+sage-dev quality check --check-only
 ```
 
 #### `make format` / `./dev.sh format`
@@ -101,7 +101,7 @@ make format
 等价于：
 
 ```bash
-sage-dev quality
+sage-dev quality fix
 ```
 
 #### `make quality` / `./dev.sh quality`
@@ -112,6 +112,12 @@ sage-dev quality
 make quality
 # 或
 ./dev.sh quality
+```
+
+等价于：
+
+```bash
+sage-dev quality check
 ```
 
 ______________________________________________________________________
@@ -134,7 +140,7 @@ make test
 等价于：
 
 ```bash
-pytest
+sage-dev project test
 ```
 
 #### `make test-quick` / `./dev.sh test:quick`
@@ -150,7 +156,7 @@ make test-quick
 等价于：
 
 ```bash
-pytest -m "not slow" -v
+sage-dev project test --quick
 ```
 
 #### `make test-all` / `./dev.sh test:all`
@@ -166,7 +172,7 @@ make test-all
 等价于：
 
 ```bash
-pytest -v --cov=packages --cov-report=html
+sage-dev project test --coverage
 ```
 
 ______________________________________________________________________
@@ -186,7 +192,7 @@ make build
 等价于：
 
 ```bash
-sage-dev pypi build
+sage-dev package pypi build
 ```
 
 #### `make clean` / `./dev.sh clean`
@@ -202,7 +208,7 @@ make clean
 等价于：
 
 ```bash
-sage-dev pypi clean
+sage-dev package pypi clean
 ```
 
 #### `make check` / `./dev.sh check`
@@ -218,7 +224,7 @@ make check
 等价于：
 
 ```bash
-sage-dev pypi check
+sage-dev package pypi check
 ```
 
 #### `make publish` / `./dev.sh publish`
@@ -234,7 +240,7 @@ make publish
 等价于：
 
 ```bash
-sage-dev pypi publish --dry-run
+sage-dev package pypi publish --dry-run
 ```
 
 #### `make publish-prod` / `./dev.sh publish:prod`
@@ -251,7 +257,7 @@ make publish-prod
 等价于：
 
 ```bash
-sage-dev pypi publish
+sage-dev package pypi publish
 ```
 
 ______________________________________________________________________
@@ -271,7 +277,7 @@ make version
 等价于：
 
 ```bash
-sage-dev version list
+sage-dev package version list
 ```
 
 #### `make version-bump` / `./dev.sh version:bump`
@@ -287,7 +293,7 @@ make version-bump
 等价于：
 
 ```bash
-sage-dev version bump
+sage-dev package version bump
 ```
 
 #### `./dev.sh version:set <version>`
@@ -301,7 +307,7 @@ sage-dev version bump
 等价于：
 
 ```bash
-sage-dev version set 0.2.0
+sage-dev package version set 0.2.0
 ```
 
 ______________________________________________________________________
@@ -321,7 +327,7 @@ make docs
 等价于：
 
 ```bash
-cd docs-public && ./build.sh
+sage-dev docs build
 ```
 
 #### `make docs-serve` / `./dev.sh docs:serve`
@@ -338,7 +344,7 @@ make docs-serve
 等价于：
 
 ```bash
-cd docs-public && mkdocs serve
+sage-dev docs serve
 ```
 
 ______________________________________________________________________

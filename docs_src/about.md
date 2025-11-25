@@ -380,8 +380,9 @@ sage config env setup
 sage config env show
 
 # 开发工具
-sage-dev status      # 显示开发状态
-sage-dev clean       # 清理构建产物
+sage-dev project status   # 显示项目状态
+sage-dev project clean    # 清理构建产物
+sage-dev quality check    # 运行质量检查
 
 # 聊天界面（实验性）
 sage chat

@@ -212,16 +212,21 @@ ______________________________________________________________________
 
 **位置**: `packages/sage-apps/`
 
-**应用列表**:
+**应用列表**（与 `examples/apps/run_*.py` 启动脚本一一对应）:
 
-- `video`: 视频智能分析
-- `medical_diagnosis`: 医疗诊断
+- `article_monitoring`: arXiv 监控与推荐（入口：`run_article_monitoring.py`）
+- `auto_scaling_chat`: 弹性扩缩容聊天演示（入口：`run_auto_scaling_chat.py`）
+- `smart_home`: IoT 智能家居工作流（入口：`run_smart_home.py`）
+- `video`: 视频智能分析（入口：`run_video_intelligence.py`）
+- `medical_diagnosis`: 医疗诊断系统（入口：`run_medical_diagnosis.py`）
 
 **公共 API**:
 
 ```python
-from sage.apps import video, medical_diagnosis
+from sage.apps import article_monitoring, auto_scaling_chat, smart_home, video, medical_diagnosis
 ```
+
+> 详见 `docs/dev-notes/l5-apps/README.md` 获取最新的 L5 示例与测试策略。教程示例按照 L1-L6 存放于 `examples/tutorials/`，而完整应用通过 `examples/apps/` 调用本层实现。
 
 **依赖**: sage-common, sage-kernel, sage-libs, sage-middleware
 

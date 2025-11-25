@@ -143,10 +143,24 @@ SAGE 的流式处理核心，提供 DataStream API 和执行运行时。
 **包含应用**：
 - 🎥 视频智能分析
 - 🏥 医疗诊断辅助
+- 📰 文章监控、智能家居、扩缩容聊天（入口位于 `examples/apps/`）
 
-� [查看 Apps 文档](packages/sage-apps/index.md)
+👉 [查看 Apps 文档](packages/sage-apps/index.md)
 
----
+----
+
+#### [Benchmark 套件](packages/sage-benchmark/index.md)
+
+面向 RAG、Memory、LibAMM、Scheduler 的性能测试套件，位于 `packages/sage-benchmark/`。
+
+- 📊 RAG Benchmark：多种检索策略与评测框架
+- 🧠 Memory Benchmark：Memory Service 吞吐/延迟评测
+- 🔢 LibAMM Benchmark：矩阵乘 C++ 基准
+- ⏱️ Scheduler Benchmark：调度策略比较
+
+👉 [查看 Benchmark 文档](packages/sage-benchmark/index.md)
+
+----
 
 #### [应用示例](applications.md)
 

@@ -1,340 +1,243 @@
 # sage-studio
 
-Visual pipeline builder and management interface for SAGE.
+Interactive web console for building SAGE pipelines, managing local LLM services, and running chat + fine-tuning workflows.
 
-**Layer**: L6 (Interface)
+**Layer**: L6 (Interface) · **Package**: `packages/sage-studio`
 
 ## Overview
 
-`sage-studio` provides a web-based interface for building, managing, and monitoring SAGE pipelines:
+Studio bundles four major experiences in a single CLI-driven service:
 
-- **Visual Pipeline Builder**: Drag-and-drop pipeline construction
-- **Node Registry**: Catalog of available operators and services
-- **Pipeline Management**: Save, load, and version pipelines
-- **Execution Monitoring**: Real-time pipeline monitoring
-- **Configuration UI**: Visual configuration of operators
+- **Visual Flow Editor** – drag-and-drop pipelines backed by `PipelineBuilder` + `NodeRegistry`.
+- **Playground / Chat Mode** – OpenAI-compatible chat UI on top of `sage-gateway`, including memory inspection and session tools.
+- **Fine-tuning Center** – upload datasets, launch finetune jobs, monitor GPU usage, and hot-swap models without leaving the browser.
+- **Local LLM Orchestration** – `ChatModeManager` can start/stop a vLLM server (port 8001) and fall back to cloud APIs automatically.
 
-## Features
+All flows share one CLI entrypoint (`sage studio ...`) that supervises the frontend (Vite, port 5173), backend API (FastAPI, port 8080), Gateway (FastAPI, port 8000), and optional local LLM service.
 
-### Visual Pipeline Builder
+```
+┌──────────────────────────────────────────────────────────────────┐
+│                            User Browser                          │
+│ ┌────────────┐ ┌─────────────┐ ┌──────────────┐ ┌──────────────┐ │
+│ │Flow Editor │ │Playground   │ │Memory Panel  │ │Finetune Panel│ │
+│ └────────────┘ └─────────────┘ └──────────────┘ └──────────────┘ │
+└──────────────────────▲───────────────────────────────────────────┘
+                       │ REST (Vite dev server ➜ FastAPI backend)
+┌──────────────────────┼───────────────────────────────────────────┐
+│ Studio backend (`config/backend/api.py`)                         │
+│  • Pipeline CRUD / execution requests                            │
+│  • `/api/finetune/**`, `/api/chat/memory/**`, `/api/system/**`   │
+│  • Bridges to Gateway + finetune manager + chat manager          │
+└───────────────▲───────────────┬──────────────────────────────────┘
+                │               │
+      CLI (`ChatModeManager`)   │
+   ┌────────────┴────────────┐  │
+   │ 1. `sage studio start`  │  │
+   │ 2. Start gateway + LLM  │  │
+   │ 3. Manage logs/status   │  │
+   └────────────┬────────────┘  │
+                │               │
+        ┌───────┴───────┐  ┌────┴──────────────────────┐
+        │ sage-gateway  │  │ Finetune Manager (L6 svc) │
+        │ /v1/chat/...  │  │ Task queue + GPU detect   │
+        └───────┬───────┘  └────────────┬──────────────┘
+                │                       │
+        ┌───────┴──────────┐      ┌──────┴─────────┐
+        │ sage-middleware  │      │ Local LLM/vLLM │
+        │ + sage-kernel    │      │ (optional)     │
+        └──────────────────┘      └────────────────┘
+```
 
-Build SAGE pipelines visually without writing code:
+## Key Features
 
-- Drag nodes from palette to canvas
-- Connect nodes to define data flow
-- Configure node parameters via UI
-- Validate pipeline before execution
-- Export to Python code
+### Visual Flow Editor
 
-### Node Registry
+- Canvas built with React Flow (`FlowEditor.tsx`).
+- `NodeRegistry` exposes curated operators (retrievers, promptors, generators, sinks, adapters, etc.).
+- `PipelineBuilder` turns `VisualPipeline` JSON into an executable `LocalEnvironment` pipeline, preserving node configuration.
+- Supports import/export to `.sage/pipelines/pipeline_*.json`, undo/redo, template palette, and Python export.
 
-Centralized registry of available components:
+### Playground & Chat Mode
 
-- **RAG Operators**: Retriever, Generator, Promptor, Refiner
-- **LLM Services**: OpenAI, vLLM, custom models
-- **I/O Components**: Sources (file, socket, Kafka) and Sinks
-- **Custom Operators**: Register your own operators
+- Chat tab calls Gateway’s `/v1/chat/completions`, reusing the same session IDs as the UI.
+- Built-in session list (create, rename, clear, delete) talks to Gateway’s `/sessions/**` routes.
+- Memory panel (`MemorySettings.tsx`) uses `/memory/config|stats` to display backend type, short-term usage, or Neuromem collection state.
+- `IntelligentLLMClient` automatically prefers the local LLM service; if it’s unavailable, requests fall back to DashScope/OpenAI per `SAGE_CHAT_*` env vars.
 
-### Pipeline Templates
+### Fine-tuning Center
 
-Pre-built pipeline templates:
+- `FinetunePanel.tsx` uploads datasets, runs validation, and calls `/api/finetune/create`.
+- `services/finetune_manager.py` schedules tasks, gathers GPU metadata, streams logs, and stores outputs at `~/.sage/studio_finetune/<task_id>/`.
+- Completed runs surface as selectable models. Clicking “切换为对话后端” or picking from the “当前使用的模型” dropdown triggers a hot switch (LLM server restart + environment update).
+- API endpoints mirror the UI: `/api/finetune/tasks`, `/models`, `/current-model`, `/switch-model`, `/use-as-backend`, `/prepare-sage-docs`.
 
-- RAG pipelines (simple, multi-stage, with reranking)
-- Agent workflows
-- Data processing pipelines
-- Custom templates
+### Local LLM orchestration
+
+- CLI flag `--llm/--no-llm` controls whether a vLLM server launches.
+- `ChatModeManager._start_llm_service()` wraps `LLMAPIServer` (from `sage.common.components.sage_llm`) and binds to port 8001.
+- Automatic cache lookup via `vllm_registry` accelerates model startup; environment variables `SAGE_STUDIO_LLM_MODEL`, `SAGE_STUDIO_LLM_GPU_MEMORY`, `SAGE_CHAT_MODEL` override defaults.
+- Orphaned processes are cleaned up via `lsof + kill` if Studio restarts unexpectedly.
 
 ## Installation
 
-Install sage-studio:
-
 ```bash
-pip install -e packages/sage-studio
+# install SAGE in editable mode (recommended for contributors)
+pip install -e .[all]
+
+# or install the standalone package
+cd packages/sage-studio
+pip install -e .
 ```
 
-With all dependencies:
+Requirements: Python 3.10+, Node.js 18+, modern browser, optional GPU (CUDA) for vLLM/finetune.
+
+## Starting Studio
+
+### CLI (one-command startup)
 
 ```bash
-pip install -e packages/sage-studio[all]
-```
-
-## Usage
-
-### Starting Studio
-
-```bash
-# Using CLI
+# Development (hot reload frontend, auto start gateway + backend + local LLM if available)
 sage studio start
 
-# Or directly
-python -m sage.studio.app
+# Production bundle (requires `sage studio build` once)
+sage studio start --prod
 ```
 
-The web interface will be available at `http://localhost:8501`.
+Useful flags:
 
-### Programmatic Access
+```
+--host 0.0.0.0         # bind externally
+--port 5173            # frontend port (dev mode)
+--backend-port 8080    # FastAPI backend
+--gateway-port 8000    # sage-gateway (OpenAI API)
+--llm / --no-llm       # enable or skip local vLLM service
+--llm-model <name>     # override default model
+--use-finetuned        # auto-select latest finetuned model
+```
+
+Services start in this order: (1) optional LLM ➜ (2) Gateway ➜ (3) FastAPI backend ➜ (4) Vite/production frontend. Logs live under `~/.sage/studio/*`.
+
+### Manual dev mode
+
+```bash
+# Backend (FastAPI)
+cd packages/sage-studio
+python -m sage.studio.config.backend.api  # http://localhost:8080
+
+# Frontend (Vite dev server)
+cd packages/sage-studio/src/sage/studio/frontend
+pnpm install  # or yarn/npm
+pnpm dev      # http://localhost:5173
+```
+
+Start Gateway separately if you only need the API:
+
+```bash
+python -m sage.gateway.server  # http://localhost:8000
+```
+
+## Fine-tuning workflow
+
+1. Open the **Finetune** tab.
+2. Upload JSON/JSONL or click “使用 SAGE 文档样例” to auto-generate training data.
+3. Configure epochs, batch size, learning rate (GPU-aware recommendations appear automatically).
+4. Submit the task and monitor the table (refreshes every 3 seconds). Click a row to view live logs.
+5. When status turns ✅, either:
+   - Choose the model from the “当前使用的模型” dropdown (hot switch), or
+   - Click “切换为对话后端”.
+6. Switch to **Chat** to test the model; Gateway now points at the restarted vLLM server.
+
+CLI shortcuts:
+
+```bash
+sage finetune start --model Qwen/Qwen2.5-1.5B-Instruct --data data.jsonl
+sage studio start --list-finetuned
+sage studio start --use-finetuned
+```
+
+## Memory dashboard
+
+- Navigate to Settings → “记忆管理”.
+- Cards show the active backend (`short_term`, `vdb`, `kv`, `graph`), max dialogs, embedding model, and total sessions.
+- Table rows mirror `GET /memory/stats`: short-term sessions display dialog counts + progress bars; Neuromem-backed sessions display collection/index info.
+- Automate via Gateway endpoints:
+
+```bash
+curl http://localhost:8000/memory/config | jq
+curl http://localhost:8000/memory/stats | jq
+curl -X POST "http://localhost:8000/sessions/cleanup?max_age_minutes=30"
+```
+
+## Programmatic Pipeline Builder
 
 ```python
+from sage.studio.models import VisualNode, VisualPipeline
 from sage.studio.services.pipeline_builder import PipelineBuilder
-from sage.studio.models import VisualPipeline, VisualNode
 
-# Create visual pipeline
-pipeline = VisualPipeline(id="my_pipeline", name="RAG Pipeline")
-
-# Add nodes
-retriever_node = VisualNode(
-    id="retriever",
-    type="rag.retriever",
-    config={"collection_name": "documents", "top_k": 3},
+pipeline = VisualPipeline(
+    id="rag-demo",
+    name="Docs QA",
+    nodes=[
+        VisualNode(id="source", type="file", config={"path": "docs.md"}),
+        VisualNode(id="retriever", type="rag.retriever", config={"collection": "docs"}),
+        VisualNode(id="generator", type="rag.generator", config={"model": "dashscope.qwen-max"}),
+    ],
+    connections=[
+        ("source", "retriever"),
+        ("retriever", "generator"),
+    ],
 )
-pipeline.nodes.append(retriever_node)
 
-# Build executable SAGE pipeline
-builder = PipelineBuilder()
-env = builder.build(pipeline)
-
-# Execute
+env = PipelineBuilder().build(pipeline)
 env.execute()
 ```
 
-## Architecture
-
-### Components
+## Directory structure
 
 ```
-sage-studio/
-├── models/              # Data models (VisualNode, VisualPipeline)
-├── services/            # Business logic
-│   ├── node_registry.py    # Node catalog
-│   └── pipeline_builder.py # Pipeline conversion
-└── app.py              # Web application
+packages/sage-studio/
+├── README.md
+├── src/sage/studio/
+│   ├── studio_manager.py         # CLI entry + ChatModeManager
+│   ├── chat_manager.py           # Local LLM + session helpers
+│   ├── config/backend/api.py     # FastAPI backend
+│   ├── services/
+│   │   ├── pipeline_builder.py
+│   │   ├── node_registry.py
+│   │   ├── finetune_manager.py
+│   │   └── docs_processor.py
+│   ├── frontend/ (Vite app)
+│   │   └── src/components/
+│   │       ├── FlowEditor.tsx
+│   │       ├── ChatMode.tsx
+│   │       ├── MemorySettings.tsx
+│   │       └── FinetunePanel.tsx
+│   └── data/operators/*.json     # Palette metadata
+└── tests/
+    ├── test_pipeline_builder.py
+    ├── test_node_registry.py
+    ├── test_studio_cli.py
+    └── test_e2e_integration.py
 ```
 
-### Node Registry
-
-Maps visual node types to SAGE operators:
-
-```python
-from sage.studio.services.node_registry import get_node_registry
-
-registry = get_node_registry()
-
-# Register custom operator
-registry.register(
-    node_type="my.custom.operator",
-    operator_class=MyOperator,
-    metadata={
-        "label": "My Operator",
-        "description": "Does something cool",
-        "category": "processing",
-    },
-)
-```
-
-### Pipeline Builder
-
-Converts visual pipelines to executable SAGE pipelines:
-
-```python
-from sage.studio.services.pipeline_builder import PipelineBuilder
-
-builder = PipelineBuilder()
-
-# Convert visual pipeline to SAGE environment
-env = builder.build(visual_pipeline)
-
-# The env can be executed like any SAGE pipeline
-result = env.execute()
-```
-
-## Configuration
-
-### Source and Sink Configuration
-
-Studio supports various data sources and sinks:
-
-**Sources**:
-
-- File (JSON, CSV, text)
-- Socket
-- Kafka
-- Database
-- API
-- Memory (for testing)
-
-**Sinks**:
-
-- Terminal
-- File
-- Print (with formatting)
-- Memory (for testing)
-
-### Node Configuration
-
-Each node type has specific configuration parameters:
-
-```json
-{
-  "node_type": "rag.retriever",
-  "config": {
-    "collection_name": "documents",
-    "top_k": 3,
-    "embedding_model": "text-embedding-3-small",
-    "distance_metric": "cosine"
-  }
-}
-```
-
-## API Reference
-
-### Models
-
-#### VisualNode
-
-Represents a node in the visual pipeline.
-
-```python
-@dataclass
-class VisualNode:
-    id: str
-    type: str  # "rag.generator", "rag.retriever", etc.
-    label: str
-    position: Dict[str, float]  # {x, y}
-    config: Dict[str, Any]
-```
-
-#### VisualConnection
-
-Represents a connection between nodes.
-
-```python
-@dataclass
-class VisualConnection:
-    source_node: str
-    source_port: str
-    target_node: str
-    target_port: str
-```
-
-#### VisualPipeline
-
-Represents a complete visual pipeline.
-
-```python
-@dataclass
-class VisualPipeline:
-    id: str
-    name: str
-    nodes: List[VisualNode]
-    connections: List[VisualConnection]
-
-    def to_sage_pipeline(self) -> Environment:
-        """Convert to executable SAGE pipeline"""
-```
-
-### Services
-
-#### NodeRegistry
-
-```python
-class NodeRegistry:
-    def register(self, node_type: str, operator_class: Type, metadata: Dict)
-    def get_operator(self, node_type: str) -> Type
-    def list_types(self) -> List[str]
-```
-
-#### PipelineBuilder
-
-```python
-class PipelineBuilder:
-    def build(self, pipeline: VisualPipeline) -> BaseEnvironment
-```
-
-## Examples
-
-### Building a RAG Pipeline
-
-```python
-from sage.studio.models import VisualPipeline, VisualNode, VisualConnection
-
-# Create pipeline
-pipeline = VisualPipeline(id="rag_001", name="Simple RAG")
-
-# Add nodes
-pipeline.nodes = [
-    VisualNode(id="source", type="file", config={"file_path": "questions.txt"}),
-    VisualNode(id="promptor", type="rag.promptor", config={}),
-    VisualNode(
-        id="retriever", type="rag.retriever", config={"collection_name": "docs"}
-    ),
-    VisualNode(id="generator", type="rag.generator", config={"model": "gpt-4"}),
-    VisualNode(id="sink", type="terminal", config={}),
-]
-
-# Connect nodes
-pipeline.connections = [
-    VisualConnection("source", "out", "promptor", "in"),
-    VisualConnection("promptor", "out", "retriever", "in"),
-    VisualConnection("retriever", "out", "generator", "in"),
-    VisualConnection("generator", "out", "sink", "in"),
-]
-
-# Build and execute
-from sage.studio.services.pipeline_builder import PipelineBuilder
-
-builder = PipelineBuilder()
-env = builder.build(pipeline)
-env.execute()
-```
-
-## Development
-
-### Adding Custom Nodes
-
-1. Implement your operator (in sage-libs or sage-middleware)
-1. Register it in Studio:
-
-```python
-from sage.studio.services.node_registry import get_node_registry
-
-registry = get_node_registry()
-registry.register(
-    "custom.my_operator",
-    MyOperator,
-    {
-        "label": "My Operator",
-        "description": "Custom processing",
-        "category": "processing",
-        "inputs": ["text"],
-        "outputs": ["processed_text"],
-        "config_schema": {
-            "param1": {"type": "string", "default": "value"},
-            "param2": {"type": "integer", "default": 10},
-        },
-    },
-)
-```
-
-### Testing
+## Testing
 
 ```bash
 cd packages/sage-studio
-pytest tests/ -v
+pytest tests -v
+
+# Frontend lint/tests
+cd src/sage/studio/frontend
+pnpm lint
+pnpm test
 ```
 
-## See Also
+## Related docs
 
-- [SAGE Architecture](../../../concepts/architecture/overview.md)
-- [Pipeline Builder](../sage-tools/pipeline_builder.md)
-- [Getting Started](../../../getting-started/quickstart.md)
+- [Gateway guide](../sage-gateway/index.md)
+- [CLI reference](../sage-cli/index.md)
+- [Architecture overview](../../../concepts/architecture/overview.md)
+- [Package architecture (dev notes)](../../../dev-notes/package-architecture.md#sage-studio-l6)
+- [Finetune & memory deep dives](../../../dev-notes/index.md)
 
-## Contributing
-
-Contributions to sage-studio are welcome:
-
-- Add new node types
-- Improve UI/UX
-- Add pipeline templates
-- Enhance visualization
-
-See [Community Guide](../../../community/community.md) for details.
+Studio evolves alongside Gateway, sage-memory, and sage-llm; update this page whenever new endpoints or UI panels land so public docs stay aligned with the dev notes.

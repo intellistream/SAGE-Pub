@@ -254,7 +254,7 @@ data modalities for enhanced AI understanding and generation.
 **Distributed AI Inference**: Scale AI model serving across multiple nodes with automatic load
 balancing and fault tolerance.
 
-> 本地代码质量/测试请使用 `sage-dev quality` 或 `sage-dev test`，CI/CD 由 GitHub Workflows 自动完成。
+> 本地代码质量/测试请使用 `sage-dev quality check` 或 `sage-dev project test`，CI/CD 由 GitHub Workflows 自动完成。
 
 ## Documentation & Resources
 

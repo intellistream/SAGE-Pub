@@ -1,196 +1,150 @@
 # sage-apps
 
-Application examples showcasing SAGE's capabilities.
+Application layer packages showcasing SAGE's end-to-end capabilities.
 
 **Layer**: L5 (Applications)
 
 ## Overview
 
-`sage-apps` contains real-world application examples built with SAGE:
+`packages/sage-apps/src/sage/apps/` currently包含以下五个应用模块，每个模块都对应 `examples/apps/` 下的一个运行脚本：
 
-- **Medical Diagnosis**: AI-powered medical image analysis system
-- **Video Intelligence**: Video content analysis pipeline
-- More applications coming soon...
+| Application | Module | Launcher | Focus |
+| --- | --- | --- | --- |
+| Article Monitoring | `sage.apps.article_monitoring` | `examples/apps/run_article_monitoring.py` | arXiv 数据摄取 + 多级筛选 |
+| Auto-scaling Chat | `sage.apps.auto_scaling_chat` | `examples/apps/run_auto_scaling_chat.py` | 弹性扩缩容策略演示 |
+| Smart Home | `sage.apps.smart_home` | `examples/apps/run_smart_home.py` | IoT 协同与事件驱动工作流 |
+| Video Intelligence | `sage.apps.video` | `examples/apps/run_video_intelligence.py` | 多模型视频理解 |
+| Medical Diagnosis | `sage.apps.medical_diagnosis` | `examples/apps/run_medical_diagnosis.py` | 多智能体医疗影像分析 |
 
-## Applications
+每个模块都提供：
 
-### Medical Diagnosis
+1. **Python API**（`run_*` 帮助函数/类）
+2. **命令行入口**（`python -m sage.apps.<module>.pipeline`）
+3. **示例脚本**（`examples/apps/run_*.py` 带参数解析与测试标记）
 
-AI-powered medical diagnosis system using MRI image analysis.
+## 应用详情
 
-**Features**:
+### Article Monitoring
 
-- Diagnostic agent with image analysis
-- Report generation
-- Knowledge base integration
-- Batch processing support
+智能论文监控系统，持续从 arXiv 抓取文献并通过关键词 + 语义双重过滤输出推荐列表。
 
-**Location**: `packages/sage-apps/src/sage/apps/medical_diagnosis/`
+- **关键特性**：实时拉取、KeywordFilter + SemanticFilter、个性化排序、纯标准库依赖
+- **代码位置**：`packages/sage-apps/src/sage/apps/article_monitoring/`
+- **快速开始**：
 
-**Quick Start**:
+```python
+from sage.apps.article_monitoring import run_article_monitoring_pipeline
 
-```bash
-# Setup
-cd packages/sage-apps/src/sage/apps/medical_diagnosis
-
-# Download dataset (optional)
-python scripts/download_lumbar_dataset.py
-
-# Prepare data
-python scripts/prepare_data.py
-
-# Run diagnosis
-python run_diagnosis.py
+run_article_monitoring_pipeline(
+    keywords=["machine learning", "deep learning"],
+    interest_topics=["streaming ai"],
+    category="cs.AI",
+    max_articles=20,
+)
 ```
 
-**Components**:
+CLI：`python -m sage.apps.article_monitoring.pipeline --keywords "transformer,attention"`
 
-- `agents/`: Diagnostic agents (DiagnosticAgent, ImageAnalyzer, ReportGenerator)
-- `tools/`: Medical knowledge base and utilities
-- `config/`: Agent and model configurations
-- `scripts/`: Data preparation scripts
+### Auto-scaling Chat
 
-**Documentation**:
+弹性扩缩容聊天系统，演示可配置的负载模式、自动扩缩容策略以及实时指标。
 
-- See `packages/sage-apps/src/sage/apps/medical_diagnosis/README.md`
-- Example workflows in `examples/apps/medical_diagnosis/`
+- **关键特性**：TrafficSource、AutoScaler、LoadBalancer 链式算子；ScalingEventsSink 输出；自定义阈值
+- **代码位置**：`packages/sage-apps/src/sage/apps/auto_scaling_chat/`
+- **快速开始**：
+
+```python
+from sage.apps.auto_scaling_chat import run_auto_scaling_demo
+
+run_auto_scaling_demo(duration=60, base_rate=5, peak_rate=80, verbose=True)
+```
+
+CLI：`python -m sage.apps.auto_scaling_chat.pipeline --duration 60 --peak-rate 80`
+
+### Smart Home
+
+面向 IoT 的智能家居自动化工作流，协调机器人、传感器和家电完成洗衣等任务。
+
+- **关键特性**：DeviceExecutor + EnvironmentMonitor 组合、工作流/事件日志双 sink、可自定义 cycles
+- **代码位置**：`packages/sage-apps/src/sage/apps/smart_home/`
+- **快速开始**：
+
+```python
+from sage.apps.smart_home import run_smart_home_demo
+
+run_smart_home_demo(num_cycles=2, verbose=True)
+```
+
+CLI：`python -m sage.apps.smart_home.pipeline --cycles 3 --verbose`
 
 ### Video Intelligence
 
-Video content analysis and understanding pipeline.
+多模型视频理解管道，结合 CLIP、MobileNetV3 等模型进行帧级分析与事件检测。
 
-**Features**:
+- **关键特性**：帧抽取、感知/分析算子、可配置 sink 输出
+- **代码位置**：`packages/sage-apps/src/sage/apps/video/`
+- **快速开始**：
 
-- Video frame extraction
-- Object detection and tracking
-- Scene understanding
-- Event detection
-- Content summarization
+```python
+from sage.kernel.api import LocalStreamEnvironment
+from sage.apps.video import VideoIntelligencePipeline
 
-**Location**: `packages/sage-apps/src/sage/apps/video/`
-
-**Quick Start**:
-
-```bash
-# Run video pipeline
-cd packages/sage-apps/src/sage/apps/video
-python video_intelligence_pipeline.py --video input.mp4
+env = LocalStreamEnvironment("video_analysis")
+pipeline = VideoIntelligencePipeline(env)
+pipeline.process("input.mp4")
 ```
-
-**Operators**:
-
-- `perception.py`: Visual perception (object detection, face recognition)
-- `analytics.py`: Scene analysis and event detection
-- `preprocessing.py`: Video preprocessing (frame extraction, resizing)
-- `formatters.py`: Output formatting
-- `sources.py`: Video input sources
-- `sinks.py`: Result output
-
-**Documentation**:
-
-- See `packages/sage-apps/src/sage/apps/video/README.md`
-
-## Installation
-
-Install sage-apps:
-
-```bash
-pip install -e packages/sage-apps
-```
-
-Or with all dependencies:
-
-```bash
-pip install -e packages/sage-apps[all]
-```
-
-## Running Examples
 
 ### Medical Diagnosis
+
+多智能体医疗影像分析系统，包括影像解析、知识库查询与报告生成。
+
+- **关键特性**：DiagnosticAgent、ImageAnalyzer、ReportGenerator、可扩展知识库
+- **代码位置**：`packages/sage-apps/src/sage/apps/medical_diagnosis/`
+- **快速开始**：
 
 ```python
 from sage.apps.medical_diagnosis import DiagnosticAgent
 
-# Create diagnostic agent
 agent = DiagnosticAgent(config_path="config/agent_config.yaml")
-
-# Diagnose single case
-result = agent.diagnose(
-    image_path="data/case_001.npy", patient_info={"age": 45, "gender": "男"}
-)
-
+result = agent.diagnose(image_path="data/case_001.npy", patient_info={"age": 45})
 print(result.report)
 ```
 
-### Video Intelligence
+## Launcher 脚本
 
-```python
-from sage.kernel.api.local_environment import LocalStreamEnvironment
-from sage.apps.video import VideoIntelligencePipeline
-
-# Create pipeline
-env = LocalStreamEnvironment("video_analysis")
-pipeline = VideoIntelligencePipeline(env)
-
-# Process video
-results = pipeline.process("input.mp4")
-```
-
-## Development
-
-### Adding New Applications
-
-1. Create application directory:
-
-   ```
-   packages/sage-apps/src/sage/apps/my_app/
-   ├── __init__.py
-   ├── README.md
-   ├── operators/      # Custom operators
-   ├── agents/         # If using agents
-   ├── config/         # Configuration files
-   └── scripts/        # Utility scripts
-   ```
-
-1. Implement your application logic
-
-1. Add documentation and examples
-
-1. Add tests in `packages/sage-apps/tests/my_app/`
-
-### Testing
+所有应用都提供 `examples/apps/run_*.py` 入口，便于快速体验并带有 `@test_*` 元数据：
 
 ```bash
-# Run all tests
-cd packages/sage-apps
-pytest tests/ -v
-
-# Test specific app
-pytest tests/medical_diagnosis/ -v
-pytest tests/video/ -v
+python examples/apps/run_article_monitoring.py --help
+python examples/apps/run_auto_scaling_chat.py --duration 60 --peak-rate 80
+python examples/apps/run_smart_home.py --cycles 2 --verbose
+python examples/apps/run_video_intelligence.py --video sample.mp4
+python examples/apps/run_medical_diagnosis.py --case-id demo_case
 ```
 
-## Architecture
+## 安装与测试
 
-Applications in `sage-apps` demonstrate:
+```bash
+# 安装默认依赖（文章监控/Auto-scaling/Smart Home）
+pip install -e packages/sage-apps
 
-- **Integration patterns**: How to combine kernel, libs, and middleware
-- **Best practices**: Recommended ways to structure SAGE applications
-- **Real-world usage**: Practical examples with complete workflows
+# 视频/医疗需要额外依赖
+pip install -e packages/sage-apps[video]
+pip install -e packages/sage-apps[medical]
 
-## See Also
+# 运行全部测试
+cd packages/sage-apps && pytest tests/ -v
+```
+
+## 开发指南
+
+1. 在 `packages/sage-apps/src/sage/apps/<new_app>/` 创建模块（含 README、operators、pipeline 等）。
+2. 提供 Python API + CLI + `examples/apps/run_<new_app>.py` 入口。
+3. 在 `docs/dev-notes/l5-apps/README.md` 和 `docs-public` 中更新说明。
+4. 添加对应测试：`packages/sage-apps/tests/<new_app>/`。
+
+## 参考
 
 - [Package Architecture](../../../concepts/architecture/package-structure.md)
-- [Getting Started](../../../getting-started/quickstart.md)
-- [Examples](https://github.com/intellistream/SAGE/tree/main/examples)
-
-## Contributing
-
-We welcome new application examples! Please:
-
-1. Ensure code quality and documentation
-1. Add comprehensive tests
-1. Follow SAGE architecture guidelines
-1. Include setup instructions and dependencies
-
-See [Contributing Guide](../../../community/community.md) for details.
+- [Applications Guide](../../applications.md)
+- [贡献指南](../../../community/community.md)
