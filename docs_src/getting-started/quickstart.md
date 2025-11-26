@@ -51,7 +51,30 @@ sage --version
 sage doctor
 ```
 
-## 3. 第一个 Pipeline
+## 3. 配置运行环境
+
+安装完成后，先完成 API Key 与本地 LLM 服务的配置，以便后续命令可以直接调用：
+
+```bash
+# 复制 .env.template → .env 并交互式补齐 OPENAI_API_KEY / HF_TOKEN 等变量
+sage env setup
+
+# 查看当前 .env / API Key 状态
+sage env check
+```
+
+`.env.template` 会随着仓库更新自动包含最新的必填项；`sage env setup` 会在缺失时帮你生成 `.env` 并提示常用变量（`OPENAI_API_KEY`、`SILICONCLOUD_API_KEY`、`HF_TOKEN` 等）。
+
+若需要将本地 vLLM / Ollama 服务写入 `config/config.yaml` 的 `generator.*` 配置段，可运行：
+
+```bash
+# 自动探测本地 LLM 服务并写入 config/config.yaml
+sage llm-config auto --config-path config/config.yaml --prefer vllm --yes
+```
+
+命令会备份原文件（`config/config.yaml.bak`），再根据检测到的服务填充 `base_url`、`model_name` 等字段；若未指定 `--config-path`，会自动在 `config/`, `examples/config/`, `~/.sage/` 等位置寻找。
+
+## 4. 第一个 Pipeline
 
 创建文件 `hello_sage.py`:
 
@@ -101,7 +124,7 @@ HELLO SAGE
 STREAMING AI AGENT
 ```
 
-## 4. 构建 RAG Pipeline
+## 5. 构建 RAG Pipeline
 
 ```python
 from sage.kernel.api import LocalEnvironment
@@ -121,7 +144,7 @@ env = LocalEnvironment("rag_pipeline")
 env.submit()
 ```
 
-## 5. 使用 Web UI
+## 6. 使用 Web UI
 
 启动 SAGE Studio（可视化界面）：
 
@@ -131,19 +154,22 @@ sage studio start
 
 访问 http://localhost:8000 即可使用图形界面构建 Pipeline。
 
-## 6. 探索示例
+## 7. 探索示例
 
-SAGE 提供了丰富的示例：
+SAGE 提供了按照 L1-L6 架构分层的教程与应用示例：
 
 ```bash
-# 查看所有示例
+# 查看分层目录（L1-L6）
 ls examples/tutorials/
 
-# 运行 Agent 示例
-python examples/tutorials/agents/basic_agent.py
+# L3-libs: Agent 示例
+python examples/tutorials/L3-libs/agents/basic_agent.py
 
-# 运行 RAG 示例
-python examples/tutorials/rag/simple_rag.py
+# L3-libs: RAG 示例
+python examples/tutorials/L3-libs/rag/simple_rag.py
+
+# L5 应用入口（调用 sage-apps 实现）
+python examples/apps/run_article_monitoring.py --help
 ```
 
 ## 📚 下一步
@@ -169,9 +195,9 @@ sage studio start
 sage llm start
 
 # 开发工具
-sage-dev test           # 运行测试
-sage-dev format         # 格式化代码
-sage-dev check          # 代码检查
+sage-dev project test   # 运行测试
+sage-dev quality fix    # 格式化代码
+sage-dev quality check  # 代码检查
 
 # Pipeline 构建
 sage pipeline create    # 创建新 pipeline

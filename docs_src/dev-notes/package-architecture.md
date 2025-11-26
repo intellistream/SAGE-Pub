@@ -399,11 +399,15 @@ ______________________________________________________________________
 
 **提供**:
 
-- `dev`: 开发工具套件
-  - `sage-dev quality` - 代码质量检查（ruff, mypy, black）
-  - `sage-dev architecture` - 架构合规性验证
-  - `sage-dev test` - 测试运行器
-  - `sage-dev docs` - 文档检查
+- `dev`: 开发工具套件（质量、项目、维护、包管理、资源、GitHub、Examples、文档）
+   - `sage-dev quality` - 质量检查命令组（check/architecture/devnotes/...）
+   - `sage-dev project` - 项目管理（status/analyze/test/clean/...）
+   - `sage-dev maintain` - 维护工具（doctor、hooks、submodule/...）
+   - `sage-dev package` - 包发布/版本管理（pypi/version/install）
+   - `sage-dev resource` - 模型缓存等资源管理
+   - `sage-dev github` - GitHub Issues 管理
+   - `sage-dev examples` - 示例分析与测试
+   - `sage-dev docs` - 文档构建/预览/检查
 - `finetune`: 模型微调工具
 - `management`: 系统管理工具
 - `templates`: Pipeline 模板库
@@ -422,6 +426,39 @@ ______________________________________________________________________
 ```python
 from sage.tools import dev, management, templates
 ```
+
+______________________________________________________________________
+
+### sage-gateway (L6)
+
+**职责**: 为 Studio、CLI 以及外部客户端提供 OpenAI 兼容的 API Gateway，并将请求转换为 SAGE DataStream/RAG 流水线执行。
+
+**提供**:
+
+- `FastAPI Server` (`sage.gateway.server`)
+   - `/v1/chat/completions`：OpenAI Chat 接口，支持非流式与 SSE 流式
+   - `/sessions/**`：聊天会话管理（创建、重命名、清空、删除、统计）
+   - `/memory/**`：查询/配置记忆后端 (`short_term`、`vdb`、`kv`、`graph`)
+   - `/admin/index/**`：RAG 索引状态、构建、删除
+- `adapters.openai`：协议适配器，将请求注入持久化的 `RAGPipelineService`，并在必要时自动构建 `docs-public/docs_src` 索引
+- `session.manager`：会话与记忆管理，落盘到 `~/.sage/gateway/`，可选 Neuromem collection
+- `rag_pipeline`：基于 `LocalEnvironment + Map/Source/Sink` 的长驻 Pipeline，负责 RAG 检索与工作流意图识别（调用 `sage.libs.agentic.workflow`）
+
+**依赖**: `sage-common`, `sage-kernel`, `sage-libs`, `sage-middleware`
+
+**运行方式**:
+
+```bash
+sage-gateway --host 0.0.0.0 --port 8000
+python -m sage.gateway.server
+sage studio start   # 若未检测到 Gateway，会自动拉起
+```
+
+**公开使用场景**:
+
+- Studio Chat/Canvas：默认将 API 请求发送至 Gateway（`http://{host}:{port}/v1/chat/completions`）
+- 外部客户端：通过 OpenAI SDK / cURL 直连，`api_key` 仅用于鉴权（本地可任意字符串）
+- 运营管理：使用 `/admin/index/build` 快速 ingest `docs-public`，并通过 `/sessions/cleanup`、`SAGE_GATEWAY_LOG_LEVEL` 保持运行状态可控
 
 ## 🔗 依赖关系图
 
@@ -885,23 +922,23 @@ sage-dev architecture --format markdown
 
 ```bash
 # 检查所有文件
-sage-dev check-architecture
+sage-dev quality architecture
 
 # 仅检查变更的文件
-sage-dev check-architecture --changed-only
+sage-dev quality architecture --changed-only
 
 # 对比特定分支
-sage-dev check-architecture --diff main
+sage-dev quality architecture --diff main
 ```
 
 ### 综合质量检查
 
 ```bash
-# 运行所有质量检查（包括架构检查）
-sage-dev check-all
+# 运行所有质量检查（包括架构、dev-notes、README 等）
+sage-dev quality check
 
 # 仅检查变更文件
-sage-dev check-all --changed-only
+sage-dev quality check --all-files
 ```
 
 更多命令请参考 [sage-tools README](../../packages/sage-tools/README.md)。
