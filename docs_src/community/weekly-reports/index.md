@@ -1,10 +1,10 @@
-# Weekly Reports
+# Periodic Reports
 
-This section contains automatically generated weekly contribution reports for the SAGE project.
+This section contains automatically generated periodic contribution reports for the SAGE project.
 
 ## 📊 What's Included
 
-Each weekly report contains:
+Each report contains:
 
 - **Contributor Statistics**: Commits, PRs, and code changes per contributor
 - **AI-Generated Summaries**: LLM-powered summaries of each contributor's work
@@ -13,11 +13,16 @@ Each weekly report contains:
 
 ## 🗓️ Report Archive
 
-Reports are generated every Monday at 17:00 Beijing Time (09:00 UTC).
+Reports are generated automatically:
 
-| Report | Period | Generated |
-|--------|--------|-----------|
-| *Reports will appear here automatically* | | |
+- **周报 (Weekly)**: Every Monday at 17:00 Beijing Time
+- **月报 (Monthly)**: 1st of each month
+- **季报 (Quarterly)**: 1st of January, April, July, October
+- **年报 (Yearly)**: January 1st
+
+| Report | Type | Period | Generated |
+|--------|------|--------|-----------|
+| *Reports will appear here automatically* | | | |
 
 ## 🔧 How It Works
 
