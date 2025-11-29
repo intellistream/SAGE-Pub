@@ -1,7 +1,7 @@
 # Hello Future World !!!
 
 `Hello Future World` 基于 SAGE 仓库示例
-[`examples/tutorials/transformation-api/hello_future_world.py`](https://github.com/intellistream/SAGE/blob/main/examples/tutorials/transformation-api/hello_future_world.py)，本例演示“反馈边与循环流”的用法：
+[`examples/tutorials/L3-kernel/stream/hello_future_world.py`](https://github.com/intellistream/SAGE/blob/main/examples/tutorials/L3-kernel/stream/hello_future_world.py)，本例演示“反馈边与循环流”的用法：
 
 - env.from_future（占位流）
 - DataStream.connect + ConnectedStreams.comap
@@ -16,12 +16,12 @@ ______________________________________________________________________
 
 ## *B*. 代码示例
 
-```python title="examples/tutorials/transformation-api/hello_future_world.py" linenums="1"
-from sage.core.api.local_environment import LocalEnvironment
-from sage.core.api.function.comap_function import BaseCoMapFunction
-from sage.core.api.function.base_function import BaseFunction
-from sage.core.api.function.batch_function import BatchFunction
-from sage.core.api.function.sink_function import SinkFunction
+```python title="examples/tutorials/L3-kernel/stream/hello_future_world.py" linenums="1"
+from sage.kernel.api.local_environment import LocalEnvironment
+from sage.common.core.functions.comap_function import BaseCoMapFunction
+from sage.common.core.functions.base_function import BaseFunction
+from sage.common.core.functions.batch_function import BatchFunction
+from sage.common.core.functions.sink_function import SinkFunction
 from sage.common.utils.logging.custom_logger import CustomLogger
 from time import sleep
 

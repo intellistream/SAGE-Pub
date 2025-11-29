@@ -355,5 +355,5 @@ sage-dev visualize-deps
 ## 📚 相关文档
 
 - [架构总览](./overview.md)
-- [分层设计](./layer-design.md)
-- [设计决策记录](./design-decisions/)
+- [设计决策记录](./design-decisions/l2-platform-layer.md)
+- [开发笔记 - 包架构](../../dev-notes/package-architecture.md)

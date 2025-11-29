@@ -8,7 +8,7 @@ Algorithm libraries: agents, RAG, tools, workflow optimization, and I/O utilitie
 
 `sage-libs` provides reusable algorithm libraries and tools:
 
-- **Agents**: Intelligent agent framework with planning and action
+- **Agentic**: Intelligent agent framework with planning, tool selection, and timing decision
 - **RAG**: Retrieval-Augmented Generation components
 - **Tools**: Utility tools (search, image processing, web scraping)
 - **I/O**: Data sources and sinks
@@ -18,16 +18,165 @@ Algorithm libraries: agents, RAG, tools, workflow optimization, and I/O utilitie
 
 ## Modules
 
-### Agents
+### Agentic Framework ⭐ NEW
 
-::: sage.libs.agentic.agents
+The `sage.libs.agentic` module provides comprehensive agent capabilities:
+
+#### Tool Selection
+
+::: sage.libs.agentic.agents.action.tool_selection
     options:
       show_root_heading: true
       members:
+        - BaseToolSelector
+        - KeywordSelector
+        - EmbeddingSelector
+        - HybridSelector
+        - GorillaSelector
+        - DFSDTSelector
+        - SelectorRegistry
+
+**Available Tool Selectors:**
+
+| Selector | Description | Use Case |
+|----------|-------------|----------|
+| `KeywordSelector` | Keyword-based matching | Simple, fast selection |
+| `EmbeddingSelector` | Semantic similarity | Context-aware selection |
+| `HybridSelector` | Keyword + Embedding | Balanced accuracy |
+| `GorillaSelector` | Gorilla-style API retrieval | API-heavy tasks |
+| `DFSDTSelector` | Depth-First Search with Decision Tree | Complex multi-tool tasks |
+
+```python
+from sage.libs.agentic.agents.action.tool_selection import (
+    SelectorRegistry,
+    get_selector,
+    HybridSelector,
+    HybridSelectorConfig
+)
+
+# Use registry
+selector = get_selector("hybrid")
+
+# Or create directly
+config = HybridSelectorConfig(
+    keyword_weight=0.3,
+    embedding_weight=0.7
+)
+selector = HybridSelector(config)
+
+# Select tools for query
+tools = selector.select(
+    query="Search for news about AI",
+    available_tools=[tool1, tool2, tool3],
+    top_k=3
+)
+```
+
+#### Planning
+
+::: sage.libs.agentic.agents.planning
+    options:
+      show_root_heading: true
+      members:
+        - BasePlanner
+        - HierarchicalPlanner
+        - ReActPlanner
+        - TreeOfThoughtsPlanner
+        - PlanRequest
+        - PlanResult
+        - PlanStep
+        - PlannerConfig
+
+**Available Planners:**
+
+| Planner | Description | Use Case |
+|---------|-------------|----------|
+| `HierarchicalPlanner` | Multi-step decomposition | Complex multi-step tasks |
+| `ReActPlanner` | Reasoning + Acting | Interactive tasks |
+| `TreeOfThoughtsPlanner` | Tree search exploration | Creative problem-solving |
+
+```python
+from sage.libs.agentic.agents.planning import (
+    HierarchicalPlanner,
+    PlanRequest,
+    PlannerConfig
+)
+
+config = PlannerConfig(min_steps=3, max_steps=10)
+planner = HierarchicalPlanner.from_config(
+    config=config,
+    llm_client=your_llm_client,
+    tool_selector=your_tool_selector
+)
+
+request = PlanRequest(
+    goal="Deploy application to production",
+    tools=[...],
+    constraints=["No downtime", "Rollback capability"]
+)
+result = planner.plan(request)
+```
+
+#### Timing Decision
+
+::: sage.libs.agentic.agents.planning.timing_decider
+    options:
+      show_root_heading: true
+      members:
+        - BaseTimingDecider
+        - RuleBasedTimingDecider
+        - LLMBasedTimingDecider
+        - HybridTimingDecider
+        - TimingMessage
+        - TimingDecision
+        - TimingConfig
+
+**Available Timing Deciders:**
+
+| Decider | Description | Use Case |
+|---------|-------------|----------|
+| `RuleBasedTimingDecider` | Pattern matching rules | Deterministic decisions |
+| `LLMBasedTimingDecider` | LLM-powered judgment | Complex context |
+| `HybridTimingDecider` | Rules + LLM fallback | Production recommended |
+
+```python
+from sage.libs.agentic.agents.planning import (
+    HybridTimingDecider,
+    TimingMessage,
+    TimingConfig
+)
+
+config = TimingConfig(decision_threshold=0.8)
+decider = HybridTimingDecider(config, llm_client=your_llm)
+
+message = TimingMessage(user_message="What's the weather in Beijing?")
+decision = decider.decide(message)
+
+if decision.should_respond:
+    # Generate response
+    pass
+```
+
+#### Agent Runtime
+
+::: sage.libs.agentic.agents.runtime
+    options:
+      show_root_heading: true
+      members:
+        - AgentRuntime
         - runtime
-        - planning
-        - action
-        - profile
+
+::: sage.libs.agentic.agents.profile
+    options:
+      show_root_heading: true
+      members:
+        - BaseProfile
+
+::: sage.libs.agentic.agents.action
+    options:
+      show_root_heading: true
+      members:
+        - MCPRegistry
 
 ### RAG (Retrieval-Augmented Generation)
 
@@ -104,6 +253,45 @@ Algorithm libraries: agents, RAG, tools, workflow optimization, and I/O utilitie
 
 ## Quick Examples
 
+### Complete Agent Setup
+
+```python
+from sage.libs.agentic.agents.profile.profile import BaseProfile
+from sage.libs.agentic.agents.runtime.agent import AgentRuntime
+from sage.libs.agentic.agents.planning import HierarchicalPlanner, PlannerConfig
+from sage.libs.agentic.agents.action.mcp_registry import MCPRegistry
+from sage.libs.agentic.agents.action.tool_selection import get_selector
+
+# 1. Create profile
+profile = BaseProfile(name="assistant", role="research helper")
+
+# 2. Register tools
+registry = MCPRegistry()
+registry.register(search_tool)
+registry.register(calculator_tool)
+
+# 3. Create tool selector
+selector = get_selector("hybrid")
+
+# 4. Create planner
+config = PlannerConfig(min_steps=3, max_steps=10)
+planner = HierarchicalPlanner.from_config(
+    config=config,
+    llm_client=your_llm_client,
+    tool_selector=selector
+)
+
+# 5. Create runtime
+runtime = AgentRuntime(
+    profile=profile, 
+    planner=planner, 
+    tools=registry
+)
+
+# 6. Execute
+result = runtime.execute({"query": "Search for AI news and summarize"})
+```
+
 ### RAG Pipeline
 
 ```python
@@ -126,24 +314,6 @@ stream = (env
 )
 ```
 
-### Agent Framework
-
-```python
-from sage.libs.agentic.agents.profile.profile import BaseProfile
-from sage.libs.agentic.agents.runtime.agent import AgentRuntime
-from sage.libs.agentic.agents.planning.llm_planner import LLMPlanner
-from sage.libs.agentic.agents.action.mcp_registry import MCPRegistry
-
-profile = BaseProfile(name="assistant", role="research helper")
-registry = MCPRegistry()
-registry.register(search_tool)
-registry.register(calculator_tool)
-
-planner = LLMPlanner(generator=my_generator)
-runtime = AgentRuntime(profile=profile, planner=planner, tools=registry)
-result = runtime.execute({"query": "计算 2+2 并检索 AI 新闻"})
-```
-
 ### I/O Sources and Sinks
 
 ```python
@@ -159,6 +329,12 @@ stream = (env
 
 ## Component Guides
 
+### Agentic (NEW)
+
+- [Agents 概述](../../guides/packages/sage-libs/agents.md) - Agent 框架核心组件
+- [Planner 组件](../../guides/packages/sage-libs/agents/components/planner.md) - 规划器
+- [Action 组件](../../guides/packages/sage-libs/agents/components/action.md) - 行动组件
+
 ### RAG
 
 - [RAG Overview](../../guides/packages/sage-libs/rag/README.md)
@@ -167,19 +343,37 @@ stream = (env
 ### Agents
 
 - [Agents Guide](../../guides/packages/sage-libs/agents.md)
-- Agent Components - 查看导航栏 Libs AI 组件库 > Agents 章节
 
 ### Tools
 
 - [Tools Introduction](../../guides/packages/sage-libs/tools_intro.md)
-- Individual Tool Docs - 查看导航栏 Libs AI 组件库 > Tools 章节
 
-## Design Decisions
+## Module Organization
 
-- [sage-libs Restructuring](../../concepts/architecture/design-decisions/sage-libs-restructuring.md)
+```
+sage.libs/
+├── agentic/                    # Agent framework (NEW)
+│   ├── agents/
+│   │   ├── action/
+│   │   │   ├── tool_selection/ # Tool selectors
+│   │   │   └── mcp_registry.py # MCP tool registry
+│   │   ├── planning/           # Planners & timing
+│   │   ├── profile/            # Agent profiles
+│   │   └── runtime/            # Agent runtime
+│   └── workflow/               # Workflow optimization
+├── rag/                        # RAG components
+│   ├── generator/
+│   ├── retriever/
+│   └── promptor/
+├── io/                         # I/O utilities
+│   ├── source/
+│   └── sink/
+├── tools/                      # Tool implementations
+└── context/                    # Context management
+```
 
 ## See Also
 
 - [Libraries Guide](../../guides/packages/sage-libs/README.md)
-- RAG Examples - 查看导航栏 Libs AI 组件库 > RAG > 示例章节
-- Agent Examples - 查看导航栏 Libs AI 组件库 > Agents > 示例章节
+- [Benchmark 概览](../../guides/packages/sage-benchmark/index.md)
+- [Design Decisions](../../concepts/architecture/design-decisions/sage-libs-restructuring.md)

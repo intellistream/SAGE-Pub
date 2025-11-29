@@ -590,12 +590,10 @@ sage finetune list
 
 - 完整的 dataflow 编排
 - 统一的资源管理和监控
-- 查看详细计划: [FINETUNE_PIPELINE_TODO.md](./FINETUNE_PIPELINE_TODO.md)
 
 #### 详细文档
 
-- [微调原理指南](./FINETUNE_GUIDE.md) - 深入理解Loss、LoRA、优化器等
-- [Pipeline集成计划](./FINETUNE_PIPELINE_TODO.md) - v2.0路线图
+参见 [GitHub 仓库中的开发文档](https://github.com/intellistream/SAGE/tree/main/docs/dev-notes) 获取更多细节。
 
 #### 使用示例
 
@@ -627,11 +625,9 @@ ______________________________________________________________________
 ## 参考链接
 
 - [SAGE 主仓库](https://github.com/intellistream/SAGE)
-- [贡献指南](../CONTRIBUTING.md)
-- [开发者文档](../docs/dev-notes/README.md)
-- [CI/CD 文档](../docs/ci-cd/README.md)
-- [微调指南](./FINETUNE_GUIDE.md) ⭐ 新增
-- [微调Pipeline计划](./FINETUNE_PIPELINE_TODO.md) ⭐ 新增
+- [贡献指南](https://github.com/intellistream/SAGE/blob/main/CONTRIBUTING.md)
+- [开发者文档](https://github.com/intellistream/SAGE/tree/main/docs/dev-notes)
+- [CI/CD 文档](./ci-cd.md)
 
 ______________________________________________________________________
 

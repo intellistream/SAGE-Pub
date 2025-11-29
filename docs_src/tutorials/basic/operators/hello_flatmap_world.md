@@ -1,7 +1,7 @@
 # Hello FlatMap World !!!
 
 `Hello FlatMap World` 基于 SAGE 仓库示例
-[`examples/tutorials/transformation-api/hello_flatmap_world.py`](https://github.com/intellistream/SAGE/blob/main/examples/tutorials/transformation-api/hello_flatmap_world.py)，在本例中，你将了解以下
+[`examples/tutorials/L3-kernel/operators/hello_flatmap_world.py`](https://github.com/intellistream/SAGE/blob/main/examples/tutorials/L3-kernel/operators/hello_flatmap_world.py)，在本例中，你将了解以下
 `function` 与 `transformation` 的用法：
 
 - DataStream.map
@@ -17,14 +17,14 @@ ______________________________________________________________________
 
 ## *B*. 代码示例
 
-```python title="examples/tutorials/transformation-api/hello_flatmap_world.py" linenums="1"
+```python title="examples/tutorials/L3-kernel/operators/hello_flatmap_world.py" linenums="1"
 # 此例意在说明FlatMap的使用
-from sage.core.api.local_environment import LocalEnvironment
-from sage.core.api.function.sink_function import SinkFunction
-from sage.core.api.function.batch_function import BatchFunction
-from sage.core.api.function.map_function import MapFunction
+from sage.kernel.api.local_environment import LocalEnvironment
+from sage.common.core.functions.sink_function import SinkFunction
+from sage.common.core.functions.batch_function import BatchFunction
+from sage.common.core.functions.map_function import MapFunction
 from sage.common.utils.logging.custom_logger import CustomLogger
-from sage.core.api.function.flatmap_function import FlatMapFunction
+from sage.common.core.functions.flatmap_function import FlatMapFunction
 
 
 class HelloBatch(BatchFunction):

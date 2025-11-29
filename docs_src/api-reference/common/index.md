@@ -9,11 +9,41 @@ Common utilities, data types, and base classes used across all SAGE packages.
 `sage-common` provides foundational components that all other SAGE packages depend on:
 
 - Core data types and type system
-- Configuration management
+- Configuration management (including **SagePorts** for unified port configuration)
 - Logging utilities
 - Base exceptions
 - Common decorators and utilities
-- Model registry and embedding services
+- **UnifiedInferenceClient** - Unified LLM + Embedding client (NEW)
+- **EmbeddingFactory** and adapters for embedding services
+- Model registry and vLLM integration
+
+## Quick Start: UnifiedInferenceClient
+
+The recommended way to interact with LLM and Embedding services:
+
+```python
+from sage.common.components.sage_llm import UnifiedInferenceClient
+
+# Auto-detect available services (Simple mode)
+client = UnifiedInferenceClient.create_auto()
+
+# Or use Control Plane mode for production (recommended)
+client = UnifiedInferenceClient.create_with_control_plane(
+    llm_base_url="http://localhost:8901/v1",
+    llm_model="Qwen/Qwen2.5-7B-Instruct",
+    embedding_base_url="http://localhost:8090/v1",
+    embedding_model="BAAI/bge-m3",
+)
+
+# Chat completion
+response = client.chat([{"role": "user", "content": "Hello"}])
+
+# Text generation
+text = client.generate("Once upon a time")
+
+# Embedding
+vectors = client.embed(["text1", "text2"])
+```
 
 ## Modules
 
@@ -56,31 +86,39 @@ Common utilities, data types, and base classes used across all SAGE packages.
       show_root_heading: true
       show_source: false
 
-### Components
-
-#### Embedding Services
-
-::: sage.common.components.sage_embedding
-    options:
-      show_root_heading: true
-      show_source: false
-      members:
-        - EmbeddingService
-        - EmbeddingFactory
-        - OpenAIEmbedding
-        - HuggingFaceEmbedding
-
-#### vLLM Integration
-
-::: sage.common.components.sage_llm
-    options:
-      show_root_heading: true
-      show_source: false
-      members:
-        - VLLMService
-        - VLLMClient
-
 ### Configuration
+
+#### Port Configuration (SagePorts) ⭐ NEW
+
+::: sage.common.config.ports
+    options:
+      show_root_heading: true
+      show_source: false
+      members:
+        - SagePorts
+        - is_wsl
+
+Centralized port configuration to avoid conflicts:
+
+```python
+from sage.common.config.ports import SagePorts
+
+# Standard port allocation
+SagePorts.GATEWAY_DEFAULT      # 8000 - sage-gateway (OpenAI-compatible API)
+SagePorts.LLM_DEFAULT          # 8001 - vLLM inference service
+SagePorts.STUDIO_BACKEND       # 8080 - sage-studio backend
+SagePorts.STUDIO_FRONTEND      # 5173 - sage-studio frontend (Vite)
+SagePorts.EMBEDDING_DEFAULT    # 8090 - Embedding service
+SagePorts.BENCHMARK_LLM        # 8901 - Benchmark LLM (WSL2 fallback)
+
+# Auto-detect for WSL2 compatibility
+port = SagePorts.get_recommended_llm_port()
+
+# Check port availability
+if SagePorts.is_available(8001):
+    # Port is free
+    pass
+```
 
 #### Output Paths
 
@@ -92,6 +130,171 @@ Common utilities, data types, and base classes used across all SAGE packages.
         - OutputPaths
         - get_output_dir
         - ensure_output_dir
+
+### Components
+
+#### UnifiedInferenceClient ⭐ NEW (Recommended)
+
+::: sage.common.components.sage_llm.unified_client
+    options:
+      show_root_heading: true
+      show_source: false
+      members:
+        - UnifiedInferenceClient
+        - UnifiedClient
+        - UnifiedClientConfig
+        - UnifiedClientMode
+        - InferenceResult
+
+The **UnifiedInferenceClient** provides a single interface for both LLM and Embedding:
+
+| Mode | Description | Use Case |
+|------|-------------|----------|
+| `Simple` | Direct backend connection | Development, testing |
+| `ControlPlane` | Intelligent routing & load balancing | Production |
+
+**Two Creation Methods:**
+
+```python
+from sage.common.components.sage_llm import UnifiedInferenceClient
+
+# Method 1: Auto-detect (Simple mode)
+client = UnifiedInferenceClient.create_auto()
+
+# Method 2: Control Plane mode (recommended for production)
+client = UnifiedInferenceClient.create_with_control_plane(
+    llm_base_url="http://localhost:8901/v1",
+    llm_model="Qwen/Qwen2.5-7B-Instruct",
+    embedding_base_url="http://localhost:8090/v1",
+    embedding_model="BAAI/bge-m3",
+)
+```
+
+**API Methods:**
+
+| Method | Signature | Description |
+|--------|-----------|-------------|
+| `chat()` | `chat(messages, model=None, **kwargs)` | Chat completion |
+| `generate()` | `generate(prompt, model=None, **kwargs)` | Text generation |
+| `embed()` | `embed(texts, model=None)` | Batch embedding |
+
+#### IntelligentLLMClient
+
+::: sage.common.components.sage_llm.client
+    options:
+      show_root_heading: true
+      show_source: false
+      members:
+        - IntelligentLLMClient
+        - check_llm_service
+        - get_llm_client
+
+#### vLLM Service
+
+::: sage.common.components.sage_llm.service
+    options:
+      show_root_heading: true
+      show_source: false
+      members:
+        - VLLMService
+        - VLLMServiceConfig
+
+#### Control Plane Service
+
+::: sage.common.components.sage_llm.control_plane_service
+    options:
+      show_root_heading: true
+      show_source: false
+      members:
+        - ControlPlaneVLLMService
+        - ControlPlaneVLLMServiceConfig
+
+#### Unified API Server
+
+::: sage.common.components.sage_llm.unified_api_server
+    options:
+      show_root_heading: true
+      show_source: false
+      members:
+        - UnifiedAPIServer
+        - UnifiedServerConfig
+        - BackendInstanceConfig
+        - SchedulingPolicyType
+        - create_unified_server
+
+#### Compatibility Adapters ⭐ NEW
+
+::: sage.common.components.sage_llm.compat
+    options:
+      show_root_heading: true
+      show_source: false
+      members:
+        - LLMClientAdapter
+        - EmbeddingClientAdapter
+        - create_llm_client_compat
+        - create_embedding_client_compat
+
+Adapters for integrating with legacy code:
+
+```python
+from sage.common.components.sage_llm import (
+    EmbeddingClientAdapter,
+    create_embedding_client_compat
+)
+
+# Wrap an existing embedding implementation
+adapted = EmbeddingClientAdapter(existing_embedder)
+vectors = adapted.embed(["text1", "text2"])  # Batch interface
+```
+
+#### Embedding Services
+
+::: sage.common.components.sage_embedding
+    options:
+      show_root_heading: true
+      show_source: false
+      members:
+        - EmbeddingFactory
+        - EmbeddingService
+        - EmbeddingServiceConfig
+        - BaseEmbedding
+        - EmbeddingRegistry
+        - EmbeddingProtocol
+        - EmbeddingClientAdapter
+        - get_embedding_model
+        - list_embedding_models
+        - check_model_availability
+
+**Supported Embedding Providers:**
+
+| Provider | Method | Description |
+|----------|--------|-------------|
+| HuggingFace | `hf` | Local models (BGE, MiniLM, etc.) |
+| OpenAI | `openai` | text-embedding-3-small/large |
+| Jina | `jina` | Multilingual, late chunking |
+| Zhipu | `zhipu` | Chinese-optimized |
+| Cohere | `cohere` | Multilingual |
+| Bedrock | `bedrock` | AWS Bedrock |
+| Ollama | `ollama` | Local deployment |
+| SiliconCloud | `siliconcloud` | China-accessible |
+| Hash | `hash` | Lightweight (testing) |
+| Mock | `mockembedder` | Unit tests |
+
+```python
+from sage.common.components.sage_embedding import (
+    EmbeddingFactory, 
+    EmbeddingClientAdapter,
+    get_embedding_model
+)
+
+# Create embedding model
+embedder = get_embedding_model("hf", model="BAAI/bge-small-zh-v1.5")
+vector = embedder.embed("hello world")  # Single text
+
+# For batch interface, wrap with adapter
+adapter = EmbeddingClientAdapter(embedder)
+vectors = adapter.embed(["text1", "text2"])  # Batch
+```
 
 ### Model Registry
 

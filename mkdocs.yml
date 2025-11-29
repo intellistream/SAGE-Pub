@@ -112,6 +112,10 @@ nav:
   - 概览: concepts/index.md
   - 架构总览: concepts/architecture/overview.md
   - 包结构: concepts/architecture/package-structure.md
+  - 设计决策:
+    - L2 平台层: concepts/architecture/design-decisions/l2-platform-layer.md
+    - RPC 队列重构: concepts/architecture/design-decisions/rpc-queue-refactoring.md
+    - sage-libs 重构: concepts/architecture/design-decisions/sage-libs-restructuring.md
 
 - 高级教程:
   - 概览: tutorials/advanced/index.md
@@ -220,6 +224,8 @@ nav:
   - L5 应用层:
     - Apps 应用:
       - 概览: guides/packages/sage-apps/index.md
+    - Benchmark 性能测试:
+      - 概览: guides/packages/sage-benchmark/index.md
     - 应用示例:
       - 概览: guides/applications.md
       - 文章监控系统: guides/article-monitoring.md

@@ -24,10 +24,10 @@
 创建文件 `hello_batch.py`：
 
 ```python linenums="1" title="hello_batch.py"
-from sage.core.api.local_environment import LocalEnvironment
-from sage.core.api.function.map_function import MapFunction
-from sage.core.api.function.sink_function import SinkFunction
-from sage.core.api.function.batch_function import BatchFunction
+from sage.kernel.api.local_environment import LocalEnvironment
+from sage.common.core.functions.map_function import MapFunction
+from sage.common.core.functions.sink_function import SinkFunction
+from sage.common.core.functions.batch_function import BatchFunction
 from sage.common.utils.logging.custom_logger import CustomLogger
 
 # 1. 数据源：生成 10 条 "Hello, World!" 字符串
@@ -185,7 +185,7 @@ HelloBatch (数据源)
 ### 场景 1：处理文件数据
 
 ```python
-from sage.core.api.function.batch_function import BatchFunction
+from sage.common.core.functions.batch_function import BatchFunction
 
 class FileBatch(BatchFunction):
     def __init__(self, file_path, **kwargs):

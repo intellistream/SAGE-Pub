@@ -35,7 +35,7 @@
 - ✅ 应用层测试: **1,241+/1,245+ (99.7%)**
 - ✅ 依赖关系: **单向向下，清晰可控**
 
-详见: [RPC_QUEUE_REFACTORING_2025.md](./dev-notes/RPC_QUEUE_REFACTORING_2025.md)
+详见: [RPC_QUEUE_REFACTORING_2025.md](https://github.com/intellistream/SAGE/tree/main/docs/dev-notes/cross-layer/architecture)
 
 ______________________________________________________________________
 
@@ -148,8 +148,7 @@ register_rpc_queue_factory(_rpc_queue_factory)
 - 注册调用: `packages/sage-kernel/src/sage/kernel/__init__.py`
 - RPC实现: `packages/sage-kernel/src/sage/kernel/runtime/communication/rpc/rpc_queue.py`
 
-详见: [L2_LAYER_ANALYSIS.md](./dev-notes/L2_LAYER_ANALYSIS.md),
-[TOP_LAYER_REVIEW_2025.md](./dev-notes/TOP_LAYER_REVIEW_2025.md)
+详见: [架构设计文档](https://github.com/intellistream/SAGE/tree/main/docs/dev-notes/cross-layer/architecture)
 
 ## 🔍 包详细说明
 
@@ -252,7 +251,7 @@ ______________________________________________________________________
 - ✅ 完整文档覆盖（10/10 modules）
 - ✅ 169 tests passed (0 failed)
 
-详见: [SAGE_LIBS_RESTRUCTURING_2025.md](./dev-notes/SAGE_LIBS_RESTRUCTURING_2025.md)
+详见: [sage-libs 重构文档](https://github.com/intellistream/SAGE/tree/main/docs/dev-notes/cross-layer/architecture)
 
 **依赖**: `sage-common`, `sage-kernel` (可选)
 
@@ -668,7 +667,7 @@ L3 (sage-libs)
 
 **预计工作量**: 7-8小时，影响~32-47个文件
 
-详见: [KERNEL_REFACTORING_ANALYSIS_1041.md](./architecture/KERNEL_REFACTORING_ANALYSIS_1041.md)
+详见: [kernel 重构分析](https://github.com/intellistream/SAGE/tree/main/docs/dev-notes/l3-kernel)
 
 ______________________________________________________________________
 
@@ -715,7 +714,7 @@ ______________________________________________________________________
 - ✅ 完整的文档覆盖 (10/10 modules)
 - ✅ 规范的 API 导出
 
-参见: [SAGE_LIBS_RESTRUCTURING_2025.md](./dev-notes/SAGE_LIBS_RESTRUCTURING_2025.md)
+参见: [sage-libs 重构文档](https://github.com/intellistream/SAGE/tree/main/docs/dev-notes/l3-libs)
 
 ### 2025-01 重大重构
 
@@ -740,8 +739,7 @@ ______________________________________________________________________
 - 标准化的测试结构
 - 完整的文档
 
-参见: [ARCHITECTURE_REVIEW_2025.md](./dev-notes/ARCHITECTURE_REVIEW_2025.md),
-[RESTRUCTURING_SUMMARY.md](./dev-notes/RESTRUCTURING_SUMMARY.md)
+参见: [架构审查文档](https://github.com/intellistream/SAGE/tree/main/docs/dev-notes/cross-layer/architecture)
 
 ### 2025-01 架构审查（Top-Layer Review）
 
@@ -844,8 +842,7 @@ L6 (sage-studio)       - 接口层
 - 修复 L1→L3 依赖违规
 - 所有测试通过
 
-参见: [L2_LAYER_ANALYSIS.md](./dev-notes/L2_LAYER_ANALYSIS.md),
-[TOP_LAYER_REVIEW_2025.md](./dev-notes/TOP_LAYER_REVIEW_2025.md)
+参见: [架构审查文档](https://github.com/intellistream/SAGE/tree/main/docs/dev-notes/cross-layer/architecture)
 
 ## 🚀 使用指南
 
@@ -894,9 +891,8 @@ from sage.middleware.operators.rag.retriever.chroma_retriever import ChromaRetri
 
 ## 📚 参考文档
 
-- [架构评审 2025](./dev-notes/ARCHITECTURE_REVIEW_2025.md) - 问题分析和解决方案
-- [重构总结](./dev-notes/RESTRUCTURING_SUMMARY.md) - 完整重构记录
-- [贡献指南](../CONTRIBUTING.md) - 如何参与开发
+- [架构设计文档](https://github.com/intellistream/SAGE/tree/main/docs/dev-notes/cross-layer/architecture) - 详细架构分析
+- [贡献指南](https://github.com/intellistream/SAGE/blob/main/CONTRIBUTING.md) - 如何参与开发
 
 ## 🛠️ 架构相关命令
 
@@ -941,7 +937,7 @@ sage-dev quality check
 sage-dev quality check --all-files
 ```
 
-更多命令请参考 [sage-tools README](../../packages/sage-tools/README.md)。
+更多命令请参考 [sage-tools 文档](https://github.com/intellistream/SAGE/tree/main/packages/sage-tools)。
 
 ## 🤝 贡献
 
@@ -951,4 +947,4 @@ sage-dev quality check --all-files
 1. 创建新 issue 讨论
 1. 提交 PR 并附上说明
 
-遵循架构原则有助于保持代码库的健康和可维护性！
+详情参见 [贡献指南](https://github.com/intellistream/SAGE/blob/main/CONTRIBUTING.md)。遵循架构原则有助于保持代码库的健康和可维护性！

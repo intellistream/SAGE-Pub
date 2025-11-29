@@ -1,7 +1,7 @@
 # Hello Join World !!!
 
 `Hello Join World` 基于 SAGE 仓库示例
-[`examples/tutorials/transformation-api/hello_join_world.py`](https://github.com/intellistream/SAGE/blob/main/examples/tutorials/transformation-api/hello_join_world.py)，演示按键分区与双流
+[`examples/tutorials/L3-kernel/operators/hello_join_world.py`](https://github.com/intellistream/SAGE/blob/main/examples/tutorials/L3-kernel/operators/hello_join_world.py)，演示按键分区与双流
 Join：
 
 - DataStream.keyby
@@ -16,13 +16,13 @@ ______________________________________________________________________
 
 ## *B*. 代码示例
 
-```python title="examples/tutorials/transformation-api/hello_join_world.py" linenums="1"
+```python title="examples/tutorials/L3-kernel/operators/hello_join_world.py" linenums="1"
 # 此例用到了keyby和join操作符，展示如何将两个数据流按key进行关联。
-from sage.core.api.local_environment import LocalEnvironment
-from sage.core.api.function.sink_function import SinkFunction
-from sage.core.api.function.batch_function import BatchFunction
-from sage.core.api.function.keyby_function import KeyByFunction
-from sage.core.api.function.join_function import BaseJoinFunction
+from sage.kernel.api.local_environment import LocalEnvironment
+from sage.common.core.functions.sink_function import SinkFunction
+from sage.common.core.functions.batch_function import BatchFunction
+from sage.common.core.functions.keyby_function import KeyByFunction
+from sage.common.core.functions.join_function import BaseJoinFunction
 from sage.common.utils.logging.custom_logger import CustomLogger
 
 

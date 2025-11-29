@@ -389,9 +389,9 @@ result = check_imports(
 
 ## 📚 相关文档
 
-- [PACKAGE_ARCHITECTURE.md](../PACKAGE_ARCHITECTURE.md) - 包架构总览
-- [L2_LAYER_ANALYSIS.md](./L2_LAYER_ANALYSIS.md) - L2 层设计分析
-- [TOP_LAYER_REVIEW_2025.md](./TOP_LAYER_REVIEW_2025.md) - 架构审查报告
+- [包架构总览](../package-structure.md) - 包结构说明
+- [L2 平台层设计](./l2-platform-layer.md) - L2 层设计分析
+- [架构审查报告](https://github.com/intellistream/SAGE/tree/main/docs/dev-notes/cross-layer/architecture) - 详细审查文档
 
 ## 🔄 后续工作
 

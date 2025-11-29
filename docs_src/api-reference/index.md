@@ -16,8 +16,9 @@ API 文档按照 SAGE 的 **L1-L6 分层架构**组织，帮助您快速找到�
 
 **主要模块**：
 - `sage.common.core` - 核心类型和异常
-- `sage.common.components` - Embedding 服务、vLLM 集成
-- `sage.common.config` - 配置管理
+- `sage.common.components.sage_llm` - **UnifiedInferenceClient** ⭐ (LLM + Embedding 统一客户端)
+- `sage.common.components.sage_embedding` - **EmbeddingFactory** (Embedding 服务)
+- `sage.common.config.ports` - **SagePorts** ⭐ (统一端口配置)
 - `sage.common.utils` - 日志、序列化等工具
 
 👉 [查看 Common API](common/index.md)
@@ -66,11 +67,11 @@ API 文档按照 SAGE 的 **L1-L6 分层架构**组织，帮助您快速找到�
 AI 组件库，包含 RAG、Agents、Embeddings 等高级功能。
 
 **主要模块**：
-- `sage.libs.agentic.agents` - Agent 框架（Profile、Planner、Action、Runtime）
+- `sage.libs.agentic.agents.action.tool_selection` - **工具选择器** ⭐ (Keyword, Embedding, Hybrid, Gorilla, DFSDT)
+- `sage.libs.agentic.agents.planning` - **规划器** ⭐ (Hierarchical, ReAct, ToT) + **时机决策**
+- `sage.libs.agentic.agents.runtime` - Agent 运行时
 - `sage.libs.rag` - RAG Pipeline（检索、生成、评估）
-- `sage.libs.embedding` - 向量嵌入
 - `sage.libs.tools` - 工具集（搜索、图像、文本处理）
-- `sage.libs.context` - 上下文管理
 
 **详细 API 文档**：
 - [RAG API 参考](../guides/packages/sage-libs/rag/api_reference.md) - RAG 组件 API
@@ -87,9 +88,10 @@ AI 组件库，包含 RAG、Agents、Embeddings 等高级功能。
 领域特定的中间件服务。
 
 **主要模块**：
-- `sage.middleware.neuromem` - 向量数据库和记忆管理
-- `sage.middleware.sage_db` - 时序数据库
-- `sage.middleware.services` - 中间件服务
+- `sage.middleware.components.sage_mem` - NeuroMem 记忆管理 + Multimodal 存储
+- `sage.middleware.components.sage_db` - 数据库服务
+- `sage.middleware.components.sage_refiner` - Refiner 服务
+- `sage.middleware.services.autostop` - AutoStop 服务
 
 **详细 API 文档**：
 - [服务 API](../guides/packages/sage-middleware/service/service_api.md) - 中间件服务接口
@@ -114,18 +116,36 @@ API 文档通过以下方式自动生成：
 
 ## 🚀 快速开始
 
-### 基础使用示例
+### 推荐: UnifiedInferenceClient (LLM + Embedding)
 
 ```python
-# L1: 使用 Common 工具
-from sage.common.components.sage_embedding import EmbeddingFactory
+from sage.common.components.sage_llm import UnifiedInferenceClient
+from sage.common.config.ports import SagePorts
 
-embedding = EmbeddingFactory.create_embedding(
-    provider="openai",
-    model_name="text-embedding-3-small"
+# Auto-detect available services
+client = UnifiedInferenceClient.create_auto()
+
+# Or use Control Plane mode (recommended for production)
+client = UnifiedInferenceClient.create_with_control_plane(
+    llm_base_url=f"http://localhost:{SagePorts.BENCHMARK_LLM}/v1",
+    llm_model="Qwen/Qwen2.5-7B-Instruct",
+    embedding_base_url=f"http://localhost:{SagePorts.EMBEDDING_DEFAULT}/v1",
+    embedding_model="BAAI/bge-m3",
 )
 
-# L3: 创建 Kernel Pipeline
+# Chat completion
+response = client.chat([{"role": "user", "content": "Hello"}])
+
+# Text generation
+text = client.generate("Once upon a time")
+
+# Embedding
+vectors = client.embed(["text1", "text2"])
+```
+
+### Kernel Pipeline 示例
+
+```python
 from sage.kernel.api.local_environment import LocalStreamEnvironment
 
 env = LocalStreamEnvironment("my_app")
@@ -136,15 +156,24 @@ stream = (env
     .sink(output_sink)
 )
 env.execute()
+```
 
-# L3: 使用 Libs RAG
-from sage.libs.rag import RAGPipeline
+### Agent 框架示例
 
-rag = RAGPipeline(
-    retriever=my_retriever,
-    generator=my_generator
+```python
+from sage.libs.agentic.agents.planning import HierarchicalPlanner, PlannerConfig
+from sage.libs.agentic.agents.action.tool_selection import get_selector
+
+# Create tool selector
+selector = get_selector("hybrid")  # keyword, embedding, hybrid, gorilla, dfsdt
+
+# Create planner
+config = PlannerConfig(min_steps=3, max_steps=10)
+planner = HierarchicalPlanner.from_config(
+    config=config,
+    llm_client=client,
+    tool_selector=selector
 )
-result = rag.query("What is SAGE?")
 ```
 
 ## 📋 快速链接

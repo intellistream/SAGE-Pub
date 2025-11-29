@@ -24,10 +24,10 @@ ______________________________________________________________________
 \[^1\]: 批处理任务主要是指处理 **有界流** 数据，这意味着数据是有限的，任务是可终结的。
 
 ```Python linenums="1" title="Python"
-from sage.core.api.local_environment import LocalEnvironment
-from sage.core.api.function.map_function import MapFunction
-from sage.core.api.function.sink_function import SinkFunction
-from sage.core.api.function.batch_function import BatchFunction
+from sage.kernel.api.local_environment import LocalEnvironment
+from sage.common.core.functions.map_function import MapFunction
+from sage.common.core.functions.sink_function import SinkFunction
+from sage.common.core.functions.batch_function import BatchFunction
 from sage.common.utils.logging.custom_logger import CustomLogger
 
 # 声明数据流入：生成10条"Hello, World!"字符串

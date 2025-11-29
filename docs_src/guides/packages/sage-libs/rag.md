@@ -211,6 +211,23 @@ ______________________________________________________________________
   - `api_key` (str): API 密钥。
   - `seed` (int): 随机种子 (可选)。
 
+!!! tip "推荐的 LLM/Embedding 服务部署方式"
+  使用 `sage stack start` 启动本地 Gateway/LLM/Embedding 服务，并通过
+  `UnifiedInferenceClient` 自动发现端点。
+
+  ```python
+  from sage.common.components.sage_llm import UnifiedInferenceClient
+  from sage.libs.rag.generator import OpenAIGenerator
+
+  client = UnifiedInferenceClient.create_auto()
+  generator = OpenAIGenerator({
+    "method": "openai",
+    "model_name": client.config.llm_model or "Qwen/Qwen2.5-7B-Instruct",
+    "base_url": client.config.llm_base_url,
+    "api_key": client.config.llm_api_key,
+  })
+  ```
+
 #### `OpenAIGeneratorWithHistory`
 
 带滚动对话历史的生成器。

@@ -4,7 +4,7 @@
 
 ## 前置要求
 
-- Python 3.9+
+- Python 3.10+（推荐 3.11）
 - conda 或 virtualenv (推荐)
 - Git
 
@@ -124,7 +124,44 @@ HELLO SAGE
 STREAMING AI AGENT
 ```
 
-## 5. 构建 RAG Pipeline
+## 5. 使用统一推理客户端
+
+SAGE 提供 `UnifiedInferenceClient` 统一访问 LLM 和 Embedding 服务：
+
+```python
+from sage.common.components.sage_llm import UnifiedInferenceClient
+
+# 自动检测可用的 LLM 和 Embedding 服务
+client = UnifiedInferenceClient.create_auto()
+
+# 聊天补全
+response = client.chat([
+    {"role": "system", "content": "你是一个有帮助的助手。"},
+    {"role": "user", "content": "什么是流式处理？"}
+])
+print(response)
+
+# 文本生成
+text = client.generate("从前有座山，山上有座庙，")
+print(text)
+
+# 文本嵌入
+vectors = client.embed(["文本1", "文本2", "文本3"])
+print(f"向量维度: {len(vectors[0])}")
+```
+
+**环境变量配置**（在 `.env` 文件中）:
+
+```bash
+# 本地 LLM 服务
+SAGE_CHAT_BASE_URL=http://localhost:8001/v1
+
+# 或使用云端 API
+SAGE_CHAT_API_KEY=sk-your-api-key
+SAGE_CHAT_BASE_URL=https://api.openai.com/v1
+```
+
+## 6. 构建 RAG Pipeline
 
 ```python
 from sage.kernel.api import LocalEnvironment
@@ -144,7 +181,7 @@ env = LocalEnvironment("rag_pipeline")
 env.submit()
 ```
 
-## 6. 使用 Web UI
+## 7. 使用 Web UI
 
 启动 SAGE Studio（可视化界面）：
 
@@ -154,7 +191,7 @@ sage studio start
 
 访问 http://localhost:8000 即可使用图形界面构建 Pipeline。
 
-## 7. 探索示例
+## 8. 探索示例
 
 SAGE 提供了按照 L1-L6 架构分层的教程与应用示例：
 
@@ -175,13 +212,12 @@ python examples/apps/run_article_monitoring.py --help
 ## 📚 下一步
 
 - [教程](../tutorials/) - 深入学习各个功能
-- [架构文档](../architecture/) - 了解系统设计
-- [API 参考](../reference/) - 查看完整 API
-- [开发指南](../developers/) - 参与贡献
+- [架构文档](../concepts/architecture/overview.md) - 了解系统设计
+- [API 参考](../api-reference/index.md) - 查看完整 API
+- [开发指南](../developers/development-setup.md) - 参与贡献
 
 ## 🆘 获取帮助
 
-- [常见问题](./faq.md)
 - [GitHub Issues](https://github.com/intellistream/SAGE/issues)
 - [社区讨论](https://github.com/intellistream/SAGE/discussions)
 

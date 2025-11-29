@@ -1,7 +1,7 @@
 # Hello CoMap World !!!
 
 `Hello CoMap World` 基于 SAGE 仓库示例
-[`examples/tutorials/transformation-api/hello_comap_world.py`](https://github.com/intellistream/SAGE/blob/main/examples/tutorials/transformation-api/hello_comap_world.py)。在本例中，你将了解以下
+[`examples/tutorials/L3-kernel/functions/hello_comap_function_example.py`](https://github.com/intellistream/SAGE/blob/main/examples/tutorials/L3-kernel/functions/hello_comap_function_example.py)。在本例中，你将了解以下
 function 与 transformation 的用法：
 
 - DataStream.connect
@@ -16,14 +16,14 @@ ______________________________________________________________________
 
 ## *B*. 代码示例
 
-```python title="examples/tutorials/transformation-api/hello_comap_world.py" linenums="1"
+```python title="examples/tutorials/L3-kernel/functions/hello_comap_function_example.py" linenums="1"
 # 此例意在说明如何将两个流通过comap合为一个流
 
-from sage.core.api.local_environment import LocalEnvironment
-from sage.core.api.function.sink_function import SinkFunction
+from sage.kernel.api.local_environment import LocalEnvironment
+from sage.common.core.functions.sink_function import SinkFunction
 from sage.common.utils.logging.custom_logger import CustomLogger
-from sage.core.api.function.batch_function import BatchFunction
-from sage.core.api.function.comap_function import BaseCoMapFunction
+from sage.common.core.functions.batch_function import BatchFunction
+from sage.common.core.functions.comap_function import BaseCoMapFunction
 
 
 # 定义两个简单数据源：

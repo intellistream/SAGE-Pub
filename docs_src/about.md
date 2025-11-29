@@ -189,8 +189,8 @@ git checkout main-dev
 # 开发者安装
 ./quickstart.sh --dev --yes
 
-# 最小核心安装
-./quickstart.sh --minimal --yes
+# 核心运行时安装
+./quickstart.sh --core --yes
 
 # 标准安装 + vLLM 支持
 ./quickstart.sh --standard --vllm --yes
@@ -206,8 +206,9 @@ git checkout main-dev
 
 ```bash
 # 选择您的安装模式:
-pip install isage[minimal]   # 核心功能  
-pip install isage[standard]  # 完整特性
+pip install isage[core]      # 核心功能  
+pip install isage[standard]  # 标准功能
+pip install isage[full]      # 完整特性
 pip install isage[dev]       # 所有功能 + 开发工具
 ```
 
@@ -218,7 +219,7 @@ pip install isage[dev]       # 所有功能 + 开发工具
 - 🎯 为首次用户提供交互式菜单
 - 🤖 通过 `--vllm` 集成 vLLM
 - 🐍 通过 `--pip` 支持 conda 或系统 Python
-- ⚡ 三种模式: minimal / standard / dev
+- ⚡ 四种模式: core / standard / full / dev
 
 ## 环境配置
 

@@ -533,7 +533,7 @@ ______________________________________________________________________
 - **文档**：[SAGE 文档](https://intellistream.github.io/SAGE-Pub/)
 - **Issue**：[GitHub Issues](https://github.com/intellistream/SAGE/issues)
 - **社区**：
-  - 微信群：参见 [COMMUNITY.md](../../docs/COMMUNITY.md)
+  - 微信群：参见 [社区指南](../community/community.md)
   - QQ 群：IntelliStream 课题组讨论群
   - Slack：[加入 Slack](https://join.slack.com/t/intellistream/shared_invite/...)
 
@@ -542,11 +542,8 @@ ______________________________________________________________________
 ## *I*. 下一步
 
 - 📖 阅读 [架构文档](../concepts/architecture/overview.md)
-- 🔧 查看 [开发命令参考](../../dev-notes/DEV_COMMANDS.md)
+- 🔧 查看 [CLI 命令参考](./commands.md)
 - 📝 浏览 [示例代码](https://github.com/intellistream/SAGE/tree/main-dev/examples)
-- 🤝 参与 [社区讨论](../../docs/COMMUNITY.md)
+- 🤝 参与 [社区讨论](../community/community.md)
 
 祝您开发愉快！🚀
-
-```
-```

@@ -234,8 +234,7 @@ pnpm test
 
 ## Related docs
 
-- [Gateway guide](../sage-gateway/index.md)
-- [CLI reference](../sage-cli/index.md)
+- [CLI reference](../sage-tools/cli_reference.md)
 - [Architecture overview](../../../concepts/architecture/overview.md)
 - [Package architecture (dev notes)](../../../dev-notes/package-architecture.md#sage-studio-l6)
 - [Finetune & memory deep dives](../../../dev-notes/index.md)

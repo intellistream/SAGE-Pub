@@ -9,8 +9,9 @@ Domain-specific components and operators for RAG, LLM, memory, and database syst
 `sage-middleware` provides high-level domain-specific components:
 
 - **Operators**: Pre-built RAG and LLM operators for pipelines
-- **Components**: NeuroMem (memory), SageDB, SageFlow, SageTSDB
+- **Components**: NeuroMem (memory), SageDB, SageFlow, SageTSDB, SageRefiner
 - **Services**: Memory services, vector databases, embeddings
+- **C++ Extensions**: High-performance SONG GPU acceleration
 
 ## Modules
 
@@ -58,6 +59,30 @@ Domain-specific components and operators for RAG, LLM, memory, and database syst
         - NeuroMem
         - MemoryService
 
+NeuroMem provides intelligent memory management with vector storage:
+
+```python
+from sage.middleware.components.sage_mem import NeuroMem
+
+# Initialize memory service
+memory = NeuroMem(
+    embedding_service="openai",
+    vector_db="chroma"
+)
+
+# Store memory
+memory.store(
+    content="Paris is the capital of France",
+    metadata={"source": "geography"}
+)
+
+# Recall memory
+results = memory.recall(
+    query="What is the capital of France?",
+    top_k=3
+)
+```
+
 #### SageDB
 
 ::: sage.middleware.components.sage_db
@@ -67,9 +92,75 @@ Domain-specific components and operators for RAG, LLM, memory, and database syst
         - SageDB
         - DatabaseService
 
+#### SageFlow
+
+::: sage.middleware.components.sage_flow
+    options:
+      show_root_heading: true
+      members:
+        - SageFlow
+
+#### SageTSDB (Time Series Database)
+
+::: sage.middleware.components.sage_tsdb
+    options:
+      show_root_heading: true
+      members:
+        - SageTSDB
+
+#### SageRefiner
+
+::: sage.middleware.components.sage_refiner
+    options:
+      show_root_heading: true
+      members:
+        - SageRefiner
+
+### Multimodal Storage ⭐ NEW
+
+Support for storing and retrieving multimodal data (text, images, audio):
+
+```python
+from sage.middleware.components.sage_mem import MultimodalStorage
+
+storage = MultimodalStorage(
+    vector_db="chroma",
+    embedding_service="openai"
+)
+
+# Store multimodal content
+storage.store(
+    content=image_bytes,
+    content_type="image",
+    metadata={"description": "A cat"}
+)
+
+# Retrieve by semantic query
+results = storage.search(
+    query="pictures of animals",
+    top_k=5
+)
+```
+
+### AutoStop Service
+
+Remote service lifecycle management:
+
+```python
+from sage.middleware.services import AutoStopService
+
+# Create service with auto-shutdown
+service = AutoStopService(
+    timeout_seconds=300,  # Auto-stop after 5 min idle
+    mode="remote"
+)
+
+# Service automatically stops when idle
+```
+
 ## Quick Examples
 
-### Using RAG Operators
+### Using RAG Operators in Pipeline
 
 ```python
 from sage.kernel.api.local_environment import LocalStreamEnvironment
@@ -101,43 +192,70 @@ stream = (env
 env.execute()
 ```
 
-### Using NeuroMem
-
-```python
-from sage.middleware.components.sage_mem import NeuroMem
-
-# Initialize memory service
-memory = NeuroMem(
-    embedding_service="openai",
-    vector_db="chroma"
-)
-
-# Store memory
-memory.store(
-    content="Paris is the capital of France",
-    metadata={"source": "geography"}
-)
-
-# Recall memory
-results = memory.recall(
-    query="What is the capital of France?",
-    top_k=3
-)
-```
-
 ### Using vLLM Service
 
 ```python
 from sage.middleware.operators.llm import VLLMGenerator
+from sage.common.config.ports import SagePorts
 
-# Use local vLLM service
+# Use local vLLM service with SagePorts
 generator = VLLMGenerator(
-    model_name="meta-llama/Llama-2-13b-chat-hf",
-    base_url="http://localhost:8000/v1"
+    model_name="Qwen/Qwen2.5-7B-Instruct",
+    base_url=f"http://localhost:{SagePorts.BENCHMARK_LLM}/v1"
 )
 
 # In pipeline
 stream = env.from_source(prompts).map(generator).sink(output)
+```
+
+## C++ Extensions
+
+High-performance components built with C++:
+
+### SONG GPU Acceleration
+
+SONG (Self-Organizing Navigable Greedy) graph for fast ANN search:
+
+```python
+from sage.middleware.components.extensions import song_gpu
+
+# Create SONG index
+index = song_gpu.create_index(
+    dimension=384,
+    metric="cosine"
+)
+
+# Add vectors
+index.add(vectors)
+
+# Search
+results = index.search(query_vector, k=10)
+```
+
+**Build Requirements:**
+- CMake 3.18+
+- CUDA Toolkit (for GPU support)
+- OpenBLAS / LAPACK
+
+## Module Organization
+
+```
+sage.middleware/
+├── operators/                  # Pipeline operators
+│   ├── rag/                   # RAG operators
+│   ├── llm/                   # LLM operators
+│   └── tools/                 # Tool operators
+├── components/                 # Core components
+│   ├── sage_mem/              # NeuroMem memory service
+│   │   ├── neuromem/          # Memory management
+│   │   └── multimodal/        # Multimodal storage
+│   ├── sage_db/               # Database service
+│   ├── sage_flow/             # Flow engine
+│   ├── sage_tsdb/             # Time series DB
+│   ├── sage_refiner/          # Refiner service
+│   └── song/                  # SONG GPU (C++ extension)
+└── services/                   # Service utilities
+    └── autostop/              # Auto-stop service
 ```
 
 ## Component Guides

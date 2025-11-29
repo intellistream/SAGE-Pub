@@ -1,7 +1,7 @@
 # Hello Filter World !!!
 
 `Hello Filter World`基于 SAGE Repo 里的示例
-[`examples/tutorials/transformation-api/hello_filter_world.py`](https://github.com/intellistream/SAGE/blob/main/examples/tutorials/transformation-api/hello_filter_world.py)，在本例中，你将了解有关以下`function`和`transformation`的用法：
+[`examples/tutorials/L3-kernel/operators/hello_filter_world.py`](https://github.com/intellistream/SAGE/blob/main/examples/tutorials/L3-kernel/operators/hello_filter_world.py)，在本例中，你将了解有关以下`function`和`transformation`的用法：
 
 - DataStream.filter
 - FilterFunction
@@ -14,12 +14,12 @@ ______________________________________________________________________
 
 ## *B*. 代码示例
 
-```python title="examples/tutorials/transformation-api/hello_filter_world.py" linenums="1"
-from sage.core.api.local_environment import LocalEnvironment
-from sage.core.api.function.sink_function import SinkFunction
-from sage.core.api.function.batch_function import BatchFunction
-from sage.core.api.function.map_function import MapFunction
-from sage.core.api.function.filter_function import FilterFunction
+```python title="examples/tutorials/L3-kernel/operators/hello_filter_world.py" linenums="1"
+from sage.kernel.api.local_environment import LocalEnvironment
+from sage.common.core.functions.sink_function import SinkFunction
+from sage.common.core.functions.batch_function import BatchFunction
+from sage.common.core.functions.map_function import MapFunction
+from sage.common.core.functions.filter_function import FilterFunction
 from sage.common.utils.logging.custom_logger import CustomLogger
 
 
