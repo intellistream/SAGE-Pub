@@ -44,15 +44,17 @@ print(f"嵌入维度: {len(vectors[0])}")
 ### 启动后端服务
 
 ```bash
-# 启动 LLM 服务 (vLLM)
-sage stack start --llm-model Qwen/Qwen2.5-7B-Instruct --llm-port 8901
+# 启动 LLM 服务（后台运行）
+sage llm serve --model Qwen/Qwen2.5-7B-Instruct --port 8901
 
-# 启动 Embedding 服务
-python -m sage.common.components.sage_embedding.embedding_server \
-    --model BAAI/bge-m3 --port 8090
+# 同时启动 LLM + Embedding 服务
+sage llm serve --with-embedding \
+    --model Qwen/Qwen2.5-7B-Instruct \
+    --embedding-model BAAI/bge-m3
 
-# 或使用一键命令
-sage stack start  # 默认同时启动 LLM 和 Embedding
+# 查看状态 / 停止服务
+sage llm status
+sage llm stop
 ```
 
 ## 构建 RAG Pipeline

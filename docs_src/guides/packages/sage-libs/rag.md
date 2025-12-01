@@ -212,7 +212,7 @@ ______________________________________________________________________
   - `seed` (int): 随机种子 (可选)。
 
 !!! tip "推荐的 LLM/Embedding 服务部署方式"
-  使用 `sage stack start` 启动本地 Gateway/LLM/Embedding 服务，并通过
+  使用 `sage llm serve` 启动本地 LLM/Embedding 服务，并通过
   `UnifiedInferenceClient` 自动发现端点。
 
   ```python

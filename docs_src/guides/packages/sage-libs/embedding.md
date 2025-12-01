@@ -266,8 +266,8 @@ python -m sage.common.components.sage_embedding.embedding_server \
     --model BAAI/bge-m3 \
     --port 8090
 
-# 或使用 sage stack 命令一键启动
-sage stack start --skip-llm --embedding-model BAAI/bge-m3 --embedding-port 8090
+# 或使用 sage llm serve 命令同时启动 LLM + Embedding
+sage llm serve --with-embedding --embedding-model BAAI/bge-m3
 ```
 
 然后使用 `UnifiedInferenceClient` 连接：

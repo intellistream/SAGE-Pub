@@ -332,7 +332,7 @@ class GPUOperator(MapFunction):
 
 ```python
 # vLLM 启动时使用半精度
-# sage stack start --llm-model <model> --dtype half
+# sage llm serve --model <model> --gpu-memory 0.5
 
 # 或在 UnifiedInferenceClient 配置中
 client = UnifiedInferenceClient(

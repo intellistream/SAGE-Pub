@@ -4,32 +4,33 @@ Deploy SAGE applications and the sageLLM服务栈 (LLM / Embedding / Gateway) in
 
 ---
 
-## Quick Start: sage stack
+## Quick Start: sage llm serve
 
-`sage` CLI 内置了一键启动/停止 LLM、Embedding、Gateway 的服务栈命令，适合开发和小规模部署：
+`sage` CLI 内置了一键启动/停止 LLM 服务的命令，适合开发和小规模部署：
 
 ```bash
-# 启动默认模型（LLM + Embedding + Gateway）
-sage stack start
+# 启动默认模型（LLM）
+sage llm serve
 
 # 显式指定模型与端口
-sage stack start \
-  --llm-model Qwen/Qwen2.5-7B-Instruct \
-  --llm-port 8901 \
-  --embedding-model BAAI/bge-m3 \
-  --embedding-port 8090 \
-  --gateway-port 8000
+sage llm serve \
+  --model Qwen/Qwen2.5-7B-Instruct \
+  --port 8901
 
-# 仅启动某些组件
-sage stack start --skip-llm --embedding-model BAAI/bge-m3
+# 同时启动 LLM + Embedding
+sage llm serve --with-embedding \
+  --model Qwen/Qwen2.5-7B-Instruct \
+  --embedding-model BAAI/bge-m3
 
 # 查看状态 / 日志 / 停止
-sage stack status
-sage stack logs --follow
-sage stack stop
+sage llm status
+sage llm logs --follow
+sage llm stop
 ```
 
-`sage stack` 内部会统一使用 `SagePorts`，因此**严禁**在代码中硬编码端口号。相关端口如下：
+`sage llm serve` 内部会统一使用 `SagePorts`，因此**严禁**在代码中硬编码端口号。相关端口如下：
+
+> 💡 使用 `sage llm model list-remote` 可以查看官方推荐的常用模型，并结合 `sage llm model download` 预热缓存。
 
 | 常量 | 端口 | 用途 |
 |------|------|------|
@@ -48,13 +49,9 @@ sage stack stop
 
 ```bash
 SAGE_MODEL="Qwen/Qwen2.5-7B-Instruct"
-sage stack start --only llm --llm-model "$SAGE_MODEL" --llm-port 8901
 
-# 或者直接使用 vllm 命令（自定义部署）
-python -m vllm.entrypoints.openai.api_server \
-  --model "$SAGE_MODEL" \
-  --port 8901 \
-  --trust-remote-code
+# 使用 sage llm serve（推荐）
+sage llm serve --model "$SAGE_MODEL" --port 8901
 
 # 健康检查
 curl http://localhost:8901/v1/models
@@ -63,9 +60,10 @@ curl http://localhost:8901/v1/models
 ### 2. Embedding 服务
 
 ```bash
-sage stack start --skip-llm --embedding-model BAAI/bge-m3 --embedding-port 8090
+# 通过 sage llm serve 同时启动
+sage llm serve --with-embedding --embedding-model BAAI/bge-m3 --embedding-port 8090
 
-# 或使用内置脚本
+# 或单独启动 Embedding 服务
 python -m sage.common.components.sage_embedding.embedding_server \
   --model BAAI/bge-m3 \
   --port 8090
@@ -74,18 +72,17 @@ python -m sage.common.components.sage_embedding.embedding_server \
 curl http://localhost:8090/v1/models
 ```
 
-### 3. Gateway（OpenAI 兼容 API）
+### 3. 使用客户端
 
-```bash
-sage stack start --only gateway --gateway-port 8000 --llm-port 8901
-
-# 测试
-curl http://localhost:8000/v1/models
-
-# 客户端（UnifiedInferenceClient）
+```python
 from sage.common.components.sage_llm import UnifiedInferenceClient
+
+# 自动检测本地服务
+client = UnifiedInferenceClient.create_auto()
+
+# 或显式配置
 client = UnifiedInferenceClient(
-    llm_base_url="http://localhost:8000/v1",
+    llm_base_url="http://localhost:8901/v1",
     llm_model="Qwen/Qwen2.5-7B-Instruct",
 )
 ```
@@ -407,8 +404,8 @@ config = {"gpu_enabled": True, "gpu_memory_fraction": 0.8}
 
 ### 服务栈常见问题
 
-- **LLM 端口启动但无法连接（特别是 WSL2）**：使用 `SagePorts.get_recommended_llm_port()` 或 `sage stack start --llm-port 8901`。
-- **Embedding 生成 404**：确认 `sage stack status` 中 Embedding 组件为 `RUNNING`，并使用 `/v1/embeddings` 端点。
+- **LLM 端口启动但无法连接（特别是 WSL2）**：使用 `SagePorts.get_recommended_llm_port()` 或 `sage llm serve --port 8901`。
+- **Embedding 生成 404**：确认 `sage llm status` 显示服务运行中，并使用 `/v1/embeddings` 端点。
 - **Gateway 返回 502**：Gateway 无法连接下游 LLM，检查 `--llm-port` 参数是否正确。
 - **模型下载缓慢**：设置 `HF_ENDPOINT=https://hf-mirror.com` 以使用国内镜像。
 
