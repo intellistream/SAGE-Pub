@@ -228,7 +228,7 @@ python examples/apps/run_article_monitoring.py --help
 ```bash
 # 启动服务
 sage studio start
-sage llm start
+sage llm run --model Qwen/Qwen2.5-0.5B-Instruct
 
 # 开发工具
 sage-dev project test   # 运行测试
