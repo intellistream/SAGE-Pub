@@ -43,6 +43,66 @@ sage llm stop
 
 ---
 
+## 动态引擎管理
+
+Control Plane 支持运行时动态启动/停止推理引擎，并自动追踪 GPU 显存：
+
+### 引擎命令
+
+```bash
+# 列出当前运行的引擎
+sage llm engine list
+
+# 启动 LLM 引擎（支持 tensor/pipeline 并行）
+sage llm engine start Qwen/Qwen2.5-7B-Instruct --tensor-parallel 2
+
+# 启动 Embedding 引擎
+sage llm engine start BAAI/bge-m3 --engine-kind embedding --port 8095
+
+# 停止指定引擎
+sage llm engine stop <engine_id>
+
+# 查看 GPU 状态
+sage llm gpu
+```
+
+### 预设编排
+
+使用预设一键部署多个引擎组合，避免手动逐个启动：
+
+```bash
+# 列出内置预设
+sage llm preset list
+
+# 查看预设详情
+sage llm preset show -n qwen-mini-with-embeddings
+
+# 应用预设（可加 --dry-run 预览）
+sage llm preset apply -n qwen-mini-with-embeddings
+
+# 使用自定义 YAML
+sage llm preset apply --file ./my-preset.yaml
+```
+
+预设 YAML 示例：
+
+```yaml
+version: 1
+name: qwen-mini-with-embeddings
+engines:
+  - name: chat
+    kind: llm
+    model: Qwen/Qwen2.5-1.5B-Instruct
+    tensor_parallel: 1
+    label: chat-qwen15b
+  - name: embed
+    kind: embedding
+    model: BAAI/bge-small-zh-v1.5
+    label: embedding-bge
+```
+
+---
+
 ## Deploy Individual Services
 
 ### 1. LLM 服务（vLLM）

@@ -32,6 +32,19 @@ vectors = client.embed(["text1", "text2"])
 |------|---------|------|
 | Simple | `create_auto()` | 直连后端，适合开发测试 |
 | Control Plane | `create_with_control_plane()` | 智能调度，支持多实例、负载均衡 |
+| Managed Engine | `create_for_model()` | 只填模型 ID，自动匹配/拉起引擎 |
+
+```python
+# 在本机已运行 UnifiedAPIServer（sage llm serve）时，仅凭模型名即可使用
+client = UnifiedInferenceClient.create_for_model(
+    "Qwen/Qwen2.5-7B-Instruct",
+    engine_label="report-bot",
+)
+
+answer = client.chat([
+    {"role": "user", "content": "写一份日报"},
+])
+```
 
 ### Embedding 服务 (sage_embedding)
 
@@ -118,6 +131,7 @@ sage-common/
 │   ┌─────────────────────────────────────────────────────────┐   │
 │   │  RequestClassifier → HybridSchedulingPolicy             │   │
 │   │  ExecutionCoordinator | EmbeddingExecutor               │   │
+│   │  GPUResourceManager  | EngineLifecycleManager           │   │
 │   └─────────────────────────────────────────────────────────┘   │
 ├─────────────────────────────────────────────────────────────────┤
 │                     统一资源池 (GPU Pool)                        │
@@ -125,6 +139,64 @@ sage-common/
 │   │ vLLM (LLM)  │  │ vLLM (Mixed)│  │  Embedding  │           │
 │   └─────────────┘  └─────────────┘  └─────────────┘           │
 └─────────────────────────────────────────────────────────────────┘
+```
+
+### 动态引擎管理
+
+Control Plane 支持运行时启动/停止推理引擎，并自动追踪 GPU 显存：
+
+| 组件 | 说明 |
+|------|------|
+| `GPUResourceManager` | 通过 NVML 监控 GPU 状态，维护逻辑预留账本 |
+| `EngineLifecycleManager` | 管理 vLLM / Embedding Server 进程生命周期 |
+| Management API | `/v1/management/engines` (POST/DELETE) 与 `/v1/management/status` |
+
+**CLI 命令**:
+
+```bash
+# 列出引擎
+sage llm engine list
+
+# 启动 LLM 引擎
+sage llm engine start Qwen/Qwen2.5-7B-Instruct --tensor-parallel 2
+
+# 启动 Embedding 引擎
+sage llm engine start BAAI/bge-m3 --engine-kind embedding
+
+# 停止引擎
+sage llm engine stop <engine_id>
+
+# 查看 GPU 状态
+sage llm gpu
+```
+
+### 预设编排
+
+使用预设一键部署多个引擎：
+
+```bash
+# 列出内置预设
+sage llm preset list
+
+# 查看预设详情
+sage llm preset show -n qwen-mini-with-embeddings
+
+# 应用预设
+sage llm preset apply -n qwen-mini-with-embeddings
+```
+
+预设 YAML 示例：
+
+```yaml
+version: 1
+name: qwen-mini-with-embeddings
+engines:
+  - name: chat
+    kind: llm
+    model: Qwen/Qwen2.5-1.5B-Instruct
+  - name: embed
+    kind: embedding
+    model: BAAI/bge-small-zh-v1.5
 ```
 
 ## Usage Examples
