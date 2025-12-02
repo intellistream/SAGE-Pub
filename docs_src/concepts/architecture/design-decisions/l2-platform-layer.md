@@ -1,204 +1,98 @@
-# SAGE 架构层级分析与 L2 层讨论
+# SAGE 架构层级：L2 平台层落地记录
 
-## 问题发现
+> **最后更新**：2025-12-02（配合任务 A-E 文档刷新）
 
-当前 PACKAGE_ARCHITECTURE.md 中的层级定义跳过了 L2 层：
+本文件记录了 SAGE 在 2025 Q1-Q4 期间对 L2 层（平台服务层）的演进过程、设计决策与最终结论，便于后续审查或再次调整。
 
-- L1: sage-common (基础设施)
-- **L2: 缺失**
-- L3: sage-kernel, sage-libs (核心)
-- L4: sage-middleware (领域)
-- L5: sage-apps, sage-benchmark, sage-tools (应用)
-- L6: sage-studio (界面)
+## 背景回顾
 
-## L2 层的典型职责
+- 2024 年底前的架构仅显式定义 L1（sage-common）与 L3（sage-kernel / sage-libs），L2 被视为“暂未需要”。
+- 随着 RPC 队列、KV 存储、服务基类等组件在多处重复出现，跨层依赖问题逐渐放大：
+  - `sage-common` 引入了对 `sage-kernel.runtime` 的隐式引用，违反“向下依赖”原则。
+  - `sage-kernel` 与 `sage-middleware` 对 Queue/KV 抽象实现不一致，难以在 C++ 扩展和 Python 层复用。
+- 2025-01 发起 **RPC Queue Refactoring**，提出将通用平台能力下沉到独立层。
 
-在经典的分层架构中，L2 层通常负责：
+## 决策 1：创建 `sage-platform` 包（L2）
 
-### 1. **数据访问层 (Data Access Layer)**
+- **时间**：2025-01-22，commit `1da88c0a`
+- **目标**：提供 *单向向下* 的平台服务层，复用所有队列、存储、服务生命周期抽象。
+- **迁移内容**：
+  - `sage-kernel.runtime.communication.rpc_queue_descriptor` → `sage-platform.queue`
+  - `sage-middleware.components.sage_db.backends` → `sage-platform.storage`
+  - `sage-kernel.runtime.service.base_service` → `sage-platform.service`
+- **影响**：
+  - `pip install` 多了一个包（已包含在 meta-package `isage` 中）。
+  - 所有 L3-L6 包继续仅依赖 L1-L2，未引入循环。
 
-- 数据库连接和会话管理
-- ORM 映射
-- 数据持久化
-- 缓存管理
+## 决策 2：采用工厂注册模式解决 L2→L3 反向依赖
 
-### 2. **基础设施服务层 (Infrastructure Services)**
+### 问题
 
-- 消息队列 (MQ) 客户端
-- 分布式存储客户端
-- 网络通信协议
-- 配置中心客户端
+`sage-platform.queue.RPCQueueDescriptor` 需要实例化 `sage-kernel.runtime.communication.rpc.RPCQueue`，但 L2 不能直接 import L3。
 
-### 3. **平台服务层 (Platform Services)**
+### 方案
 
-- 认证和授权
-- 日志聚合
-- 监控和追踪
-- 服务发现
+1. L2 暴露注册入口：
 
-## SAGE 当前架构中的 L2 候选代码
+```python
+# packages/sage-platform/src/sage/platform/queue/rpc_queue_descriptor.py
+_rpc_queue_factory: QueueFactory | None = None
 
-### 在 sage-common 中：
-
-```
-sage-common/
-├── components/
-│   ├── sage_llm/service.py          # VLLMService (服务基类)
-│   ├── sage_embedding/service.py     # EmbeddingService
-│   └── vectordb/                      # 向量数据库客户端
-├── utils/
-│   └── network/                       # 网络工具
-└── config/                            # 配置管理
+def register_rpc_queue_factory(factory: QueueFactory) -> None:
+    global _rpc_queue_factory
+    _rpc_queue_factory = factory
 ```
 
-### 在 sage-kernel 中：
+2. L3 初始化时注册真实实现：
 
-```
-sage-kernel/
-└── runtime/
-    ├── communication/                 # 通信层 (Queue, gRPC)
-    ├── job_manager.py                 # 任务管理
-    ├── job_manager_server.py          # 任务管理服务器
-    ├── jobmanager_client.py           # 任务管理客户端
-    ├── heartbeat_monitor.py           # 心跳监控
-    ├── service/                       # 服务基础设施
-    ├── context/                       # 执行上下文
-    └── monitoring/                    # 监控
-```
+```python
+# packages/sage-kernel/src/sage/kernel/__init__.py
+from sage.platform.queue import register_rpc_queue_factory
+from sage.kernel.runtime.communication.rpc import RPCQueue
 
-## 三种可能的架构方案
 
-### 方案 1: 保持现状（推荐）
+def _rpc_queue_factory(**kwargs):
+    return RPCQueue(**kwargs)
 
-**理由**：
 
-1. SAGE 的架构特点是**流式处理为核心**，不是传统的 CRUD 应用
-1. 数据访问和基础设施服务已经合理分布：
-   - **sage-common**: 基础组件（VectorDB客户端、配置）
-   - **sage-kernel**: 运行时基础设施（通信、任务管理）
-1. 没有必要强行创建 L2 层
-
-**行动**：
-
-- 更新文档说明为什么跳过 L2
-- 明确 sage-common 和 sage-kernel 的边界
-
-### 方案 2: 创建 sage-platform (L2)
-
-**新包职责**：
-
-```
-sage-platform (L2):
-├── data/              # 数据访问抽象
-│   ├── vectordb/     # 向量数据库统一接口
-│   └── cache/        # 缓存管理
-├── messaging/         # 消息队列抽象
-├── storage/           # 存储抽象
-└── network/           # 网络通信抽象
+register_rpc_queue_factory(_rpc_queue_factory)
 ```
 
-**迁移内容**：
+3. 运行期由 L2 调用 `_rpc_queue_factory` 创建实例，保持 ABI/接口稳定。
 
-- 从 sage-common 迁移：VectorDB 客户端、网络工具
-- 从 sage-kernel 迁移：通信层、任务管理客户端
+**收益**：
 
-**缺点**：
+- Leaky dependency 修复；`sage-common`、`sage-platform` 不再引入 L3。
+- 可插拔：实验性 RPC/消息队列实现可在 L3/L4 注册。
 
-- 增加复杂度
-- 需要大量重构
-- 对于 SAGE 的用例可能是过度设计
+## 决策 3：定义 L2 职责边界
 
-### 方案 3: 合并为 sage-infrastructure (L1+L2)
+| 模块 | 说明 | 下游使用者 |
+|------|------|------------|
+| `sage.platform.queue` | Python/Ray/RPC Queue 描述符、注册 API | `sage-kernel.runtime`, `sage-middleware.operators` |
+| `sage.platform.storage` | KV 抽象：Dict/Redis/RocksDB | RAG 组件、控制面缓存 |
+| `sage.platform.service` | `BaseService`、生命周期 hook、健康检查 | CLI JobManager、Gateway、Studio 后端 |
 
-**将 sage-common 重命名并扩展**：
+> **不属于 L2 的内容**：LLM/Embedding 服务（仍在 L1 `sage-common.components`），任何算子/业务逻辑（L3+）。
 
-```
-sage-infrastructure (L1+L2):
-├── core/              # L1: 核心类型和异常
-├── components/        # L1: 基础组件
-├── platform/          # L2: 平台服务
-│   ├── data/
-│   ├── messaging/
-│   └── network/
-└── config/            # L1: 配置
-```
+## 决策 4：文档与工具链同步
 
-**缺点**：
+- `docs-public/docs_src/dev-notes/package-architecture.md`、`concepts/architecture/*.md` 更新为“11 个包 + meta-package”。
+- `docs-public/docs_src/concepts/architecture/package-structure.md` 显式标注 L2 及其 C++ 依赖（无）。
+- `docs-public/docs_src/guides/packages/sage-platform/overview.md`（新增）覆盖 API。
+- `sage-dev quality` 检查新增 `layer.yaml` 规则：确保任何新包声明的层级不违反 L1→L6 单向依赖。
 
-- 混合了两个职责层
-- 违反单一职责原则
+## 仍需关注的事项
 
-## 推荐方案：方案 1（保持现状）
+1. **文档一致性**：所有层级描述都应提及 L2；本文件为历史记录，不再将 “缺失 L2” 作为现状。
+2. **扩展接口**：若未来需要统一 Streaming Storage / Scheduler，可继续在 L2 扩展子模块。
+3. **CI 检查**：`tools/install/check_tool_versions.sh` 已纳入 `sage-platform` 依赖的版本锁定，防止缺包。
 
-### 理由详解
+## TL;DR
 
-#### 1. SAGE 不是传统 Web 应用
-
-- **传统 Web**: Controller → Service → Repository(L2) → Database
-- **SAGE**: Source → Operator Pipeline → Sink（流式处理）
-
-#### 2. 现有分层已经合理
-
-```
-L1 (sage-common):
-  - 提供基础组件和工具
-  - 无业务逻辑
-  - 可被所有层使用
-
-L3 (sage-kernel):
-  - 流式执行引擎
-  - 包含运行时基础设施（通信、任务管理）
-  - 这些是"执行引擎的一部分"，不是独立的平台服务
-```
-
-#### 3. sage-kernel 的 runtime 属于执行引擎
-
-- `communication/`: 算子间通信（执行引擎功能）
-- `job_manager`: 任务调度（执行引擎功能）
-- `service/`: 服务基类（执行引擎抽象）
-
-这些不是通用的"平台服务"，而是**执行引擎的组成部分**。
-
-### 需要的文档改进
-
-#### 1. 更新 PACKAGE_ARCHITECTURE.md
-
-在"层级说明"部分添加：
-
-```markdown
-### 关于 L2 层
-
-SAGE 架构中没有传统的 L2 (Infrastructure/Platform) 层，原因是：
-
-1. **架构特点**：SAGE 是流式数据处理系统，不是传统的 CRUD 应用
-2. **职责分布**：
-   - **sage-common (L1)**: 包含基础组件（VectorDB客户端、配置管理）
-   - **sage-kernel (L3)**: 执行引擎本身包含运行时基础设施
-3. **设计原则**：遵循"足够用即可"原则，避免过度设计
-
-如果未来需要独立的平台服务层（如统一的存储抽象、消息队列等），
-可以引入 sage-platform (L2) 包。
-```
-
-#### 2. 明确 sage-common 和 sage-kernel 的边界
-
-**sage-common (L1)** - 基础设施：
-
-- ✅ 核心数据类型 (`Record`, `Parameter`)
-- ✅ 基础组件（Embedding、VectorDB 客户端）
-- ✅ 配置管理
-- ✅ 通用工具函数
-- ❌ 执行引擎功能
-- ❌ 算子实现
-
-**sage-kernel (L3)** - 执行引擎：
-
-- ✅ 流式执行引擎
-- ✅ 基础算子 (`map`, `filter`, `join`)
-- ✅ 运行时基础设施（通信、调度）
-- ✅ 任务管理
-- ❌ 领域算子（RAG、LLM）
-- ❌ 应用逻辑
+- L2 层已经正式存在，包名 `sage-platform`，职责是复用 Queue/Storage/Service 基础设施。
+- 通过工厂注册模式避免 L2 → L3 直接依赖，确保分层单体架构的单向性。
+- 所有文档/示例现已同步，若发现仍有“L2 缺失”描述，请直接更新引用或提 Issue。
 
 ## 检查清单
 

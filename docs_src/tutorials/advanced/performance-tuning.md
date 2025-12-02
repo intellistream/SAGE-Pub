@@ -6,6 +6,43 @@
 
 SAGE 应用的性能优化涉及多个层面：Pipeline 吞吐量、LLM 推理延迟、Embedding 批处理效率、GPU 资源利用率等。本教程介绍常见的性能优化技术和最佳实践。
 
+## 服务栈准备
+
+- **守护式服务**：使用 `sage llm serve --model <LLM> --embedding-model <Embedding>` 在 `SagePorts.LLM_DEFAULT`/`SagePorts.EMBEDDING_DEFAULT` 上启动 OpenAI 兼容接口。WSL2 如遇 8001 端口异常，可让 CLI 自动回退到 `SagePorts.LLM_WSL_FALLBACK (8901)`。
+- **统一客户端**：`UnifiedInferenceClient.create()` 是 Chat/Generate/Embed 的首选入口，默认 Control Plane First（本地 → `.env` → 云端），也可 `create(control_plane_url="http://localhost:8000/v1")` 复用已有 Gateway，或 `create(embedded=True)` 在进程内运行调度器。
+- **无服务模式**：若仅需要本地 Embedding，可直接 `EmbeddingFactory.create("hf", model=...)` 并用 `EmbeddingClientAdapter` 获得批量接口；记得 `raw_embedder.embed("one text")` 仍是单文本模式。
+
+### 端口与网络配置
+
+```python
+from sage.common.config.ports import SagePorts
+from sage.common.config.network import ensure_hf_mirror_configured, detect_china_mainland
+
+llm_port = SagePorts.get_recommended_llm_port()
+embedding_port = SagePorts.EMBEDDING_DEFAULT
+
+print("LLM 绑定端口:", llm_port)
+print("Embedding 绑定端口:", embedding_port)
+
+ensure_hf_mirror_configured()  # 在中国大陆自动设置 HF_ENDPOINT=https://hf-mirror.com
+print("当前网络区域为中国大陆" if detect_china_mainland() else "使用国际默认镜像")
+```
+
+`.env` 建议：
+
+```bash
+SAGE_LLM_PORT=8001          # SagePorts.LLM_DEFAULT, 在 WSL2 改为 8901
+SAGE_EMBEDDING_PORT=8090    # SagePorts.EMBEDDING_DEFAULT
+SAGE_CHAT_BASE_URL=http://localhost:${SAGE_LLM_PORT}/v1
+SAGE_CHAT_MODEL=Qwen/Qwen2.5-7B-Instruct
+SAGE_EMBEDDING_BASE_URL=http://localhost:${SAGE_EMBEDDING_PORT}/v1
+SAGE_EMBEDDING_MODEL=BAAI/bge-m3
+SAGE_CHAT_API_KEY=           # 本地服务可留空，云端回退需填写
+HF_TOKEN=hf_xxx
+# detect_china_mainland() 自动镜像，如需手动指定：
+HF_ENDPOINT=https://hf-mirror.com
+```
+
 ## 性能分析
 
 ### 识别瓶颈
@@ -81,18 +118,69 @@ SAGE 的 Control Plane 提供智能的 LLM 请求调度：
 
 ```python
 from sage.common.components.sage_llm import UnifiedInferenceClient
+from sage.common.config.ports import SagePorts
 
-# Control Plane 模式：支持多实例负载均衡
-client = UnifiedInferenceClient.create_with_control_plane(
-    llm_base_url="http://localhost:8901/v1",
-    llm_model="Qwen/Qwen2.5-7B-Instruct",
-    embedding_base_url="http://localhost:8090/v1",
-    embedding_model="BAAI/bge-m3",
+# Control Plane 模式：复用 Gateway / UnifiedAPIServer
+client = UnifiedInferenceClient.create(
+    control_plane_url=f"http://localhost:{SagePorts.GATEWAY_DEFAULT}/v1",
+    default_llm_model="Qwen/Qwen2.5-7B-Instruct",
+    default_embedding_model="BAAI/bge-m3",
 )
 
-# 查看状态
-print(client.get_status())
+status = client.get_status()
+print(status)
 ```
+
+### 控制面多实例 + SLA 示例
+
+当需要精细化控制吞吐量与延迟时，可以直接启动 `UnifiedAPIServer`，并启用 `SchedulingPolicyType.SLO_AWARE`。下面示例展示如何在同一台机器上注册两个 LLM 实例（主/备）以及一个 Embedding 实例，全部使用 `SagePorts` 常量，避免端口漂移：
+
+```python
+from sage.common.components.sage_llm import (
+    UnifiedAPIServer,
+    UnifiedServerConfig,
+    BackendInstanceConfig,
+    SchedulingPolicyType,
+)
+from sage.common.config.ports import SagePorts
+
+config = UnifiedServerConfig(
+    port=SagePorts.GATEWAY_DEFAULT,
+    scheduling_policy=SchedulingPolicyType.SLO_AWARE,
+    enable_control_plane=True,
+    llm_backends=[
+        BackendInstanceConfig(
+            host="localhost",
+            port=SagePorts.get_recommended_llm_port(),
+            model_name="Qwen/Qwen2.5-7B-Instruct",
+            instance_type="llm",
+            max_concurrent_requests=128,
+        ),
+        BackendInstanceConfig(
+            host="localhost",
+            port=SagePorts.BENCHMARK_LLM,
+            model_name="Qwen/Qwen2.5-1.5B-Instruct",
+            instance_type="llm",
+            max_concurrent_requests=64,
+        ),
+    ],
+    embedding_backends=[
+        BackendInstanceConfig(
+            host="localhost",
+            port=SagePorts.EMBEDDING_DEFAULT,
+            model_name="BAAI/bge-m3",
+            instance_type="embedding",
+            max_concurrent_requests=256,
+        ),
+    ],
+)
+
+server = UnifiedAPIServer(config)
+server.start()  # 阻塞运行；若需后台可用 asyncio + server.run_async
+```
+
+- `SchedulingPolicyType.SLO_AWARE` 会在控制面内部启用 `HybridSchedulingPolicy` + `SLOAwarePolicy`，根据 P95 延迟指标动态调整请求顺序。
+- 可通过 `UnifiedInferenceClient.create(control_plane_url=...)` 接入上面的 Gateway，实现多实例 SLA 分层：例如低延迟流量打到主模型，高吞吐流量落到 `SagePorts.BENCHMARK_LLM`。
 
 ### 批量请求优化
 
@@ -424,6 +512,77 @@ def benchmark_embedding(client, texts, batch_size=32):
     print(f"总耗时: {elapsed:.2f}s")
     print(f"吞吐量: {throughput:.1f} texts/s")
 ```
+
+## Control Plane + 作业管理 + 质量守护示例
+
+| 项 | 内容 |
+| --- | --- |
+| **源码入口** | `examples/tutorials/vllm_control_plane_tutorial.py`（调度示例） + `examples/tutorials/benchmark_control_plane_demo.py`（基准工具） |
+| **运行脚本** | `python examples/tutorials/vllm_control_plane_tutorial.py`，随后运行 `python examples/tutorials/benchmark_control_plane_demo.py` |
+| **预期日志** | 控制台会输出 `Demo 1: Basic Usage`/`Demo 2: Multi-Instance Load Balancing`，并打印实例端口；基准脚本会展示 `Demo 1: LLM Benchmark Configuration`、`Configuration is valid.` 等字样 |
+
+完整的端到端流程如下：
+
+1. **启动服务栈（作业管理）**
+
+   ```bash
+   sage llm serve --with-embedding \
+     --model Qwen/Qwen2.5-7B-Instruct \
+     --embedding-model BAAI/bge-m3
+
+   sage llm status     # 确认 LLM / Embedding 实例已注册
+   ```
+
+   所有端口均来自 `sage.common.config.ports.SagePorts`，在 WSL2 环境可通过 `SagePorts.get_recommended_llm_port()` 自动切换到 8901/8902 等备用端口。
+
+2. **运行 Control Plane 示例**
+
+   ```bash
+   python examples/tutorials/vllm_control_plane_tutorial.py
+   ```
+
+   关键代码片段：
+
+   ```python
+   service = ControlPlaneVLLMService(
+       {
+           "scheduling_policy": "adaptive",
+           "instances": [
+               {
+                   "instance_id": "llm-1",
+                   "host": "localhost",
+                   "port": SagePorts.get_recommended_llm_port(),
+                   "model_name": "Qwen/Qwen2.5-7B-Instruct",
+               },
+           ],
+       }
+   )
+   service.setup()
+   print(service.get_metrics())
+   service.cleanup()
+   ```
+
+   > 输出中会显示 `Registered X instances`、`Metrics: {..."total_requests": 0}` 等信息，用于确认 Control Plane 已接入多实例。
+
+3. **执行调度基准**
+
+   ```bash
+   python examples/tutorials/benchmark_control_plane_demo.py
+   ```
+
+   该脚本会生成 LLM/Hybrid 请求负载，展示 `LLMBenchmarkConfig`、`HybridBenchmarkConfig`、策略适配器列表及 GPU 监控示例，帮助评估 Control Plane 的吞吐与延迟。
+
+4. **质量守护（静态检查）**
+
+   在提交 PR 或调整示例后执行：
+
+   ```bash
+   sage-dev quality --check-only
+   ```
+
+   该命令会统一触发 Ruff、Mypy、格式校验等检查，确保示例脚本与文档同步更新且无风格回归。
+
+通过以上流程可以快速验证：端口与实例配置 → Control Plane 调度 → Benchmark 结果 → 质量守护，形成一个可复用的性能回归闭环。
 
 ## 最佳实践总结
 

@@ -21,17 +21,20 @@ Common utilities, data types, and base classes used across all SAGE packages.
 
 The recommended way to interact with LLM and Embedding services:
 
+**Python 方式**:
+
 ```python
 from sage.common.components.sage_llm import UnifiedInferenceClient
+from sage.common.config.ports import SagePorts
 
 # Auto-detect available services (Simple mode)
 client = UnifiedInferenceClient.create_auto()
 
 # Or use Control Plane mode for production (recommended)
 client = UnifiedInferenceClient.create_with_control_plane(
-    llm_base_url="http://localhost:8901/v1",
+    llm_base_url=f"http://localhost:{SagePorts.BENCHMARK_LLM}/v1",
     llm_model="Qwen/Qwen2.5-7B-Instruct",
-    embedding_base_url="http://localhost:8090/v1",
+    embedding_base_url=f"http://localhost:{SagePorts.EMBEDDING_DEFAULT}/v1",
     embedding_model="BAAI/bge-m3",
 )
 
@@ -43,6 +46,20 @@ text = client.generate("Once upon a time")
 
 # Embedding
 vectors = client.embed(["text1", "text2"])
+```
+
+**curl 方式** (兼容 OpenAI API):
+
+```bash
+# Chat Completion via Gateway (端口 8000)
+curl -X POST http://localhost:8000/v1/chat/completions \
+  -H "Content-Type: application/json" \
+  -d '{"model": "Qwen/Qwen2.5-7B-Instruct", "messages": [{"role": "user", "content": "Hello"}]}'
+
+# Embedding (端口 8090)
+curl -X POST http://localhost:8090/v1/embeddings \
+  -H "Content-Type: application/json" \
+  -d '{"model": "BAAI/bge-m3", "input": ["text1", "text2"]}'
 ```
 
 ## Modules
@@ -120,6 +137,16 @@ if SagePorts.is_available(8001):
     pass
 ```
 
+| 常量 | 端口 | 说明 |
+|------|------|------|
+| `SagePorts.GATEWAY_DEFAULT` | 8000 | UnifiedAPIServer / sage-gateway OpenAI 兼容接口 |
+| `SagePorts.LLM_DEFAULT` | 8001 | vLLM 推理服务（WSL2 可能不可用） |
+| `SagePorts.LLM_WSL_FALLBACK` / `BENCHMARK_LLM` | 8901 | WSL2 推荐端口、benchmark LLM |
+| `SagePorts.EMBEDDING_DEFAULT` | 8090 | Embedding Server（`sage llm serve --with-embedding` 默认值） |
+| `SagePorts.STUDIO_BACKEND` / `STUDIO_FRONTEND` | 8080 / 5173 | Studio 后端 / 前端 |
+
+> **WSL2 提示**：调用 `SagePorts.get_recommended_llm_port()` 与 `SagePorts.get_llm_ports()` 可以自动在 8001 → 8901 之间切换。`UnifiedInferenceClient.create()` 与 `sage llm serve` 均使用此顺序，避免“端口显示监听但拒绝连接”的 WSL2 问题。
+
 #### Output Paths
 
 ::: sage.common.config.output_paths
@@ -131,9 +158,73 @@ if SagePorts.is_available(8001):
         - get_output_dir
         - ensure_output_dir
 
+#### Network Detection & HuggingFace Mirror ⭐ NEW
+
+::: sage.common.config.network
+    options:
+      show_root_heading: true
+      show_source: false
+      members:
+        - detect_china_mainland
+        - get_hf_endpoint
+        - ensure_hf_mirror_configured
+        - get_network_region
+        - HF_MIRROR_CN
+
+SAGE 会自动检测网络区域并配置 HuggingFace 镜像：
+
+```python
+from sage.common.config import (
+    detect_china_mainland,
+    ensure_hf_mirror_configured,
+    get_network_region,
+)
+
+# 自动检测并配置 (推荐在 CLI 入口调用)
+ensure_hf_mirror_configured()  # 仅首次调用时检测，结果缓存
+
+# 手动检测
+is_china = detect_china_mainland()  # True/False
+region = get_network_region()       # "china" | "international"
+```
+
+**自动配置的命令**：
+- `sage llm run` - 运行 vLLM 服务
+- `sage llm model download` - 下载模型
+- `sage llm fine-tune` - 微调模型
+- Embedding 相关服务
+
+#### Environment Keys & 本地/云端策略
+
+`UnifiedInferenceClient` 与 `sage llm serve` 统一读取以下键：
+
+| 变量 | 示例 | 何时需要真实 Key |
+|------|------|------------------|
+| `SAGE_CHAT_API_KEY` | `sk-dashscope...` | 当本地 `SagePorts` 未找到 LLM，需回退云端（DashScope/OpenAI）时必填。|
+| `SAGE_CHAT_MODEL` / `SAGE_CHAT_BASE_URL` | `qwen-turbo-2025-02-11` / `https://dashscope.aliyuncs.com/compatible-mode/v1` | 本地/云端均可设置，用于覆盖自动探测模型名。|
+| `SAGE_EMBEDDING_BASE_URL` / `SAGE_EMBEDDING_MODEL` | `http://localhost:8090/v1` / `BAAI/bge-m3` | 自定义 Embedding 服务端点。|
+| `SAGE_LLM_PORT` / `SAGE_EMBEDDING_PORT` | `8001` / `8090` | `sage llm serve` 会在写入配置文件时同步更新，可在 CI 中强制指定端口。|
+| `OPENAI_API_KEY` / `OPENAI_BASE_URL` | `sk-...` / `https://api.openai.com/v1` | 直接调用 OpenAI 官方 API 时使用；对 DashScope 兼容模式同样有效。|
+| `HF_TOKEN` / `HF_ENDPOINT` | `hf_xxx` / `https://hf-mirror.com` | 下载 HuggingFace 模型（`ensure_hf_mirror_configured()` 会在大陆网络自动设置镜像）。|
+
+> **本地开发 (GPU)**：优先运行 `sage llm serve --model <LLM> --embedding-model <Embedding>`，无需云端 Key，仅需 `HF_TOKEN` 用于模型下载。
+>
+> **云端 / 无 GPU**：预先在 `.env` 中填好 `SAGE_CHAT_*` + `SAGE_EMBEDDING_*`，或直接配置 `OPENAI_API_KEY`/`BASE_URL`，`UnifiedInferenceClient.create()` 会自动走云端。
+
 ### Components
 
 #### UnifiedInferenceClient ⭐ NEW (Recommended)
+
+Control Plane first 客户端：统一提供 `chat()`、`generate()`、`embed()`，自动探测 `SagePorts`、`.env` 与云端回退，并可通过 `create_for_model()` 协调引擎生命周期。
+
+| 创建方式 | 示例 | 说明 |
+|----------|------|------|
+| 默认自动探测 | `UnifiedInferenceClient.create()` | 优先本地 `SagePorts` 端口 → `SAGE_*` 环境变量 → DashScope/OpenAI 云 API。 |
+| 外部 Control Plane | `create(control_plane_url="http://localhost:8000/v1")` | 复用 UnifiedAPIServer / Gateway，享受现有调度策略。 |
+| 内嵌模式 | `create(embedded=True)` | 在进程内运行控制面，适合批处理脚本或 CI。 |
+| 按模型创建 | `create_for_model("Qwen/Qwen2.5-7B-Instruct")` | 调用管理 API 自动拉起/复用 vLLM 引擎，确保 SLA。 |
+
+> `sage llm serve` 负责在 `SagePorts.LLM_DEFAULT/EMBEDDING_DEFAULT` 上托管 OpenAI 兼容接口；`UnifiedInferenceClient.create()` 会自动连接这些端点。若不想启服务，可直接使用 `EmbeddingFactory` + `EmbeddingClientAdapter` 获得批量 embed 接口。
 
 ::: sage.common.components.sage_llm.unified_client
     options:
@@ -145,38 +236,6 @@ if SagePorts.is_available(8001):
         - UnifiedClientConfig
         - UnifiedClientMode
         - InferenceResult
-
-The **UnifiedInferenceClient** provides a single interface for both LLM and Embedding:
-
-| Mode | Description | Use Case |
-|------|-------------|----------|
-| `Simple` | Direct backend connection | Development, testing |
-| `ControlPlane` | Intelligent routing & load balancing | Production |
-
-**Two Creation Methods:**
-
-```python
-from sage.common.components.sage_llm import UnifiedInferenceClient
-
-# Method 1: Auto-detect (Simple mode)
-client = UnifiedInferenceClient.create_auto()
-
-# Method 2: Control Plane mode (recommended for production)
-client = UnifiedInferenceClient.create_with_control_plane(
-    llm_base_url="http://localhost:8901/v1",
-    llm_model="Qwen/Qwen2.5-7B-Instruct",
-    embedding_base_url="http://localhost:8090/v1",
-    embedding_model="BAAI/bge-m3",
-)
-```
-
-**API Methods:**
-
-| Method | Signature | Description |
-|--------|-----------|-------------|
-| `chat()` | `chat(messages, model=None, **kwargs)` | Chat completion |
-| `generate()` | `generate(prompt, model=None, **kwargs)` | Text generation |
-| `embed()` | `embed(texts, model=None)` | Batch embedding |
 
 #### IntelligentLLMClient
 
@@ -282,7 +341,7 @@ vectors = adapted.embed(["text1", "text2"])  # Batch interface
 
 ```python
 from sage.common.components.sage_embedding import (
-    EmbeddingFactory, 
+    EmbeddingFactory,
     EmbeddingClientAdapter,
     get_embedding_model
 )

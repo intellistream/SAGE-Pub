@@ -6,6 +6,16 @@
 
 SAGE 基于 Ray 构建分布式执行能力，支持在多节点集群上运行大规模流式处理任务。
 
+## 示例上手三件套
+
+| 项 | 内容 |
+| --- | --- |
+| **源码入口** | `examples/tutorials/L3-kernel/advanced/parallelism_remote_validation.py` |
+| **运行命令** | `python examples/tutorials/L3-kernel/advanced/parallelism_remote_validation.py` |
+| **预期日志** | 终端会打印 `REMOTE ENVIRONMENT - SINGLE STREAM PARALLELISM VALIDATION`、多条 `⚙️  DistProcessor[...]`/`✅ Filter[...]`/`🎯 SINK[...]`，并输出 Ray 节点并行度统计 |
+
+脚本默认会连接当前 JobManager 已配置的 Ray 集群；执行前建议运行 `sage-dev quality --check-only` 和必要的 `sage cluster status` 检查，以便排除环境问题。
+
 ## 分布式环境配置
 
 ### 启动 Ray 集群
@@ -21,20 +31,20 @@ sage cluster start --worker --head-address=<head-node-ip>:10001
 ### 配置分布式环境
 
 ```python
-from sage.kernel.api import RemoteEnvironment
+from sage.kernel.api.remote_environment import RemoteEnvironment
 
 # 创建远程分布式执行环境
 env = RemoteEnvironment(
     name="distributed_app",
     host="127.0.0.1",      # JobManager 服务地址
-    port=19001,            # JobManager 服务端口
+    port=19001,              # JobManager 服务端口
     config={
         "ray": {
             "address": "ray://localhost:10001",  # Ray 集群地址
-            "num_cpus": 16,                       # 总 CPU 数
-            "num_gpus": 4,                        # 总 GPU 数
+            "num_cpus": 16,
+            "num_gpus": 4,
         }
-    }
+    },
 )
 ```
 
@@ -45,21 +55,37 @@ env = RemoteEnvironment(
 ### 设置并行度
 
 ```python
-from sage.libs.io import FileSource, ConsoleSink
+# 摘自 examples/tutorials/L3-kernel/advanced/parallelism_remote_validation.py
+class DistributedProcessor(BaseFunction):
+    def __init__(self, processor_name="DistProcessor"):
+        super().__init__()
+        self.processor_name = processor_name
+        self.instance_id = id(self)
 
-# 并行读取和处理
-stream = (
-    env.from_source(FileSource("large_dataset/"))
-    .map(
-        ProcessFunction(), 
-        parallelism=8  # 8 个并行实例
-    )
-    .filter(FilterFunction(), parallelism=4)
-    .sink(ConsoleSink())
+    def execute(self, data):
+        result = f"{self.processor_name}[{self.instance_id}]: {data}"
+        print(f"⚙️  {result}")
+        return result
+
+
+class DistributedFilter(BaseFunction):
+    def execute(self, data):
+        passes = isinstance(data, int) and data % 3 == 0
+        print(f"{'✅' if passes else '❌'} Filter: {data}")
+        return passes
+
+
+(
+    env.from_collection(NumberListSource, list(range(1, 31)))
+    .map(DistributedProcessor, "DistMapper", parallelism=4)
+    .filter(DistributedFilter, parallelism=3)
+    .sink(DistributedSink, parallelism=2)
 )
 
-env.execute()
+env.submit(autostop=True)
 ```
+
+> `NumberListSource` 与 `DistributedSink` 等配套类同样位于该示例脚本中，可直接运行脚本或复制到自定义工程中复用。
 
 ### 资源分配
 
@@ -110,25 +136,7 @@ stream = (
 
 ### 并行 Embedding
 
-```python
-from sage.middleware.operators.rag import VLLMEmbeddingOperator, ChromaUpsertOperator
-
-# 大规模文档并行嵌入
-stream = (
-    env.from_source(ChunkedFileSource("documents/"))
-    .map(
-        VLLMEmbeddingOperator(
-            model="sentence-transformers/all-MiniLM-L6-v2"
-        ),
-        parallelism=8  # 8 个并行 embedding 实例
-    )
-    .sink(
-        ChromaUpsertOperator(collection="distributed_docs")
-    )
-)
-
-env.execute()
-```
+示例脚本中也包含 RAG 相关算子占位，可根据自身环境替换为 `examples/tutorials/L3-libs/rag/*.py` 中的 VDB/Chroma 操作，并沿用相同的 RemoteEnvironment 配置。
 
 ### 并行检索和生成
 

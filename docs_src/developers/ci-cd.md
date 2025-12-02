@@ -22,6 +22,30 @@ SAGE uses GitHub Actions for continuous integration and deployment. This documen
 - **Python**: 3.11 (primary), 3.10+ supported
 - **Cache**: pip cache enabled for faster builds
 
+### CI 安装矩阵
+
+| 场景 | 建议命令 | 说明 |
+|------|----------|------|
+| GitHub Actions (ubuntu-latest) | `./tools/install/ci_install_wrapper.sh --dev --yes` | 包装脚本会自动安装构建依赖并缓存到 `~/.local`; 适合默认托管 Runner |
+| GitHub Actions + Conda | `unset CI GITHUB_ACTIONS && ./quickstart.sh --dev --yes --pip` | `quickstart.sh` 在检测到 `CI=true` 时会强制 `--user`，需先取消变量使其安装到当前 Conda env |
+| 自建 GPU Runner（境内） | `unset CI GITHUB_ACTIONS && SAGE_FORCE_CHINA_MIRROR=true ./quickstart.sh --dev --yes --pip` | `SAGE_FORCE_CHINA_MIRROR=true` 让脚本切换至清华 PyPI + hf-mirror，解决模型下载限速 |
+
+**为什么需要 `unset CI GITHUB_ACTIONS`？**
+
+- `quickstart.sh`（仓库根目录）在检测到 CI 环境变量时会附加 `--user`，默认将包装入 `~/.local`。
+- 若 CI 中预先创建了 Conda/virtualenv，我们希望安装到该环境而非 `~/.local`，因此在执行安装前需要显式清除 `CI` 与 `GITHUB_ACTIONS`。
+
+**为什么需要 `SAGE_FORCE_CHINA_MIRROR=true`？**
+
+- 执行脚本时会触发 `sage.common.config.network.ensure_hf_mirror_configured()`，该变量可强制切换为中国大陆镜像（清华 PyPI + `https://hf-mirror.com`）。
+- 适用于自建 Runner/高校服务器，避免 HuggingFace / PyPI 下载失败。
+
+相关脚本：
+
+- `tools/install/ci_install_wrapper.sh`：统一入口（用于 GH Actions matrix jobs）。
+- `quickstart.sh`：安装核心逻辑，负责选择 `--core/--standard/--full/--dev` 模式。
+- `tools/install/check_tool_versions.sh`：CI 安装完成后运行 `sage-dev quality` 前确保 `ruff` 版本在 `tools/pre-commit-config.yaml` 与 `packages/sage-tools/pyproject.toml` 间保持一致。
+
 ### Required Secrets
 
 Configure these in GitHub repository settings:

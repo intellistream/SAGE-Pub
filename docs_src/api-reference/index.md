@@ -6,6 +6,46 @@ SAGE 各个包的完整 API 文档。
 
 API 文档按照 SAGE 的 **L1-L6 分层架构**组织，帮助您快速找到所需的 API 接口。
 
+## 🔧 端口与环境变量配置
+
+### 端口分配表 (SagePorts)
+
+所有端口号必须使用 `sage.common.config.ports.SagePorts`，禁止硬编码。
+
+| 常量 | 端口 | 用途 |
+|------|------|------|
+| `GATEWAY_DEFAULT` | 8000 | sage-gateway (OpenAI 兼容 API Gateway) |
+| `LLM_DEFAULT` | 8001 | vLLM 推理服务 |
+| `LLM_WSL_FALLBACK` | 8901 | WSL2 备用 LLM 端口 |
+| `STUDIO_BACKEND` | 8080 | sage-studio 后端 API |
+| `STUDIO_FRONTEND` | 5173 | sage-studio 前端 (Vite) |
+| `EMBEDDING_DEFAULT` | 8090 | Embedding 服务 |
+| `BENCHMARK_LLM` | 8901 | Benchmark 专用 LLM 端口 |
+
+```python
+from sage.common.config.ports import SagePorts
+
+# 推荐用法
+port = SagePorts.LLM_DEFAULT           # 8001
+gateway_port = SagePorts.GATEWAY_DEFAULT  # 8000
+
+# WSL2 环境推荐
+port = SagePorts.get_recommended_llm_port()  # 自动检测 WSL2 并选择合适端口
+```
+
+### 关键环境变量
+
+从 `.env.template` 配置，详见 [配置决策对照表](#配置决策对照表)。
+
+| 变量 | 用途 | 何时需要真实 Key |
+|------|------|-----------------|
+| `OPENAI_API_KEY` | OpenAI / DashScope API 调用 | 使用云端 API 时 |
+| `HF_TOKEN` | HuggingFace 模型下载 | 下载私有模型时 |
+| `SAGE_CHAT_*` | Gateway/Studio 降级云端 LLM | 本地 vLLM 不可用时 |
+| `VLLM_API_KEY` | 本地 vLLM 认证 | 本地开发可用 `token-abc123` |
+
+**本地开发 Mock**: 如果仅测试框架逻辑，可设置 mock 值或使用本地模型。
+
 ## 🏗️ 按架构层级浏览
 
 ### 🔹 L1: 基础设施层
@@ -118,6 +158,8 @@ API 文档通过以下方式自动生成：
 
 ### 推荐: UnifiedInferenceClient (LLM + Embedding)
 
+**Python 方式**:
+
 ```python
 from sage.common.components.sage_llm import UnifiedInferenceClient
 from sage.common.config.ports import SagePorts
@@ -141,6 +183,34 @@ text = client.generate("Once upon a time")
 
 # Embedding
 vectors = client.embed(["text1", "text2"])
+```
+
+**curl 方式** (兼容 OpenAI API):
+
+```bash
+# Chat Completion (Gateway 端口 8000)
+curl -X POST http://localhost:8000/v1/chat/completions \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "Qwen/Qwen2.5-7B-Instruct",
+    "messages": [{"role": "user", "content": "Hello"}]
+  }'
+
+# Embedding (端口 8090)
+curl -X POST http://localhost:8090/v1/embeddings \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "BAAI/bge-m3",
+    "input": ["text1", "text2"]
+  }'
+
+# 直连 vLLM (端口 8901)
+curl -X POST http://localhost:8901/v1/chat/completions \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "Qwen/Qwen2.5-7B-Instruct",
+    "messages": [{"role": "user", "content": "Hello"}]
+  }'
 ```
 
 ### Kernel Pipeline 示例
@@ -202,6 +272,39 @@ planner = HierarchicalPlanner.from_config(
 - [快速入门](../getting-started/quickstart.md) - 快速开始使用 SAGE
 - [包架构](../dev-notes/package-architecture.md) - 了解 SAGE 的架构设计
 - [核心概念](../concepts/index.md) - 理解 SAGE 的核心概念
+- [FAQ](../community/faq.md) - 常见问题解答
+
+## 配置决策对照表
+
+根据不同场景选择合适的配置方案：
+
+| 场景 | 环境变量 | 参考脚本/配置 |
+|------|---------|---------------|
+| **本地开发 (GPU)** | 无需配置云端 Key | `sage llm serve` 启动本地服务 |
+| **本地开发 (CPU)** | 需要 `SAGE_CHAT_*` 云端回退 | `.env.template` → `.env` |
+| **WSL2 开发** | 使用 `SagePorts.get_recommended_llm_port()` | `ports.py` 自动检测 |
+| **CI/CD (GitHub)** | `OPENAI_API_KEY`, `HF_TOKEN` 通过 Secrets 注入 | `.github/workflows/*.yml` |
+| **中国大陆部署** | `SAGE_FORCE_CHINA_MIRROR=true` | `quickstart.sh`, `network.py` |
+| **生产环境** | 建议使用 Control Plane 模式 | `UnifiedInferenceClient.create_with_control_plane()` |
+| **模型下载** | `HF_TOKEN` (私有模型), `HF_ENDPOINT` (镜像) | `ensure_hf_mirror_configured()` |
+| **Embedding 服务** | 端口 `8090` (SagePorts.EMBEDDING_DEFAULT) | `sage llm serve --with-embedding` |
+
+### 网络自动检测
+
+SAGE 会自动检测网络区域并配置 HuggingFace 镜像：
+
+```python
+from sage.common.config import (
+    detect_china_mainland,
+    ensure_hf_mirror_configured,
+)
+
+# 自动检测并配置（推荐在 CLI 入口调用）
+ensure_hf_mirror_configured()
+
+# 手动检测
+is_china = detect_china_mainland()  # True/False
+```
 
 ## 🤝 贡献 API 文档
 

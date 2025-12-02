@@ -1,23 +1,28 @@
 # SAGE 包结构与依赖
 
-> **最后更新**: 2025-10-23
+> **最后更新**: 2025-12-02
+>
+> **变更日志**:
+> - 2025-12-02: 添加 sage-gateway，更新统计数据，补充 C++ 扩展位置
+> - 2025-10-23: 初始版本
 
 本文档详细描述 SAGE 各包的职责边界和依赖关系。
 
 ## 📦 完整包列表
 
-| 包名            | 层级 | 职责           | 模块数 | 测试数 |
-| --------------- | ---- | -------------- | ------ | ------ |
-| sage-common     | L1   | 基础设施       | 15+    | 119    |
-| sage-platform   | L2   | 平台服务       | 3      | 30     |
-| sage-kernel     | L3   | 流式引擎       | 268    | 753    |
-| sage-libs       | L3   | 算法库         | 65     | 169    |
-| sage-middleware | L4   | 中间件         | 150    | 22     |
-| sage-apps       | L5   | 应用           | 24     | 21     |
-| sage-benchmark  | L5   | 基准测试       | 42     | 17     |
-| sage-studio     | L6   | Web UI         | 8      | 51     |
-| sage-cli        | L6   | 统一 CLI       | 45     | 32     |
-| sage-tools      | L6   | 开发工具       | 106    | 78     |
+| 包名            | 层级 | 职责           | 模块数 | 测试数 | C++ 扩展 |
+| --------------- | ---- | -------------- | ------ | ------ | -------- |
+| sage-common     | L1   | 基础设施       | 15+    | 119    | -        |
+| sage-platform   | L2   | 平台服务       | 3      | 30     | -        |
+| sage-kernel     | L3   | 流式引擎       | 268    | 753    | -        |
+| sage-libs       | L3   | 算法库         | 65     | 169    | -        |
+| sage-middleware | L4   | 中间件         | 150    | 22     | ✅ sageFlow, NeuromMem |
+| sage-apps       | L5   | 应用           | 24     | 21     | -        |
+| sage-benchmark  | L5   | 基准测试       | 42     | 17     | -        |
+| sage-studio     | L6   | Web UI         | 8      | 51     | -        |
+| sage-cli        | L6   | 生产 CLI       | 45     | 32     | -        |
+| sage-tools      | L6   | 开发工具       | 106    | 78     | -        |
+| sage-gateway    | L6   | API Gateway    | 8      | 37     | -        |
 
 ## 🔗 依赖关系图
 
@@ -30,14 +35,15 @@ graph TD
     kernel[sage-kernel<br/>L3: 执行引擎]
     libs[sage-libs<br/>L3: 算法库]
 
-    middleware[sage-middleware<br/>L4: 领域算子]
+    middleware[sage-middleware<br/>L4: 领域算子<br/>⚡ C++ 扩展]
 
     apps[sage-apps<br/>L5: 应用]
     benchmark[sage-benchmark<br/>L5: 基准测试]
 
     studio[sage-studio<br/>L6: Web UI]
-    cli[sage-cli<br/>L6: 统一 CLI]
+    cli[sage-cli<br/>L6: 生产 CLI]
     tools[sage-tools<br/>L6: 开发工具]
+    gateway[sage-gateway<br/>L6: API Gateway]
 
     platform --> common
 
@@ -76,6 +82,14 @@ graph TD
     tools --> libs
     tools --> middleware
     tools --> studio
+
+    gateway --> common
+    gateway --> kernel
+    gateway --> libs
+    gateway --> middleware
+
+    style middleware fill:#fff3cd
+    style gateway fill:#e1f5ff
 ```
 
 ## 📋 包详细说明
@@ -193,15 +207,23 @@ ______________________________________________________________________
 
 - `operators.rag`: RAG 算子（检索、生成、评估）
 - `operators.llm`: LLM 算子（对话、工具调用）
-- `components.sage_mem`: 内存管理
+- `components.sage_mem`: 内存管理（含 NeuromMem C++ 扩展）
 - `components.sage_db`: 向量数据库
+- `components.sage_flow`: 高性能向量检索（sageFlow C++ 扩展）
 - `components.sage_refiner`: 文档精炼
+
+**C++ 扩展位置**:
+
+| 组件 | 路径 | 描述 |
+|------|------|------|
+| sageFlow | `components/sage_flow/sageFlow/` | 高性能向量检索引擎 |
+| NeuromMem | `components/sage_mem/neuromem/` | 神经记忆系统 |
 
 **公共 API**:
 
 ```python
 from sage.middleware.operators.rag import ChromaRetriever, QAPromptor
-from sage.middleware.components import sage_mem, sage_db
+from sage.middleware.components import sage_mem, sage_db, sage_flow
 ```
 
 **依赖**: sage-common, sage-platform, sage-kernel, sage-libs
@@ -264,7 +286,7 @@ ______________________________________________________________________
 
 **位置**: `packages/sage-cli/`
 
-**核心命令**:
+**核心命令** (生产运维):
 
 - `sage cluster`: Ray 集群管理
 - `sage head`: 头节点管理
@@ -286,15 +308,49 @@ ______________________________________________________________________
 
 **位置**: `packages/sage-tools/`
 
-**开发工具**:
+**开发工具** (开发调试):
 
-- `sage-dev`: 开发辅助工具
+- `sage-dev`: 开发辅助工具（quality, project, maintain, package, docs）
 - `sage studio`: Web UI 管理（调用 sage-studio）
 - `sage pipeline`: Pipeline 构建工具
-- `sage llm/embedding`: LLM 服务管理
+- `sage llm/embedding`: LLM/Embedding 服务管理
 - 测试、代码质量检查等
 
+**sage-cli vs sage-tools**:
+
+| 工具 | 定位 | 典型命令 |
+|------|------|----------|
+| `sage` (sage-cli) | 生产运维 | `sage cluster start`, `sage job submit` |
+| `sage-dev` (sage-tools) | 开发调试 | `sage-dev quality`, `sage-dev project test` |
+
 **依赖**: sage-common, sage-kernel, sage-libs, sage-middleware, sage-studio
+
+______________________________________________________________________
+
+### L6: sage-gateway
+
+**位置**: `packages/sage-gateway/`
+
+**PyPI 发布名**: `isage-gateway`
+
+**职责**: OpenAI 兼容 API Gateway，将请求转换为 SAGE DataStream/RAG 流水线执行
+
+**核心功能**:
+
+- `/v1/chat/completions`: OpenAI Chat 接口（流式 + 非流式）
+- `/sessions/**`: 聊天会话管理
+- `/memory/**`: 记忆后端配置
+- `/admin/index/**`: RAG 索引管理
+
+**启动方式**:
+
+```bash
+sage-gateway --host 0.0.0.0 --port 8000
+# 或
+python -m sage.gateway.server
+```
+
+**依赖**: sage-common, sage-kernel, sage-libs, sage-middleware
 
 ## 🎯 依赖规则
 
@@ -314,7 +370,7 @@ ______________________________________________________________________
 
    - kernel ⊥ libs (都是 L3)
    - apps ⊥ benchmark (都是 L5)
-   - studio ⊥ cli ⊥ tools (都是 L6)
+   - studio ⊥ cli ⊥ tools ⊥ gateway (都是 L6)
 
 ### ❌ 禁止的依赖模式
 

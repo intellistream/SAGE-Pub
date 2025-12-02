@@ -272,6 +272,7 @@ nav:
 - 社区:
   - 社区总览: community/README.md
   - 社区指南: community/community.md
+  - 常见问题 (FAQ): community/faq.md
   - 每周会议: community/meetings.md
   - 工作报告: community/weekly-reports/index.md
   - IntelliStream Lab: community/intellistream.md

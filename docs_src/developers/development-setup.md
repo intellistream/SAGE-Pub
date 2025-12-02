@@ -34,43 +34,68 @@ ______________________________________________________________________
 
 ### 方式 1：使用 quickstart.sh（推荐）
 
-quickstart.sh 提供交互式和非交互式两种安装模式。
+`quickstart.sh`（仓库根目录）内置交互式与非交互式两条路径，覆盖 Conda/系统 Python 及线下镜像场景。
 
-#### 交互式安装
+#### 安装模式速查
 
-```bash
-./quickstart.sh
+| 标志 | 安装层级 | 适用场景 |
+|------|----------|-----------|
+| `--core` | L1-L3 核心包 | 轻量化部署、CI 快速验证 |
+| `--standard` | 全量运行时 (L1-L5) | 生产近似环境 |
+| `--full` | 运行时 + 示例/文档 | 需要 examples/tutorials |
+| `--dev` | `--full` + 开发工具 | 日常开发、贡献代码 |
+
+附加选项：
+
+- `--pip` / `--conda`：显式指定使用系统 Python 或自动创建 Conda env（默认 Conda）。
+- `--sync-submodules`：在安装前调用 `./manage.sh` + `./tools/maintenance/sage-maintenance.sh submodule init`，保证 C++ 依赖同步。
+- `--yes`：跳过交互确认，适合 CI 或脚本。
+
+#### 交互式 vs 非交互式流程
+
+```
+交互式 (默认)                         非交互式 (--yes)
+┌──────────────────┐                  ┌───────────────────────────┐
+│./quickstart.sh   │                  │./quickstart.sh --dev --yes│
+├──────────────────┤                  ├───────────────────────────┤
+│① 选择安装模式   │                  │预设 install profile       │
+│   core/standard/ │                  │(core/standard/full/dev)   │
+│   full/dev       │                  ├───────────────────────────┤
+├──────────────────┤                  │② 选择 Python backend      │
+│② 选择 Python    │                  │   --pip / --conda / auto  │
+│   env 类型      │                  ├───────────────────────────┤
+├──────────────────┤                  │③ 可选 --sync-submodules  │
+│③ 可选子模块操作 │                  │   先执行 manage.sh        │
+├──────────────────┤                  ├───────────────────────────┤
+│④ 确认并执行     │                  │④ 自动执行并输出日志      │
+└──────────────────┘                  └───────────────────────────┘
 ```
 
-运行后会显示交互式菜单：
+> **提示**：交互式模式适合首次体验，非交互式模式适合 CI、远程服务器或需要可复制脚本时。
 
-1. 选择安装模式（选择 **开发模式**）
-1. 选择 Python 环境（Conda 或系统 Python）
-1. 输入环境名称（如 `sage-dev`）
-1. 确认并开始安装
-
-#### 非交互式安装（自动化）
+#### 常见命令示例
 
 ```bash
-# 开发模式 + Conda 环境
+# 开发模式 + Conda 环境（推荐）
 ./quickstart.sh --dev --yes
 
-# 开发模式 + 系统 Python
+# 开发模式 + 系统 Python（跳过 Conda）
 ./quickstart.sh --dev --pip --yes
 
-# 开发模式 + vLLM 支持
-./quickstart.sh --dev --vllm --yes
+# 标准模式 + Conda + 同步子模块
+./quickstart.sh --standard --conda --sync-submodules --yes
+
+# 全量模式 + Conda + vLLM (需 GPU)
+./quickstart.sh --full --conda --vllm --yes
 ```
 
-**开发模式特性**：
+**开发模式 (`--dev`) 额外能力**：
 
-- ✅ 安装所有 SAGE 包（9 个包）
-- ✅ 安装开发工具（pytest、pre-commit、ruff 等）
-- ✅ 可编辑模式（`pip install -e`）- 代码修改即时生效
-- ✅ 自动初始化 Git 子模块
-- ✅ 配置 pre-commit hooks
-- ✅ 自动安装代码质量检查工具（black、isort、ruff、mypy 等）
-- ✅ 自动安装架构合规性检查工具
+- ✅ 安装所有 SAGE 包并以 `pip install -e` 方式就地开发
+- ✅ 配置 `sage-dev` CLI、`pytest`、`ruff`、`mypy`、`pre-commit`
+- ✅ 自动执行 `./manage.sh` 以拉取子模块、设置 Git hooks
+- ✅ 调用 `./tools/install/check_tool_versions.sh` 校验 `ruff`、`pre-commit` 版本一致性
+- ✅ 预装 C++ 依赖与 `sage extensions` 构建产物缓存
 
 ### 方式 2：手动安装
 

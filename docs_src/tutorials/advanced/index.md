@@ -6,6 +6,8 @@
 
 本章节涵盖 SAGE 的高级主题，适合已经掌握基础知识的开发者。
 
+> 快速定位源码与运行命令，可参考[《教程与示例映射一览》](../tutorial-example-map.md)。
+
 ### [分布式 Pipeline](distributed-pipeline.md)
 
 构建可扩展的分布式流式处理应用：

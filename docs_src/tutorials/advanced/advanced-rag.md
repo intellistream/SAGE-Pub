@@ -6,6 +6,19 @@
 
 企业级 RAG（Retrieval-Augmented Generation）系统需要考虑检索质量、性能、可扩展性等多方面因素。SAGE 提供了 `UnifiedInferenceClient` 统一接口，可以无缝集成 LLM 和 Embedding 服务，简化 RAG 系统的开发。
 
+## 示例上手三件套
+
+| 项 | 内容 |
+| --- | --- |
+| **源码入口** | `examples/tutorials/L3-libs/rag/usage_4_complete_rag.py`（含完整 RAG + DP Unlearning Pipeline） |
+| **运行命令** | `python examples/tutorials/L3-libs/rag/usage_4_complete_rag.py` |
+| **预期日志** | 终端会先打印 `RAGUnlearningSystem initialized`，后续 `✓ Initialized RAG corpus ...`、`📎 Forget request ...`、`✅ Completed unlearning` 等步骤；如启用调试模式还会显示审计日志写入 |
+
+> 建议在运行前：
+> 1. 启动基础推理服务：`sage llm serve --with-embedding --model Qwen/Qwen2.5-7B-Instruct --embedding-model BAAI/bge-m3`
+> 2. 设置 `.env` 中的 `OPENAI_API_KEY` / `HF_TOKEN`（若需访问云端模型）。
+> 3. 执行 `sage-dev quality --check-only`，确保脚本依赖的 `sage-libs`、`sage-middleware` 子包已通过静态检查。
+
 ## UnifiedInferenceClient 快速入门
 
 ### 基本用法
@@ -15,15 +28,14 @@
 ```python
 from sage.common.components.sage_llm import UnifiedInferenceClient
 
-# 方式 1: 自动检测本地服务（推荐）
-client = UnifiedInferenceClient.create_auto()
+# 方式 1: Control Plane First（自动探测本地/云端）
+client = UnifiedInferenceClient.create()
 
-# 方式 2: 显式配置端点
-client = UnifiedInferenceClient(
-    llm_base_url="http://localhost:8901/v1",
-    llm_model="Qwen/Qwen2.5-7B-Instruct",
-    embedding_base_url="http://localhost:8090/v1",
-    embedding_model="BAAI/bge-m3",
+# 方式 2: 显式连接 Gateway / Control Plane
+client = UnifiedInferenceClient.create(
+    control_plane_url="http://localhost:8000/v1",
+    default_llm_model="Qwen/Qwen2.5-7B-Instruct",
+    default_embedding_model="BAAI/bge-m3",
 )
 
 # Chat 对话
@@ -44,18 +56,39 @@ print(f"嵌入维度: {len(vectors[0])}")
 ### 启动后端服务
 
 ```bash
-# 启动 LLM 服务（后台运行）
-sage llm serve --model Qwen/Qwen2.5-7B-Instruct --port 8901
+# 启动 LLM 服务（后台运行，自动挑选 SagePorts.get_recommended_llm_port()）
+sage llm serve --model Qwen/Qwen2.5-7B-Instruct
 
-# 同时启动 LLM + Embedding 服务
+# 同时启动 LLM + Embedding 服务（Embedding 端口默认 SagePorts.EMBEDDING_DEFAULT=8090）
 sage llm serve --with-embedding \
     --model Qwen/Qwen2.5-7B-Instruct \
-    --embedding-model BAAI/bge-m3
+    --embedding-model BAAI/bge-m3 \
+    --port $(python -c "from sage.common.config.ports import SagePorts; print(SagePorts.get_recommended_llm_port())") \
+    --embedding-port 8090
 
 # 查看状态 / 停止服务
 sage llm status
 sage llm stop
 ```
+
+> WSL2 上 `SagePorts.LLM_DEFAULT (8001)` 可能拒绝连接，`sage llm serve` 会自动回退到 `SagePorts.LLM_WSL_FALLBACK (8901)`，`UnifiedInferenceClient.create()` 同样按此顺序探测。
+
+### 环境变量与本地模型
+
+```bash
+# .env（摘录）
+SAGE_CHAT_BASE_URL=http://localhost:${SAGE_LLM_PORT:-8901}/v1
+SAGE_CHAT_MODEL=Qwen/Qwen2.5-7B-Instruct
+SAGE_CHAT_API_KEY=              # 本地服务可留空，云端回退才需要
+SAGE_EMBEDDING_BASE_URL=http://localhost:8090/v1
+SAGE_EMBEDDING_MODEL=BAAI/bge-m3
+HF_TOKEN=hf_xxx
+# detect_china_mainland()/ensure_hf_mirror_configured() 会在中国大陆自动设置：
+HF_ENDPOINT=https://hf-mirror.com
+```
+
+- CLI 会在启动/下载模型前调用 `ensure_hf_mirror_configured()`；若想手动检测，可在脚本中调用 `detect_china_mainland()`。
+- 不想运行服务时，可使用 `EmbeddingFactory.create("hf", model=...)` 并用 `EmbeddingClientAdapter` 包装成批量接口，再与 `UnifiedInferenceClient` 搭配仅负责 LLM 调用。
 
 ## 构建 RAG Pipeline
 
@@ -68,8 +101,8 @@ from sage.common.core.functions.map_function import MapFunction
 from sage.common.core.functions.sink_function import SinkFunction
 from sage.common.components.sage_llm import UnifiedInferenceClient
 
-# 初始化统一客户端
-client = UnifiedInferenceClient.create_auto()
+# 初始化统一客户端（自动探测）
+client = UnifiedInferenceClient.create()
 
 
 class QuerySource(BatchFunction):
@@ -374,13 +407,13 @@ class HybridRetriever(MapFunction):
 
 ```python
 from sage.common.components.sage_llm import UnifiedInferenceClient
+from sage.common.config.ports import SagePorts
 
 # 使用 Control Plane 模式获得智能调度
-client = UnifiedInferenceClient.create_with_control_plane(
-    llm_base_url="http://localhost:8901/v1",
-    llm_model="Qwen/Qwen2.5-7B-Instruct",
-    embedding_base_url="http://localhost:8090/v1",
-    embedding_model="BAAI/bge-m3",
+client = UnifiedInferenceClient.create(
+    control_plane_url=f"http://localhost:{SagePorts.GATEWAY_DEFAULT}/v1",
+    default_llm_model="Qwen/Qwen2.5-7B-Instruct",
+    default_embedding_model="BAAI/bge-m3",
 )
 
 # 查看客户端状态
