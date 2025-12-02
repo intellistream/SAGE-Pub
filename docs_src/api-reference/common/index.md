@@ -237,17 +237,6 @@ Control Plane first 客户端：统一提供 `chat()`、`generate()`、`embed()`
         - UnifiedClientMode
         - InferenceResult
 
-#### IntelligentLLMClient
-
-::: sage.common.components.sage_llm.client
-    options:
-      show_root_heading: true
-      show_source: false
-      members:
-        - IntelligentLLMClient
-        - check_llm_service
-        - get_llm_client
-
 #### vLLM Service
 
 ::: sage.common.components.sage_llm.service

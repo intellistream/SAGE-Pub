@@ -1,6 +1,15 @@
 # sage-studio
 
-Interactive web console for building SAGE pipelines, managing local LLM services, and running chat + fine-tuning workflows.
+Interactive web console for building SAGE pipe- 
+- Chat tab calls Gateway's `/v1/chat/completions`, reusing the same session IDs as the UI.
+- Built-in session list (create, rename, clear, delete) talks to Gateway's `/sessions/**` routes.
+- Memory panel (`MemorySettings.tsx`) uses `/memory/config|stats` to display backend type, short-term usage, or Neuromem collection state.
+- `UnifiedInferenceClient` automatically prefers the local LLM service; if it's unavailable, requests fall back to DashScope/OpenAI per `SAGE_CHAT_*` env vars.
+
+### Fine-tuning Centerb calls Gateway's `/v1/chat/completions`, reusing the same session IDs as the UI.
+- Built-in session list (create, rename, clear, delete) talks to Gateway's `/sessions/**` routes.
+- Memory panel (`MemorySettings.tsx`) uses `/memory/config|stats` to display backend type, short-term usage, or Neuromem collection state.
+- `UnifiedInferenceClient` automatically prefers the local LLM service; if it's unavailable, requests fall back to DashScope/OpenAI per `SAGE_CHAT_*` env vars.s, managing local LLM services, and running chat + fine-tuning workflows.
 
 **Layer**: L6 (Interface) · **Package**: `packages/sage-studio`
 
