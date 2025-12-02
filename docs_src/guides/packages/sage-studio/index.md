@@ -71,7 +71,7 @@ All flows share one CLI entrypoint (`sage studio ...`) that supervises the front
 - Chat tab calls Gateway’s `/v1/chat/completions`, reusing the same session IDs as the UI.
 - Built-in session list (create, rename, clear, delete) talks to Gateway’s `/sessions/**` routes.
 - Memory panel (`MemorySettings.tsx`) uses `/memory/config|stats` to display backend type, short-term usage, or Neuromem collection state.
-- `IntelligentLLMClient` automatically prefers the local LLM service; if it’s unavailable, requests fall back to DashScope/OpenAI per `SAGE_CHAT_*` env vars.
+- `UnifiedInferenceClient` automatically prefers the local LLM service; if it’s unavailable, requests fall back to DashScope/OpenAI per `SAGE_CHAT_*` env vars.
 
 ### Fine-tuning Center
 
