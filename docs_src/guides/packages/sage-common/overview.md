@@ -1,50 +1,5 @@
 # sage-common: Foundation Layer (L1)
 
-## Overview
-
-`sage-common` 是 SAGE 的 L1 基础层，负责提供统一的端口/网络配置、Control Plane 推理栈、Embedding 工厂以及共享数据类型。2025 Q4 之后，`UnifiedInferenceClient.create()` 成为唯一入口，所有 Chat/Generate/Embed 请求默认经过 Control Plane 以复用智能调度与 SLO 策略。
-
-### 服务栈速览
-
-| 场景 | 推荐入口 | 说明 |
-|------|---------|------|
-| 启动/管理本地 vLLM + Embedding 服务 | `sage llm serve [--no-embedding]` | CLI 守护进程，会在 `SagePorts.LLM_DEFAULT`/`SagePorts.EMBEDDING_DEFAULT` 上暴露 OpenAI 兼容接口，可配合 `sage llm status/logs/engine`。|
-| 统一消费 LLM + Embedding | `UnifiedInferenceClient.create()` | Control Plane First：自动探测本地/远端端点或挂到外部 Gateway (`control_plane_url`)；支持嵌入式 Control Plane (`embedded=True`) 与 `create_for_model()` 动态拉起引擎。|
-| 无服务模式、直接调用本地模型 | `EmbeddingFactory + EmbeddingClientAdapter` | `EmbeddingFactory` 返回单文本 `BaseEmbedding` 接口，需配合 `EmbeddingClientAdapter` 提供批量 `embed(list[str])`，适合离线批处理或单元测试。|
-
-## Key Components
-
-### LLM 推理服务 (sage_llm)
-
-统一的 LLM 和 Embedding 推理接口：
-
-```python
-from sage.common.components.sage_llm import UnifiedInferenceClient
-
-# Control Plane First：自动探测本地 vLLM/Embedding，再回退云端 API
-client = UnifiedInferenceClient.create()
-
-# 指定 Gateway（如 UnifiedAPIServer 或集群 Control Plane）
-cp_client = UnifiedInferenceClient.create(
-    control_plane_url="http://localhost:8000/v1",
-    default_llm_model="Qwen/Qwen2.5-7B-Instruct",
-    default_embedding_model="BAAI/bge-m3",
-)
-
-# 需要在当前进程内运行 Control Plane，可打开 embedded 模式
-embedded_client = UnifiedInferenceClient.create(embedded=True)
-
-# Chat / Generate / Embed API
-def ask(messages: list[dict[str, str]]):
-    return client.chat(messages)
-
-text = client.generate("Once upon a time")
-vectors = client.embed(["text1", "text2"])
-
-# 针对特定模型自动拉起/复用引擎
-model_bound = UnifiedInferenceClient.create_for_model("Qwen/Qwen2.5-7B-Instruct")
-```
-
 #### 请求路径（ASCII）
 
 ```
@@ -66,6 +21,75 @@ User Code ──► UnifiedInferenceClient.create()
 - `HybridSchedulingPolicy`：混合策略，内置 `embedding` 批处理、`Adaptive/SLO_Aware` 落地 (`sage.common.components.sage_llm.sageLLM.control_plane.strategies.hybrid_policy`)。
 - `HttpExecutionCoordinator`：通过 HTTP 将请求路由到注册的 vLLM/Embedding 实例；Embedding 分支由 `EmbeddingExecutor` 聚合批量。
 - Control Plane Manager (`manager.py`) 还可以启用 Autoscaler/SLA 监控。
+
+#### 模式对比
+
+| 模式 | 创建方式 | 特点 |
+|------|---------|------|
+| Simple | `create_auto()` | 直连后端，适合开发测试 |
+| Control Plane | `create_with_control_plane()` | 智能调度，支持多实例、负载均衡 |
+| Managed Engine | `create_for_model()` | 只填模型 ID，自动匹配/拉起引擎 |
+
+```python
+# 在本机已运行 UnifiedAPIServer（sage llm serve）时，仅凭模型名即可使用
+client = UnifiedInferenceClient.create_for_model(
+    "Qwen/Qwen2.5-7B-Instruct",
+    engine_label="report-bot",
+)
+
+answer = client.chat([
+    {"role": "user", "content": "写一份日报"},
+])
+```
+vectors = client.embed(["text1", "text2"])
+
+# 针对特定模型自动拉起/复用引擎
+model_bound = UnifiedInferenceClient.create_for_model("Qwen/Qwen2.5-7B-Instruct")
+```
+
+#### 请求路径（ASCII）
+
+<<<<<<< HEAD
+```
+User Code ──► UnifiedInferenceClient.create()
+                 │ prefer_local + env auto detection
+                 ▼
+            RequestClassifier
+                 ▼
+          HybridSchedulingPolicy ──► Embedding Batcher
+                 │                        │
+                 │                        └─► EmbeddingExecutor (batch to /v1/embeddings)
+                 ▼
+      ExecutionCoordinator (HttpExecutionCoordinator)
+                 ▼
+     vLLM / TEI Instances on SagePorts.LLM_* & SagePorts.EMBEDDING_*
+```
+
+- `RequestClassifier`：根据 `RequestMetadata` 判断是 `LLM_CHAT / LLM_GENERATE / EMBEDDING`，并选择可处理的实例类型。
+- `HybridSchedulingPolicy`：混合策略，内置 `embedding` 批处理、`Adaptive/SLO_Aware` 落地 (`sage.common.components.sage_llm.sageLLM.control_plane.strategies.hybrid_policy`)。
+- `HttpExecutionCoordinator`：通过 HTTP 将请求路由到注册的 vLLM/Embedding 实例；Embedding 分支由 `EmbeddingExecutor` 聚合批量。
+- Control Plane Manager (`manager.py`) 还可以启用 Autoscaler/SLA 监控。
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                      UnifiedInferenceClient                      │
+│ create() / create(embedded=True) / create(control_plane_url=...) │
+├──────────────────────────────┬──────────────────────────────────┤
+│  RequestClassifier           │  分类: LLM_CHAT / GENERATE / EMB │
+├──────────────────────────────┼──────────────────────────────────┤
+│  HybridSchedulingPolicy      │  批量 Embedding + SLO/Fair 选路  │
+├───────────────┬──────────────┴──────────────┬──────────────────┤
+│ ExecutionCoord │   EmbeddingExecutor        │ Metrics / Autos   │
+├───────────────┴──────────────┬──────────────┴──────────────┬───┤
+│ GPUResourceManager           │ EngineLifecycleManager        │   │
+├──────────────────────────────┴──────────────────────────────┴───┤
+│        vLLM / TEI / Embedding instances (SagePorts.*)            │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+- `control_plane/manager.py`：路由 + 负载均衡 + Autoscaler；与 GPU/引擎管理器协作。
+- `strategies/hybrid_policy.py`：LLM/Embedding 混合批调度。
+- `executors/http_client.py` & `embedding_executor.py`：对接 OpenAI 兼容后端。
+- `metrics_collector.py`：SLA/P95 监控，可驱动 `SLOAwarePolicy`。
 
 ### Embedding 服务 (sage_embedding)
 
@@ -153,6 +177,7 @@ sage-common/
 高级调度系统，支持 LLM + Embedding 混合工作负载：
 
 ```
+<<<<<<< HEAD
 ┌────────────────────────────────────────────────────────────────────────────┐
 │                           UnifiedInferenceClient                            │
 │ create() / create(embedded=True) / create(control_plane_url=...)             │
@@ -171,6 +196,83 @@ sage-common/
 - `strategies/hybrid_policy.py`：LLM/Embedding 混合批调度
 - `executors/http_client.py` & `embedding_executor.py`：对接 OpenAI 兼容后端
 - `metrics_collector.py`：SLA/P95 监控，可驱动 `SLOAwarePolicy`
+=======
+┌─────────────────────────────────────────────────────────────────┐
+│                      UnifiedInferenceClient                      │
+│                  chat() | generate() | embed()                   │
+├─────────────────────────────────────────────────────────────────┤
+│                    sageLLM Control Plane                         │
+│   ┌─────────────────────────────────────────────────────────┐   │
+│   │  RequestClassifier → HybridSchedulingPolicy             │   │
+│   │  ExecutionCoordinator | EmbeddingExecutor               │   │
+│   │  GPUResourceManager  | EngineLifecycleManager           │   │
+│   └─────────────────────────────────────────────────────────┘   │
+├─────────────────────────────────────────────────────────────────┤
+│                     统一资源池 (GPU Pool)                        │
+│   ┌─────────────┐  ┌─────────────┐  ┌─────────────┐           │
+│   │ vLLM (LLM)  │  │ vLLM (Mixed)│  │  Embedding  │           │
+│   └─────────────┘  └─────────────┘  └─────────────┘           │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+### 动态引擎管理
+
+Control Plane 支持运行时启动/停止推理引擎，并自动追踪 GPU 显存：
+
+| 组件 | 说明 |
+|------|------|
+| `GPUResourceManager` | 通过 NVML 监控 GPU 状态，维护逻辑预留账本 |
+| `EngineLifecycleManager` | 管理 vLLM / Embedding Server 进程生命周期 |
+| Management API | `/v1/management/engines` (POST/DELETE) 与 `/v1/management/status` |
+
+**CLI 命令**:
+
+```bash
+# 列出引擎
+sage llm engine list
+
+# 启动 LLM 引擎
+sage llm engine start Qwen/Qwen2.5-7B-Instruct --tensor-parallel 2
+
+# 启动 Embedding 引擎
+sage llm engine start BAAI/bge-m3 --engine-kind embedding
+
+# 停止引擎
+sage llm engine stop <engine_id>
+
+# 查看 GPU 状态
+sage llm gpu
+```
+
+### 预设编排
+
+使用预设一键部署多个引擎：
+
+```bash
+# 列出内置预设
+sage llm preset list
+
+# 查看预设详情
+sage llm preset show -n qwen-mini-with-embeddings
+
+# 应用预设
+sage llm preset apply -n qwen-mini-with-embeddings
+```
+
+预设 YAML 示例：
+
+```yaml
+version: 1
+name: qwen-mini-with-embeddings
+engines:
+  - name: chat
+    kind: llm
+    model: Qwen/Qwen2.5-1.5B-Instruct
+  - name: embed
+    kind: embedding
+    model: BAAI/bge-small-zh-v1.5
+```
+>>>>>>> feature/control-plane-enhancement
 
 ## Usage Examples
 
