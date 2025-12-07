@@ -53,7 +53,7 @@ profile = BaseProfile.from_dict({
 使用 LLM 生成执行计划：
 
 ```python
-from sage.libs.agentic.agents.planning.llm_planner import LLMPlanner
+from sage.libs.agentic.agents.planning.simple_llm_planner import SimpleLLMPlanner
 from sage.libs.rag.generator import OpenAIGenerator
 
 generator = OpenAIGenerator({
@@ -62,7 +62,7 @@ generator = OpenAIGenerator({
     "base_url": "http://localhost:8001/v1",
 })
 
-planner = LLMPlanner(
+planner = SimpleLLMPlanner(
     generator=generator,
     max_steps=6,           # 最大规划步数
     enable_repair=True,    # 自动修复无效 JSON
@@ -151,7 +151,7 @@ SAGE 提供多种预置 Bot 用于常见任务：
 ```python
 import os
 from sage.libs.agentic.agents.profile.profile import BaseProfile
-from sage.libs.agentic.agents.planning.llm_planner import LLMPlanner
+from sage.libs.agentic.agents.planning.simple_llm_planner import SimpleLLMPlanner
 from sage.libs.agentic.agents.action.mcp_registry import MCPRegistry
 from sage.libs.agentic.agents.runtime.agent import AgentRuntime
 from sage.libs.rag.generator import OpenAIGenerator
@@ -172,7 +172,7 @@ profile = BaseProfile.from_dict({
 })
 
 # 3. 创建 Planner
-planner = LLMPlanner(generator=generator, max_steps=6)
+planner = SimpleLLMPlanner(generator=generator, max_steps=6)
 
 # 4. 注册工具 (可选)
 registry = MCPRegistry()
