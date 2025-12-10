@@ -1,6 +1,6 @@
 # L1 Common 开发文档
 
-`sage-common` 属于 L1（基础层），提供 SAGE 框架的核心基础设施和通用组件。本目录记录 sage-common 的开发文档和历史。
+`sage-common` 属于 L1（基础层），提供 SAGE 框架的核心基础设施和通用组件。本目录聚合了与 **sageLLM Control Plane**、**统一 Gateway** 以及 **vLLM 依赖管理** 等主题相关的开发文档，帮助你从整体视角理解 L1 的演进历程。
 
 ## 🚀 Quickstart
 
@@ -257,17 +257,28 @@ Embedding 服务和工厂：
 | `ports.py` | `SagePorts` - 统一端口配置 |
 | `env.py` | 环境变量管理 |
 
-## 📁 文档结构
+## 📁 文档结构与主题索引
 
-### 核心文档
+本目录下的历史开发笔记已按主题整合到本 README 中，推荐从以下几个小节阅读：
+
+- [Control Plane 路线图与任务拆解](#control-plane-路线图与任务拆解)
+- [Unified Gateway 统一网关任务](#unified-gateway-统一网关任务)
+- [Control Plane 增强概要](#control-plane-增强概要)
+- [vLLM 与 Torch 版本兼容性](#vllm-与-torch-版本兼容性)
+
+原始的详细任务文档仍然保留，可用于追溯完整的 AI 提示词、任务清单与文件列表：
+
+### 核心文档（原始笔记）
 
 - **[control-plane-enhancement.md](./control-plane-enhancement.md)** - Control Plane 动态引擎管理增强（GPU/Lifecycle/预设/`use_gpu` 支持）
-- **[control-plane-roadmap-tasks.md](./control-plane-roadmap-tasks.md)** - Control Plane 任务路线图（已完成）
+- **[control-plane-roadmap-tasks.md](./control-plane-roadmap-tasks.md)** - Control Plane 任务路线图（详细任务书）
+- **[unified-gateway-tasks.md](./unified-gateway-tasks.md)** - Unified Gateway 开发任务拆解
+- **[PR-unified-gateway.md](./PR-unified-gateway.md)** - Unified Gateway 集成 PR 总结
 
-### 工具文档
+### 工具与运维文档
 
 - **[CLEANUP_AUTOMATION.md](./CLEANUP_AUTOMATION.md)** - 自动清理功能说明
-- **[VLLM_TORCH_VERSION_CONFLICT.md](./VLLM_TORCH_VERSION_CONFLICT.md)** - vLLM 和 Torch 版本冲突解决
+- **[VLLM_TORCH_VERSION_CONFLICT.md](./VLLM_TORCH_VERSION_CONFLICT.md)** - vLLM 和 Torch 版本冲突解决与版本管理建议
 
 ## 🏗️ Gateway 架构说明
 
@@ -340,6 +351,131 @@ sage llm preset list               # 查看预设
 - **Copilot 指南**: `.github/copilot-instructions.md`
 
 ---
+
+## Control Plane 路线图与任务拆解
+
+该小节对 `control-plane-roadmap-tasks.md` 进行提炼，聚焦于 **UnifiedInferenceClient 统一入口**、**引擎健康检查与自动重启**、以及 **Embedding GPU 支持** 三大方向。
+
+### 统一入口 `UnifiedInferenceClient.create()`
+
+- 将原有多种创建方式（`create_auto` / `create_with_control_plane` / 直接构造）统一为单一入口 `create()`：
+  - `UnifiedInferenceClient.create()`
+  - `UnifiedInferenceClient.create(control_plane_url=...)`
+  - `UnifiedInferenceClient.create(embedded=True)`
+- 删除旧 API 和模式枚举，确保所有调用路径都经由 Control Plane 管理。
+- 在 Control Plane Manager 中集中端口和资源管理逻辑，减少分散的端口常量与重复判断。
+
+在实现层面，任务书明确了需要更新的核心文件（`unified_client.py`、`control_plane/__init__.py`、`engine_lifecycle.py`、`manager.py` 及所有调用方），并给出了**验收示例代码**，这些完整细节仍可在原文档中查阅。
+
+### 引擎健康检查与自动重启
+
+依据任务书：
+
+- 在 `EngineLifecycleManager` 中新增：
+  - `health_check(engine_id, timeout=...)`
+  - `health_check_all()`
+- 在 `ControlPlaneManager` 中增加后台循环：
+  - 周期性调用健康检查
+  - 支持 `auto_restart=True`、`max_restart_attempts` 等配置
+  - 使用指数退避策略进行重试
+
+这部分任务为后续的 **稳定性保障** 和 **生产可用性** 打下基础，也是与 Gateway 合并后保持统一行为的关键前置条件。
+
+### Embedding 引擎 GPU 支持
+
+- 在 Control Plane API、Preset 模型与 CLI 中统一引入 `use_gpu: bool | None`：
+  - `None`（默认）: LLM 使用 GPU，Embedding 使用 CPU
+  - `True`: 强制使用 GPU
+  - `False`: 强制不使用 GPU
+- 调整 `needs_gpu` 判断逻辑与 Embedding Server 启动参数，使得大型 Embedding 模型（如 BGE-M3）可以按需迁移到 GPU 上运行。
+
+更多包含 AI 提示词的详细拆解，仍保存在 `control-plane-roadmap-tasks.md` 中，适合在做二次重构或回顾设计决策时阅读。
+
+---
+
+## Unified Gateway 统一网关任务
+
+本节综合 `unified-gateway-tasks.md` 与 `PR-unified-gateway.md`，从“规划 → 实现结果”的视角描述 Gateway 统一工作的整体图景。
+
+### 规划视角（来自 unified-gateway-tasks.md）
+
+统一 Gateway 的任务被拆解为三个串行任务组：
+
+1. **任务组 1：Control Plane 动态引擎管理**
+   - 引擎注册与生命周期管理（`EngineState` / `EngineInfo` / 心跳机制 / 优雅关闭）
+   - 动态后端发现（定期刷新后端列表、故障转移、客户端透明切换）
+2. **任务组 2：Gateway 统一**
+   - 将 Control Plane 端点迁移到 `sage-gateway`
+   - 合并 LLM / Embedding 代理与管理路由
+   - CLI 命令统一：增加 `sage gateway` 命令组，重定向 `sage llm engine` 到 Gateway 端点
+3. **任务组 3：测试与文档**
+   - 编写端到端集成测试（Gateway + Control Plane + Client）
+   - 更新文档与示例代码（尤其是 L1 tutorial 与 CLI 参考）
+
+任务文档为每一小节都提供了清晰的 AI 提示词、文件列表与验收标准，适合用作未来类似大型重构任务的模板。
+
+### 结果视角（来自 PR-unified-gateway.md）
+
+PR 文档记录了这些规划在代码层面的最终落地：
+
+- 控制平面与 Gateway：
+  - 在 `sage-gateway` 中新增 `routes/control_plane.py`，承载所有 `/v1/management/*` 端点。
+  - 删除 `unified_api_server.py`，所有控制功能正式迁移到 Gateway。
+  - 补充 `/v1/embeddings` 路由，确保 OpenAI 兼容接口完整。
+- CLI 统一：
+  - 新增 `sage gateway` 命令组（`start/stop/status/logs/restart`）。
+  - `sage llm engine` 命令改为通过 Gateway Control Plane 进行管理。
+- 客户端与 API：
+  - `UnifiedInferenceClient.create(control_plane_url=...)` 作为标准调用方式。
+  - OpenAI 兼容端点与 Management API 的清单一并整理在 PR 文档中，可作为对接其他系统时的参考表。
+
+如果你希望理解“为什么现在的 Gateway/Control Plane 是这个形态”，推荐顺序是：
+
+1. 先读本 README 中的综述小节（路线图 + Gateway 统一）；
+2. 再按需查阅 `unified-gateway-tasks.md`（规划）和 `PR-unified-gateway.md`（实际差异）。
+
+---
+
+## Control Plane 增强概要
+
+`control-plane-enhancement.md` 详细记录了 GPU 资源管理、引擎生命周期与预设系统的设计与实现，本节只保留对后续开发最关键的提要：
+
+- **GPUResourceManager**：
+  - 负责采集 GPU 状态（NVML / Mock），维护逻辑预留，暴露 `get_system_status()`、`allocate_resources()` 等接口。
+- **EngineLifecycleManager**：
+  - 通过 subprocess 启动/停止 vLLM 或 Embedding Server，追踪运行状态。
+  - 提供 `spawn_engine()`、`stop_engine()`、`get_engine_status()` 等方法。
+- **ControlPlaneManager**：
+  - 统一暴露 `request_engine_startup()`、`request_engine_shutdown()` 与集群状态快照。
+  - 区分 LLM / Embedding，引擎类型贯穿元数据与调度决策。
+- **预设系统 + CLI**：
+  - `sage llm preset` 命令族依赖 Control Plane 提供的一致启动/回滚能力。
+  - 通过 YAML 描述多引擎集群（含 `use_gpu` 与高并发配置），一键部署。
+
+对于需要修改 Control Plane 行为（例如新增引擎类型、扩展 GPU 策略）的开发者，建议在阅读源码时将本节与 `control-plane-enhancement.md` 结合使用。
+
+---
+
+## vLLM 与 Torch 版本兼容性
+
+`VLLM_TORCH_VERSION_CONFLICT.md` 总结了 vLLM 与 Torch 之间的版本不兼容问题及修复策略，本节给出简要结论与最佳实践，方便在排查环境问题时快速参考。
+
+### 结论速览
+
+- vLLM `0.10.x` 需要 **Torch ≥ 2.4.0**，否则会出现 `torch._inductor.config` 缺失等错误。
+- 推荐做法是**让 vLLM 驱动 Torch 版本**：
+  - 卸载已有 `torch`/`torchaudio`/`torchvision`/`vllm`；
+  - 通过 `pip install vllm==<目标版本>` 让 pip 自动解析并安装兼容的 Torch。
+- 对于 CPU-only 或特定平台，还可以通过官方 PyTorch CPU 源安装对应的 `torch==2.7.1+cpu` 等精确版本。
+
+### 项目层面的改进建议
+
+- 在 `packages/sage-common/pyproject.toml` 的可选依赖中：
+  - 对 `vllm` 和 `torch` 做更严格的联合约束。
+- 引入专门的 `requirements-vllm.txt` 或安装脚本段，统一约定 vLLM 相关依赖版本。
+- 增加依赖验证脚本（如 `tools/install/verify_dependencies.py`），在本地与 CI 中主动检查 vLLM / Torch 版本是否兼容。
+
+如需查看完整的错误日志、表格化的兼容性矩阵以及具体命令示例，请参考原文档 `VLLM_TORCH_VERSION_CONFLICT.md`。
 
 ---
 

@@ -57,6 +57,14 @@ cross-layer/
 | [DATA_EXTENSION_GUIDE.md](data-architecture/DATA_EXTENSION_GUIDE.md) | 数据扩展指南 | ✅ 有效 |
 | [DATA_MIGRATION_GUIDE.md](data-architecture/DATA_MIGRATION_GUIDE.md) | 数据迁移指南 | ✅ 有效 |
 
+### Control Plane (control-plane/)
+
+| 文档 | 描述 | 状态 |
+|------|------|------|
+| [README.md](control-plane/README.md) | Control Plane 任务规划与路由修复汇总 | ✅ 有效 |
+| [LLM_CONTROL_PLANE_TASKS.md](control-plane/LLM_CONTROL_PLANE_TASKS.md) | LLM 控制平面任务拆解 | ✅ 有效 |
+| [CONTROL_PLANE_ROUTING_FIX.md](control-plane/CONTROL_PLANE_ROUTING_FIX.md) | 控制平面路由修复记录 | ✅ 有效 |
+
 ### 迁移指南 (migration/)
 
 | 文档 | 描述 | 状态 |
@@ -102,8 +110,26 @@ cross-layer/
 |------|------|------|
 | [FINETUNE_BACKEND_INTEGRATION.md](FINETUNE_BACKEND_INTEGRATION.md) | Fine-tune 后端集成 | ✅ 有效 |
 | [FINETUNE_GPU_RESOURCE_MANAGEMENT.md](FINETUNE_GPU_RESOURCE_MANAGEMENT.md) | Fine-tune GPU 资源管理 | ✅ 有效 |
-| [FINETUNE_PROCESS_PERSISTENCE.md](FINETUNE_PROCESS_PERSISTENCE.md) | Fine-tune 进程持久化 | ✅ 有效 |
+| [FINETUNE_PROCESS_PERSISTENCE.md](FINETUNE_PROCESS_PERSISTENCE.md) | Fine-tune 任务持久化 | ✅ 有效 |
 | [CODE_SHARING_RAG_INDEXBUILDER.md](CODE_SHARING_RAG_INDEXBUILDER.md) | RAG IndexBuilder 代码共享 | ✅ 有效 |
+
+### Fine-tune & Agent 训练（跨层）
+
+Fine-tune 与 Agent 训练相关的文档分布在 cross-layer 与 L3 libs 两个层级，本小节对其进行集中说明：
+
+- 架构与分层定位 (`FINETUNE_ARCHITECTURE.md`)
+	- 解释为什么 Fine-tune 主要作为 L6 (sage-tools) 的开发工具存在，而不是下沉到 L1/L2。
+	- 给出推荐方案：在 L1 定义 `IFineTuneService` 接口，具体实现保持在 L6，避免核心层依赖 heavy 训练库。
+- Studio & Chat 后端集成
+	- `FINETUNE_BACKEND_INTEGRATION.md`：描述微调模型如何被挂载为 Studio Chat 的后端（前端按钮 → FastAPI → vLLM Registry → Engine 切换）。
+	- `FINETUNE_GPU_RESOURCE_MANAGEMENT.md`：说明 Studio 本地队列和 GPU 检测逻辑，强调「单 GPU 串行、任务排队、自动推荐模型」等策略。
+	- `FINETUNE_PROCESS_PERSISTENCE.md`：记录从 daemon 线程到独立进程的重构，使 Studio 重启后微调任务能够继续运行。
+- Agent 训练管线 (`AGENT_TRAINING_PIPELINE.md`)
+	- 从业务挑战（工具选择、规划、时机决策、千级工具检索）出发设计 SFT + RL 训练流水线。
+	- 提供阶段划分（Warmup / SFT / RL / Evaluation）与典型配置 `AgentSFTConfig` 的示例。
+	- 与 L3-libs 中的 `AGENT_FINETUNE_API_REFERENCE.md` 呼应，前者侧重训练流程与数据组织，后者侧重具体 API 与实现。
+
+在阅读顺序上，建议先看本 README 中的概览，再根据关注点分别跳转到上述 cross-layer 与 L3-libs 文档。
 
 ### 环境和部署
 

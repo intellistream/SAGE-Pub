@@ -47,12 +47,9 @@ sage-refiner-bench compare \
 
 | 挑战 | 描述 | 目标 | 策略 |
 |------|------|------|------|
-| **时机判断** (Timing Detection) | 判断是否需要调用工具 | ≥95% 准确率 | `timing.rule_based`, `timing.llm_based`, `timing.hybrid` |
-| **任务规划** (Task Planning) | 分解复杂任务为 5-10 步 | ≥90% 成功率 | `planner.simple`, `planner.hierarchical`, `planner.react`, `planner.tot` |
-| **工具选择** (Tool Selection) | 从 1000+ 工具中选择 | ≥95% Top-K | `selector.keyword`, `selector.embedding`, `selector.hybrid`, `selector.gorilla`, `selector.dfsdt` |
-
 **文档**：
 - [benchmark_agent/README.md](../../../../packages/sage-benchmark/src/sage/benchmark/benchmark_agent/README.md)
+详细的实验脚本与配置请参考 `archive/ICML_REFINER_TASKS.md` 与 `archive/PAPER1_EXPERIMENTS_DESIGN.md`，其中包含：
 - [agent-benchmark-tasks.md](../agent-benchmark-tasks.md)
 
 ### benchmark_control_plane (Control Plane 调度评测)
@@ -87,6 +84,43 @@ sage-cp-bench compare --mode llm --policies fifo,priority,slo_aware
 	- `benchmark_rag` 和 `benchmark_memory` 默认标记为 `slow`，由 `sage-dev project test --coverage` 的扩展阶段触发。
 	- `benchmark_libamm` 采用独立 CMake 构建，不在常规 CI 中运行；本地需要 `cmake`, `openblas` 等依赖。
 4. **待补文档**：`benchmark_memory/README.md` 为空，需要在未来 PR 中补充实验说明；若新增 suite，请在此 dev-note 追加行并在 `docs-public` 对应章节更新。
+
+## 论文与 Refiner 专题实验概览
+
+### ICML Refiner 投稿实验（benchmark_refiner）
+
+`benchmark_refiner` 目前已经支持多种上下文压缩算法（Baseline、LongRefiner、REFORM、Provence、LongLLMLingua、LLMLingua‑2），并围绕 ICML 投稿完成了两轮主要工程与实验工作：
+
+- **Round 1：基础模块落地**
+	- 结果收集器 `ResultsCollector` 实现并接入 F1/Latency/Compression 等评测。
+	- LongLLMLingua / LLMLingua‑2 Pipeline 集成，包含对应 `config_*.yaml` 与 `*_rag.py` 管道脚本。
+	- 统计检验模块（配对 t 检验、Bootstrap 置信区间、Cohen's d、Wilcoxon、Bonferroni/ Holm‑Bonferroni 校正等）。
+- **Round 2：集成与多数据集支持**
+	- `ComparisonExperiment` 重构，统一通过真实 Pipeline 运行并从 `ResultsCollector` 收集结果，而非再使用占位模拟数据。
+	- 支持多数据集批量运行、结果聚合和统一结果容器（`DatasetResult`、`MultiDatasetExperimentResult`）。
+
+> 更细粒度的任务拆解、文件列表与 Prompt 记录见 `ICML_REFINER_TASKS.md`；日常开发只需关注 `benchmark_refiner` 目录下的 README 与 CLI 即可。
+
+### SAGE-Bench Paper 1（benchmark_agent）实验设计
+
+围绕 `benchmark_agent`，已经根据 Paper 1（Agent Benchmark）规划出一套完整的实验章节与脚本结构，对应论文中的 `5. Experiments`：
+
+- **Section 5.2: Main Results（RQ1–RQ3）**
+	- RQ1 Timing Detection：`exp_main_timing.py`，比较 `timing.rule_based` / `timing.embedding` / `timing.llm_based` / `timing.hybrid`，主指标为 Accuracy（目标 ≥95%），辅以 Precision/Recall/F1 与延迟。
+	- RQ2 Task Planning：`exp_main_planning.py`，比较 `planner.simple` / `planner.hierarchical` / `planner.llm_based` / `planner.react`，主指标为 Plan Success Rate（目标 ≥90%），并观测步骤质量与覆盖率。
+	- RQ3 Tool Selection：`exp_main_selection.py`，比较 `selector.keyword` / `selector.embedding` / `selector.hybrid` / `selector.gorilla` / `selector.dfsdt`，主指标为 Top‑K Accuracy（K=5），辅以 MRR/Recall@K/Latency。
+- **Section 5.3: Analysis & Discussion**
+	- Error Analysis、Scaling Analysis、Robustness Analysis、Ablation Studies 分别由 `exp_analysis_*.py` 系列脚本实现，输出统一放在 `figures/`、`tables/`、`results/` 目录，方便直接引用到论文中。
+- **Section 5.4: Cross-Dataset Generalization**
+	- 通过 `exp_cross_dataset.py` 评估跨数据集泛化能力。
+
+在 CLI 层面，预期通过 `sage-bench paper1 ...` 提供一套统一入口：
+
+- `sage-bench paper1 run [--quick] [--section 5.2|5.3]` 复现整套或部分实验。
+- `sage-bench paper1 timing|planning|selection` 运行单个主实验。
+- `sage-bench paper1 analysis error|scaling|robustness|ablation` 运行各类分析实验。
+
+> 详细 CLI 设计与脚本布局目前记录在 `PAPER1_EXPERIMENTS_DESIGN.md`，实现时请优先对齐该文档，并在落地后同步更新本 README 与 `benchmark_agent` 目录下的 README。
 
 ## 建议工作流
 

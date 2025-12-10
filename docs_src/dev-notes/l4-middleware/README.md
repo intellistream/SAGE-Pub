@@ -69,11 +69,30 @@ l4-middleware/
 - ✅ Ray 模式 (LocalEnvironment + remote=True)
 - ⚠️ 完全远程模式 (RemoteEnvironment) - 部分支持
 
-### 4. SONG GPU ANN 后端
+Autostop 相关的开发与问题修复笔记包括：
+
+- `AUTOSTOP_MODE_SUPPORT.md` - 不同执行环境下 Autostop 模式的支持情况与边界。
+- `AUTOSTOP_SERVICE_FIX_SUMMARY.md`、`FIX_AUTOSTOP_SERVICE_CLEANUP.md` - 服务清理与退出流程的修复总结。
+- `REMOTE_AUTOSTOP_IMPLEMENTATION.md`、`REMOTE_MODE_SUPPORT.md` - 远程模式下的实现差异与已知限制。
+
+整体建议阅读顺序为：先看本 README 中的概览，再按需查阅上述文档获取细节实现与历史问题背景。
+
+### 4. Document Storage & Memory 统计
+
+文档存储与记忆统计相关的设计与状态追踪集中在以下文档中：
+
+- `DOCUMENT_STORAGE_FEATURE.md` - 文档存储功能架构设计。
+- `DOCUMENT_STORAGE_STATUS.md` - 实现进度与完成状态（✅）。
+- `DOCUMENT_STORAGE_USER_GUIDE.md` - 面向用户的文档存储使用手册。
+- `MEMORY_STATISTICS_FEATURE.md` - Neuromem 记忆统计/监控能力设计。
+
+这些文档共同描述了从「架构设计 → 实现落地 → 用户使用 → 运行时观测」的一条完整链路。
+
+### 5. SONG GPU ANN 后端
 
 **位置**: `packages/sage-middleware/src/sage/middleware/components/sage_db/`
 
-已完成从 sage-db_outdated 到现代 sage_db 的迁移，移除 LibTorch 依赖，保留 CUDA kernel 实现。
+已完成从 `sage-db_outdated` 到现代 `sage_db` 的迁移，移除 LibTorch 依赖，保留 CUDA kernel 实现；迁移过程与验证记录在 `SONG_MIGRATION_COMPLETE.md` 中。
 
 ## 已完成的功能
 
@@ -83,7 +102,7 @@ l4-middleware/
 | Graph Memory Collection | ✅ | `GRAPH_MEMORY_FINAL_STATUS.md` |
 | Multimodal Storage (#610) | ✅ | `archive/ISSUE_610_STATUS.md` |
 | Autostop Local Mode | ✅ | `AUTOSTOP_MODE_SUPPORT.md` |
-| SONG GPU Migration | ✅ | `song_migration_complete.md` |
+| SONG GPU Migration | ✅ | `SONG_MIGRATION_COMPLETE.md` |
 
 ## 代码位置参考
 

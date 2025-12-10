@@ -29,6 +29,19 @@
 - 2025-10-29：`examples/tutorials/` 结构重排并新增分层 README/学习路径。
 - 2025-11：RAG 基准示例与大体量数据同步至 `packages/sage-benchmark`；`examples/apps` 新增 3 个入口脚本（auto-scaling chat、smart home、article monitoring）。
 
+### 医疗诊断应用：特征抽取实现概览
+
+在 `copilot/extract-features-with-models` 分支中，完成了医疗诊断应用中图像特征抽取从“随机特征”到“预训练模型特征”的升级，对应实现集中在
+`ImageAnalyzer` 以及其单元测试与 Demo：
+
+- **模型支持**：集成 CLIP (`openai/clip-vit-base-patch32`) 与 DINOv2 (`facebook/dinov2-base`)，自动检测 GPU/CPU。
+- **特征质量**：输出 L2 归一化向量（CLIP 512 维、DINOv2 768 维），统一用于相似度检索。
+- **健壮性设计**：模型下载失败或运行异常时，回退到可控的 mock 特征，保证 Demo 与上层 Agent 不会崩溃。
+- **配置驱动**：通过 `agent_config.yaml` 中的 `image_processing.feature_extraction` 字段选择模型与维度，保持应用层仅依赖配置而非硬编码。
+- **完整测试链路**：`test_image_analyzer.py` 覆盖模型初始化、特征抽取、错误处理与集成流程，并提供 `examples/apps/demo_feature_extraction.py` 作为交互式示例脚本。
+
+> 详细实现过程与性能评估可参考 `archive/feature-extraction-implementation.md`；对于新增应用示例，推荐沿用“配置驱动 + 预训练模型封装 + Demo + 测试”的组合模式。
+
 ## 待办与风险
 
 1. **补齐 L5 教程示例**：`examples/tutorials/L5-apps/` 仍缺少代码示例，可考虑从 `examples/apps` 中提炼裁剪版。（阻塞：需要确定可开源的业务逻辑子集）。
