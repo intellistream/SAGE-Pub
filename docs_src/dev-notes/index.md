@@ -22,6 +22,31 @@
 
 ---
 
+## 📂 分层开发笔记
+
+| 层级 | 目录 | 说明 |
+|------|------|------|
+| L1 | [l1-common](l1-common/README.md) | 基础设施、共享组件 |
+| L2 | [l2-platform](l2-platform/README.md) | 平台服务、部署 |
+| L3 | [l3-kernel](l3-kernel/README.md) | 核心引擎 |
+| L3 | [l3-libs](l3-libs/README.md) | 算法库 |
+| L4 | [l4-middleware](l4-middleware/README.md) | 中间件、C++ 扩展 |
+| L5 | [l5-apps](l5-apps/README.md) | 应用示例 |
+| L5 | [l5-benchmark](l5-benchmark/README.md) | 评测框架 |
+| L6 | [l6-cli](l6-cli/README.md) | 命令行工具 |
+| L6 | [l6-gateway](l6-gateway/README.md) | API 网关 |
+| L6 | [l6-studio](l6-studio/README.md) | 可视化工作室 |
+| L6 | [l6-tools](l6-tools/README.md) | 开发者工具 |
+
+## 🔧 专题笔记
+
+- [交叉层设计 (Cross-Layer)](cross-layer/README.md)
+- [测试策略 (Testing)](testing/README.md)
+- [研究工作 (Research)](research_work/README.md)
+- [归档 (Archive)](archive/README.md)
+
+---
+
 ## 🎯 与其他文档的关系
 
 ### 核心概念 vs 开发笔记
