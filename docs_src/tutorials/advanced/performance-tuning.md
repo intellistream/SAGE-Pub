@@ -422,10 +422,10 @@ class GPUOperator(MapFunction):
 # vLLM 启动时使用半精度
 # sage llm serve --model <model> --gpu-memory 0.5
 
-# 或在 UnifiedInferenceClient 配置中
-client = UnifiedInferenceClient(
-    llm_base_url="http://localhost:8901/v1",
-    llm_model="Qwen/Qwen2.5-7B-Instruct",
+# 使用 UnifiedInferenceClient.create() 连接本地服务
+client = UnifiedInferenceClient.create(
+    control_plane_url="http://localhost:8901/v1",
+    default_llm_model="Qwen/Qwen2.5-7B-Instruct",
     # vLLM 服务端配置 --dtype bfloat16 或 --dtype half
 )
 ```
@@ -447,7 +447,7 @@ client = UnifiedInferenceClient.get_instance("default")
 
 ```python
 # UnifiedInferenceClient 默认优先检测本地服务
-client = UnifiedInferenceClient.create_auto(
+client = UnifiedInferenceClient.create(
     prefer_local=True  # 默认为 True
 )
 

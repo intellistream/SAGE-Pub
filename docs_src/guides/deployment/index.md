@@ -137,13 +137,13 @@ curl http://localhost:8090/v1/models
 ```python
 from sage.common.components.sage_llm import UnifiedInferenceClient
 
-# 自动检测本地服务
-client = UnifiedInferenceClient.create_auto()
+# 自动检测本地服务（推荐）
+client = UnifiedInferenceClient.create()
 
-# 或显式配置
-client = UnifiedInferenceClient(
-    llm_base_url="http://localhost:8901/v1",
-    llm_model="Qwen/Qwen2.5-7B-Instruct",
+# 或显式配置连接到特定服务
+client = UnifiedInferenceClient.create(
+    control_plane_url="http://localhost:8901/v1",
+    default_llm_model="Qwen/Qwen2.5-7B-Instruct",
 )
 ```
 

@@ -273,9 +273,10 @@ sage llm serve --with-embedding --embedding-model BAAI/bge-m3
 然后使用 `UnifiedInferenceClient` 连接：
 
 ```python
-client = UnifiedInferenceClient(
-    embedding_base_url="http://localhost:8090/v1",
-    embedding_model="BAAI/bge-m3",
+# 推荐：使用 create() 工厂方法
+client = UnifiedInferenceClient.create(
+    control_plane_url="http://localhost:8090/v1",
+    default_embedding_model="BAAI/bge-m3",
 )
 vectors = client.embed(["Hello", "World"])
 ```
