@@ -119,7 +119,7 @@ Useful flags:
 --port 5173            # frontend port (dev mode)
 --backend-port 8080    # FastAPI backend
 --gateway-port 8000    # sage-gateway (OpenAI API)
---llm / --no-llm       # enable or skip local vLLM service
+--no-llm             # skip local vLLM service (enabled by default)
 --llm-model <name>     # override default model
 --use-finetuned        # auto-select latest finetuned model
 ```
