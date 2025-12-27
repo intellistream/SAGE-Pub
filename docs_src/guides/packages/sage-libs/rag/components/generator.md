@@ -8,7 +8,7 @@
 
 生成组件在RAG系统中承担以下关键职责：
 
-- **多模型支持**：兼容OpenAI API、VLLM、DashScope等多种LLM服务
+- **多模型支持**：兼容OpenAI API、vLLM 等多种 OpenAI 兼容 LLM 服务
 - **上下文融合**：将用户查询与检索上下文有效结合
 - **生成质量控制**：支持温度、种子等参数精确控制
 - **性能监控**：提供生成记录的追踪和分析功能
@@ -29,16 +29,15 @@ output = (user_query, generated_text)
 
 ### 组件描述
 
-`OpenAIGenerator`是兼容OpenAI API标准的生成器，支持调用OpenAI、VLLM、DashScope等符合OpenAI API规范的LLM服务。
+`OpenAIGenerator`是兼容 OpenAI API 标准的生成器，支持调用 OpenAI、vLLM 等符合 OpenAI API 规范的 LLM 服务（包括 SAGE Gateway）。
 
 ### 技术规格
 
 **支持的服务端点**：
 
-- OpenAI GPT系列模型
-- VLLM本地部署服务
-- 阿里云DashScope服务
-- 其他OpenAI API兼容服务
+- OpenAI GPT 系列模型
+- vLLM/SAGE Gateway 本地部署服务
+- 其他 OpenAI API 兼容服务
 
 **配置参数**：
 

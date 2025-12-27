@@ -124,7 +124,7 @@ sage llm engine stop <finetune-engine-id>
 
 ## 相关文件
 
-- `packages/sage-common/src/sage/common/components/sage_llm/sageLLM/control_plane/`
+- `packages/sage-llm-core/src/sage/llm/control_plane/`
 - `packages/sage-studio/src/sage/studio/services/finetune_manager.py`
 - `packages/sage-libs/src/sage/libs/finetune/`
 

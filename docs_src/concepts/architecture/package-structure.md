@@ -3,7 +3,7 @@
 > **最后更新**: 2025-12-02
 >
 > **变更日志**:
-> - 2025-12-02: 添加 sage-gateway，更新统计数据，补充 C++ 扩展位置
+> - 2025-12-02: 添加 sage-llm-gateway，更新统计数据，补充 C++ 扩展位置
 > - 2025-10-23: 初始版本
 
 本文档详细描述 SAGE 各包的职责边界和依赖关系。
@@ -22,7 +22,7 @@
 | sage-studio     | L6   | Web UI         | 8      | 51     | -        |
 | sage-cli        | L6   | 生产 CLI       | 45     | 32     | -        |
 | sage-tools      | L6   | 开发工具       | 106    | 78     | -        |
-| sage-gateway    | L6   | API Gateway    | 8      | 37     | -        |
+| sage-llm-gateway    | L6   | API Gateway    | 8      | 37     | -        |
 
 ## 🔗 依赖关系图
 
@@ -43,7 +43,7 @@ graph TD
     studio[sage-studio<br/>L6: Web UI]
     cli[sage-cli<br/>L6: 生产 CLI]
     tools[sage-tools<br/>L6: 开发工具]
-    gateway[sage-gateway<br/>L6: API Gateway]
+    gateway[sage-llm-gateway<br/>L6: API Gateway]
 
     platform --> common
 
@@ -327,11 +327,11 @@ ______________________________________________________________________
 
 ______________________________________________________________________
 
-### L6: sage-gateway
+### L6: sage-llm-gateway
 
-**位置**: `packages/sage-gateway/`
+**位置**: `packages/sage-llm-gateway/`
 
-**PyPI 发布名**: `isage-gateway`
+**PyPI 发布名**: `isage-llm-gateway`
 
 **职责**: OpenAI 兼容 API Gateway，将请求转换为 SAGE DataStream/RAG 流水线执行
 
@@ -345,9 +345,9 @@ ______________________________________________________________________
 **启动方式**:
 
 ```bash
-sage-gateway --host 0.0.0.0 --port 8000
+sage-llm-gateway --host 0.0.0.0 --port 8000
 # 或
-python -m sage.gateway.server
+python -m sage.llm.gateway.server
 ```
 
 **依赖**: sage-common, sage-kernel, sage-libs, sage-middleware

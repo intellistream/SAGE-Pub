@@ -179,8 +179,8 @@ ______________________________________________________________________
 sage chat ingest
 
 # 2. 启动 Gateway
-pkill -f sage-gateway
-nohup sage-gateway --host localhost --port 8000 > ~/.sage/gateway.log 2>&1 &
+pkill -f sage-llm-gateway
+nohup sage-llm-gateway --host localhost --port 8000 > ~/.sage/gateway.log 2>&1 &
 
 # 3. 测试
 curl -X POST http://localhost:8000/v1/chat/completions \
@@ -311,8 +311,8 @@ ______________________________________________________________________
 
    ```bash
    # 重启 Gateway
-   pkill -f sage-gateway
-   nohup sage-gateway --host localhost --port 8000 > ~/.sage/gateway.log 2>&1 &
+   pkill -f sage-llm-gateway
+   nohup sage-llm-gateway --host localhost --port 8000 > ~/.sage/gateway.log 2>&1 &
 
    # 在 Studio 中测试
    sage studio start
@@ -380,16 +380,16 @@ rm -rf ~/.sage/cache/chat/
 
 ### 问题 4: API Key 未设置
 
-**症状**: `[配置错误] 请设置 DASHSCOPE_API_KEY`
+**症状**: `[配置错误] 请设置 SAGE_CHAT_API_KEY`
 
 **解决**:
 
 ```bash
-# 设置环境变量
-export DASHSCOPE_API_KEY="your-api-key"
+# 设置环境变量（示例）
+export SAGE_CHAT_API_KEY="your-api-key"
 
 # 或在 .env 文件中设置
-echo "DASHSCOPE_API_KEY=your-api-key" >> .env
+echo "SAGE_CHAT_API_KEY=your-api-key" >> .env
 ```
 
 ______________________________________________________________________
@@ -434,8 +434,8 @@ sage chat ingest
 python test_gateway_sage_chat.py
 
 # 3. 重启 Gateway
-pkill -f sage-gateway
-nohup sage-gateway --host localhost --port 8000 > ~/.sage/gateway.log 2>&1 &
+pkill -f sage-llm-gateway
+nohup sage-llm-gateway --host localhost --port 8000 > ~/.sage/gateway.log 2>&1 &
 
 # 4. 在 Studio 中测试
 # 访问 http://localhost:4200

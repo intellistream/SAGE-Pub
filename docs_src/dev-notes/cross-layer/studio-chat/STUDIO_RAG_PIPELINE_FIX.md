@@ -144,7 +144,7 @@ def _class_to_node_type(class_name: str) -> str:
 
 ### 2. 改进 RAG System Prompt
 
-在 `packages/sage-gateway/src/sage/gateway/rag_pipeline.py` 的 `_perform_rag_chat()` 方法中，添加明确指令：
+在 `packages/sage-llm-gateway/src/sage/gateway/rag_pipeline.py` 的 `_perform_rag_chat()` 方法中，添加明确指令：
 
 ```python
 system_instructions = textwrap.dedent(

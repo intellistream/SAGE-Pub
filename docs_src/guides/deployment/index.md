@@ -135,7 +135,7 @@ curl http://localhost:8090/v1/models
 ### 3. 使用客户端
 
 ```python
-from sage.common.components.sage_llm import UnifiedInferenceClient
+from sage.llm import UnifiedInferenceClient
 
 # 自动检测本地服务（推荐）
 client = UnifiedInferenceClient.create()

@@ -94,7 +94,7 @@ $ sage-dev quality dependencies
 
 **Results**:
 - ⚠️ sage-tools: Contains isage-common dependency (WARNING - allowed)
-- ❌ sage-gateway: Missing sage-deps configuration (ERROR)
+- ❌ sage-llm-gateway: Missing sage-deps configuration (ERROR)
 
 ## Related Documentation
 
@@ -105,7 +105,7 @@ $ sage-dev quality dependencies
 ## Follow-up Tasks
 
 - [ ] Update CI/CD to use `sage-dev quality dependencies` if needed
-- [ ] Fix the identified issues in sage-gateway (add sage-deps)
+- [ ] Fix the identified issues in sage-llm-gateway (add sage-deps)
 - [ ] Update developer onboarding documentation
 
 ---

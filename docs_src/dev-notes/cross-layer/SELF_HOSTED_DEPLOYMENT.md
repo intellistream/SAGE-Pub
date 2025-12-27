@@ -46,7 +46,7 @@ sudo yum install -y python3 python3-pip python3-devel git \
 
 | Secret 名称 | 说明 | 必需 |
 |------------|------|------|
-| `DASHSCOPE_API_KEY` | 阿里云 DashScope API Key (用于 qwen-max) | ✅ |
+| `SAGE_CHAT_API_KEY` | OpenAI 兼容 LLM 访问密钥 (用于 Gateway/vLLM) | ✅ |
 | `OPENAI_API_KEY` | OpenAI API Key (可选) | ❌ |
 | `HF_TOKEN` | Hugging Face Token (用于模型下载) | ❌ |
 
@@ -115,7 +115,7 @@ http://<服务器IP>:4200
 
 ```bash
 # 查看服务状态
-ps aux | grep -E "sage studio|sage-gateway"
+ps aux | grep -E "sage studio|sage-llm-gateway"
 
 # 查看日志
 tail -f ~/.sage/gateway.log
@@ -123,10 +123,10 @@ tail -f ~/.sage/studio.log
 
 # 停止服务
 pkill -f "sage studio"
-pkill -f "sage-gateway"
+pkill -f "sage-llm-gateway"
 
 # 手动重启服务
-nohup sage-gateway --host 0.0.0.0 --port 8000 > ~/.sage/gateway.log 2>&1 &
+nohup sage-llm-gateway --host 0.0.0.0 --port 8000 > ~/.sage/gateway.log 2>&1 &
 nohup sage studio start --port 4200 > ~/.sage/studio.log 2>&1 &
 
 # 重建 RAG 索引
@@ -228,7 +228,7 @@ sudo systemctl reload nginx
 
 创建 systemd 服务文件以实现开机自启和崩溃重启：
 
-**Gateway 服务** (`/etc/systemd/system/sage-gateway.service`):
+**Gateway 服务** (`/etc/systemd/system/sage-llm-gateway.service`):
 
 ```ini
 [Unit]
@@ -240,8 +240,8 @@ Type=simple
 User=<your-username>
 WorkingDirectory=/home/<your-username>/SAGE
 Environment="PATH=/home/<your-username>/.local/bin:/usr/bin"
-Environment="DASHSCOPE_API_KEY=<your-key>"
-ExecStart=/home/<your-username>/.local/bin/sage-gateway --host 0.0.0.0 --port 8000
+Environment="SAGE_CHAT_API_KEY=<your-key>"
+ExecStart=/home/<your-username>/.local/bin/sage-llm-gateway --host 0.0.0.0 --port 8000
 Restart=always
 RestartSec=10
 StandardOutput=append:/home/<your-username>/.sage/gateway.log
@@ -256,8 +256,8 @@ WantedBy=multi-user.target
 ```ini
 [Unit]
 Description=SAGE Studio UI Service
-After=network.target sage-gateway.service
-Requires=sage-gateway.service
+After=network.target sage-llm-gateway.service
+Requires=sage-llm-gateway.service
 
 [Service]
 Type=simple
@@ -278,14 +278,14 @@ WantedBy=multi-user.target
 
 ```bash
 sudo systemctl daemon-reload
-sudo systemctl enable sage-gateway sage-studio
-sudo systemctl start sage-gateway sage-studio
+sudo systemctl enable sage-llm-gateway sage-studio
+sudo systemctl start sage-llm-gateway sage-studio
 
 # 查看状态
-sudo systemctl status sage-gateway sage-studio
+sudo systemctl status sage-llm-gateway sage-studio
 
 # 查看日志
-sudo journalctl -u sage-gateway -f
+sudo journalctl -u sage-llm-gateway -f
 sudo journalctl -u sage-studio -f
 ```
 
@@ -297,7 +297,7 @@ sudo journalctl -u sage-studio -f
 
 ```bash
 # 1. 检查进程是否运行
-ps aux | grep -E "sage studio|sage-gateway"
+ps aux | grep -E "sage studio|sage-llm-gateway"
 
 # 2. 检查端口是否监听
 sudo netstat -tlnp | grep -E "4200|8000"
@@ -322,13 +322,13 @@ tail -100 ~/.sage/studio.log
 
 ```bash
 # 检查 API Key
-cat ~/.sage/.env | grep DASHSCOPE_API_KEY
+cat ~/.sage/.env | grep SAGE_CHAT_API_KEY
 
 # 检查端口占用
 sudo lsof -i :8000
 
 # 手动启动查看详细错误
-sage-gateway --host 0.0.0.0 --port 8000
+sage-llm-gateway --host 0.0.0.0 --port 8000
 ```
 
 ### 问题 3: RAG 索引构建失败
@@ -390,8 +390,8 @@ check_service() {
         pkill -f "$name"
         sleep 3
         # 根据服务类型重启
-        if [ "$name" = "sage-gateway" ]; then
-            nohup sage-gateway --host 0.0.0.0 --port $port > ~/.sage/gateway.log 2>&1 &
+        if [ "$name" = "sage-llm-gateway" ]; then
+            nohup sage-llm-gateway --host 0.0.0.0 --port $port > ~/.sage/gateway.log 2>&1 &
         else
             nohup sage studio start --port $port > ~/.sage/studio.log 2>&1 &
         fi
@@ -399,7 +399,7 @@ check_service() {
     fi
 }
 
-check_service "sage-gateway" 8000
+check_service "sage-llm-gateway" 8000
 check_service "sage studio" 4200
 ```
 
@@ -414,7 +414,7 @@ check_service "sage studio" 4200
 - [SAGE 文档](https://github.com/intellistream/SAGE)
 - [GitHub Actions 自托管 Runner](https://docs.github.com/en/actions/hosting-your-own-runners)
 - [SAGE CLI 命令参考](../../../packages/sage-cli/README.md)
-- [Gateway API 文档](../../../packages/sage-gateway/README.md)
+- [Gateway API 文档](../../../packages/sage-llm-gateway/README.md)
 
 ## 💡 最佳实践
 

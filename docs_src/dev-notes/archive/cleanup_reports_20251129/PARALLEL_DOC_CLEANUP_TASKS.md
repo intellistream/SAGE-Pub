@@ -88,7 +88,7 @@
 
 ---
 
-## Task 3: L6 层文档清理 (sage-cli, sage-tools, sage-studio, sage-gateway)
+## Task 3: L6 层文档清理 (sage-cli, sage-tools, sage-studio, sage-llm-gateway)
 
 ### 提示词
 
@@ -99,14 +99,14 @@
 - `l6-cli/` - sage-cli 命令行文档
 - `l6-tools/` - sage-tools 开发工具文档
 - `l6-studio/` - sage-studio 前端文档
-- `l6-gateway/` - sage-gateway API 网关文档
+- `l6-gateway/` - sage-llm-gateway API 网关文档
 
 **任务清单**:
 1. 检查每个目录下的 README.md 是否存在且完整
 2. 验证 `l6-cli/` 下的命令文档是否与 `packages/sage-cli/src/sage/cli/commands/` 代码一致
 3. 验证 `l6-tools/` 下的工具文档是否与当前脚本一致
 4. 检查 `l6-studio/` 下的文档是否反映了最新的前后端架构
-5. 验证 `l6-gateway/` 下的 API 文档是否与 `packages/sage-gateway/` 代码一致
+5. 验证 `l6-gateway/` 下的 API 文档是否与 `packages/sage-llm-gateway/` 代码一致
 
 **重点检查**:
 - `l6-cli/COMMAND_CHEATSHEET.md` 是否包含所有新命令
@@ -388,7 +388,7 @@
 - `.github/copilot-instructions.md` - sageLLM 架构说明
 
 **代码参考**:
-- `packages/sage-common/src/sage/common/components/sage_llm/unified_client.py`
+- `packages/sage-llm-core/src/sage/llm/unified_client.py`
 - `packages/sage-common/src/sage/common/components/sage_embedding/`
 - `packages/sage-libs/src/sage/libs/agentic/`
 
@@ -654,7 +654,7 @@ mkdocs serve                    # 本地预览 (可选)
 | `concepts/architecture/package-structure.md` | 修复断链：layer-design.md (删除), 添加正确链接 |
 | `concepts/architecture/design-decisions/rpc-queue-refactoring.md` | 修复断链：更新相关文档链接 |
 | `api-reference/libs/index.md` | 修复断链：agentic/*.md → agents/*.md, agent.md → index.md |
-| `guides/packages/sage-studio/index.md` | 修复断链：删除不存在的 sage-gateway/sage-cli 链接 |
+| `guides/packages/sage-studio/index.md` | 修复断链：删除不存在的 sage-llm-gateway/sage-cli 链接 |
 | `index_content.md` | 修复断链：COMMUNITY.md → community/community.md |
 
 ### mkdocs.yml 导航更新

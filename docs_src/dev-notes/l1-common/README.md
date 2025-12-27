@@ -24,7 +24,7 @@ sage llm status
 ### 2. 使用统一客户端
 
 ```python
-from sage.common.components.sage_llm import UnifiedInferenceClient
+from sage.llm import UnifiedInferenceClient
 
 # 创建客户端（自动连接本地服务）
 client = UnifiedInferenceClient.create()
@@ -203,11 +203,11 @@ sage llm model list                         # 列出已下载模型
 | `compat.py` | `LLMClientAdapter`, `EmbeddingClientAdapter` - vLLM 引擎适配器 |
 | `sageLLM/control_plane/` | 核心调度框架（GPU 管理、引擎生命周期、预设系统） |
 
-> **注意**：`UnifiedAPIServer` 已移除，Control Plane 功能现由 `sage-gateway` 提供。
+> **注意**：`UnifiedAPIServer` 已移除，Control Plane 功能现由 `sage-llm-gateway` 提供。
 
 **统一入口 API**:
 ```python
-from sage.common.components.sage_llm import UnifiedInferenceClient
+from sage.llm import UnifiedInferenceClient
 
 # 方式一：自动检测（推荐）
 # 自动发现本地 LLM (8901) 和 Embedding (8090) 服务
@@ -282,7 +282,7 @@ Embedding 服务和工厂：
 
 ## 🏗️ Gateway 架构说明
 
-`sage-gateway` 是 SAGE 的**统一 API Gateway**，提供：
+`sage-llm-gateway` 是 SAGE 的**统一 API Gateway**，提供：
 
 - **OpenAI 兼容 API**：`/v1/chat/completions`、`/v1/completions`、`/v1/embeddings`
 - **Control Plane 引擎管理**：`/v1/management/engines/*`、`/v1/management/gpu`
@@ -291,7 +291,7 @@ Embedding 服务和工厂：
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────┐
-│                         sage-gateway (统一 Gateway)                      │
+│                         sage-llm-gateway (统一 Gateway)                      │
 ├─────────────────────────────────────────────────────────────────────────┤
 │                                                                         │
 │   ┌─────────────────────────────────────────────────────────────────┐   │
@@ -339,7 +339,7 @@ sage llm preset list               # 查看预设
 | 统一推理客户端使用 | [hybrid-scheduler/README.md](./hybrid-scheduler/README.md) |
 | 动态引擎管理 | [control-plane-enhancement.md](./control-plane-enhancement.md) |
 | Embedding GPU 支持 | [control-plane-enhancement.md](./control-plane-enhancement.md) |
-| Control Plane 架构 | `packages/sage-common/src/sage/common/components/sage_llm/sageLLM/` |
+| Control Plane 架构 | `packages/sage-llm-core/src/sage/llm/control_plane/` |
 | 端口配置 | `packages/sage-common/src/sage/common/config/ports.py` |
 | Embedding 服务 | `packages/sage-common/src/sage/common/components/sage_embedding/` |
 | 单元测试 | `packages/sage-common/tests/unit/components/sage_llm/` |
@@ -405,7 +405,7 @@ sage llm preset list               # 查看预设
    - 引擎注册与生命周期管理（`EngineState` / `EngineInfo` / 心跳机制 / 优雅关闭）
    - 动态后端发现（定期刷新后端列表、故障转移、客户端透明切换）
 2. **任务组 2：Gateway 统一**
-   - 将 Control Plane 端点迁移到 `sage-gateway`
+   - 将 Control Plane 端点迁移到 `sage-llm-gateway`
    - 合并 LLM / Embedding 代理与管理路由
    - CLI 命令统一：增加 `sage gateway` 命令组，重定向 `sage llm engine` 到 Gateway 端点
 3. **任务组 3：测试与文档**
@@ -419,7 +419,7 @@ sage llm preset list               # 查看预设
 PR 文档记录了这些规划在代码层面的最终落地：
 
 - 控制平面与 Gateway：
-  - 在 `sage-gateway` 中新增 `routes/control_plane.py`，承载所有 `/v1/management/*` 端点。
+  - 在 `sage-llm-gateway` 中新增 `routes/control_plane.py`，承载所有 `/v1/management/*` 端点。
   - 删除 `unified_api_server.py`，所有控制功能正式迁移到 Gateway。
   - 补充 `/v1/embeddings` 路由，确保 OpenAI 兼容接口完整。
 - CLI 统一：
@@ -569,7 +569,7 @@ sage llm engine list
 **使用 Python 客户端** (详见 `examples/tutorials/L1-common/unified_inference_client_example.py`):
 
 ```python
-from sage.common.components.sage_llm import UnifiedInferenceClient
+from sage.llm import UnifiedInferenceClient
 
 # 创建客户端，连接到 Gateway
 client = UnifiedInferenceClient.create(

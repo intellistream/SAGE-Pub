@@ -52,28 +52,28 @@
      - 集成测试: 不同wrapper的互换性
 
 2. **sage_llm 推理服务** (当前 6%-35%)
-   - 文件清单:
-     ```
-     packages/sage-common/src/sage/common/components/sage_llm/
-     ├── sageLLM/control_plane/
-     │   ├── manager.py               (6% → 70%)
-     │   ├── router.py                (18% → 70%)
-     │   ├── executors/
-     │   │   ├── http_client.py       (14% → 70%)
-     │   │   ├── local_async.py       (27% → 75%)
-     │   ├── monitoring.py            (21% → 70%)
-     │   ├── parallelism.py           (35% → 75%)
-     │   ├── pd_routing.py            (19% → 70%)
-     ├── control_plane_service.py     (30% → 75%)
-     ├── service.py                   (20% → 75%)
-     ```
+     - 文件清单:
+         ```
+         packages/sage-llm-core/src/sage/llm/
+         ├── control_plane/
+         │   ├── manager.py               (6% → 70%)
+         │   ├── router.py                (18% → 70%)
+         │   ├── executors/
+         │   │   ├── http_client.py       (14% → 70%)
+         │   │   ├── local_async.py       (27% → 75%)
+         │   ├── monitoring.py            (21% → 70%)
+         │   ├── parallelism.py           (35% → 75%)
+         │   ├── pd_routing.py            (19% → 70%)
+         ├── control_plane_service.py     (30% → 75%)
+         ├── service.py                   (20% → 75%)
+         ```
 
    - **测试策略**:
      - Mock vLLM HTTP API
      - 测试请求路由、负载均衡、故障转移
      - 测试并行度控制、GPU分配
      - 集成测试: 完整推理流程模拟
-     - **参考**: `packages/sage-common/src/sage/common/components/sage_llm/sageLLM/tests/control_plane/conftest.py`
+    - **参考**: `packages/sage-llm-core/src/sage/llm/control_plane/tests/conftest.py`
 
 3. **utils 工具模块** (当前 0%-61%)
    - 文件清单:
@@ -198,10 +198,10 @@ class TestOpenAIWrapper:
 
 #### vLLM Router测试模板
 ```python
-# packages/sage-common/tests/unit/components/sage_llm/test_router.py
+# packages/sage-llm-core/tests/unit/control_plane/test_router.py
 import pytest
 from unittest.mock import AsyncMock, patch
-from sage.common.components.sage_llm.sageLLM.control_plane.router import Router
+from sage.llm.control_plane.router import Router
 
 @pytest.mark.unit
 @pytest.mark.asyncio

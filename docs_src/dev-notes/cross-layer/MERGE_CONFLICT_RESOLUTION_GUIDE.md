@@ -14,8 +14,6 @@ deleted in HEAD and modified in origin/main-dev.
 
 ## 冲突原因
 
-- **我们的分支 (HEAD)**: 删除了 `sage_vllm/` 目录，创建了 `sage_llm/` 目录
-- **main-dev**: 更新了 `sage_vllm/sageLLM` submodule 的 commit hash
 
 Git 无法自动处理这种"删除 vs 修改"的冲突。
 
@@ -45,7 +43,7 @@ git rebase origin/main-dev
 
 # 5. 解决冲突
 # Git 会在遇到 sage_vllm 冲突时暂停，此时运行：
-git rm packages/sage-common/src/sage/common/components/sage_vllm/sageLLM
+git rm -r --ignore-unmatch packages/**/sage_vllm
 git rebase --continue
 
 # 6. 如果还有其他冲突，逐个解决后继续
@@ -57,13 +55,8 @@ git push origin feat/unified-chat-canvas-rebased --force-with-lease
 ```
 
 **优点**:
-- 线性历史，干净整洁
-- 所有提交都在 main-dev 之上
-- 后续合并到 main-dev 会非常顺畅
 
 **缺点**:
-- 需要 force push（使用 --force-with-lease 更安全）
-- 如果团队有人基于旧分支工作，需要他们重新 pull
 
 ### 方案 2: Merge 策略
 
@@ -78,12 +71,12 @@ git checkout feat/unified-chat-canvas-rebased
 git merge origin/main-dev
 
 # 3. 解决冲突
-# Git 会提示：deleted by us: packages/sage-common/src/sage/common/components/sage_vllm/sageLLM
+# Git 会提示：deleted by us: legacy sage_vllm/sageLLM 目录
 # 这是因为我们已经重命名，所以删除旧路径是正确的
-git rm packages/sage-common/src/sage/common/components/sage_vllm/sageLLM
+git rm -r --ignore-unmatch packages/**/sage_vllm
 
 # 4. 确认新路径存在且正确
-ls packages/sage-common/src/sage/common/components/sage_llm/sageLLM
+ls packages/sage-llm-core/src/sage/llm
 
 # 5. 完成合并
 git add -A
@@ -98,13 +91,8 @@ git push origin feat/unified-chat-canvas-rebased
 ```
 
 **优点**:
-- 保留完整的分支历史
-- 不需要 force push
-- 团队成员可以正常 pull
 
 **缺点**:
-- 非线性历史，有 merge commit
-- PR 看起来会有更多提交
 
 ### 方案 3: 交互式 Rebase（最精细）
 
@@ -124,8 +112,9 @@ git rebase -i origin/main-dev
 #    - 编辑(edit)提交消息
 #    - 删除(drop)不需要的提交
 
-# 4. 对于 sage_vllm 冲突，按方案 1 处理
-git rm packages/sage-common/src/sage/common/components/sage_vllm/sageLLM
+# 4. 对于 legacy `sage_vllm` 冲突，按方案 1 处理
+#    删除旧的 `sage_vllm/sageLLM` 目录（现已由 `packages/sage-llm-core/src/sage/llm/` 取代）
+git rm -r --ignore-unmatch packages/**/sage_vllm
 git rebase --continue
 
 # 5. 强制推送
@@ -159,10 +148,10 @@ git rebase origin/main-dev
 
 # Step 5: 解决冲突（Git 会自动暂停）
 # 此时会看到：
-# CONFLICT (modify/delete): packages/sage-common/src/sage/common/components/sage_vllm/sageLLM
+# CONFLICT (modify/delete): legacy 目录 sage_vllm/sageLLM（旧路径已废弃）
 
-# 删除旧路径（因为我们已重命名为 sage_llm）
-git rm packages/sage-common/src/sage/common/components/sage_vllm/sageLLM
+# 删除旧路径（现已迁移到 packages/sage-llm-core/src/sage/llm/）
+git rm -r --ignore-unmatch packages/**/sage_vllm
 
 # 继续 rebase
 git rebase --continue
@@ -185,7 +174,7 @@ git stash pop  # 如有
 ```bash
 # 1. 检查目录结构
 ls -la packages/sage-common/src/sage/common/components/
-# 应该只有 sage_llm，没有 sage_vllm
+# 应该只有 sage_llm（或 packages/sage-llm-core/src/sage/llm/），不应再有 sage_vllm
 
 # 2. 检查所有导入是否正确
 grep -r "sage_vllm" packages/ --include="*.py" | grep -v ".pyc" | grep -v "__pycache__"
@@ -267,6 +256,3 @@ grep -r "import sage.*sage_vllm" packages/ --include="*.py"
 
 ## 参考资料
 
-- Git Rebase 官方文档: https://git-scm.com/docs/git-rebase
-- 处理冲突: https://git-scm.com/book/en/v2/Git-Branching-Basic-Branching-and-Merging
-- Submodule 管理: `docs/dev-notes/cross-layer/ci-cd/submodule-management.md`

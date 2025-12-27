@@ -65,7 +65,7 @@ Task 11 是文档清理阶段二的最终任务，负责：
 | `concepts/architecture/package-structure.md` | 2 | layer-design.md |
 | `concepts/architecture/design-decisions/rpc-queue-refactoring.md` | 3 | 相关文档链接 |
 | `api-reference/libs/index.md` | 4 | agentic/*.md, agent.md |
-| `guides/packages/sage-studio/index.md` | 2 | sage-gateway, sage-cli |
+| `guides/packages/sage-studio/index.md` | 2 | sage-llm-gateway, sage-cli |
 | `index_content.md` | 1 | COMMUNITY.md |
 
 ---
@@ -156,7 +156,7 @@ docs/dev-notes/
 ```markdown
 # Before
 - [常见问题](./faq.md)
-- [Gateway guide](../sage-gateway/index.md)
+- [Gateway guide](../sage-llm-gateway/index.md)
 
 # After
 # (移除这些断链，或替换为有效链接)

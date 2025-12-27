@@ -8,7 +8,7 @@ This document outlines the tasks for enhancing the sageLLM Control Plane to supp
 
 **Goal**: Implement `GPUResourceManager` to monitor and manage GPU resources.
 
-**File**: `packages/sage-common/src/sage/common/components/sage_llm/sageLLM/control_plane/gpu_manager.py`
+**File**: `packages/sage-llm-core/src/sage/llm/control_plane/gpu_manager.py`
 
 **Instructions**:
 
@@ -32,7 +32,7 @@ This document outlines the tasks for enhancing the sageLLM Control Plane to supp
 
 **Goal**: Implement `EngineLifecycleManager` to spawn and stop vLLM processes.
 
-**File**: `packages/sage-common/src/sage/common/components/sage_llm/sageLLM/control_plane/engine_lifecycle.py`
+**File**: `packages/sage-llm-core/src/sage/llm/control_plane/engine_lifecycle.py`
 
 **Instructions**:
 
@@ -59,8 +59,8 @@ This document outlines the tasks for enhancing the sageLLM Control Plane to supp
 
 **Files**:
 
-- `packages/sage-common/src/sage/common/components/sage_llm/sageLLM/control_plane/manager.py`
-- `packages/sage-common/src/sage/common/components/sage_llm/unified_api_server.py`
+- `packages/sage-llm-core/src/sage/llm/control_plane/manager.py`
+- `packages/sage-llm-core/src/sage/llm/unified_api_server.py`
 
 **Instructions**:
 

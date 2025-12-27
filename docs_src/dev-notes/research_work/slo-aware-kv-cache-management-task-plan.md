@@ -2,7 +2,7 @@
 
 ## Gap Snapshot (2025-12-02)
 
-**sageLLM Control Plane (`packages/sage-common/src/sage/common/components/sage_llm/sageLLM`)**
+**sageLLM Control Plane (`packages/sage-llm-core/src/sage/llm/control_plane/`)**
 - No `memory_manager/` package yet; `ControlPlaneManager` only tracks queues and GPU reservations without per-request KV/embedding memory budgets.
 - `RequestMetadata` and `ExecutionInstance` lack fields for predicted KV cache size, active embedding workspace, or SLO slack needed for eviction heuristics.
 - Missing predictors for output length and embedding load despite references in the research proposal; `load_predictor.py` only handles aggregate request counts.

@@ -194,7 +194,7 @@ sage llm serve -m "Qwen/Qwen2.5-7B-Instruct" --port 8901
 服务启动后可通过 Python 或 curl 访问：
 
 ```python
-from sage.common.components.sage_llm import UnifiedInferenceClient
+from sage.llm import UnifiedInferenceClient
 
 client = UnifiedInferenceClient.create_auto()
 response = client.chat([{"role": "user", "content": "Hello"}])
@@ -282,7 +282,7 @@ ______________________________________________________________________
 
 | 常量                | 端口 | 服务                           |
 | ------------------- | ---- | ------------------------------ |
-| `GATEWAY_DEFAULT`   | 8000 | sage-gateway (OpenAI 兼容 API) |
+| `GATEWAY_DEFAULT`   | 8000 | sage-llm-gateway (OpenAI 兼容 API) |
 | `LLM_DEFAULT`       | 8001 | vLLM 推理服务                  |
 | `LLM_WSL_FALLBACK`  | 8901 | WSL2 备用 LLM 端口             |
 | `STUDIO_BACKEND`    | 8080 | sage-studio 后端               |

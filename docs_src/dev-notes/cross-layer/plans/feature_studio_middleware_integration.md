@@ -7,7 +7,7 @@
 
 This plan outlines the comprehensive upgrade to the SAGE Agentic Framework (L3), its integration into the Middleware (L4), and the exposure of these capabilities to SAGE Studio (L6). It also includes significant improvements to the installation and environment health check systems.
 
-The goal is to make `sage-libs` (L3) the source of truth for agentic behaviors and integrate it into **`sage-gateway`** (so `sage chat` becomes smart) and `sage-studio`.
+The goal is to make `sage-libs` (L3) the source of truth for agentic behaviors and integrate it into **`sage-llm-gateway`** (so `sage chat` becomes smart) and `sage-studio`.
 
 **Key Architectural Shift**:
 *   **L3 (Algorithm Core)**: Provides the core algorithms and runtime engines. `AgentRuntime` is designed as a service-like component (similar to `sage-db`), providing stateful execution capabilities.
@@ -87,8 +87,8 @@ Significant improvements to the developer experience and environment stability.
 *   Add logging for every step of the execution.
 
 ### Track 3: Gateway Integration (The Brain Upgrade)
-**Objective**: Upgrade `sage-gateway` to use `AgentRuntime` for complex queries, making `sage chat` agentic.
-**Files**: `packages/sage-gateway/src/sage/gateway/adapters/openai.py`
+**Objective**: Upgrade `sage-llm-gateway` to use `AgentRuntime` for complex queries, making `sage chat` agentic.
+**Files**: `packages/sage-llm-gateway/src/sage/gateway/adapters/openai.py`
 *   Import `AgentRuntime` and `SearcherBot` from `sage.libs.agentic`.
 *   In `chat_completions`, add logic to detect if the user needs "research" or "complex reasoning".
 *   If complex: Instantiate `AgentRuntime` with `SearcherBot` and execute the query.
@@ -137,7 +137,7 @@ Significant improvements to the developer experience and environment stability.
     *   Created `tests/manual/test_agent_runtime_operator.py` and verified success.
 *   [x] **Gateway Updates**:
     *   OpenAI Adapter updated to import and utilize `RefinedSearcherOperator` and `AgentRuntime`.
-    *   Verified code paths in `packages/sage-gateway/src/sage/gateway/adapters/openai.py`.
+    *   Verified code paths in `packages/sage-llm-gateway/src/sage/gateway/adapters/openai.py`.
 *   [x] **Service Management**:
     *   Verified `sage studio stop` preserves LLM services.
     *   Verified `sage studio start` reuses existing services.

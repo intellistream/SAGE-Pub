@@ -225,7 +225,7 @@ HF_TOKEN=your_huggingface_token_here
 - `HF_TOKEN`: Required for Hugging Face model downloads
 - `SILICONCLOUD_API_KEY`: For alternative LLM services
 - `JINA_API_KEY`: For embedding services
-- `ALIBABA_API_KEY`: For DashScope models
+- `ALIBABA_API_KEY`: For Alibaba/Qwen OpenAI-compatible endpoints
 - `SAGE_LOG_LEVEL`: Set logging level (DEBUG, INFO, WARNING, ERROR)
 - `SAGE_TEST_MODE`: Enable test mode for examples
 

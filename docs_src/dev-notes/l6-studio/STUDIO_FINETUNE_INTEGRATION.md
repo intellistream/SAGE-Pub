@@ -3,12 +3,12 @@
 2. 训练完成后输出 `merged_model/` 或 `lora/`，并更新任务状态。
 3. 前端轮询 `/api/finetune/tasks`、`/api/finetune/models` 展示列表。
 4. 选择模型或点击"切换为对话后端" → `POST /api/finetune/switch-model`。
-5. 后端调用 `chat_manager._stop_llm_service()` → `_start_llm_service(model_path)`，通过 `sage.common.components.sage_llm.LLMAPIServer` 在 `localhost:8001` 重启 vLLM。
+5. 后端调用 `chat_manager._stop_llm_service()` → `_start_llm_service(model_path)`，通过 `sage.llm.LLMAPIServer` 在 `localhost:8001` 重启 vLLM。
 6. Gateway 通过 `UnifiedInferenceClient` 自动检测新的本地服务，Chat 面板立即使用。
 
 ## 2. Web UI 操作流程（推荐）南
 
-> 适用版本：`packages/sage-studio` (React/Vite + FastAPI) 与 `packages/sage-gateway` 主干，2025-11。本文合并原「集成文档」「UI 总结」「快速参考」，聚焦已经落地的功能及排障手册。
+> 适用版本：`packages/sage-studio` (React/Vite + FastAPI) 与 `packages/sage-llm-gateway` 主干，2025-11。本文合并原「集成文档」「UI 总结」「快速参考」，聚焦已经落地的功能及排障手册。
 
 ## 1. 架构总览
 
@@ -24,7 +24,7 @@
 2. 训练完成后输出 `merged_model/` 或 `lora/`，并更新任务状态。
 3. 前端轮询 `/api/finetune/tasks`、`/api/finetune/models` 展示列表。
 4. 选择模型或点击“切换为对话后端” → `POST /api/finetune/switch-model`。
-5. 后端调用 `chat_manager._stop_llm_service()` → `_start_llm_service(model_path)`，通过 `sage.common.components.sage_llm.LLMAPIServer` 在 `localhost:8001` 重启 vLLM。
+5. 后端调用 `chat_manager._stop_llm_service()` → `_start_llm_service(model_path)`，通过 `sage.llm.LLMAPIServer` 在 `localhost:8001` 重启 vLLM。
 6. Gateway 通过 `UnifiedInferenceClient` 自动检测新的本地服务，Chat 面板立即使用。
 
 ## 2. Web UI 操作流程（推荐）

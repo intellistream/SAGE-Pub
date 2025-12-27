@@ -21,7 +21,7 @@ SAGE 提供三层 Embedding API：
 适用于需要同时使用 LLM 和 Embedding 的场景：
 
 ```python
-from sage.common.components.sage_llm import UnifiedInferenceClient
+from sage.llm import UnifiedInferenceClient
 
 # 自动检测本地服务或使用云端 API
 client = UnifiedInferenceClient.create_auto()

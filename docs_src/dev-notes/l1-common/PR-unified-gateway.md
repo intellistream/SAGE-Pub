@@ -25,14 +25,14 @@
 
 ### 2. Gateway 统一
 
-- **sage-gateway 集成 Control Plane** (`sage-gateway/src/sage/gateway/`)
+- **sage-llm-gateway 集成 Control Plane** (`sage-llm-gateway/src/sage/gateway/`)
   - 新增 `routes/control_plane.py`：所有 Control Plane 端点
   - 更新 `server.py`：添加 `/v1/embeddings` 端点
-  - 新增 `__main__.py`：支持 `python -m sage.gateway` 启动
+  - 新增 `__main__.py`：支持 `python -m sage.llm.gateway` 启动
 
 - **移除 UnifiedAPIServer**
   - 删除 `packages/sage-common/.../sage_llm/unified_api_server.py`
-  - 所有 Control Plane 功能迁移至 sage-gateway
+  - 所有 Control Plane 功能迁移至 sage-llm-gateway
 
 - **CLI 命令统一** (`sage-cli/src/sage/cli/commands/apps/gateway.py`)
   - 新增 `sage gateway` 命令组：`start`, `stop`, `status`, `logs`, `restart`
@@ -59,8 +59,8 @@
 
 | 文件 | 描述 |
 |------|------|
-| `sage-gateway/src/sage/gateway/__main__.py` | Gateway CLI 入口点 |
-| `sage-gateway/src/sage/gateway/routes/control_plane.py` | Control Plane 路由 |
+| `sage-llm-gateway/src/sage/gateway/__main__.py` | Gateway CLI 入口点 |
+| `sage-llm-gateway/src/sage/gateway/routes/control_plane.py` | Control Plane 路由 |
 | `sageLLM/control_plane/types.py` | EngineState, EngineInfo 类型定义 |
 | `sage-cli/src/sage/cli/commands/apps/gateway.py` | Gateway CLI 命令 |
 | `tests/integration/test_control_plane.py` | Control Plane 集成测试 |
@@ -72,7 +72,7 @@
 
 | 文件 | 变更 |
 |------|------|
-| `sage-gateway/src/sage/gateway/server.py` | 添加 `/v1/embeddings` 端点 |
+| `sage-llm-gateway/src/sage/gateway/server.py` | 添加 `/v1/embeddings` 端点 |
 | `sageLLM/control_plane/manager.py` | 添加引擎注册和生命周期管理逻辑 |
 | `unified_client.py` | 支持 `control_plane_url` 参数 |
 | `sage-cli/src/sage/cli/main.py` | 注册 gateway 命令 |
@@ -83,7 +83,7 @@
 
 | 文件 | 原因 |
 |------|------|
-| `packages/sage-common/.../unified_api_server.py` | 功能已迁移至 sage-gateway |
+| `packages/sage-common/.../unified_api_server.py` | 功能已迁移至 sage-llm-gateway |
 
 ## 🐛 Bug 修复
 
@@ -92,7 +92,7 @@
    - 修复：`manager.py` 第 1872 行 `EngineRuntime.VLLM` → `EngineRuntime.LLM`
 
 2. **Gateway 无法通过 CLI 启动**
-   - 问题：`sage gateway start` 报错 "No module named sage.gateway.__main__"
+   - 问题：`sage gateway start` 报错 "No module named sage.llm.gateway.__main__"
    - 修复：创建 `__main__.py` 入口文件
 
 3. **缺少 `/v1/embeddings` 端点**
@@ -160,7 +160,7 @@ sage llm gpu                       # GPU 状态
 ### Python API
 
 ```python
-from sage.common.components.sage_llm import UnifiedInferenceClient
+from sage.llm import UnifiedInferenceClient
 
 # 连接到 Gateway Control Plane
 client = UnifiedInferenceClient.create(

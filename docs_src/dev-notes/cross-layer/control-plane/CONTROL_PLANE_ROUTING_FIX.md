@@ -2,7 +2,7 @@
 
 **日期**: 2025-12-04  
 **分支**: main-dev  
-**相关组件**: sage-gateway, sage-common (sageLLM)
+**相关组件**: sage-llm-gateway, sage-common (sageLLM)
 
 ## 问题背景
 
@@ -37,7 +37,7 @@ RAG Pipeline 使用端口扫描作为 fallback，但无法区分 LLM 和 Embeddi
 
 ### 1. 资源释放修复 (manager.py)
 
-**文件**: `packages/sage-common/src/sage/common/components/sage_llm/sageLLM/control_plane/manager.py`
+**文件**: `packages/sage-llm-core/src/sage/llm/control_plane/manager.py`
 
 #### stop_engine_gracefully()
 
@@ -128,7 +128,7 @@ def register_engine(self, engine_id, model_id, host, port, engine_kind, metadata
 
 ### 3. RAG Pipeline 路由修复 (rag_pipeline.py)
 
-**文件**: `packages/sage-gateway/src/sage/gateway/rag_pipeline.py`
+**文件**: `packages/sage-llm-gateway/src/sage/gateway/rag_pipeline.py`
 
 移除端口扫描 fallback，完全依赖 Control Plane：
 
@@ -171,7 +171,7 @@ def _get_llm_backend_url(self) -> str | None:
                               │
                               ▼
 ┌─────────────────────────────────────────────────────────────────┐
-│                     Gateway (sage-gateway)                        │
+│                     Gateway (sage-llm-gateway)                        │
 │  ┌─────────────────────────────────────────────────────────────┐ │
 │  │                   RAG Pipeline                               │ │
 │  │  _get_llm_backend_url() → Control Plane                      │ │
@@ -229,11 +229,11 @@ tail -20 ~/.sage/gateway/gateway.log | grep "LLM backend"
 
 ## 相关文件
 
-- `packages/sage-common/src/sage/common/components/sage_llm/sageLLM/control_plane/manager.py`
-- `packages/sage-common/src/sage/common/components/sage_llm/sageLLM/control_plane/engine_lifecycle.py`
-- `packages/sage-gateway/src/sage/gateway/rag_pipeline.py`
-- `packages/sage-gateway/src/sage/gateway/routes/control_plane.py`
-- `packages/sage-common/src/sage/common/components/sage_llm/api_server.py`
+- `packages/sage-llm-core/src/sage/llm/control_plane/manager.py`
+- `packages/sage-llm-core/src/sage/llm/control_plane/engine_lifecycle.py`
+- `packages/sage-llm-gateway/src/sage/gateway/rag_pipeline.py`
+- `packages/sage-llm-gateway/src/sage/gateway/routes/control_plane.py`
+- `packages/sage-llm-core/src/sage/llm/api_server.py`
 
 ---
 
@@ -277,7 +277,7 @@ sage studio start
 
 ### 修复方案
 
-**文件**: `packages/sage-common/src/sage/common/components/sage_llm/api_server.py`
+**文件**: `packages/sage-llm-core/src/sage/llm/api_server.py`
 
 #### 1. 添加 GPU 选择函数
 
@@ -298,7 +298,7 @@ def _select_available_gpus(
         List of GPU IDs with sufficient memory, or None if not available
     """
     try:
-        from sage.common.components.sage_llm.sageLLM.control_plane import GPUResourceManager
+        from sage.llm.control_plane import GPUResourceManager
     except ImportError:
         logger.debug("GPUResourceManager not available, using default GPU selection")
         return None

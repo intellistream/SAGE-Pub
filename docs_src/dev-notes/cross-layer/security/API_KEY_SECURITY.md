@@ -23,11 +23,10 @@
 #### `.env` 文件配置
 
 ```bash
-# OpenAI API Key (for GPT models)
-# qwen-turbo API key via DashScope compatible endpoint
+# OpenAI-compatible API Key (for self-hosted/remote endpoints)
 OPENAI_API_KEY=sk-your-api-key-here
-OPENAI_BASE_URL=https://dashscope.aliyuncs.com/compatible-mode/v1
-OPENAI_MODEL_NAME=qwen-turbo-2025-02-11
+OPENAI_BASE_URL=http://localhost:8888/v1
+OPENAI_MODEL_NAME=Qwen/Qwen2.5-7B-Instruct
 ```
 
 #### 配置文件设置
@@ -36,12 +35,12 @@ OPENAI_MODEL_NAME=qwen-turbo-2025-02-11
 
 ```yaml
 generator:
-  vllm:
-    api_key: ""  # 留空，将从环境变量 OPENAI_API_KEY 读取
-    method: "openai"
-    model_name: "qwen-turbo-2025-02-11"
-    base_url: "https://dashscope.aliyuncs.com/compatible-mode/v1"
-    seed: 42
+    vllm:
+        api_key: ""  # 留空，将从环境变量 OPENAI_API_KEY 读取
+        method: "openai"
+        model_name: "Qwen/Qwen2.5-7B-Instruct"
+        base_url: "http://localhost:8888/v1"  # 推荐指向本地 Gateway/vLLM
+        seed: 42
 ```
 
 ### 2. 代码实现

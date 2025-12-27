@@ -12,12 +12,12 @@
 
 ### 1. 统一使用 UnifiedInferenceClient
 
-**文件**: `packages/sage-common/src/sage/common/components/sage_llm/unified_client.py`
+**文件**: `packages/sage-llm-core/src/sage/llm/unified_client.py`
 
 **说明**: 唯一的客户端入口，同时支持 LLM 和 Embedding。
 
 ```python
-from sage.common.components.sage_llm import UnifiedInferenceClient
+from sage.llm import UnifiedInferenceClient
 
 # 推荐：自动检测模式
 client = UnifiedInferenceClient.create()
@@ -36,9 +36,7 @@ client = UnifiedInferenceClient.create(
 
 ### 2. IntelligentLLMClient 已移除
 
-~~**文件**: `packages/sage-common/src/sage/common/components/sage_llm/client.py`~~
-
-**状态**: 已删除。请使用 `UnifiedInferenceClient.create()` 替代。
+**状态**: 已删除（旧 IntelligentLLMClient 已由 sage-llm-core 的 `UnifiedInferenceClient` 取代，参见 packages/sage-llm-core/src/sage/llm/unified_client.py）。请使用 `UnifiedInferenceClient.create()` 替代。
 
 ### 3. IntelligentEmbeddingClient 已移除
 
@@ -88,7 +86,7 @@ client = adapt_embedding_client(raw_embedder)  # 自动检测并适配
 
 **变更**:
 - 新增 LLM & Embedding 服务使用说明
-- 更新架构图（11 packages，含 sage-gateway）
+- 更新架构图（11 packages，含 sage-llm-gateway）
 - 新增常见问题：bash 感叹号问题
 
 ---

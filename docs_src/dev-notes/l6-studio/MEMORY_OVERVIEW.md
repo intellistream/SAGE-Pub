@@ -1,6 +1,6 @@
 # Studio Memory 集成概览
 
-> 适用范围：`packages/sage-studio` + `packages/sage-gateway` 主干代码（2025-11）。本说明合并了原「集成改进报告」与「快速上手」内容，覆盖后端 API、前端 UI 以及配置/排障指南。
+> 适用范围：`packages/sage-studio` + `packages/sage-llm-gateway` 主干代码（2025-11）。本说明合并了原「集成改进报告」与「快速上手」内容，覆盖后端 API、前端 UI 以及配置/排障指南。
 
 ## 1. 当前架构
 
@@ -9,8 +9,8 @@
 | 模块 | 位置 | 作用 |
 | --- | --- | --- |
 | MemoryServiceFactory | `packages/sage-middleware/.../memory_service_factory.py` | 统一创建短期/向量/KV/图记忆服务 |
-| SessionManager | `packages/sage-gateway/src/sage/gateway/session/manager.py` | Gateway 会话 + 记忆生命周期管理；默认 `short_term`，可选 `vdb/kv/graph` |
-| Memory APIs | `packages/sage-gateway/src/sage/gateway/server.py` | `/memory/config`, `/memory/stats`, `/sessions/**` |
+| SessionManager | `packages/sage-llm-gateway/src/sage/gateway/session/manager.py` | Gateway 会话 + 记忆生命周期管理；默认 `short_term`，可选 `vdb/kv/graph` |
+| Memory APIs | `packages/sage-llm-gateway/src/sage/gateway/server.py` | `/memory/config`, `/memory/stats`, `/sessions/**` |
 | Memory UI | `packages/sage-studio/src/sage/studio/frontend/src/components/MemorySettings.tsx` | 设置页中的“记忆管理”卡片 |
 | API Client | `packages/sage-studio/src/sage/studio/frontend/src/services/api.ts` | `getMemoryConfig`, `getMemoryStats` 请求代理 |
 
@@ -29,7 +29,7 @@
 # 1. 启动 Studio（默认会自动启动 gateway）
 sage studio start
 # 或仅启动 gateway 调试
-python -m sage.gateway.server
+python -m sage.llm.gateway.server
 ```
 
 浏览器访问 `http://localhost:5173` → 右上角齿轮 → “记忆管理”页签。
@@ -61,7 +61,7 @@ export SAGE_MEMORY_BACKEND=graph
 #### 方式 B：直接构造 `SessionManager`
 
 ```python
-from sage.gateway.session.manager import SessionManager
+from sage.llm.gateway.session.manager import SessionManager
 
 manager = SessionManager(
     max_memory_dialogs=10,
@@ -114,7 +114,7 @@ curl -X POST "http://localhost:8000/sessions/cleanup?max_age_minutes=15"
 ### API 验证（Python）
 
 ```python
-from sage.gateway.session.manager import SessionManager
+from sage.llm.gateway.session.manager import SessionManager
 
 manager = SessionManager(max_memory_dialogs=3)
 session = manager.create_session(title="demo")

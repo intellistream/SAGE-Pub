@@ -11,7 +11,7 @@
 ### 层级定位
 
 ```
-L6: sage-cli, sage-gateway    # 使用 IndexBuilder
+L6: sage-cli, sage-llm-gateway    # 使用 IndexBuilder
     │
     ▼
 L4: sage-middleware           # IndexBuilder 定义

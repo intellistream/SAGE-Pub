@@ -2,7 +2,7 @@
 # L6 层文档清理报告
 
 **Date**: 2025-11-29
-**Task**: Task 3 - L6 层文档清理 (sage-cli, sage-tools, sage-studio, sage-gateway)
+**Task**: Task 3 - L6 层文档清理 (sage-cli, sage-tools, sage-studio, sage-llm-gateway)
 **Author**: SAGE Development Team
 
 ---

@@ -69,6 +69,6 @@
 
 - L1 层 Control Plane 增强与 Gateway 统一任务：`dev-notes/l1-common/control-plane-roadmap-tasks.md`、`dev-notes/l1-common/unified-gateway-tasks.md`、`dev-notes/l1-common/control-plane-enhancement.md`、`dev-notes/l1-common/PR-unified-gateway.md`
 - 包架构与层级说明：`dev-notes/package-architecture.md`
-- Gateway 与 Control Plane 公开接口说明：参见 `packages/sage-gateway/src/sage/gateway/` 与相关指南文档。
+- Gateway 与 Control Plane 公开接口说明：参见 `packages/sage-llm-gateway/src/sage/gateway/` 与相关指南文档。
 
 ```

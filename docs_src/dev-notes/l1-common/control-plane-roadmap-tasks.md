@@ -81,10 +81,10 @@ def create(
 - 更新所有调用方（examples/, tests/, 其他包）
 
 ## 修改文件
-- `packages/sage-common/src/sage/common/components/sage_llm/unified_client.py`
-- `packages/sage-common/src/sage/common/components/sage_llm/sageLLM/control_plane/__init__.py`
-- `packages/sage-common/src/sage/common/components/sage_llm/sageLLM/control_plane/engine_lifecycle.py`
-- `packages/sage-common/src/sage/common/components/sage_llm/sageLLM/control_plane/manager.py`
+- `packages/sage-llm-core/src/sage/llm/unified_client.py`
+- `packages/sage-llm-core/src/sage/llm/control_plane/__init__.py`
+- `packages/sage-llm-core/src/sage/llm/control_plane/engine_lifecycle.py`
+- `packages/sage-llm-core/src/sage/llm/control_plane/manager.py`
 - 所有使用旧 API 的文件（搜索 create_auto, create_with_control_plane）
 
 ## 验收标准

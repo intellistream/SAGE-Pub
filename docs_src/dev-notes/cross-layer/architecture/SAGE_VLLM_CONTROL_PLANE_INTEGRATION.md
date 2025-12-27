@@ -6,7 +6,7 @@
 
 ## 当前状态
 
-**SAGE 主项目** 目前通过 `sage.common.components.sage_llm.VLLMService` 使用 vLLM：
+**SAGE 主项目** 目前通过 `sage.llm.VLLMService` 使用 vLLM：
 - 直接调用 vLLM LLM 类进行推理
 - 单实例模式，没有负载均衡
 - 缺少智能调度、路由、PD 分离等高级功能
@@ -23,12 +23,12 @@
 
 ### 方案 1：创建 ControlPlaneVLLMService（推荐）
 
-在 `sage.common.components.sage_llm` 中添加新的服务类：
+在 `sage.llm` 中添加新的服务类：
 
 ```python
-# sage/common/components/sage_llm/control_plane_service.py
+# packages/sage-llm-core/src/sage/llm/control_plane_service.py
 from sage.common.service import BaseService
-from sage.common.components.sage_llm.sageLLM.control_plane import (
+from sage.llm.control_plane import (
     ControlPlaneManager,
     RequestMetadata,
     RequestPriority,
@@ -88,7 +88,7 @@ class ControlPlaneVLLMService(BaseService):
 在现有 `VLLMService` 中添加可选的 Control Plane 模式：
 
 ```python
-# sage/common/components/sage_llm/service.py
+# packages/sage-llm-core/src/sage/llm/api_server.py
 
 class VLLMService(BaseService):
     def __init__(self, config: dict[str, Any]):
@@ -103,9 +103,8 @@ class VLLMService(BaseService):
             self._embedding_engine = None
 
     def _init_control_plane(self):
-        from sage.common.components.sage_llm.sageLLM.control_plane import (
-            ControlPlaneManager
-        )
+        from sage.llm.control_plane import ControlPlaneManager
+
         self.control_plane = ControlPlaneManager(...)
 ```
 
@@ -113,19 +112,20 @@ class VLLMService(BaseService):
 
 ### 1. 新增文件
 ```
-packages/sage-common/src/sage/common/components/sage_llm/
+packages/sage-llm-core/src/sage/llm/
 ├── control_plane_service.py  # 新的 Control Plane 服务
 └── __init__.py               # 更新导出
 ```
 
 ### 2. 更新文件
 ```
-packages/sage-common/src/sage/common/components/sage_llm/
-├── __init__.py               # 添加 ControlPlaneVLLMService 导出
-└── service.py                # （可选）扩展现有服务
+packages/sage-llm-core/src/sage/llm/
+├── __init__.py               # 导出 Control Plane / VLLM 服务入口
+├── control_plane_service.py  # Control Plane 服务入口
+└── api_server.py             # vLLM 服务包装（Control Plane 模式）
 
 packages/sage-common/src/sage/common/components/__init__.py
-└── 添加 ControlPlaneVLLMService 导出
+└── 移除已迁移的 sage_llm 导出
 
 docs-public/docs_src/
 ├── api-reference/common/index.md  # 更新 API 文档

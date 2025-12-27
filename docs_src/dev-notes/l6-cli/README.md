@@ -85,7 +85,7 @@ sage-dev
 
 为方便一次性启动“一组 LLM + Embedding 引擎”，CLI 侧设计了 `sage llm preset` 命令族，与 Control Plane 的 `EngineStartRequest` / `/v1/management/engines` 接口联动：
 
-- **Presets 描述**：使用简单的 YAML 文件（存放在 `sage.common.components.sage_llm/presets/`），声明多个引擎及其元数据（`kind=llm|embedding`、模型、并行度、端口、标签、metadata 等）。
+- **Presets 描述**：使用简单的 YAML 文件（存放在 `sage.llm/presets/`），声明多个引擎及其元数据（`kind=llm|embedding`、模型、并行度、端口、标签、metadata 等）。
 - **Engine Kind 语义**：通过 `engine_kind` 区分 `llm` 与 `embedding` 运行时，使 Control Plane 能在调度时区分 GPU 需求与请求类型。
 - **CLI 工作流**：
 	- `sage llm preset list|show`：列出内置预设并查看具体 YAML。

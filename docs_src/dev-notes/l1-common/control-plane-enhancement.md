@@ -120,11 +120,11 @@ sage llm gpu
 
 | 文件 | 用途 |
 |------|------|
-| `packages/sage-common/src/sage/common/components/sage_llm/sageLLM/control_plane/gpu_manager.py` | GPU 监控与预留 |
-| `packages/sage-common/src/sage/common/components/sage_llm/sageLLM/control_plane/engine_lifecycle.py` | 引擎进程管理 |
-| `packages/sage-common/src/sage/common/components/sage_llm/sageLLM/control_plane/manager.py` | 控制平面核心 |
-| `packages/sage-common/src/sage/common/components/sage_llm/unified_api_server.py` | REST API 网关 |
-| `packages/sage-common/src/sage/common/components/sage_llm/presets/` | 预设模型与注册表 |
+| `packages/sage-llm-core/src/sage/llm/control_plane/gpu_manager.py` | GPU 监控与预留 |
+| `packages/sage-llm-core/src/sage/llm/control_plane/engine_lifecycle.py` | 引擎进程管理 |
+| `packages/sage-llm-core/src/sage/llm/control_plane/manager.py` | 控制平面核心 |
+| `packages/sage-llm-core/src/sage/llm/unified_api_server.py` | REST API 网关 |
+| `packages/sage-llm-core/src/sage/llm/presets/` | 预设模型与注册表 |
 | `packages/sage-cli/src/sage/cli/commands/apps/llm.py` | CLI 命令实现 |
 | `docs/dev-notes/l6-cli/llm-preset-launcher.md` | 预设系统设计文档 |
 

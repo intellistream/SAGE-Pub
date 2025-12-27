@@ -15,8 +15,8 @@
 
 ### 运行流程（`sage studio start`）
 
-1. **LLM**：`ChatModeManager` 默认启用本地 vLLM 服务（`SAGE_STUDIO_LLM=true`），使用 `sage.common.components.sage_llm.LLMAPIServer` 在 `localhost:8001` 暴露 OpenAI 接口，可选 `--use-finetuned` 改为最新微调模型。
-2. **Gateway**：若未运行，自动拉起 `sage.gateway.server`（默认 8000），供前端和 Studio Backend 调用。
+1. **LLM**：`ChatModeManager` 默认启用本地 vLLM 服务（`SAGE_STUDIO_LLM=true`），使用 `sage.llm.LLMAPIServer` 在 `localhost:8001` 暴露 OpenAI 接口，可选 `--use-finetuned` 改为最新微调模型。
+2. **Gateway**：若未运行，自动拉起 `sage.llm.gateway.server`（默认 8000），供前端和 Studio Backend 调用。
 3. **Backend**：启动 FastAPI（默认 8080），提供 Flow/Playground/Finetune/Memory APIs。
 4. **Frontend**：Vite dev server（默认 5173）或生产版（build 后 3000/4173）。
 5. **Studio React UI**：通过 `/api/**`（后端代理）调用 gateway：

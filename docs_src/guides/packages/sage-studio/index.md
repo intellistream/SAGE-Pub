@@ -4,12 +4,12 @@ Interactive web console for building SAGE pipe-
 - Chat tab calls Gateway's `/v1/chat/completions`, reusing the same session IDs as the UI.
 - Built-in session list (create, rename, clear, delete) talks to Gateway's `/sessions/**` routes.
 - Memory panel (`MemorySettings.tsx`) uses `/memory/config|stats` to display backend type, short-term usage, or Neuromem collection state.
-- `UnifiedInferenceClient` automatically prefers the local LLM service; if it's unavailable, requests fall back to DashScope/OpenAI per `SAGE_CHAT_*` env vars.
+- `UnifiedInferenceClient` 优先本地 LLM；未检测到可用端点时会报错并提示启动本地服务或显式配置 `SAGE_CHAT_BASE_URL`，不再隐式回退云端。
 
 ### Fine-tuning Centerb calls Gateway's `/v1/chat/completions`, reusing the same session IDs as the UI.
 - Built-in session list (create, rename, clear, delete) talks to Gateway's `/sessions/**` routes.
 - Memory panel (`MemorySettings.tsx`) uses `/memory/config|stats` to display backend type, short-term usage, or Neuromem collection state.
-- `UnifiedInferenceClient` automatically prefers the local LLM service; if it's unavailable, requests fall back to DashScope/OpenAI per `SAGE_CHAT_*` env vars.s, managing local LLM services, and running chat + fine-tuning workflows.
+- `UnifiedInferenceClient` 优先本地 LLM；未检测到可用端点时会报错并提示启动本地服务或显式配置 `SAGE_CHAT_BASE_URL`，不会自动回退云端。
 
 **Layer**: L6 (Interface) · **Package**: `packages/sage-studio`
 
@@ -18,7 +18,7 @@ Interactive web console for building SAGE pipe-
 Studio bundles four major experiences in a single CLI-driven service:
 
 - **Visual Flow Editor** – drag-and-drop pipelines backed by `PipelineBuilder` + `NodeRegistry`.
-- **Playground / Chat Mode** – OpenAI-compatible chat UI on top of `sage-gateway`, including memory inspection and session tools.
+- **Playground / Chat Mode** – OpenAI-compatible chat UI on top of `sage-llm-gateway`, including memory inspection and session tools.
 - **Fine-tuning Center** – upload datasets, launch finetune jobs, monitor GPU usage, and hot-swap models without leaving the browser.
 - **Local LLM Orchestration** – `ChatModeManager` can start/stop a vLLM server (port 8001) and fall back to cloud APIs automatically.
 
@@ -47,7 +47,7 @@ All flows share one CLI entrypoint (`sage studio ...`) that supervises the front
    └────────────┬────────────┘  │
                 │               │
         ┌───────┴───────┐  ┌────┴──────────────────────┐
-        │ sage-gateway  │  │ Finetune Manager (L6 svc) │
+        │ sage-llm-gateway  │  │ Finetune Manager (L6 svc) │
         │ /v1/chat/...  │  │ Task queue + GPU detect   │
         └───────┬───────┘  └────────────┬──────────────┘
                 │                       │
@@ -71,7 +71,7 @@ All flows share one CLI entrypoint (`sage studio ...`) that supervises the front
 - Chat tab calls Gateway’s `/v1/chat/completions`, reusing the same session IDs as the UI.
 - Built-in session list (create, rename, clear, delete) talks to Gateway’s `/sessions/**` routes.
 - Memory panel (`MemorySettings.tsx`) uses `/memory/config|stats` to display backend type, short-term usage, or Neuromem collection state.
-- `UnifiedInferenceClient` automatically prefers the local LLM service; if it’s unavailable, requests fall back to DashScope/OpenAI per `SAGE_CHAT_*` env vars.
+- `UnifiedInferenceClient` 优先本地 LLM；如果不可用需显式配置 `SAGE_CHAT_BASE_URL` 或启动本地服务，不会自动回退云端。
 
 ### Fine-tuning Center
 
@@ -83,7 +83,7 @@ All flows share one CLI entrypoint (`sage studio ...`) that supervises the front
 ### Local LLM orchestration
 
 - CLI flag `--llm/--no-llm` controls whether a vLLM server launches.
-- `ChatModeManager._start_llm_service()` wraps `LLMAPIServer` (from `sage.common.components.sage_llm`) and binds to port 8001.
+- `ChatModeManager._start_llm_service()` wraps `LLMAPIServer` (from `sage.llm`) and binds to port 8001.
 - Automatic cache lookup via `vllm_registry` accelerates model startup; environment variables `SAGE_STUDIO_LLM_MODEL`, `SAGE_STUDIO_LLM_GPU_MEMORY`, `SAGE_CHAT_MODEL` override defaults.
 - Orphaned processes are cleaned up via `lsof + kill` if Studio restarts unexpectedly.
 
@@ -118,7 +118,7 @@ Useful flags:
 --host 0.0.0.0         # bind externally
 --port 5173            # frontend port (dev mode)
 --backend-port 8080    # FastAPI backend
---gateway-port 8000    # sage-gateway (OpenAI API)
+--gateway-port 8000    # sage-llm-gateway (OpenAI API)
 --no-llm             # skip local vLLM service (enabled by default)
 --llm-model <name>     # override default model
 --use-finetuned        # auto-select latest finetuned model
@@ -142,7 +142,7 @@ pnpm dev      # http://localhost:5173
 Start Gateway separately if you only need the API:
 
 ```bash
-python -m sage.gateway.server  # http://localhost:8000
+python -m sage.llm.gateway.server  # http://localhost:8000
 ```
 
 ## Fine-tuning workflow
@@ -189,7 +189,11 @@ pipeline = VisualPipeline(
     nodes=[
         VisualNode(id="source", type="file", config={"path": "docs.md"}),
         VisualNode(id="retriever", type="rag.retriever", config={"collection": "docs"}),
-        VisualNode(id="generator", type="rag.generator", config={"model": "dashscope.qwen-max"}),
+        VisualNode(
+            id="generator",
+            type="rag.generator",
+            config={"model": "Qwen/Qwen2.5-7B-Instruct"},
+        ),
     ],
     connections=[
         ("source", "retriever"),

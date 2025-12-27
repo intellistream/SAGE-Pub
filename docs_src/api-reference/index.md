@@ -14,7 +14,7 @@ API 文档按照 SAGE 的 **L1-L6 分层架构**组织，帮助您快速找到�
 
 | 常量 | 端口 | 用途 |
 |------|------|------|
-| `GATEWAY_DEFAULT` | 8000 | sage-gateway (OpenAI 兼容 API Gateway) |
+| `GATEWAY_DEFAULT` | 8000 | sage-llm-gateway (OpenAI 兼容 API Gateway) |
 | `LLM_DEFAULT` | 8001 | vLLM 推理服务 |
 | `LLM_WSL_FALLBACK` | 8901 | WSL2 备用 LLM 端口 |
 | `STUDIO_BACKEND` | 8080 | sage-studio 后端 API |
@@ -39,9 +39,9 @@ port = SagePorts.get_recommended_llm_port()  # 自动检测 WSL2 并选择合适
 
 | 变量 | 用途 | 何时需要真实 Key |
 |------|------|-----------------|
-| `OPENAI_API_KEY` | OpenAI / DashScope API 调用 | 使用云端 API 时 |
+| `OPENAI_API_KEY` | OpenAI 兼容 API 调用 | 使用云端/自托管 OpenAI 兼容服务时 |
 | `HF_TOKEN` | HuggingFace 模型下载 | 下载私有模型时 |
-| `SAGE_CHAT_*` | Gateway/Studio 降级云端 LLM | 本地 vLLM 不可用时 |
+| `SAGE_CHAT_*` | Gateway/Studio LLM 访问密钥 | 本地 vLLM/Gateway 需要鉴权时 |
 | `VLLM_API_KEY` | 本地 vLLM 认证 | 本地开发可用 `token-abc123` |
 
 **本地开发 Mock**: 如果仅测试框架逻辑，可设置 mock 值或使用本地模型。
@@ -56,7 +56,7 @@ port = SagePorts.get_recommended_llm_port()  # 自动检测 WSL2 并选择合适
 
 **主要模块**：
 - `sage.common.core` - 核心类型和异常
-- `sage.common.components.sage_llm` - **UnifiedInferenceClient** ⭐ (LLM + Embedding 统一客户端)
+- `sage.llm` - **UnifiedInferenceClient** ⭐ (LLM + Embedding 统一客户端)
 - `sage.common.components.sage_embedding` - **EmbeddingFactory** (Embedding 服务)
 - `sage.common.config.ports` - **SagePorts** ⭐ (统一端口配置)
 - `sage.common.utils` - 日志、序列化等工具
@@ -161,7 +161,7 @@ API 文档通过以下方式自动生成：
 **Python 方式**:
 
 ```python
-from sage.common.components.sage_llm import UnifiedInferenceClient
+from sage.llm import UnifiedInferenceClient
 from sage.common.config.ports import SagePorts
 
 # Auto-detect available services

@@ -2,7 +2,7 @@
 
 ## 🎯 目标
 
-解决 `sage chat` 和 `sage-gateway` 之间的代码重复问题，实现 RAG 索引构建逻辑的共享。
+解决 `sage chat` 和 `sage-llm-gateway` 之间的代码重复问题，实现 RAG 索引构建逻辑的共享。
 
 ## ✅ 已完成的工作
 
@@ -105,9 +105,9 @@ class IndexBuilder:
 
 **代码简化**: ~120 行 → ~80 行（减少 33%）
 
-### 5. 增强 sage-gateway (L6)
+### 5. 增强 sage-llm-gateway (L6)
 
-**修改**: `packages/sage-gateway/src/sage/gateway/adapters/openai.py`
+**修改**: `packages/sage-llm-gateway/src/sage/gateway/adapters/openai.py`
 
 **新增功能**:
 - ✅ `_ensure_index_ready()` - 启动时自动检查/构建索引
@@ -115,7 +115,7 @@ class IndexBuilder:
 - ✅ 自动检测文档源路径
 - ✅ 使用 ChromaVectorStoreAdapter
 
-**修改**: `packages/sage-gateway/src/sage/gateway/server.py`
+**修改**: `packages/sage-llm-gateway/src/sage/gateway/server.py`
 
 **新增 API**:
 - ✅ `GET /admin/index/status` - 查看索引状态
@@ -127,7 +127,7 @@ class IndexBuilder:
 ### 之前 (代码重复)
 
 ```
-sage-cli/chat.py               sage-gateway/openai.py
+sage-cli/chat.py               sage-llm-gateway/openai.py
      ├── iter_markdown_files       ├── (缺失)
      ├── parse_markdown_sections   ├── (缺失)
      ├── chunk_text                ├── (缺失)
@@ -155,7 +155,7 @@ L4: sage-middleware/operators/rag/index_builder/
            ↑
            │ (import)
            │
-L6: sage-cli/chat.py + sage-gateway/openai.py
+L6: sage-cli/chat.py + sage-llm-gateway/openai.py
     └── 使用 IndexBuilder + 注入 backend
 ```
 
@@ -231,9 +231,9 @@ builder = IndexBuilder(backend_factory=backend_factory)
    sage chat ingest --source docs-public/docs_src
    ```
 
-3. **测试 sage-gateway**:
+3. **测试 sage-llm-gateway**:
    ```bash
-   sage-gateway start
+   sage-llm-gateway start
    curl http://localhost:8000/admin/index/status
    curl -X POST http://localhost:8000/admin/index/build
    ```
@@ -258,8 +258,8 @@ builder = IndexBuilder(backend_factory=backend_factory)
 ### 修改文件
 1. `packages/sage-common/src/sage/common/utils/__init__.py` (+15 行)
 2. `packages/sage-cli/src/sage/cli/commands/apps/chat.py` (-72 行重复代码, +80 行使用 IndexBuilder)
-3. `packages/sage-gateway/src/sage/gateway/adapters/openai.py` (+140 行)
-4. `packages/sage-gateway/src/sage/gateway/server.py` (+130 行 API)
+3. `packages/sage-llm-gateway/src/sage/gateway/adapters/openai.py` (+140 行)
+4. `packages/sage-llm-gateway/src/sage/gateway/server.py` (+130 行 API)
 5. `packages/sage-libs/src/sage/libs/integrations/__init__.py` (+2 行导出)
 
 ### 总计

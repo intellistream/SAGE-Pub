@@ -1,11 +1,11 @@
 # L6 Gateway Dev Notes
 
-该文档追踪 `packages/sage-gateway` (L6) 的最新架构与运行约定，优先记录**当前代码已经实现且在 Studio/CLI 中可用的能力**，避免与实现脱节。
+该文档追踪 `packages/sage-llm-gateway` (L6) 的最新架构与运行约定，优先记录**当前代码已经实现且在 Studio/CLI 中可用的能力**，避免与实现脱节。
 
 ## 范围与职责
 - 对外暴露 OpenAI 兼容 API（`/v1/chat/completions`）以及会话/索引管理接口。
 - 将请求编排为 SAGE DataStream/RAG 流水线，复用 L3-L4 能力（`sage-kernel`, `sage-middleware`）。
-- 为 Studio Chat/Canvas 提供默认后端，并可独立启动 (`sage-gateway --host ...`).
+- 为 Studio Chat/Canvas 提供默认后端，并可独立启动 (`sage-llm-gateway --host ...`).
 
 以下内容**暂未在主干中落地**，因此不在当前说明范围：Anthropic `/v1/messages`、WebSocket 接口、外部多租户认证。
 
@@ -47,7 +47,7 @@
 - `sage studio start` 默认：
 	- 检测本地 Gateway 是否运行，未运行则以 CLI 方式启动。
 	- 前端 Chat 模式调用 `http://{gateway-host}:{port}/v1/chat/completions`，会话管理通过 `/sessions/**` REST API。
-- 独立部署：`sage-gateway --host 0.0.0.0 --port 8000` 或 `python -m sage.gateway.server`。
+- 独立部署：`sage-llm-gateway --host 0.0.0.0 --port 8000` 或 `python -m sage.llm.gateway.server`。
 
 ## REST API 端点清单
 
@@ -73,7 +73,7 @@
 - **健康检查**：`GET /health` 返回 session 统计；Studio 依赖该接口判定是否联通。
 - **Session 清理**：`POST /sessions/cleanup?max_age_minutes=30`，或直接调用 `/sessions/{id}/clear`、`DELETE /sessions/{id}`。
 - **日志**：`logging.basicConfig(level=INFO)`，可通过 `SAGE_GATEWAY_LOG_LEVEL` 调整。
-- **LLM 后端降级**：`OpenAIAdapter._fallback_direct_llm()` 在 RAG Pipeline 异常时直接调用 UnifiedInferenceClient，根据 `SAGE_CHAT_*` 环境变量自动选择 DashScope / OpenAI / vLLM / Ollama。
+- **LLM 后端降级**：`OpenAIAdapter._fallback_direct_llm()` 在 RAG Pipeline 异常时直接调用 UnifiedInferenceClient，根据 `SAGE_CHAT_*` 环境变量自动选择本地 Gateway/vLLM，必要时才回退到 OpenAI 兼容云端。
 
 ## 后续更新指引
 - 当 Gateway 新增路由或支持 Anthropic/WebSocket，需要同步在“请求执行路径”和“运维”两节补充。

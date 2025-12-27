@@ -198,12 +198,12 @@ ______________________________________________________________________
 
 #### `OpenAIGenerator`
 
-调用与 OpenAI API 兼容的端点（如 VLLM, DashScope）进行文本生成。
+调用与 OpenAI API 兼容的端点（如本地 Gateway 或 vLLM）进行文本生成。
 
 - **核心功能**: 向指定模型端点发送提示词并返回生成结果。
 - **输入**: `List` - `[user_query, prompt]` 或 `[prompt]`。
 - **输出**: `Tuple[str, str]` - `(user_query, generated_text)`。
-- **用例**: RAG 流水线的最后一步，整合精炼后的上下文和原始查询，生成用户可读的答案。可以连接到 OpenAI, VLLM, DashScope 等服务。
+- **用例**: RAG 流水线的最后一步，整合精炼后的上下文和原始查询，生成用户可读的答案。可以连接到 OpenAI 兼容的本地 Gateway、vLLM 或其他同类服务。
 - **配置要求**:
   - `method` (str): 调用方法，如 "openai"。
   - `model_name` (str): 模型名称，如 "gpt-4o-mini"。
@@ -216,7 +216,7 @@ ______________________________________________________________________
   `UnifiedInferenceClient` 自动发现端点。
 
   ```python
-  from sage.common.components.sage_llm import UnifiedInferenceClient
+  from sage.llm import UnifiedInferenceClient
   from sage.libs.rag.generator import OpenAIGenerator
 
   client = UnifiedInferenceClient.create_auto()

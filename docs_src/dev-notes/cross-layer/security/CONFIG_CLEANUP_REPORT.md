@@ -106,10 +106,10 @@ if api_key is None:  # 只在字段完全缺失时报错
 ### .env 文件示例
 
 ```bash
-# OpenAI/DashScope API Key
-OPENAI_API_KEY=sk-8298f15945af41988281d7348b008c96
-OPENAI_BASE_URL=https://dashscope.aliyuncs.com/compatible-mode/v1
-OPENAI_MODEL_NAME=qwen-turbo-2025-02-11
+# OpenAI-compatible API Key
+OPENAI_API_KEY=sk-your-api-key-here
+OPENAI_BASE_URL=http://localhost:8888/v1
+OPENAI_MODEL_NAME=Qwen/Qwen2.5-7B-Instruct
 
 # 其他服务
 ALIBABA_API_KEY=your_alibaba_key

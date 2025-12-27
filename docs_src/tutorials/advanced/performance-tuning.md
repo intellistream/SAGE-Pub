@@ -117,7 +117,7 @@ def profile_pipeline():
 SAGE 的 Control Plane 提供智能的 LLM 请求调度：
 
 ```python
-from sage.common.components.sage_llm import UnifiedInferenceClient
+from sage.llm import UnifiedInferenceClient
 from sage.common.config.ports import SagePorts
 
 # Control Plane 模式：复用 Gateway / UnifiedAPIServer
@@ -136,7 +136,7 @@ print(status)
 当需要精细化控制吞吐量与延迟时，可以直接启动 `UnifiedAPIServer`，并启用 `SchedulingPolicyType.SLO_AWARE`。下面示例展示如何在同一台机器上注册两个 LLM 实例（主/备）以及一个 Embedding 实例，全部使用 `SagePorts` 常量，避免端口漂移：
 
 ```python
-from sage.common.components.sage_llm import (
+from sage.llm import (
     UnifiedAPIServer,
     UnifiedServerConfig,
     BackendInstanceConfig,
@@ -250,7 +250,7 @@ response = client.chat(
 ### 批量嵌入
 
 ```python
-from sage.common.components.sage_llm import UnifiedInferenceClient
+from sage.llm import UnifiedInferenceClient
 
 client = UnifiedInferenceClient.create_auto()
 
@@ -435,7 +435,7 @@ client = UnifiedInferenceClient.create(
 ### 连接池复用
 
 ```python
-from sage.common.components.sage_llm import UnifiedInferenceClient
+from sage.llm import UnifiedInferenceClient
 
 # 使用单例模式复用客户端
 client = UnifiedInferenceClient.get_instance("default")

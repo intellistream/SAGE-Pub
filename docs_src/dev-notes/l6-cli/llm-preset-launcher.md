@@ -63,7 +63,7 @@ Fields:
 
 New command group: `sage llm preset`.
 
-- `sage llm preset list` — lists built-in presets stored under `packages/sage-common/src/sage/common/components/sage_llm/presets/*.yaml`.
+- `sage llm preset list` — lists built-in presets stored under `packages/sage-llm-core/src/sage/llm/presets/*.yaml`.
 - `sage llm preset show <name>` — prints the YAML (or JSON) so users know what will start.
 - `sage llm preset apply <name>` — sequentially calls `/v1/management/engines` for each engine in the preset.
 - `sage llm preset apply --file ./custom.yaml` — run any custom descriptor.

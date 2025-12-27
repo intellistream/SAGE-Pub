@@ -125,5 +125,5 @@ esac
 ## 5. 后续计划
 
 - 为 `sage-kernel`, `sage-libs`, `sage-middleware` 编写覆盖率基准，确保 `codecov.yml` 的下限生效。
-- 继续扩充 `pip-installation-test.yml` 中的导入矩阵（如 `sage-studio`, `sage-gateway`）。
+- 继续扩充 `pip-installation-test.yml` 中的导入矩阵（如 `sage-studio`, `sage-llm-gateway`）。
 - 考虑在 `sage-dev project test` 增加 `--min-coverage` 阈值参数，让 CI 在覆盖率下降时直接失败。

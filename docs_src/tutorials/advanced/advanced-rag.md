@@ -26,7 +26,7 @@
 `UnifiedInferenceClient` 是 SAGE 推荐的统一推理客户端，支持 LLM Chat/Generate 和 Embedding 两种能力：
 
 ```python
-from sage.common.components.sage_llm import UnifiedInferenceClient
+from sage.llm import UnifiedInferenceClient
 
 # 方式 1: Control Plane First（自动探测本地/云端）
 client = UnifiedInferenceClient.create()
@@ -99,7 +99,7 @@ from sage.kernel.api.local_environment import LocalEnvironment
 from sage.common.core.functions.batch_function import BatchFunction
 from sage.common.core.functions.map_function import MapFunction
 from sage.common.core.functions.sink_function import SinkFunction
-from sage.common.components.sage_llm import UnifiedInferenceClient
+from sage.llm import UnifiedInferenceClient
 
 # 初始化统一客户端（自动探测）
 client = UnifiedInferenceClient.create()
@@ -217,7 +217,7 @@ if __name__ == "__main__":
 ### 并行检索多个知识库
 
 ```python
-from sage.common.components.sage_llm import UnifiedInferenceClient
+from sage.llm import UnifiedInferenceClient
 
 client = UnifiedInferenceClient.create_auto()
 
@@ -406,7 +406,7 @@ class HybridRetriever(MapFunction):
 对于高并发场景，推荐使用 Control Plane 模式：
 
 ```python
-from sage.common.components.sage_llm import UnifiedInferenceClient
+from sage.llm import UnifiedInferenceClient
 from sage.common.config.ports import SagePorts
 
 # 使用 Control Plane 模式获得智能调度

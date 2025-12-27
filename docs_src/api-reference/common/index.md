@@ -24,7 +24,7 @@ The recommended way to interact with LLM and Embedding services:
 **Python 方式**:
 
 ```python
-from sage.common.components.sage_llm import UnifiedInferenceClient
+from sage.llm import UnifiedInferenceClient
 from sage.common.config.ports import SagePorts
 
 # Auto-detect available services (Simple mode)
@@ -121,7 +121,7 @@ Centralized port configuration to avoid conflicts:
 from sage.common.config.ports import SagePorts
 
 # Standard port allocation
-SagePorts.GATEWAY_DEFAULT      # 8000 - sage-gateway (OpenAI-compatible API)
+SagePorts.GATEWAY_DEFAULT      # 8000 - sage-llm-gateway (OpenAI-compatible API)
 SagePorts.LLM_DEFAULT          # 8001 - vLLM inference service
 SagePorts.STUDIO_BACKEND       # 8080 - sage-studio backend
 SagePorts.STUDIO_FRONTEND      # 5173 - sage-studio frontend (Vite)
@@ -139,7 +139,7 @@ if SagePorts.is_available(8001):
 
 | 常量 | 端口 | 说明 |
 |------|------|------|
-| `SagePorts.GATEWAY_DEFAULT` | 8000 | UnifiedAPIServer / sage-gateway OpenAI 兼容接口 |
+| `SagePorts.GATEWAY_DEFAULT` | 8000 | UnifiedAPIServer / sage-llm-gateway OpenAI 兼容接口 |
 | `SagePorts.LLM_DEFAULT` | 8001 | vLLM 推理服务（WSL2 可能不可用） |
 | `SagePorts.LLM_WSL_FALLBACK` / `BENCHMARK_LLM` | 8901 | WSL2 推荐端口、benchmark LLM |
 | `SagePorts.EMBEDDING_DEFAULT` | 8090 | Embedding Server（`sage llm serve --with-embedding` 默认值） |
@@ -200,11 +200,11 @@ region = get_network_region()       # "china" | "international"
 
 | 变量 | 示例 | 何时需要真实 Key |
 |------|------|------------------|
-| `SAGE_CHAT_API_KEY` | `sk-dashscope...` | 当本地 `SagePorts` 未找到 LLM，需回退云端（DashScope/OpenAI）时必填。|
-| `SAGE_CHAT_MODEL` / `SAGE_CHAT_BASE_URL` | `qwen-turbo-2025-02-11` / `https://dashscope.aliyuncs.com/compatible-mode/v1` | 本地/云端均可设置，用于覆盖自动探测模型名。|
+| `SAGE_CHAT_API_KEY` | `sk-xxx` | 当 Gateway/vLLM 需要鉴权或回退到远端 OpenAI 兼容端点时填写。|
+| `SAGE_CHAT_MODEL` / `SAGE_CHAT_BASE_URL` | `Qwen/Qwen2.5-7B-Instruct` / `http://localhost:8888/v1` | 本地/云端均可设置，用于覆盖自动探测模型名与端点。|
 | `SAGE_EMBEDDING_BASE_URL` / `SAGE_EMBEDDING_MODEL` | `http://localhost:8090/v1` / `BAAI/bge-m3` | 自定义 Embedding 服务端点。|
 | `SAGE_LLM_PORT` / `SAGE_EMBEDDING_PORT` | `8001` / `8090` | `sage llm serve` 会在写入配置文件时同步更新，可在 CI 中强制指定端口。|
-| `OPENAI_API_KEY` / `OPENAI_BASE_URL` | `sk-...` / `https://api.openai.com/v1` | 直接调用 OpenAI 官方 API 时使用；对 DashScope 兼容模式同样有效。|
+| `OPENAI_API_KEY` / `OPENAI_BASE_URL` | `sk-...` / `https://api.openai.com/v1` | 直接调用 OpenAI 兼容 API 时使用（可指向自托管或官方服务）。|
 | `HF_TOKEN` / `HF_ENDPOINT` | `hf_xxx` / `https://hf-mirror.com` | 下载 HuggingFace 模型（`ensure_hf_mirror_configured()` 会在大陆网络自动设置镜像）。|
 
 > **本地开发 (GPU)**：优先运行 `sage llm serve --model <LLM> --embedding-model <Embedding>`，无需云端 Key，仅需 `HF_TOKEN` 用于模型下载。
@@ -219,14 +219,14 @@ Control Plane first 客户端：统一提供 `chat()`、`generate()`、`embed()`
 
 | 创建方式 | 示例 | 说明 |
 |----------|------|------|
-| 默认自动探测 | `UnifiedInferenceClient.create()` | 优先本地 `SagePorts` 端口 → `SAGE_*` 环境变量 → DashScope/OpenAI 云 API。 |
+| 默认自动探测 | `UnifiedInferenceClient.create()` | 优先本地 `SagePorts` 端口 → `SAGE_*` 环境变量 → OpenAI 兼容云 API（仅在本地不可用时）。 |
 | 外部 Control Plane | `create(control_plane_url="http://localhost:8000/v1")` | 复用 UnifiedAPIServer / Gateway，享受现有调度策略。 |
 | 内嵌模式 | `create(embedded=True)` | 在进程内运行控制面，适合批处理脚本或 CI。 |
 | 按模型创建 | `create_for_model("Qwen/Qwen2.5-7B-Instruct")` | 调用管理 API 自动拉起/复用 vLLM 引擎，确保 SLA。 |
 
 > `sage llm serve` 负责在 `SagePorts.LLM_DEFAULT/EMBEDDING_DEFAULT` 上托管 OpenAI 兼容接口；`UnifiedInferenceClient.create()` 会自动连接这些端点。若不想启服务，可直接使用 `EmbeddingFactory` + `EmbeddingClientAdapter` 获得批量 embed 接口。
 
-::: sage.common.components.sage_llm.unified_client
+::: sage.llm.unified_client
     options:
       show_root_heading: true
       show_source: false
@@ -239,7 +239,7 @@ Control Plane first 客户端：统一提供 `chat()`、`generate()`、`embed()`
 
 #### vLLM Service
 
-::: sage.common.components.sage_llm.service
+::: sage.llm.service
     options:
       show_root_heading: true
       show_source: false
@@ -249,7 +249,7 @@ Control Plane first 客户端：统一提供 `chat()`、`generate()`、`embed()`
 
 #### Control Plane Service
 
-::: sage.common.components.sage_llm.control_plane_service
+::: sage.llm.control_plane_service
     options:
       show_root_heading: true
       show_source: false
@@ -259,7 +259,7 @@ Control Plane first 客户端：统一提供 `chat()`、`generate()`、`embed()`
 
 #### Unified API Server
 
-::: sage.common.components.sage_llm.unified_api_server
+::: sage.llm.unified_api_server
     options:
       show_root_heading: true
       show_source: false
@@ -272,7 +272,7 @@ Control Plane first 客户端：统一提供 `chat()`、`generate()`、`embed()`
 
 #### Compatibility Adapters ⭐ NEW
 
-::: sage.common.components.sage_llm.compat
+::: sage.llm.compat
     options:
       show_root_heading: true
       show_source: false
@@ -285,7 +285,7 @@ Control Plane first 客户端：统一提供 `chat()`、`generate()`、`embed()`
 Adapters for integrating with legacy code:
 
 ```python
-from sage.common.components.sage_llm import (
+from sage.llm import (
     EmbeddingClientAdapter,
     create_embedding_client_compat
 )
@@ -443,7 +443,7 @@ vectors = embedding.encode_batch(texts)
 ### Using vLLM Service
 
 ```python
-from sage.common.components.sage_llm import VLLMService
+from sage.llm import VLLMService
 
 # Initialize vLLM service
 vllm = VLLMService(

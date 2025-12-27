@@ -19,7 +19,7 @@
 │ └── Task 1B: 动态后端发现                                                    │
 ├─────────────────────────────────────────────────────────────────────────────┤
 │ 任务组 2: Gateway 统一                                                       │
-│ ├── Task 2A: sage-gateway 集成 Control Plane + 移除 UnifiedAPIServer        │
+│ ├── Task 2A: sage-llm-gateway 集成 Control Plane + 移除 UnifiedAPIServer        │
 │ └── Task 2B: CLI 命令统一 (sage gateway + 更新 sage llm/studio)              │
 ├─────────────────────────────────────────────────────────────────────────────┤
 │ 任务组 3: 测试与文档                                                          │
@@ -101,7 +101,7 @@
 - sageLLM/control_plane/manager.py: 添加 get_registered_backends()
 - unified_api_server.py: 添加 GET /v1/management/backends
 
-注意: unified_api_server.py 的改动是临时的，任务组 2 会将这些端点迁移到 sage-gateway。
+注意: unified_api_server.py 的改动是临时的，任务组 2 会将这些端点迁移到 sage-llm-gateway。
 ```
 
 **目标**: 实现后端动态发现和自动故障转移
@@ -125,51 +125,51 @@
 > **前置条件**: 任务组 1 完成
 > **预计耗时**: 4-5 小时
 
-### Task 2A: sage-gateway 集成 Control Plane + 移除 UnifiedAPIServer
+### Task 2A: sage-llm-gateway 集成 Control Plane + 移除 UnifiedAPIServer
 
 **提示词**:
 ```
-你正在将 Control Plane 功能迁移到 sage-gateway，并移除 UnifiedAPIServer。
+你正在将 Control Plane 功能迁移到 sage-llm-gateway，并移除 UnifiedAPIServer。
 
 当前状态:
-- sage-gateway: 会话管理、RAG、Chat 代理，无 Control Plane
+- sage-llm-gateway: 会话管理、RAG、Chat 代理，无 Control Plane
 - UnifiedAPIServer: LLM/Embedding 代理 + Control Plane，需要移除
 
 需要实现:
-1. 在 sage-gateway 中创建 control_plane.py 路由模块
-2. 迁移所有 Control Plane 端点到 sage-gateway:
+1. 在 sage-llm-gateway 中创建 control_plane.py 路由模块
+2. 迁移所有 Control Plane 端点到 sage-llm-gateway:
    - GET /v1/management/engines
    - POST /v1/management/engines/start
    - POST /v1/management/engines/stop
    - POST /v1/management/engines/register
    - GET /v1/management/backends
    - GET /v1/management/gpu
-3. 添加 LLM/Embedding 代理路由 (如果 sage-gateway 没有)
+3. 添加 LLM/Embedding 代理路由 (如果 sage-llm-gateway 没有)
 4. 删除 unified_api_server.py 文件
 5. 更新 sage-common 的 __init__.py 导出
 
 关键文件:
-- packages/sage-gateway/src/sage/gateway/routes/control_plane.py: 新建
-- packages/sage-gateway/src/sage/gateway/app.py: 挂载 Control Plane 路由
-- packages/sage-common/src/sage/common/components/sage_llm/unified_api_server.py: 删除
-- packages/sage-common/src/sage/common/components/sage_llm/__init__.py: 移除导出
+- packages/sage-llm-gateway/src/sage/gateway/routes/control_plane.py: 新建
+- packages/sage-llm-gateway/src/sage/gateway/app.py: 挂载 Control Plane 路由
+- packages/sage-llm-core/src/sage/llm/unified_api_server.py: 删除
+- packages/sage-llm-core/src/sage/llm/__init__.py: 移除导出
 ```
 
-**目标**: 将 Control Plane 迁移到 sage-gateway，删除 UnifiedAPIServer
+**目标**: 将 Control Plane 迁移到 sage-llm-gateway，删除 UnifiedAPIServer
 
 **改动范围**:
 | 文件 | 改动 |
 |------|------|
-| `sage-gateway/src/sage/gateway/routes/control_plane.py` | 新建，所有 Control Plane 端点 |
-| `sage-gateway/src/sage/gateway/app.py` | 挂载 Control Plane 路由 |
-| `sage-gateway/pyproject.toml` | 添加对 sage-common 的依赖 |
+| `sage-llm-gateway/src/sage/gateway/routes/control_plane.py` | 新建，所有 Control Plane 端点 |
+| `sage-llm-gateway/src/sage/gateway/app.py` | 挂载 Control Plane 路由 |
+| `sage-llm-gateway/pyproject.toml` | 添加对 sage-common 的依赖 |
 | `sage-common/.../unified_api_server.py` | **删除** |
 | `sage-common/.../sage_llm/__init__.py` | 移除 UnifiedAPIServer 导出 |
 
 **验收标准**:
-- [ ] sage-gateway 包含所有 Control Plane 端点
+- [ ] sage-llm-gateway 包含所有 Control Plane 端点
 - [ ] unified_api_server.py 已删除
-- [ ] 现有 sage-gateway 功能不受影响
+- [ ] 现有 sage-llm-gateway 功能不受影响
 
 ---
 
@@ -187,7 +187,7 @@
    - `sage gateway logs`: 查看日志
 
 2. 更新 sage llm engine 命令:
-   - 使用 sage-gateway 的端点 (不再使用 UnifiedAPIServer)
+   - 使用 sage-llm-gateway 的端点 (不再使用 UnifiedAPIServer)
    - Gateway 未运行时提示: "请先运行 sage gateway start"
 
 3. 更新 sage studio start:
@@ -213,7 +213,7 @@
 
 **验收标准**:
 - [ ] `sage gateway start/stop/status/logs` 正常工作
-- [ ] `sage llm engine list` 使用 sage-gateway 端点
+- [ ] `sage llm engine list` 使用 sage-llm-gateway 端点
 - [ ] `sage studio start` 启动的 Gateway 包含 Control Plane
 
 ---
@@ -237,7 +237,7 @@
 5. 故障转移: 后端下线时请求路由到其他后端
 
 测试文件:
-- packages/sage-gateway/tests/integration/test_control_plane.py
+- packages/sage-llm-gateway/tests/integration/test_control_plane.py
 - packages/sage-common/tests/integration/test_dynamic_discovery.py
 
 使用 pytest + httpx 进行异步测试，Mock vLLM 服务。
@@ -248,7 +248,7 @@
 **改动范围**:
 | 文件 | 改动 |
 |------|------|
-| `sage-gateway/tests/integration/test_control_plane.py` | 新建 |
+| `sage-llm-gateway/tests/integration/test_control_plane.py` | 新建 |
 | `sage-common/tests/integration/test_dynamic_discovery.py` | 新建 |
 
 **验收标准**:

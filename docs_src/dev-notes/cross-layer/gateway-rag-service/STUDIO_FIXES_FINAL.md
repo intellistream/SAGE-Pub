@@ -52,7 +52,7 @@ def _make_default_config(node_type: str) -> dict[str, Any]:
     return configs.get(node_type, {})
 ```
 
-### 2. `packages/sage-gateway/src/sage/gateway/adapters/openai.py`
+### 2. `packages/sage-llm-gateway/src/sage/gateway/adapters/openai.py`
 
 **修改**: +27 行
 

@@ -13,7 +13,7 @@ SAGE Libs 是 SAGE 框架的核心算法库层（L3），其设计遵循"分层�
 SAGE Libs 位于 L3 层，严格遵循依赖方向规则：
 
 ```
-L6: sage-cli, sage-studio, sage-tools, sage-gateway  # 应用层
+L6: sage-cli, sage-studio, sage-tools, sage-llm-gateway  # 应用层
 L5: sage-apps, sage-benchmark                        # 应用与基准测试
 L4: sage-middleware                                  # 算子与编排
 L3: sage-kernel, sage-libs  ← 我们在这里           # 核心与算法

@@ -250,7 +250,7 @@ class TestTools:
     async def test_api_docs(self):
         tool = APIDocsTool()
         # 测试查询真实存在的 API
-        result = await tool.run(symbol="sage.common.components.sage_llm.UnifiedInferenceClient")
+        result = await tool.run(symbol="sage.llm.UnifiedInferenceClient")
         assert result["status"] == "success"
         assert "UnifiedInferenceClient" in result["result"]
 ```

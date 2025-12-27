@@ -129,7 +129,7 @@ STREAMING AI AGENT
 SAGE 提供 `UnifiedInferenceClient` 统一访问 LLM 和 Embedding 服务：
 
 ```python
-from sage.common.components.sage_llm import UnifiedInferenceClient
+from sage.llm import UnifiedInferenceClient
 
 # 自动检测可用的 LLM 和 Embedding 服务
 client = UnifiedInferenceClient.create_auto()

@@ -48,8 +48,8 @@ def _make_default_config(node_type: str) -> dict[str, Any]:
             "top_k": 5,
         },
         "LLM": {
-            "model_name": "qwen-max",
-            "api_base": "https://dashscope.aliyuncs.com/compatible-mode/v1",
+            "model_name": "Qwen/Qwen2.5-7B-Instruct",
+            "api_base": "http://localhost:8888/v1",
         },
         "OpenAIGenerator": {
             "model_name": "gpt-3.5-turbo",
@@ -78,7 +78,7 @@ ______________________________________________________________________
 
 ### 修复 #2: Gateway 启动阻塞
 
-**文件**: `packages/sage-gateway/src/sage/gateway/adapters/openai.py`
+**文件**: `packages/sage-llm-gateway/src/sage/gateway/adapters/openai.py`
 
 **问题**: `__init__` 中同步构建 RAG 索引，阻塞启动
 
@@ -153,7 +153,7 @@ ______________________________________________________________________
 
 ### 修复 #4: Gateway 导入路径错误
 
-**文件**: `packages/sage-gateway/src/sage/gateway/adapters/openai.py`
+**文件**: `packages/sage-llm-gateway/src/sage/gateway/adapters/openai.py`
 
 **问题**: 尝试导入不存在的 `sage.libs.io.source` 和 `sage.libs.io.sink`
 
@@ -194,7 +194,7 @@ ______________________________________________________________________
 
 ### 修复 #5: ChromaRetriever 配置格式错误
 
-**文件**: `packages/sage-gateway/src/sage/gateway/adapters/openai.py`
+**文件**: `packages/sage-llm-gateway/src/sage/gateway/adapters/openai.py`
 
 **问题**: 配置格式不匹配 `ChromaRetriever` 的期望
 
@@ -267,11 +267,11 @@ python test_chat_rag.py
 
    ```bash
    # 停止旧服务
-   pkill -f sage-gateway
+   pkill -f sage-llm-gateway
    sage studio stop
 
    # 启动新服务
-   nohup sage-gateway --host localhost --port 8000 > ~/.sage/gateway.log 2>&1 &
+   nohup sage-llm-gateway --host localhost --port 8000 > ~/.sage/gateway.log 2>&1 &
    sage studio start
    ```
 

@@ -91,7 +91,7 @@ refiner:
   platform: "local"                        # 精炼器平台
   method: "openai"                          # API方法类型
   model_name: "qwen-turbo-0919"            # 模型名称
-  base_url: "https://dashscope.aliyuncs.com/compatible-mode/v1"  # API基础URL
+  base_url: "http://localhost:8001/v1"  # 本地 OpenAI 兼容端点（SagePorts.LLM_DEFAULT）
   api_key: ""                               # API密钥
   seed: 42                                  # 随机种子
 ```
@@ -178,7 +178,7 @@ generator:
     api_key: ""                             # 远程API密钥
     method: "openai"                        # API方法
     model_name: "qwen-turbo-0919"          # 远程模型名称
-    base_url: "https://dashscope.aliyuncs.com/compatible-mode/v1"  # 远程API URL
+    base_url: "http://localhost:8001/v1"  # 本地/显式配置的 OpenAI 兼容端点
     seed: 42                                # 随机种子
 ```
 
@@ -262,7 +262,7 @@ question_bot:
   method: "openai"                          # API方法
   model_name: "qwen-turbo"                 # 模型名称
   api_key: "sk-xxx"                        # API密钥
-  base_url: "https://dashscope.aliyuncs.com/compatible-mode/v1"  # API URL
+  base_url: "http://localhost:8001/v1"  # 本地/显式配置的 OpenAI 兼容端点
 
 question_bot_sink:
   stage_directory: "question_bot"           # 阶段目录
@@ -276,7 +276,7 @@ chief_bot:
     method: "openai"                        # LLM方法
     model_name: "qwen-turbo"               # 模型名称
     api_key: "sk-xxx"                      # API密钥
-    base_url: "https://dashscope.aliyuncs.com/compatible-mode/v1"  # API URL
+    base_url: "http://localhost:8001/v1"  # 本地/显式配置的 OpenAI 兼容端点
 
 chief_bot_sink:
   stage_directory: "chief_bot"              # 阶段目录
@@ -292,7 +292,7 @@ searcher_bot:
   method: "openai"                          # API方法
   model_name: "qwen-turbo"                 # 模型名称
   api_key: "sk-xxx"                        # API密钥
-  base_url: "https://dashscope.aliyuncs.com/compatible-mode/v1"  # API URL
+  base_url: "http://localhost:8001/v1"  # 本地/显式配置的 OpenAI 兼容端点
 
 searcher_tool:
   url: "https://api.bochaai.com/v1/web-search"  # 搜索工具API
@@ -309,7 +309,7 @@ answer_bot:
   method: "openai"                          # API方法
   model_name: "qwen-turbo"                 # 模型名称
   api_key: "sk-xxx"                        # API密钥
-  base_url: "https://dashscope.aliyuncs.com/compatible-mode/v1"  # API URL
+  base_url: "http://localhost:8001/v1"  # 本地/显式配置的 OpenAI 兼容端点
 ```
 
 ## 配置文件使用场景

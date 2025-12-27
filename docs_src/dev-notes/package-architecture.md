@@ -5,7 +5,7 @@
 > 最后更新：2025-12-02（任务 A 架构文档刷新）
 >
 > **变更日志**:
-> - 2025-12-02: 补充 C++ 扩展位置信息，更新 sage-gateway 说明，统一 L6 层描述
+> - 2025-12-02: 补充 C++ 扩展位置信息，更新 sage-llm-gateway 说明，统一 L6 层描述
 > - 2025-10-23: 完整架构审查完成
 
 ## 🎉 架构审查状态
@@ -28,7 +28,7 @@
 | L6   | sage-studio     | 8      | ✅ 51    | ✅         | ✅       | -        | -           |
 | L6   | sage-cli        | 45     | ✅ 32    | ✅         | ✅       | -        | 统一 CLI 入口 |
 | L6   | sage-tools      | 106    | ✅ 78    | ✅         | ✅       | -        | 开发工具集  |
-| L6   | sage-gateway    | 8      | ✅ 37    | ✅         | ✅       | -        | PyPI: `isage-gateway` |
+| L6   | sage-llm-gateway    | 8      | ✅ 37    | ✅         | ✅       | -        | PyPI: `isage-llm-gateway` |
 
 **核心指标**:
 
@@ -51,7 +51,7 @@ SAGE 采用分层单体架构（Modular Monolith），由 **11 个独立包 + 1 
 L6: sage-studio          # Web UI 可视化接口
     sage-cli            # CLI 统一入口（集群/作业/部署管理）
     sage-tools          # 开发工具和测试框架（sage-dev CLI）
-    sage-gateway        # API Gateway (PyPI: isage-gateway, OpenAI/Anthropic 兼容)
+    sage-llm-gateway        # API Gateway (PyPI: isage-llm-gateway, OpenAI/Anthropic 兼容)
     │
 L5: sage-apps           # 特定领域应用
     sage-benchmark      # 性能基准测试
@@ -101,9 +101,9 @@ SAGE 在 L4 层包含两个主要的 C++ 扩展组件，通过 pybind11 提供 P
 │  ┌───────────────────────────────────────────────────────────────────────────────────┐  │
 │  │ L6: Interface Layer (用户接口层)                                                   │  │
 │  │ ┌─────────────┐ ┌─────────────┐ ┌─────────────┐ ┌─────────────────────────────┐   │  │
-│  │ │ sage-studio │ │  sage-cli   │ │ sage-tools  │ │      sage-gateway           │   │  │
+│  │ │ sage-studio │ │  sage-cli   │ │ sage-tools  │ │      sage-llm-gateway           │   │  │
 │  │ │   Web UI    │ │ 生产运维 CLI│ │ 开发工具    │ │ OpenAI 兼容 API Gateway     │   │  │
-│  │ │  端口: 5173 │ │cluster/job  │ │ sage-dev    │ │ PyPI: isage-gateway         │   │  │
+│  │ │  端口: 5173 │ │cluster/job  │ │ sage-dev    │ │ PyPI: isage-llm-gateway         │   │  │
 │  │ │      8080   │ │deploy/worker│ │quality/test │ │ 端口: 8000 (SagePorts)      │   │  │
 │  │ └─────────────┘ └─────────────┘ └─────────────┘ └─────────────────────────────┘   │  │
 │  └───────────────────────────────────────────────────────────────────────────────────┘  │
@@ -276,10 +276,11 @@ register_rpc_queue_factory(_rpc_queue_factory)
 **提供**:
 
 - `core`: 核心类型、异常、参数、数据结构
-- `components`: 基础组件（embedding, vllm, 向量数据库等）
+- `components`: 基础组件（embedding、向量数据库等）
 - `config`: 配置管理
 - `utils`: 通用工具函数
 - `model_registry`: 模型注册表
+- `llm` (独立包 `sage-llm-core`): 统一推理客户端与控制平面（`sage.llm.*`）
 
 **依赖**: 无
 
@@ -288,7 +289,8 @@ register_rpc_queue_factory(_rpc_queue_factory)
 ```python
 from sage.common import core, components, config, utils, model_registry
 from sage.common.core import Parameter, Record, WindowedRecord
-from sage.common.components import sage_llm, sage_embedding
+from sage.common.components import sage_embedding
+from sage.llm import UnifiedInferenceClient  # L1 控制平面/统一客户端
 ```
 
 ______________________________________________________________________
@@ -554,13 +556,13 @@ from sage.tools import dev, management, templates
 
 ______________________________________________________________________
 
-### sage-gateway (L6)
+### sage-llm-gateway (L6)
 
 **职责**: 为 Studio、CLI 以及外部客户端提供 OpenAI 兼容的 API Gateway，并将请求转换为 SAGE DataStream/RAG 流水线执行。
 
 **提供**:
 
-- `FastAPI Server` (`sage.gateway.server`)
+- `FastAPI Server` (`sage.llm.gateway.server`)
    - `/v1/chat/completions`：OpenAI Chat 接口，支持非流式与 SSE 流式
    - `/sessions/**`：聊天会话管理（创建、重命名、清空、删除、统计）
    - `/memory/**`：查询/配置记忆后端 (`short_term`、`vdb`、`kv`、`graph`)
@@ -574,8 +576,8 @@ ______________________________________________________________________
 **运行方式**:
 
 ```bash
-sage-gateway --host 0.0.0.0 --port 8000
-python -m sage.gateway.server
+sage-llm-gateway --host 0.0.0.0 --port 8000
+python -m sage.llm.gateway.server
 sage studio start   # 若未检测到 Gateway，会自动拉起
 ```
 
@@ -604,7 +606,7 @@ graph TD
     studio[sage-studio<br/>L6: Web UI]
     cli[sage-cli<br/>L6: 生产 CLI]
     tools[sage-tools<br/>L6: 开发工具]
-    gateway[sage-gateway<br/>L6: API Gateway]
+    gateway[sage-llm-gateway<br/>L6: API Gateway]
 
     platform --> common
 
@@ -740,7 +742,7 @@ graph TD
 | sage-studio     | L6   | 8        | 51      | ~8K       | 4      | -        | ✅ 通过     |
 | sage-cli        | L6   | 45       | 32      | ~5K       | 5      | -        | ✅ 通过     |
 | sage-tools      | L6   | 106      | 78      | ~10K      | 5      | -        | ✅ 通过     |
-| sage-gateway    | L6   | 8        | 37      | ~3K       | 4      | -        | ✅ 通过     |
+| sage-llm-gateway    | L6   | 8        | 37      | ~3K       | 4      | -        | ✅ 通过     |
 | **总计**        | -    | **679+** | **1,329+** | **~125K** | -   | **2** | **99.7%** ✅ |
 
 ## 🔄 重构历史

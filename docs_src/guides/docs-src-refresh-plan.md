@@ -13,7 +13,7 @@
 
 ## 任务 B · sageLLM Control Plane & 服务栈
 - **范围**：`guides/packages/sage-common/overview.md`、`api-reference/common/index.md`、`tutorials/advanced/performance-tuning.md`、`tutorials/advanced/advanced-rag.md`
-- **代码对照**：`packages/sage-common/src/sage/common/components/sage_llm/**`、`packages/sage-common/src/sage/common/components/sage_embedding/**`、`packages/sage-common/src/sage/common/config/ports.py`、`packages/sage-common/src/sage/common/config/network.py`
+- **代码对照**：`packages/sage-llm-core/src/sage/llm/**`、`packages/sage-common/src/sage/common/components/sage_embedding/**`、`packages/sage-common/src/sage/common/config/ports.py`、`packages/sage-common/src/sage/common/config/network.py`
 - **重点**：
   1. 重新绘制 Control Plane 架构（RequestClassifier → HybridSchedulingPolicy → ExecutionCoordinator / EmbeddingExecutor），确认 API 名称与源码一致。
   2. 明确 `sage llm serve`、`create_with_control_plane()`、`EmbeddingFactory + EmbeddingClientAdapter` 的差异场景，并补充端口表引用 `SagePorts` 常量，禁止硬编码端口示例。
@@ -40,7 +40,7 @@
 
 ## 任务 E · API Reference & 配置一致性
 - **范围**：`api-reference/index.md`、`api-reference/common/index.md`、`concepts/architecture/design-decisions/*`、`community/faq.md`
-- **代码对照**：`.env.template`、`packages/sage-common/src/sage/common/config/*.py`、`packages/sage-gateway/src/sage/gateway/**`、`packages/sage-cli/src/sage/cli/commands/**`
+- **代码对照**：`.env.template`、`packages/sage-common/src/sage/common/config/*.py`、`packages/sage-llm-gateway/src/sage/gateway/**`、`packages/sage-cli/src/sage/cli/commands/**`
 - **重点**：
   1. 保证 OpenAI 兼容 API、Gateway、Studio、Embedding、Benchmark 端口/环境变量写法全部引用 `SagePorts` & `SageEnvKeys`，并提供 `curl`/`UnifiedInferenceClient` 双示例。
   2. 将 `.env.template` 中的关键变量（`OPENAI_API_KEY`, `HF_TOKEN`, `SAGE_CHAT_*`）解释搬到 API Reference，注明何时需要真实云端 Key、何时允许本地 mock。

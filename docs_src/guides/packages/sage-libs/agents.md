@@ -198,7 +198,7 @@ print(result)
 Agent 需要 LLM 服务进行规划和生成。推荐使用 `UnifiedInferenceClient`：
 
 ```python
-from sage.common.components.sage_llm import UnifiedInferenceClient
+from sage.llm import UnifiedInferenceClient
 from sage.libs.rag.generator import OpenAIGenerator
 
 # 方式 1: 使用 UnifiedInferenceClient 检测服务

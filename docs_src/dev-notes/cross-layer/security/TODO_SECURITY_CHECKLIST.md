@@ -36,31 +36,29 @@
 
 **已泄露的 keys（需要在对应平台撤销）：**
 
-#### OpenAI/DashScope Keys
-- [ ] `sk-8298f15945af41988281d7348b008c96` - 在 DashScope 控制台撤销
-- [ ] `sk-700a53a2a85344e09a82afa96ae072a8` - 在 DashScope 控制台撤销
+#### OpenAI-Compatible Keys
+- [ ] `<old-key-1>` - 在对应供应商控制台撤销
+- [ ] `<old-key-2>` - 在对应供应商控制台撤销
 
 #### Web Search API Keys
-- [ ] `sk-b21a67cf99d14ead9d1c5bf8c2eb90ef` - 在搜索服务控制台撤销
 - [ ] `sk-455d6a2c79464dd2959197477a908e53` - 在搜索服务控制台撤销
 
-**操作步骤：**
+#### 处理步骤
 1. 登录对应的服务控制台
-2. 找到 API Keys 管理页面
-3. 撤销/删除上述 keys
-4. 生成新的 API keys
-5. 更新本地 `.env` 文件和 GitHub Secrets
+2. 撤销上述旧 key
+3. 生成新的 API keys
+4. 更新本地 `.env` 文件和 GitHub Secrets
 
 ### 2. 配置 GitHub Secrets
 
 **访问：** https://github.com/intellistream/SAGE/settings/secrets/actions
 
 #### 必需的 Secrets
-- [ ] `OPENAI_API_KEY` - 新生成的 OpenAI/DashScope key
+- [ ] `OPENAI_API_KEY` - 新生成的 OpenAI 兼容 key
 - [ ] `HF_TOKEN` - Hugging Face token
 
 #### 可选的 Secrets
-- [ ] `ALIBABA_API_KEY` - 阿里云 DashScope key（如果不同于 OPENAI_API_KEY）
+- [ ] `ALIBABA_API_KEY` - 阿里云 OpenAI 兼容 key（如果不同于 OPENAI_API_KEY）
 - [ ] `VLLM_API_KEY` - 本地 vLLM 服务 token（默认 `token-abc123`）
 - [ ] `WEB_SEARCH_API_KEY` - 新生成的 Web 搜索 key
 - [ ] `SILICONCLOUD_API_KEY` - SiliconCloud key（如果使用）
@@ -140,7 +138,7 @@ git status .env
 
 ### 外部资源
 - [GitHub Secrets 文档](https://docs.github.com/en/actions/security-guides/encrypted-secrets)
-- [DashScope 控制台](https://dashscope.console.aliyun.com/)
+- [Alibaba Cloud 控制台](https://bailian.console.aliyun.com/)
 - [Hugging Face Tokens](https://huggingface.co/settings/tokens)
 
 ## 📞 需要帮助？
