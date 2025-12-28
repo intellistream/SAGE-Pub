@@ -29,7 +29,40 @@ PATH = /home/user/.nvm/versions/node/v18.20.8/bin:...:/home/user/miniconda3/envs
 
 ## Solutions
 
-### Solution 1: Use conda Node.js (Recommended for SAGE)
+### Solution 1: Remove nvm, use conda exclusively (Recommended ✅)
+
+**Best long-term solution**: Since you're already using conda for Python, unify Node.js management with conda.
+
+```bash
+# 1. Backup .bashrc
+cp ~/.bashrc ~/.bashrc.backup.before_nvm_removal
+
+# 2. Remove nvm initialization from .bashrc
+sed -i '/export NVM_DIR=/d' ~/.bashrc
+sed -i '/\[ -s "$NVM_DIR\/nvm.sh" \]/d' ~/.bashrc
+sed -i '/\[ -s "$NVM_DIR\/bash_completion" \]/d' ~/.bashrc
+
+# 3. Reload config
+source ~/.bashrc
+
+# 4. Verify Node.js version
+which node  # Should show conda path
+node --version  # Should show v22.x
+
+# 5. (Optional) Remove nvm directory to free disk space
+rm -rf ~/.nvm  # Frees ~240MB
+```
+
+**Pros**:
+- ✅ Permanently solves PATH conflicts
+- ✅ Unified environment management (Python + Node.js in conda)
+- ✅ No additional shell configuration needed
+- ✅ Reduces disk usage (~240MB)
+
+**Cons**:
+- ❌ Less flexible if you need to frequently switch Node.js versions
+
+### Solution 2: Temporarily fix PATH (Quick workaround)
 
 **Temporarily** (current terminal session):
 ```bash
