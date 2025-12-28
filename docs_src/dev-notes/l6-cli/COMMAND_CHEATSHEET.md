@@ -53,7 +53,10 @@ sage
 
 | 命令 | 说明 | 示例 |
 |------|------|------|
-| `sage llm serve` | 启动 LLM 服务 | `sage llm serve --model Qwen/Qwen2.5-7B-Instruct` |
+| `sage gateway start` | 启动 Gateway + Control Plane | `sage gateway start` |
+| `sage llm engine start` | 启动 LLM 引擎 | `sage llm engine start Qwen/Qwen2.5-7B-Instruct --engine-kind llm` |
+| `sage llm engine list` | 查看引擎状态 | `sage llm engine list` |
+| `sage llm engine stop` | 停止引擎 | `sage llm engine stop <engine-id>` |
 | `sage chat` | 启动聊天助手 | `sage chat` |
 | `sage embedding test` | 测试 Embedding | `sage embedding test --model BAAI/bge-m3` |
 | `sage inference start` | 启动统一推理服务 | `sage inference start --port 8000` |

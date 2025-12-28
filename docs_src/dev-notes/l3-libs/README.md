@@ -101,7 +101,61 @@ Embedding 系统的文档：
 
 > 📁 阶段完成报告已归档到 `archive/l3-libs/`
 
-### 🔬 LibAMM 模块
+### � ANNS 模块 (统一结构)
+
+位置: `packages/sage-libs/src/sage/libs/anns/`
+
+**近似最近邻搜索（Approximate Nearest Neighbor Search）** - 统一的向量检索算法库。
+
+#### 模块结构
+
+2025-12-28 完成架构重构，从分散的 3 层结构整合为统一目录：
+
+```
+anns/
+├── interface/          # 抽象接口层 (44 KB)
+│   ├── base.py         # AnnIndex, AnnIndexMeta
+│   ├── factory.py      # create(), register(), registered()
+│   └── registry.py     # 算法注册表
+├── wrappers/           # Python 包装器 (616 KB, 按家族组织)
+│   ├── faiss/          # 8 个 FAISS 变体
+│   ├── candy/          # 3 个 CANDY 变体
+│   ├── diskann/        # 2 个 DiskANN 变体
+│   └── vsag/, cufe/, gti/, puck/, plsh/, pyanns/ (6 个独立算法)
+└── implementations/    # C++ 源码 + 构建系统 (148.5 MB)
+    ├── candy/, faiss/, diskann-ms/, gti/, puck/, vsag/, SPTAG/
+    ├── bindings/       # pybind11 绑定
+    ├── include/        # 共享头文件
+    └── CMakeLists.txt  # 构建配置
+```
+
+**算法清单** (19 个):
+- **FAISS**: HNSW, HNSW_Optimized, IVFPQ, NSW, fast_scan, lsh, onlinepq, pq
+- **CANDY**: lshapg, mnru, sptag
+- **DiskANN**: diskann, ipdiskann
+- **其他**: vsag_hnsw, cufe, gti, puck, plsh, pyanns
+
+**使用示例**:
+```python
+from sage.libs.anns import create, register, registered
+
+# 创建索引
+index = create("faiss_HNSW", dimension=128)
+
+# 查看可用算法
+algos = registered()  # 返回 19 个算法
+
+# 直接导入（如果需要）
+from sage.libs.anns.wrappers.faiss import FaissHNSWIndex
+```
+
+**重构说明**:
+- **问题**: 之前代码分散在 3 个位置（`ann/`, `anns/`, `benchmark_db/algorithms_impl/`）
+- **解决**: 统一到 L3 层 `sage-libs/anns/`，C++ 代码从 L5 移到 L3（正确层级）
+- **迁移**: 旧代码使用 `sage.libs.ann` 应更新为 `sage.libs.anns`
+- **详情**: `.github/ANNS_REFACTOR_COMPLETE.md`
+
+### �🔬 LibAMM 模块
 
 位置: `packages/sage-libs/src/sage/libs/libamm/` (子模块)
 
@@ -114,12 +168,19 @@ C++ 高性能近似矩阵乘法库：
 | 想要了解... | 查看 |
 |-------------|------|
 | Agentic 模块架构 | `packages/sage-libs/src/sage/libs/agentic/` |
+| ANNS 统一结构 | `packages/sage-libs/src/sage/libs/anns/` 或 `.github/ANNS_REFACTOR_COMPLETE.md` |
 | Finetune 使用 | `packages/sage-libs/src/sage/libs/finetune/` |
 | 工具选择 SOTA 方法 | [Benchmark adapter_registry.py](../../../../packages/sage-benchmark/src/sage/benchmark/benchmark_agent/adapter_registry.py) |
 | Agent Finetune API | [AGENT_FINETUNE_API_REFERENCE.md](./AGENT_FINETUNE_API_REFERENCE.md) |
 | Embedding 变更 | [EMBEDDING_CHANGELOG.md](./EMBEDDING_CHANGELOG.md) |
 
 ## 📝 开发历史
+
+### v3.1 - ANNS 架构统一 (2025-12)
+- 整合分散的 3 层 ANNS 结构为统一目录
+- 按算法家族组织 wrappers（FAISS/CANDY/DiskANN 等）
+- C++ 实现从 L5 (benchmark) 移至 L3 (libs) 正确层级
+- 完整测试覆盖：711 passed, 19 算法验证通过
 
 ### v3.0 - Agentic 模块 (2025-11)
 - 新增 `agentic/` 模块支持 Agent 能力评测
@@ -140,6 +201,7 @@ C++ 高性能近似矩阵乘法库：
 ## 🔗 相关资源
 
 - **Agentic 代码**: `packages/sage-libs/src/sage/libs/agentic/`
+- **ANNS 代码**: `packages/sage-libs/src/sage/libs/anns/`
 - **Finetune 代码**: `packages/sage-libs/src/sage/libs/finetune/`
 - **Benchmark 集成**: `packages/sage-benchmark/src/sage/benchmark/benchmark_agent/`
 - **测试**: `packages/sage-libs/tests/`
@@ -147,4 +209,4 @@ C++ 高性能近似矩阵乘法库：
 
 ---
 
-**最后更新**: 2025-11-29
+**最后更新**: 2025-12-28 (添加 ANNS 统一结构说明)
