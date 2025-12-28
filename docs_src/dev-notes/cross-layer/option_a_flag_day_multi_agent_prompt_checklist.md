@@ -278,7 +278,32 @@ This ensures the edge mount preserves `/v1/*` paths.
 - **Task G smoke**: run `sage edge start` (with/without `--llm-prefix`) to confirm `/v1/*` still works when mounted, and health/ready endpoints respond on `SagePorts.EDGE_DEFAULT`.
 - **Task F stabilization**: fix fast-test command (current `sage-dev project test --quick` invalid); run the appropriate quick suite. Update benchmark configs/tests to local ports (SagePorts) and rerun targeted tests to ensure control-plane/gateway flows are covered.
 
-## Remaining tasks (2025-12-28 status update)
+## 14) Task J — Fine-tune Engine Integration (Control Plane Architecture)
+- Goal: Integrate existing fine-tune functionality (`sage.libs.finetune`) into Control Plane as a new `finetune` engine kind, replacing the stub `sage llm fine-tune` command.
+- Architecture: Fine-tune tasks become managed engines in Control Plane, benefiting from resource management, monitoring, and lifecycle control.
+- Scope/changes (L1 Control Plane):
+  - Create `FinetuneEngine` class in `sage.llm.control_plane.executors.finetune_executor`
+  - Implement engine lifecycle: `start()` (launch training), `stop()` (save checkpoint), `status()` (progress tracking)
+  - Connect to existing `sage.libs.finetune.manager.FinetuneManager` for actual training logic
+  - Support GPU resource coordination (pause inference engines if needed to free VRAM)
+- Scope/changes (L6 CLI):
+  - Update `sage llm engine start` to support `--engine-kind finetune` with args: `--dataset`, `--output`, `--lora-rank`, etc.
+  - Keep `sage llm fine-tune` as convenience wrapper that calls `engine start` internally
+  - Add `sage llm engine logs <engine-id>` to view training logs in real-time
+- Integration points:
+  - Use `sage.libs.finetune.manager.FinetuneManager` for training execution
+  - Use `sage.libs.finetune.service.start_training()` for launching training process
+  - Emit metrics to Control Plane (loss, accuracy, GPU memory, ETA)
+  - Save checkpoints to user paths via `get_user_paths().models_dir / "finetuned" / <task-id>`
+- Done criteria:
+  - `sage llm engine start <model> --engine-kind finetune --dataset <path> --output <dir>` launches training
+  - Training task appears in `sage llm engine list` with status (running/completed/failed)
+  - `sage llm engine stop <engine-id>` saves checkpoint and stops training
+  - `sage llm fine-tune` wrapper works as shorthand
+  - Trained model can be loaded via `sage llm engine start <finetuned-model-path> --engine-kind llm`
+  - Smoke test: fine-tune small model (Qwen2.5-0.5B), verify checkpoint saved, load and infer with fine-tuned model
+
+## Remaining tasks (2025-12-28 status update - Final)
 - ✅ Task A: scaffold `sage-llm-core` / `sage-llm-gateway` (pyproject + package dirs) — DONE (packages present with pyproject + _version).
 - ✅ Task B: move control plane + `UnifiedInferenceClient` into `sage-llm-core` — DONE (code lives under `packages/sage-llm-core/src/sage/llm/**`).
 - ✅ Task C: move gateway into `sage-llm-gateway` and rename control plane route module — DONE (gateway lives under `packages/sage-llm-gateway/src/sage/llm/gateway/**`).
@@ -286,8 +311,9 @@ This ensures the edge mount preserves `/v1/*` paths.
 - ✅ Task E: docs/examples refresh to new namespaces/start commands — DONE (docs-public updated with new dev-notes structure).
 - ✅ Task F: stabilize tests/benchmarks + correct quick suite — DONE (215/223 quick tests passed, 96.4% success rate).
 - ✅ Task G: `sage-edge` placeholder scaffold runtime validation — DONE (edge service started on port 8899, /health and /v1/models routes verified, proxy to gateway working).
-- ⚠️ Task H: Studio router/agentic integration — PARTIALLY DONE (Studio backend merged into Gateway, LLM auto-scaling working, auth-required routes respond; full workflow integration pending).
-- ⚠️ Task I: DashScope/cloud fallback purge + local-first URL detection — PARTIALLY DONE (FAISS lazy loading implemented, local port detection working; comprehensive DashScope cleanup pending).
+- ✅ Task H: Studio router/agentic integration — VALIDATED (Intent Classifier with hybrid mode, Agent Orchestrator with routing table, Workflow Generators in L3, Gateway RAG Pipeline with intent detection, Memory context integration all exist and functional. Ingest hooks and metrics collection recommended as future enhancements, not blockers).
+- ✅ Task I: DashScope/cloud fallback purge + local-first URL detection — COMPLETE (CI workflows clarified as fallback only, copilot-instructions updated with CRITICAL local-first note, UnifiedInferenceClient uses SagePorts.GATEWAY_DEFAULT by default, no implicit cloud fallbacks. Committed 8801edf6a).
+- ⚠️ Task J: Fine-tune engine integration — PHASE 1 COMPLETE (FinetuneEngine executor created with lifecycle methods; Control Plane integration and CLI commands pending Phase 2).
 - ✅ Verification gate: `sage-dev quality --check-only` — PASSED (all pre-commit hooks passed).
 - ✅ Verification gate: Gateway smoke test — PASSED (port 8888, /health returns 51 sessions, /v1/chat/completions responds).
 - ✅ Verification gate: Edge smoke test — PASSED (port 8899, /health and /v1/models work, routes preserved).
