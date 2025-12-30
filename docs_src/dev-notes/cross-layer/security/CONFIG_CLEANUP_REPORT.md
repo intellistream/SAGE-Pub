@@ -108,7 +108,7 @@ if api_key is None:  # 只在字段完全缺失时报错
 ```bash
 # OpenAI-compatible API Key
 OPENAI_API_KEY=sk-your-api-key-here
-OPENAI_BASE_URL=http://localhost:8888/v1
+OPENAI_BASE_URL=http://localhost:8889/v1
 OPENAI_MODEL_NAME=Qwen/Qwen2.5-7B-Instruct
 
 # 其他服务

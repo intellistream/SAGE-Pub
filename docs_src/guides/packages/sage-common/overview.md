@@ -30,7 +30,7 @@ from sage.llm import UnifiedInferenceClient
 client = UnifiedInferenceClient.create()
 
 # 显式指定 Control Plane / Gateway
-client = UnifiedInferenceClient.create(control_plane_url="http://localhost:8888/v1")
+client = UnifiedInferenceClient.create(control_plane_url="http://localhost:8889/v1")
 
 # 按模型名绑定（仍经由 Control Plane）
 model_bound = UnifiedInferenceClient.create_for_model("Qwen/Qwen2.5-7B-Instruct")

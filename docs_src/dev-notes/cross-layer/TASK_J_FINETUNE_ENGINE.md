@@ -224,7 +224,7 @@ sage llm engine stop $ENGINE_ID  # Saves checkpoint
 sage llm engine start ./test_finetune --engine-kind llm
 
 # 6. Verify inference works
-curl -X POST http://localhost:8888/v1/chat/completions \
+curl -X POST http://localhost:8889/v1/chat/completions \
   -H "Content-Type: application/json" \
   -d '{"model":"sage-default","messages":[{"role":"user","content":"test"}]}'
 ```

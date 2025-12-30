@@ -201,7 +201,7 @@ region = get_network_region()       # "china" | "international"
 | 变量 | 示例 | 何时需要真实 Key |
 |------|------|------------------|
 | `SAGE_CHAT_API_KEY` | `sk-xxx` | 当 Gateway/vLLM 需要鉴权或回退到远端 OpenAI 兼容端点时填写。|
-| `SAGE_CHAT_MODEL` / `SAGE_CHAT_BASE_URL` | `Qwen/Qwen2.5-7B-Instruct` / `http://localhost:8888/v1` | 本地/云端均可设置，用于覆盖自动探测模型名与端点。|
+| `SAGE_CHAT_MODEL` / `SAGE_CHAT_BASE_URL` | `Qwen/Qwen2.5-7B-Instruct` / `http://localhost:8889/v1` | 本地/云端均可设置，用于覆盖自动探测模型名与端点。|
 | `SAGE_EMBEDDING_BASE_URL` / `SAGE_EMBEDDING_MODEL` | `http://localhost:8090/v1` / `BAAI/bge-m3` | 自定义 Embedding 服务端点。|
 | `SAGE_LLM_PORT` / `SAGE_EMBEDDING_PORT` | `8001` / `8090` | `sage llm serve` 会在写入配置文件时同步更新，可在 CI 中强制指定端口。|
 | `OPENAI_API_KEY` / `OPENAI_BASE_URL` | `sk-...` / `https://api.openai.com/v1` | 直接调用 OpenAI 兼容 API 时使用（可指向自托管或官方服务）。|

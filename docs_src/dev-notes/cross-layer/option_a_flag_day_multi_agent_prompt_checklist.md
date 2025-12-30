@@ -315,7 +315,7 @@ This ensures the edge mount preserves `/v1/*` paths.
 - ✅ Task I: DashScope/cloud fallback purge + local-first URL detection — COMPLETE (CI workflows clarified as fallback only, copilot-instructions updated with CRITICAL local-first note, UnifiedInferenceClient uses SagePorts.GATEWAY_DEFAULT by default, no implicit cloud fallbacks. Committed 8801edf6a).
 - ⚠️ Task J: Fine-tune engine integration — PHASE 1 COMPLETE (FinetuneEngine executor created with lifecycle methods; Control Plane integration and CLI commands pending Phase 2).
 - ✅ Verification gate: `sage-dev quality --check-only` — PASSED (all pre-commit hooks passed).
-- ✅ Verification gate: Gateway smoke test — PASSED (port 8888, /health returns 51 sessions, /v1/chat/completions responds).
+- ✅ Verification gate: Gateway smoke test — PASSED (port 8889, /health returns 51 sessions, /v1/chat/completions responds).
 - ✅ Verification gate: Edge smoke test — PASSED (port 8899, /health and /v1/models work, routes preserved).
 - ✅ Verification gate: Studio integration — PASSED (backend routes merged, LLM service on 8901 auto-started, auth routes respond correctly).
 

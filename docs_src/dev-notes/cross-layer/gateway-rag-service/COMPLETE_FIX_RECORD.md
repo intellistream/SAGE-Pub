@@ -49,7 +49,7 @@ def _make_default_config(node_type: str) -> dict[str, Any]:
         },
         "LLM": {
             "model_name": "Qwen/Qwen2.5-7B-Instruct",
-            "api_base": "http://localhost:8888/v1",
+            "api_base": "http://localhost:8889/v1",
         },
         "OpenAIGenerator": {
             "model_name": "gpt-3.5-turbo",
