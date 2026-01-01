@@ -1,11 +1,11 @@
-# benchmark_db 目录重构计划
+# benchmark_anns 目录重构计划
 
 ## 问题诊断
 
-当前 `packages/sage-benchmark/src/sage/benchmark/benchmark_db/` 结构混乱：
+当前 `packages/sage-benchmark/src/sage/benchmark/benchmark_anns/` 结构混乱：
 
 ```
-benchmark_db/ (submodule: SAGE-DB-Bench)
+benchmark_anns/ (submodule: SAGE-DB-Bench)
 ├── DiskANN/              ← 问题：Microsoft 官方版本，应该在 algorithms_impl 下
 ├── algorithms_impl/      ← 正确位置
 │   ├── DiskANN/          ← 不同版本的 DiskANN (非 submodule)
@@ -17,7 +17,7 @@ benchmark_db/ (submodule: SAGE-DB-Bench)
 
 ### 根本原因
 
-1. `benchmark_db/DiskANN/` 作为 submodule 直接放在根目录，不符合规范
+1. `benchmark_anns/DiskANN/` 作为 submodule 直接放在根目录，不符合规范
 1. 第三方算法库的测试文件被 pytest 自动收集
 1. 这些测试依赖未安装的库 (diskannpy, faiss.contrib)
 
@@ -29,7 +29,7 @@ benchmark_db/ (submodule: SAGE-DB-Bench)
 
 ```ini
 addopts =
-    --ignore-glob=**/benchmark_db/**/test_*.py
+    --ignore-glob=**/benchmark_anns/**/test_*.py
     --ignore-glob=**/algorithms_impl/**/test_*.py
     --ignore-glob=**/DiskANN/**/test_*.py
     --ignore-glob=**/faiss/**/test_*.py
@@ -44,7 +44,7 @@ addopts =
 #### 步骤 1: 移动 DiskANN submodule
 
 ```bash
-cd packages/sage-benchmark/src/sage/benchmark/benchmark_db
+cd packages/sage-benchmark/src/sage/benchmark/benchmark_anns
 
 # 移除根目录的 DiskANN submodule
 git submodule deinit DiskANN
@@ -70,7 +70,7 @@ git commit -m "refactor: rename DiskANN to diskann-sage for clarity"
 建议的目录结构：
 
 ```
-benchmark_db/
+benchmark_anns/
 ├── algorithms_impl/           # 所有第三方算法实现
 │   ├── diskann-official/      # Microsoft 官方版本 (submodule)
 │   ├── diskann-sage/          # SAGE 修改版本
@@ -90,7 +90,7 @@ benchmark_db/
 
 #### 步骤 4: 添加 pytest.ini 到 SAGE-DB-Bench
 
-在 `benchmark_db/pytest.ini`:
+在 `benchmark_anns/pytest.ini`:
 
 ```ini
 [pytest]
@@ -107,7 +107,7 @@ addopts =
 
 ### 方案 3：使用 conftest.py 动态跳过
 
-在 `benchmark_db/conftest.py`:
+在 `benchmark_anns/conftest.py`:
 
 ```python
 import pytest
@@ -147,7 +147,7 @@ def pytest_collection_modifyitems(config, items):
 ## 相关文件
 
 - **SAGE 主项目**: `tools/pytest.ini`
-- **SAGE-DB-Bench 仓库**: `packages/sage-benchmark/src/sage/benchmark/benchmark_db/.gitmodules`
+- **SAGE-DB-Bench 仓库**: `packages/sage-benchmark/src/sage/benchmark/benchmark_anns/.gitmodules`
 - **相关 Issue**: (待创建)
 
 ## 参考

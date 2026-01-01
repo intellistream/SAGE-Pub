@@ -150,7 +150,7 @@ from sage.libs.anns.wrappers.faiss import FaissHNSWIndex
 ```
 
 **重构说明**:
-- **问题**: 之前代码分散在 3 个位置（`ann/`, `anns/`, `benchmark_db/algorithms_impl/`）
+- **问题**: 之前代码分散在 3 个位置（`ann/`, `anns/`, `benchmark_anns/algorithms_impl/`）
 - **解决**: 统一到 L3 层 `sage-libs/anns/`，C++ 代码从 L5 移到 L3（正确层级）
 - **迁移**: 旧代码使用 `sage.libs.ann` 应更新为 `sage.libs.anns`
 - **详情**: `.github/ANNS_REFACTOR_COMPLETE.md`

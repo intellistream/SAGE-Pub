@@ -20,7 +20,7 @@ ANNS (Approximate Nearest Neighbor Search) related code is currently **scattered
    - Contains: 23 algorithm implementations (faiss_HNSW, vsag_hnsw, diskann, candy_*, cufe, gti, puck, etc.)
    - Size: 23 subdirectories, each with Python wrappers
 
-3. **`packages/sage-benchmark/src/sage/benchmark/benchmark_db/algorithms_impl/`** (L5)
+3. **`packages/sage-benchmark/src/sage/benchmark/benchmark_anns/algorithms_impl/`** (L5)
    - Purpose: C++ source code implementations
    - Contains: candy/, diskann-ms/, faiss/, gti/, puck/, vsag/, SPTAG/, include/, bindings/
    - Size: Large C++ codebase with multiple ANNS libraries
@@ -30,7 +30,7 @@ ANNS (Approximate Nearest Neighbor Search) related code is currently **scattered
 1. **Confusing naming**: `ann` (singular) vs `anns` (plural) - unclear distinction
 2. **Scattered responsibilities**: Interface, wrappers, and implementations in 3 different packages
 3. **Cross-layer dependencies**: L5 (benchmark) contains code that L3 (libs) depends on
-4. **Duplicate structure**: benchmark_db has algorithms_impl that mirrors sage-libs/anns
+4. **Duplicate structure**: benchmark_anns has algorithms_impl that mirrors sage-libs/anns
 5. **Unclear ownership**: Who maintains what? Where to add new algorithms?
 
 ---
@@ -73,7 +73,7 @@ packages/sage-libs/src/sage/libs/anns/
 │   ├── puck/
 │   └── plsh/
 │
-├── implementations/               # C++ source code (formerly benchmark_db/algorithms_impl)
+├── implementations/               # C++ source code (formerly benchmark_anns/algorithms_impl)
 │   ├── README.md                 # Build instructions
 │   ├── CMakeLists.txt
 │   ├── build.sh
@@ -90,7 +90,7 @@ packages/sage-libs/src/sage/libs/anns/
 │   └── bindings/                 # pybind11 bindings
 │       └── PyCANDY.cpp
 │
-└── benchmarks/                    # Benchmark scripts (from benchmark_db)
+└── benchmarks/                    # Benchmark scripts (from benchmark_anns)
     ├── __init__.py
     ├── run_benchmark.py
     ├── prepare_dataset.py
@@ -145,8 +145,8 @@ mv packages/sage-libs/src/sage/libs/anns/faiss_* packages/sage-libs/src/sage/lib
 ### Phase 4: Move C++ Implementations
 
 ```bash
-# Move from benchmark_db to sage-libs
-mv packages/sage-benchmark/src/sage/benchmark/benchmark_db/algorithms_impl/* \
+# Move from benchmark_anns to sage-libs
+mv packages/sage-benchmark/src/sage/benchmark/benchmark_anns/algorithms_impl/* \
    packages/sage-libs/src/sage/libs/anns_new/implementations/
 ```
 
@@ -159,11 +159,11 @@ mv packages/sage-benchmark/src/sage/benchmark/benchmark_db/algorithms_impl/* \
 
 ```bash
 # Move benchmark scripts
-mv packages/sage-benchmark/src/sage/benchmark/benchmark_db/{run_benchmark.py,prepare_dataset.py,compute_gt.py} \
+mv packages/sage-benchmark/src/sage/benchmark/benchmark_anns/{run_benchmark.py,prepare_dataset.py,compute_gt.py} \
    packages/sage-libs/src/sage/libs/anns_new/benchmarks/
 ```
 
-**Keep in benchmark_db**:
+**Keep in benchmark_anns**:
 - High-level benchmark orchestration
 - Results visualization
 - CI/CD integration scripts
@@ -176,13 +176,13 @@ Files likely to need updates:
 rg "from sage\.libs\.ann " --type py
 rg "from sage\.libs\.anns\." --type py
 rg "import sage\.libs\.ann" --type py
-rg "benchmark_db\.algorithms_impl" --type py
+rg "benchmark_anns\.algorithms_impl" --type py
 ```
 
 Update patterns:
 - `sage.libs.ann` → `sage.libs.anns.interface`
 - `sage.libs.anns.<algo>` → `sage.libs.anns.wrappers.<family>.<algo>`
-- `benchmark_db.algorithms_impl` → `sage.libs.anns.implementations`
+- `benchmark_anns.algorithms_impl` → `sage.libs.anns.implementations`
 
 ### Phase 7: Rename and Cleanup
 
@@ -192,8 +192,8 @@ rm -rf packages/sage-libs/src/sage/libs/ann/  # Old interface
 rm -rf packages/sage-libs/src/sage/libs/anns/  # Old wrappers
 mv packages/sage-libs/src/sage/libs/anns_new packages/sage-libs/src/sage/libs/anns
 
-# Clean up benchmark_db
-rm -rf packages/sage-benchmark/src/sage/benchmark/benchmark_db/algorithms_impl/
+# Clean up benchmark_anns
+rm -rf packages/sage-benchmark/src/sage/benchmark/benchmark_anns/algorithms_impl/
 ```
 
 ### Phase 8: Testing
@@ -244,7 +244,7 @@ rm -rf packages/sage-benchmark/src/sage/benchmark/benchmark_db/algorithms_impl/
 
 ## 🔗 Related Documents
 
-- **Current Structure**: `packages/sage-benchmark/src/sage/benchmark/benchmark_db/STRUCTURE.md`
+- **Current Structure**: `packages/sage-benchmark/src/sage/benchmark/benchmark_anns/STRUCTURE.md`
 - **ANN Interface**: `packages/sage-libs/src/sage/libs/ann/README.md` (if exists)
 - **Package Architecture**: `docs-public/docs_src/dev-notes/package-architecture.md`
 
