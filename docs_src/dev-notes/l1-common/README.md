@@ -192,16 +192,22 @@ sage llm model list                         # 列出已下载模型
 
 ## 📦 主要模块
 
-### 🤖 sageLLM 组件 (`components/sage_llm/`)
+### 🤖 sageLLM 组件
+
+> **迁移通知**: sageLLM 已从 `sage-common` 迁移至独立包 `sage-llm-core`。
+>
+> - 新位置: `packages/sage-llm-core/src/sage/llm/`
+> - 导入: `from sage.llm import UnifiedInferenceClient`
+> - 单元测试: `packages/sage-llm-core/tests/`
 
 统一的 LLM 和 Embedding 推理客户端和调度系统：
 
-| 模块 | 描述 |
-|------|------|
-| `unified_client.py` | `UnifiedInferenceClient` - 统一推理客户端（**唯一入口**） |
-| `control_plane_service.py` | Control Plane SAGE 封装层 |
-| `compat.py` | `LLMClientAdapter`, `EmbeddingClientAdapter` - vLLM 引擎适配器 |
-| `sageLLM/control_plane/` | 核心调度框架（GPU 管理、引擎生命周期、预设系统） |
+| 模块 | 描述 | 位置 |
+|------|------|------|
+| `unified_client.py` | `UnifiedInferenceClient` - 统一推理客户端（**唯一入口**） | `sage-llm-core` |
+| `control_plane_service.py` | Control Plane SAGE 封装层 | `sage-llm-core` |
+| `service.py` | `VLLMService` - vLLM 引擎包装 | `sage-llm-core` |
+| `control_plane/` | 核心调度框架（GPU 管理、引擎生命周期、预设系统） | `sage-llm-core` |
 
 > **注意**：`UnifiedAPIServer` 已移除，Control Plane 功能现由 `sage-llm-gateway` 提供。
 
@@ -342,7 +348,7 @@ sage llm preset list               # 查看预设
 | Control Plane 架构 | `packages/sage-llm-core/src/sage/llm/control_plane/` |
 | 端口配置 | `packages/sage-common/src/sage/common/config/ports.py` |
 | Embedding 服务 | `packages/sage-common/src/sage/common/components/sage_embedding/` |
-| 单元测试 | `packages/sage-common/tests/unit/components/sage_llm/` |
+| sageLLM 单元测试 | `packages/sage-llm-core/tests/` |
 
 ## 🔗 相关资源
 
