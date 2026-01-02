@@ -8,6 +8,7 @@ ______________________________________________________________________
 
 - 目标：完成 PR1（目录骨架+Protocol/types）与 PR8（LMDeploy submodule + patches + 最小可运行 demo），为
   prefix_reuse/kv_runtime/kv_policy/scheduler_ir/comm_backend/accel 提供稳定契约。
+- **架构定位**：sageLLM 是独立推理引擎（与 vLLM 平级），放在 `sage-llm-core/src/sage/llm/sagellm/`；Control Plane 已在 `sage.llm.control_plane`，负责统一调度。
 - 重点：**彻底去掉 legacy/compat**，用统一协议与目录替代旧的 `sage_infer/`、`pd_routing.py`、`transport/` 等路径。
 - 交付：1) 目录骨架；2) Protocol/types/schema；3) LMDeploy submodule + 补丁管线；4) 最小 demo；5) README/CLI/配置入口。
 
@@ -17,15 +18,16 @@ ______________________________________________________________________
 
 1. **目录与协议落地**
 
-- 创建以下目录（硬约束）：`core/`, `prefix_reuse/`, `kv_runtime/`, `kv_policy/`, `scheduler_ir/`,
+- 创建以下目录（硬约束，在 `packages/sage-llm-core/src/sage/llm/sagellm/` 下）：`core/`, `prefix_reuse/`, `kv_runtime/`, `kv_policy/`, `scheduler_ir/`,
   `comm_backend/`, `accel/`, `engines/`, `third_party/`, `benchmarks/`。
 - 定义共用协议：`KVCacheSchema`, `CapabilityDescriptor`, `QuantizationProfile`, `KVBackendProtocol`,
   `CommBackendProtocol`, `AccelConfig`, `ExecutionPlan/IRNode/IRGraph` 关键类型。
 
-2. **Control Plane 精简版 (core/)**
+2. **与现有 Control Plane 集成 (sage.llm.control_plane)**
 
-- 精简 `ControlPlaneManager`：实例注册、事件循环、健康检查、配置加载（pydantic/dataclass）。
-- 数据结构：`EngineInfo`, `RequestMetadata`（KV 字段移交 kv_runtime）。
+- sageLLM 作为新的推理引擎后端，注册到现有 Control Plane（`sage.llm.control_plane.manager.ControlPlaneManager`）。
+- sageLLM 实现标准引擎接口，与 vLLM/LMDeploy 平级，可被 Control Plane 统一调度。
+- 数据结构：复用 `EngineInfo`, `RequestMetadata`（来自 `sage.llm.control_plane`）。
 
 3. **LMDeploy 深度集成管线 (engines/ + third_party/)**
 
@@ -42,11 +44,11 @@ ______________________________________________________________________
 4. **最小可运行 Demo**
 
 - 路径：`tests` 或 `examples` 下提供最小
-  demo：`ControlPlaneManager → scheduler_ir stub → engines.lmdeploy (patched) → generate/chat`；验证
+  demo：`Control Plane (sage.llm.control_plane) → sageLLM engine → LMDeploy backend → generate/chat`；验证
   TTFT/TPOT 无回退（±3%）。
 - CLI 与 Control Plane：使用 `sage gateway start` 统一承载 Control Plane，再通过
-  `sage llm engine start <model> --engine-kind llm`/`--engine-kind embedding` 启动推理引擎；客户端一律
-  通过 `UnifiedInferenceClient.create()` 访问，禁止直接启动或直连 vLLM/LMDeploy。
+  `sage llm engine start <model> --engine-kind sagellm` 启动 sageLLM 引擎；客户端一律
+  通过 `UnifiedInferenceClient.create()` 访问，Control Plane 自动路由到 sageLLM/vLLM/LMDeploy。
 
 5. **配置与 CLI**
 
@@ -59,18 +61,29 @@ ______________________________________________________________________
 
 ## 模块设计与目录（硬约束）
 
+**CRITICAL 架构说明**：
+- **Control Plane** 在 `sage-llm-core` (L1层)，负责引擎调度、资源管理
+- **sageLLM** 是独立推理引擎（与 vLLM 平级），放在 `sage-llm-core/src/sage/llm/sagellm/`
+- **Gateway** 在 `sage-llm-gateway` (L6层)，提供 OpenAI-compatible API
+
 ```
-packages/sage-common/src/sage/common/components/sage_llm/sageLLM/
-├── core/                # ControlPlaneManager 精简版、types/config
-├── prefix_reuse/        # PR2：PrefixReuseIndex/Matcher/Metrics
-├── kv_runtime/          # PR3：KVPool/Hierarchy/Migrator/Quota + KVBackendProtocol
-├── kv_policy/           # PR4：Eviction/Migration/CostBenefit/LifetimePredictor
-├── scheduler_ir/        # PR5：IRNode/IRGraph/IRBuilder/IROptimizer/PDSeparator/ExecutorAPI
-├── comm_backend/        # PR6：CommBackendProtocol/TopologyManager/CommFusion/Overlap/KVTransfer
-├── accel/               # PR7：AccelController + quant/sparse/spec-decoding/CoT
-├── engines/             # PR8：LMDeploy 深度改造（engine/kv_manager/scheduler/kernels）
-├── third_party/         # LMDeploy submodule + patches + apply_patches.sh
-└── benchmarks/          # PR9：runner + ci_gate（MFU/TTFT/TPOT/KV hit/通信占比/成本）
+packages/sage-llm-core/src/sage/llm/
+├── control_plane/       # Control Plane 核心（已存在）
+│   ├── manager.py       # ControlPlaneManager
+│   ├── strategies/      # 调度策略
+│   └── executors/       # 执行器
+├── sagellm/             # sageLLM 推理引擎（新增，与 vLLM 平级）
+│   ├── core/            # 核心类型/协议/配置
+│   ├── prefix_reuse/    # PR2：前缀复用
+│   ├── kv_runtime/      # PR3：KV 运行时
+│   ├── kv_policy/       # PR4：淘汰策略
+│   ├── scheduler_ir/    # PR5：调度 IR
+│   ├── comm_backend/    # PR6：通信后端
+│   ├── accel/           # PR7：加速优化
+│   ├── engines/         # PR8：LMDeploy 适配层
+│   ├── third_party/     # LMDeploy submodule + patches
+│   └── benchmarks/      # PR9：性能测试
+└── unified_client.py    # UnifiedInferenceClient（已存在）
 ```
 
 ______________________________________________________________________
@@ -96,37 +109,44 @@ ______________________________________________________________________
 
 ## 交付物清单
 
-1. 目录骨架 + 协议/types 代码。
+1. 目录骨架 + 协议/types 代码（在 `packages/sage-llm-core/src/sage/llm/sagellm/`）。
 1. `third_party/lmdeploy` submodule + `patches/0001-0004` + `apply_patches.sh` + `VERSION`。
 1. 最小 demo + 基础单测/集成测。
 1. README（core/engines/third_party/benchmarks 各一份）+ CLI 用法。
 1. CI
-   提示：`pytest packages/sage-common/src/sage/common/components/sage_llm/sageLLM -q`，`sage-dev quality --check-only`。
+   提示：`pytest packages/sage-llm-core/src/sage/llm/sagellm -q`，`sage-dev quality --check-only`。
 
 ````
 
 ### 与 Control Plane 集成
 
 ```python
-# Control Plane 根据 HybridCapabilityDescriptor 做智能调度
-capability = backend.get_hybrid_capability()
+# sageLLM 引擎注册到 Control Plane
+from sage.llm.control_plane import ControlPlaneManager
+from sage.llm.sagellm.engines.lmdeploy import SageLLMEngine
 
-# 调度决策考虑因素：
-# 1. 请求类型 → 路由到对应模型
-# 2. 各模型当前负载 → 负载均衡
+# Control Plane 已存在于 sage-llm-core
+cp_manager = ControlPlaneManager()
+
+# sageLLM 作为新引擎注册
+sagellm_engine = SageLLMEngine(model="Qwen/Qwen2.5-7B-Instruct")
+cp_manager.register_engine(sagellm_engine)
+
+# Control Plane 根据请求特征智能调度到 sageLLM/vLLM
+# 1. 请求类型 → 路由到对应引擎
+# 2. 各引擎当前负载 → 负载均衡
 # 3. GPU 显存使用率 → 避免 OOM
 # 4. 请求优先级和 SLO → 优先级调度
-# 5. RAG 场景 → Embedding + LLM 联合调度
+# 5. 国产算力优先 → sageLLM 优先调度到昇腾/寒武纪
 ````
 
 ### 交互示例
 
-1. `sage llm serve --backend vllm --kv-schema preset=fp8` → CLI 读取 Phase 0 定义的 Schema。
-1. `sageLLM Control Plane` 调用 `backend.get_capability()`，根据 `instance_type` 和 `kv_schema` 进行 PD/AF
-   调度。
+1. `sage llm engine start <model> --engine-kind sagellm --kv-schema preset=fp8` → CLI 启动 sageLLM 引擎，注册到 Control Plane。
+1. `Control Plane (sage.llm.control_plane)` 调用 `sagellm_engine.get_capability()`，根据 `instance_type` 和 `kv_schema` 进行调度。
 1. 课题一实现的 `TransportEngine` 使用 Phase 0 的 `KVChunk`，无需关心调度细节。
-1. 课题三产出的 `QuantizationProfile` 能被任意 InferenceBackend 加载。
-1. **混合部署**：`sage infer serve --llm qwen-7b --embedding bge-m3 --sharing time_slice` 启动混合推理服务。
+1. 课题三产出的 `QuantizationProfile` 能被任意推理引擎加载。
+1. **混合部署**：Control Plane 可同时管理 sageLLM、vLLM、LMDeploy 引擎，根据请求特征智能路由。
 
 ______________________________________________________________________
 
