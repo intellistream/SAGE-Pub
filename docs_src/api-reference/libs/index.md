@@ -283,8 +283,8 @@ planner = HierarchicalPlanner.from_config(
 
 # 5. Create runtime
 runtime = AgentRuntime(
-    profile=profile, 
-    planner=planner, 
+    profile=profile,
+    planner=planner,
     tools=registry
 )
 

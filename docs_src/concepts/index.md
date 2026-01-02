@@ -36,38 +36,42 @@
 
 === "我想了解..."
 
-    **SAGE 的整体设计**
-    
-    → [架构总览](architecture/overview.md) - 查看 6 层架构体系和设计原则
-    
-    **包之间的关系**
-    
-    → [包结构与依赖](architecture/package-structure.md) - 理解 10 个包的依赖关系和模块划分
-    
-    **各层级的详细用法**
-    
-    → [用户指南](../guides/index.md) - 按 L1-L6 层级查看详细文档
+```
+**SAGE 的整体设计**
+
+→ [架构总览](architecture/overview.md) - 查看 6 层架构体系和设计原则
+
+**包之间的关系**
+
+→ [包结构与依赖](architecture/package-structure.md) - 理解 10 个包的依赖关系和模块划分
+
+**各层级的详细用法**
+
+→ [用户指南](../guides/index.md) - 按 L1-L6 层级查看详细文档
+```
 
 === "我是..."
 
-    **新手开发者**
-    
-    1. 先阅读 [架构总览](architecture/overview.md) 建立全局认知
-    2. 查看 [入门指南](../getting-started/index.md) 开始实践
-    3. 遇到问题时参考本章内容理解设计意图
-    
-    **贡献者**
-    
-    1. 详细阅读 [包结构与依赖](architecture/package-structure.md) 了解代码组织
-    2. 理解依赖规则（参考 [包结构文档](architecture/package-structure.md)）避免架构违规
-    3. 查看 [开发者指南](../developers/commands.md) 了解贡献流程
-    4. 参考 [包架构文档](../dev-notes/package-architecture.md) 了解最新的架构状态
-    
-    **架构师 / 技术决策者**
-    
-    1. 系统学习 [架构总览](architecture/overview.md) 和 [包结构](architecture/package-structure.md)
-    2. 查看 [包架构文档](../dev-notes/package-architecture.md) 了解架构演进历史
-    3. 评估如何将 SAGE 的架构模式应用到自己的系统
+```
+**新手开发者**
+
+1. 先阅读 [架构总览](architecture/overview.md) 建立全局认知
+2. 查看 [入门指南](../getting-started/index.md) 开始实践
+3. 遇到问题时参考本章内容理解设计意图
+
+**贡献者**
+
+1. 详细阅读 [包结构与依赖](architecture/package-structure.md) 了解代码组织
+2. 理解依赖规则（参考 [包结构文档](architecture/package-structure.md)）避免架构违规
+3. 查看 [开发者指南](../developers/commands.md) 了解贡献流程
+4. 参考 [包架构文档](../dev-notes/package-architecture.md) 了解最新的架构状态
+
+**架构师 / 技术决策者**
+
+1. 系统学习 [架构总览](architecture/overview.md) 和 [包结构](architecture/package-structure.md)
+2. 查看 [包架构文档](../dev-notes/package-architecture.md) 了解架构演进历史
+3. 评估如何将 SAGE 的架构模式应用到自己的系统
+```
 
 ## 🔍 核心概念速览
 
@@ -98,17 +102,17 @@ L1: Foundation Layer   → sage-common (基础工具与类型)
 
 ### 核心包职责
 
-| 包名              | 层级 | 核心职责                                   | 关键模块                        |
-| ----------------- | ---- | ------------------------------------------ | ------------------------------- |
-| **sage-common**   | L1   | 基础工具、配置、核心类型                   | core, config, utils, components |
-| **sage-platform** | L2   | 消息队列、存储、服务抽象                   | queue, storage, service         |
-| **sage-kernel**   | L3   | 流式执行引擎，提供 DataStream API          | api, operators, runtime         |
-| **sage-libs**     | L3   | AI 算法库：Agents、RAG、I/O、工作流        | agents, rag, io, integrations   |
-| **sage-middleware** | L4 | 领域算子（RAG/LLM）+ 组件（Memory/DB）     | operators, components           |
-| **sage-apps**     | L5   | 应用实现（视频分析、医疗诊断）             | video, medical_diagnosis        |
-| **sage-studio**   | L6   | Web 可视化界面                            | ui, models, services            |
-| **sage-cli**      | L6   | 统一命令行接口（集群、作业管理）           | cluster, job, deploy            |
-| **sage-tools**    | L6   | 开发工具（开发、测试、Pipeline）           | cli, pipeline_builder           |
+| 包名                | 层级 | 核心职责                               | 关键模块                        |
+| ------------------- | ---- | -------------------------------------- | ------------------------------- |
+| **sage-common**     | L1   | 基础工具、配置、核心类型               | core, config, utils, components |
+| **sage-platform**   | L2   | 消息队列、存储、服务抽象               | queue, storage, service         |
+| **sage-kernel**     | L3   | 流式执行引擎，提供 DataStream API      | api, operators, runtime         |
+| **sage-libs**       | L3   | AI 算法库：Agents、RAG、I/O、工作流    | agents, rag, io, integrations   |
+| **sage-middleware** | L4   | 领域算子（RAG/LLM）+ 组件（Memory/DB） | operators, components           |
+| **sage-apps**       | L5   | 应用实现（视频分析、医疗诊断）         | video, medical_diagnosis        |
+| **sage-studio**     | L6   | Web 可视化界面                         | ui, models, services            |
+| **sage-cli**        | L6   | 统一命令行接口（集群、作业管理）       | cluster, job, deploy            |
+| **sage-tools**      | L6   | 开发工具（开发、测试、Pipeline）       | cli, pipeline_builder           |
 
 ### 数据流编程模型
 
@@ -125,7 +129,7 @@ env.from_source(FileSource("data.txt"))  # 数据源
    .map(lambda x: x.upper())              # 转换操作
    .filter(lambda x: len(x) > 10)         # 过滤条件
    .sink(ConsoleSink())                   # 输出
-   
+
 env.execute()  # 执行
 ```
 
@@ -139,16 +143,19 @@ env.execute()  # 执行
 ## 📖 相关阅读
 
 ### 快速入门
+
 - [安装指南](../getting-started/installation.md) - 安装 SAGE 开发环境
 - [快速开始](../getting-started/quickstart.md) - 5 分钟上手第一个 Pipeline
 - [流式处理 101](../tutorials/basic/streaming-101.md) - 理解数据流编程基础
 
 ### 深入学习
+
 - [Kernel 用户指南](../guides/packages/sage-kernel/README.md) - 深入理解流式执行引擎
 - [Libs 用户指南](../guides/packages/sage-libs/README.md) - 了解 AI 算法库和 Agents
 - [Middleware 用户指南](../guides/packages/sage-middleware/overview.md) - 领域算子和组件使用
 
 ### 架构演进
+
 - [sage-libs 重构](architecture/design-decisions/sage-libs-restructuring.md) - L3 算法库模块规范化过程
 - [RPC 队列重构](architecture/design-decisions/rpc-queue-refactoring.md) - 消息队列系统优化历程
 - [L2 平台层](architecture/design-decisions/l2-platform-layer.md) - 平台抽象层的设计与实现
@@ -187,41 +194,41 @@ env.execute()  # 执行
 
 <div class="grid cards" markdown>
 
--   :material-chart-timeline-variant:{ .lg .middle } **架构总览**
+- :material-chart-timeline-variant:{ .lg .middle } **架构总览**
 
-    ---
+  ______________________________________________________________________
 
-    了解 SAGE 的 6 层架构体系、10 个核心包和设计原则
+  了解 SAGE 的 6 层架构体系、10 个核心包和设计原则
 
-    [:octicons-arrow-right-24: 查看详情](architecture/overview.md)
+  [:octicons-arrow-right-24: 查看详情](architecture/overview.md)
 
--   :material-package-variant:{ .lg .middle } **包结构与依赖**
+- :material-package-variant:{ .lg .middle } **包结构与依赖**
 
-    ---
+  ______________________________________________________________________
 
-    深入理解各包的职责边界、模块组成和依赖关系
+  深入理解各包的职责边界、模块组成和依赖关系
 
-    [:octicons-arrow-right-24: 查看详情](architecture/package-structure.md)
+  [:octicons-arrow-right-24: 查看详情](architecture/package-structure.md)
 
--   :material-file-document-outline:{ .lg .middle } **包架构文档**
+- :material-file-document-outline:{ .lg .middle } **包架构文档**
 
-    ---
+  ______________________________________________________________________
 
-    查看详细的架构状态、重构历史和开发者笔记
+  查看详细的架构状态、重构历史和开发者笔记
 
-    [:octicons-arrow-right-24: 浏览文档](../dev-notes/package-architecture.md)
+  [:octicons-arrow-right-24: 浏览文档](../dev-notes/package-architecture.md)
 
--   :material-book-open-page-variant:{ .lg .middle } **开始实践**
+- :material-book-open-page-variant:{ .lg .middle } **开始实践**
 
-    ---
+  ______________________________________________________________________
 
-    将架构知识应用到实际开发中
+  将架构知识应用到实际开发中
 
-    [:octicons-arrow-right-24: 入门指南](../getting-started/index.md)
+  [:octicons-arrow-right-24: 入门指南](../getting-started/index.md)
 
 </div>
 
----
+______________________________________________________________________
 
 ## 📚 相关文档
 
@@ -230,6 +237,6 @@ env.execute()  # 执行
 - [包架构文档](../dev-notes/package-architecture.md) - 开发者视角的架构文档和演进历史
 - [贡献指南](../developers/commands.md) - 参与贡献的指南
 
----
+______________________________________________________________________
 
 **提示**：如果您发现任何架构文档问题或有改进建议，欢迎通过 [GitHub Issues](https://github.com/intellistream/SAGE/issues) 反馈。

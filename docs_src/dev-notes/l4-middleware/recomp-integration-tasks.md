@@ -4,15 +4,18 @@
 
 本文档将 RECOMP (Retrieval-Oriented Compression) 算法集成到 SAGE 框架的任务拆分为多个可并行执行的子任务。
 
-**RECOMP 论文**: [RECOMP: Improving Retrieval-Augmented LMs with Compression and Selective Augmentation](https://arxiv.org/pdf/2310.04408.pdf)
+**RECOMP 论文**:
+[RECOMP: Improving Retrieval-Augmented LMs with Compression and Selective Augmentation](https://arxiv.org/pdf/2310.04408.pdf)
 
 **RECOMP 核心算法**:
+
 1. **Extractive Compressor (recomp_extr)**: 基于双编码器的句子级抽取压缩，选择与 query 最相关的句子
-2. **Abstractive Compressor (recomp_abst)**: 基于 T5 的摘要生成，将检索文档压缩为简洁的摘要
+1. **Abstractive Compressor (recomp_abst)**: 基于 T5 的摘要生成，将检索文档压缩为简洁的摘要
 
-**源码位置**: `packages/sage-middleware/src/sage/middleware/components/sage_refiner/sageRefiner/sage_refiner/algorithms/recomp-main/`
+**源码位置**:
+`packages/sage-middleware/src/sage/middleware/components/sage_refiner/sageRefiner/sage_refiner/algorithms/recomp-main/`
 
----
+______________________________________________________________________
 
 ## 任务依赖图
 
@@ -38,11 +41,12 @@
 ```
 
 **并行性说明**:
+
 - Task 1 必须最先完成（其他任务依赖其基础结构）
 - Task 2, Task 3, Task 4 可在 Task 1 完成后并行执行
 - Task 5 需要在 Task 1-3 完成后执行
 
----
+______________________________________________________________________
 
 ## Task 1: Extractive Compressor 实现 (recomp_extr)
 
@@ -120,10 +124,11 @@ class RECOMPExtractiveCompressor:
 ```
 
 **关键实现细节**:
+
 1. 使用 `AutoTokenizer` + `AutoModel` 加载 Contriever 模型
-2. 使用 `mean_pooling` 获取句子嵌入（参考源码 `mean_pooling` 函数）
-3. 支持 batch 处理以提高效率
-4. 句子分割使用 NLTK 的 `sent_tokenize`
+1. 使用 `mean_pooling` 获取句子嵌入（参考源码 `mean_pooling` 函数）
+1. 支持 batch 处理以提高效率
+1. 句子分割使用 NLTK 的 `sent_tokenize`
 
 ### 1.3 operator.py 实现要点
 
@@ -160,7 +165,7 @@ class RECOMPExtractiveOperator(MapOperator):
 
 **完成状态**: ✅ 已完成
 
----
+______________________________________________________________________
 
 ## Task 2: Abstractive Compressor 实现 (recomp_abst)
 
@@ -227,10 +232,11 @@ class RECOMPAbstractiveCompressor:
 ```
 
 **关键实现细节**:
+
 1. 使用 `AutoModelForSeq2SeqLM` + `AutoTokenizer` 加载 T5 模型
-2. 输入格式必须严格匹配训练时的格式（见 `preprocess_summary_function`）
-3. 使用 `model.generate()` 进行推理
-4. 处理长文档时需要 truncation
+1. 输入格式必须严格匹配训练时的格式（见 `preprocess_summary_function`）
+1. 使用 `model.generate()` 进行推理
+1. 处理长文档时需要 truncation
 
 ### 2.3 operator.py 实现要点
 
@@ -252,7 +258,7 @@ class RECOMPAbstractiveOperator(MapOperator):
 
 **完成状态**: ✅ 已完成
 
----
+______________________________________________________________________
 
 ## Task 3: Benchmark Pipeline 实现
 
@@ -331,6 +337,7 @@ recomp_extr:
 **完成状态**: ✅ 已完成 (2025-12-03)
 
 **已创建的文件**:
+
 - `implementations/pipelines/recomp_extr_rag.py` - RECOMP Extractive RAG pipeline
 - `implementations/pipelines/recomp_abst_rag.py` - RECOMP Abstractive RAG pipeline
 - `config/config_recomp_extr.yaml` - Extractive 配置文件
@@ -338,7 +345,7 @@ recomp_extr:
 
 **注意**: `recomp_abst_rag.py` 需要等待 Task 2 完成（RECOMPAbstractiveOperator 创建）才能正常运行。
 
----
+______________________________________________________________________
 
 ## Task 4: Evaluate 模块检查与修复
 
@@ -353,7 +360,7 @@ recomp_extr:
 参考 `recomp-main/eval_qa.py` 和 `recomp-main/eval_utils.py`:
 
 1. **Exact Match (EM)**: 标准化后的精确匹配
-2. **F1 Score**: Token 级别的 F1 分数
+1. **F1 Score**: Token 级别的 F1 分数
 
 **关键实现细节** (来自 `eval_utils.py`):
 
@@ -409,11 +416,11 @@ class F1Evaluate(MapOperator):
 
 ### 4.3 需要修复的问题
 
-| 问题 | 现状 | RECOMP 标准 | 修复方案 |
-|------|------|------------|----------|
+| 问题       | 现状     | RECOMP 标准            | 修复方案                |
+| ---------- | -------- | ---------------------- | ----------------------- |
 | 文本标准化 | 仅转小写 | 移除标点+冠词+空白修复 | 添加 `normalize_answer` |
-| EM 指标 | 未实现 | 有 `single_ans_em` | 添加 `EMEvaluate` 类 |
-| 答案提取 | 直接使用 | 支持 "answer is" 前缀 | 添加 `answer_extract` |
+| EM 指标    | 未实现   | 有 `single_ans_em`     | 添加 `EMEvaluate` 类    |
+| 答案提取   | 直接使用 | 支持 "answer is" 前缀  | 添加 `answer_extract`   |
 
 ### 4.4 修复实现
 
@@ -463,10 +470,11 @@ class EMEvaluate(MapOperator):
 **完成状态**: ✅ 已完成 (2025-12-03)
 
 **Review 记录** (2025-12-03):
+
 - 发现 EMEvaluate 未在 `sage.middleware.operators.rag.__init__.py` 中导出
 - 已修复：添加 `"EMEvaluate": ("sage.middleware.operators.rag.evaluate", "EMEvaluate")` 到 `_IMPORTS`
 
----
+______________________________________________________________________
 
 ## Task 5: 集成与导出
 
@@ -515,6 +523,7 @@ except ImportError:
 **完成状态**: ✅ 已完成 (2025-12-03)
 
 **验收记录**:
+
 - `algorithms/__init__.py` 正确导出 4 个 RECOMP 类
 - `sage_refiner/__init__.py` 顶层导入全部可用
 - `EMEvaluate` 已添加到 `sage.middleware.operators.rag` 导出
@@ -522,7 +531,7 @@ except ImportError:
 - Operator 实例化测试通过
 - evaluate.py 功能验证通过 (normalize_answer, F1, EM)
 
----
+______________________________________________________________________
 
 ## 开发顺序建议
 
@@ -542,21 +551,21 @@ Person B: 等待 Task 1 → Task 2
 Person C: 等待 Task 1 → Task 3 + Task 4
 ```
 
----
+______________________________________________________________________
 
 ## 参考文件
 
-| 文件 | 用途 |
-|------|------|
-| `recomp-main/run_extractive_compressor.py` | Extractive 核心算法 |
+| 文件                                          | 用途                 |
+| --------------------------------------------- | -------------------- |
+| `recomp-main/run_extractive_compressor.py`    | Extractive 核心算法  |
 | `recomp-main/train_hf_summarization_model.py` | Abstractive 核心算法 |
-| `recomp-main/eval_utils.py` | 评测指标实现 |
-| `reform/compressor.py` | 现有压缩器参考 |
-| `reform/operator.py` | 现有算子参考 |
-| `config_reform.yaml` | 现有配置参考 |
-| `reform_rag.py` | 现有 pipeline 参考 |
+| `recomp-main/eval_utils.py`                   | 评测指标实现         |
+| `reform/compressor.py`                        | 现有压缩器参考       |
+| `reform/operator.py`                          | 现有算子参考         |
+| `config_reform.yaml`                          | 现有配置参考         |
+| `reform_rag.py`                               | 现有 pipeline 参考   |
 
----
+______________________________________________________________________
 
 ## 测试命令
 

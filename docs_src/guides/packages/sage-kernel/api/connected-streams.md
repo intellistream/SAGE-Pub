@@ -151,7 +151,7 @@ joined_stream = users.connect(orders).join(MergeUserOrder)
 
 # Connect them
 
-connected = ConnectedStreams(\[stream1, stream2\])
+connected = ConnectedStreams([stream1, stream2])
 
 ````
 

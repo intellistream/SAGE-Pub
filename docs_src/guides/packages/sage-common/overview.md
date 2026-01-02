@@ -18,7 +18,8 @@ User Code ──► UnifiedInferenceClient.create()
 ```
 
 - 唯一入口：`UnifiedInferenceClient.create()`（仅控制平面模式）。
-- 默认基址：`control_plane_url` 参数 > `SAGE_UNIFIED_BASE_URL` > `http://localhost:{SagePorts.GATEWAY_DEFAULT}/v1`。
+- 默认基址：`control_plane_url` 参数 > `SAGE_UNIFIED_BASE_URL` >
+  `http://localhost:{SagePorts.GATEWAY_DEFAULT}/v1`。
 - 端口常量来自 `SagePorts`，禁止硬编码。
 
 #### 示例（控制平面）
@@ -37,13 +38,14 @@ model_bound = UnifiedInferenceClient.create_for_model("Qwen/Qwen2.5-7B-Instruct"
 
 resp = client.chat([{ "role": "user", "content": "写一份日报" }])
 ```
-│ ExecutionCoord │   EmbeddingExecutor        │ Metrics / Autos   │
-├───────────────┴──────────────┬──────────────┴──────────────┬───┤
-│ GPUResourceManager           │ EngineLifecycleManager        │   │
-├──────────────────────────────┴──────────────────────────────┴───┤
-│        vLLM / TEI / Embedding instances (SagePorts.*)            │
+
+│ ExecutionCoord │ EmbeddingExecutor │ Metrics / Autos │
+├───────────────┴──────────────┬──────────────┴──────────────┬───┤ │ GPUResourceManager │
+EngineLifecycleManager │ │ ├──────────────────────────────┴──────────────────────────────┴───┤ │
+vLLM / TEI / Embedding instances (SagePorts.\*) │
 └─────────────────────────────────────────────────────────────────┘
-```
+
+````
 
 - `control_plane/manager.py`：路由 + 负载均衡 + Autoscaler；与 GPU/引擎管理器协作。
 - `strategies/hybrid_policy.py`：LLM/Embedding 混合批调度。
@@ -66,9 +68,10 @@ client = EmbeddingClientAdapter(raw_embedder)
 vectors = client.embed(["Hello", "World"])
 
 # 直接消费 BaseEmbedding 时需逐条调用：raw_embedder.embed("only-one-text")
-```
+````
 
-**支持的方法**: `hash`, `hf`, `openai`, `jina`, `zhipu`, `cohere`, `ollama`, `siliconcloud`, `bedrock`, `nvidia_openai`
+**支持的方法**: `hash`, `hf`, `openai`, `jina`, `zhipu`, `cohere`, `ollama`, `siliconcloud`, `bedrock`,
+`nvidia_openai`
 
 ### 端口配置 (SagePorts)
 
@@ -149,7 +152,8 @@ sage-common/
 ```
 
 - `control_plane/manager.py`：路由 + 负载均衡 + Autoscaler
-- `strategies/hybrid_policy.py`：LLM/Embedding 混合批调度 (`sage.llm.control_plane.strategies.hybrid_policy`)
+- `strategies/hybrid_policy.py`：LLM/Embedding 混合批调度
+  (`sage.llm.control_plane.strategies.hybrid_policy`)
 - `executors/http_client.py` & `embedding_executor.py`：对接 OpenAI 兼容后端
 - `metrics_collector.py`：SLA/P95 监控，可驱动 `SLOAwarePolicy`
 
@@ -157,11 +161,11 @@ sage-common/
 
 Control Plane 支持运行时启动/停止推理引擎，并自动追踪 GPU 显存：
 
-| 组件 | 说明 |
-|------|------|
-| `GPUResourceManager` | 通过 NVML 监控 GPU 状态，维护逻辑预留账本 |
-| `EngineLifecycleManager` | 管理 vLLM / Embedding Server 进程生命周期 |
-| Management API | `/v1/management/engines` (POST/DELETE) 与 `/v1/management/status` |
+| 组件                     | 说明                                                              |
+| ------------------------ | ----------------------------------------------------------------- |
+| `GPUResourceManager`     | 通过 NVML 监控 GPU 状态，维护逻辑预留账本                         |
+| `EngineLifecycleManager` | 管理 vLLM / Embedding Server 进程生命周期                         |
+| Management API           | `/v1/management/engines` (POST/DELETE) 与 `/v1/management/status` |
 
 **CLI 命令**:
 
@@ -210,7 +214,8 @@ engines:
     kind: embedding
     model: BAAI/bge-small-zh-v1.5
 ```
->>>>>>> feature/control-plane-enhancement
+
+> > > > > > > feature/control-plane-enhancement
 
 ## Usage Examples
 
@@ -272,8 +277,8 @@ HF_ENDPOINT=https://hf-mirror.com
 ```
 
 > CLI 入口如 `sage llm serve` 和 `sage llm model download` 均会调用
-> `sage.common.config.network.ensure_hf_mirror_configured()`，自动根据
-> `detect_china_mainland()` 调整 `HF_ENDPOINT`。
+> `sage.common.config.network.ensure_hf_mirror_configured()`，自动根据 `detect_china_mainland()` 调整
+> `HF_ENDPOINT`。
 
 ### 端口 & WSL2 指南
 
@@ -288,9 +293,11 @@ else:
 print("启动命令:", f"sage llm serve --port {llm_port} --embedding-port {SagePorts.EMBEDDING_DEFAULT}")
 ```
 
-- `UnifiedInferenceClient.create()` 仅使用 Control Plane/Gateway 端口（默认 `SagePorts.GATEWAY_DEFAULT`），不再扫描本地 vLLM 端口。
+- `UnifiedInferenceClient.create()` 仅使用 Control Plane/Gateway 端口（默认
+  `SagePorts.GATEWAY_DEFAULT`），不再扫描本地 vLLM 端口。
 - `SagePorts.is_available(port)` 可在脚本内检测端口是否被占用。
-- `sage llm serve --port <LLM_PORT> --embedding-port <EMBED_PORT>` 会自动写入 `.sage/llm/daemon.json`，供 CLI 与 Control Plane 共享。
+- `sage llm serve --port <LLM_PORT> --embedding-port <EMBED_PORT>` 会自动写入 `.sage/llm/daemon.json`，供
+  CLI 与 Control Plane 共享。
 
 ### 服务启动示例
 
@@ -344,4 +351,5 @@ HF_TOKEN=hf_xxx
 - [Architecture Overview](../../../concepts/architecture/overview.md)
 - [Package Structure](../../../concepts/architecture/package-structure.md)
 
-> 网络/镜像：参见 `sage.common.config.network` 中的 `detect_china_mainland()`、`ensure_hf_mirror_configured()`。
+> 网络/镜像：参见 `sage.common.config.network` 中的
+> `detect_china_mainland()`、`ensure_hf_mirror_configured()`。

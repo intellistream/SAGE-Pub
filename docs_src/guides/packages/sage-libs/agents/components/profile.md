@@ -1,7 +1,7 @@
 # Profile 组件设计文档
 
-!!! note "定位" `BaseProfile`（`packages/sage-libs/src/sage/libs/agentic/agents/profile/profile.py`）定义了 Agent
-的“身份卡片”，并可直接映射为 `MapFunction`。它负责描述角色、目标、任务、背景以及输出偏好，可随时渲染为系统提示词。
+!!! note "定位" `BaseProfile`（`packages/sage-libs/src/sage/libs/agentic/agents/profile/profile.py`）定义了
+Agent 的“身份卡片”，并可直接映射为 `MapFunction`。它负责描述角色、目标、任务、背景以及输出偏好，可随时渲染为系统提示词。
 
 ______________________________________________________________________
 
@@ -41,15 +41,15 @@ ______________________________________________________________________
 
 ## 2. 字段说明
 
-| 字段        | 类型        | 默认值                | 说明                                       |
-| ----------- | ----------- | --------------------- | ------------------------------------------ |
-| `name`      | str         | `"BaseAgent"`         | Agent 的名称                               |
-| `role`      | str         | `"general assistant"` | 角色定位（planner、analyst 等）            |
-| `goals`     | List\[str\] | `[]`                  | 长期目标列表                               |
-| `tasks`     | List\[str\] | `[]`                  | 常见任务模板                               |
-| `backstory` | str         | `""`                  | 背景故事（可空）                           |
-| `language`  | str         | `"zh"`                | 默认输出语言                               |
-| `tone`      | str         | `"concise"`           | 输出语气（如 concise、detailed、socratic） |
+| 字段        | 类型      | 默认值                | 说明                                       |
+| ----------- | --------- | --------------------- | ------------------------------------------ |
+| `name`      | str       | `"BaseAgent"`         | Agent 的名称                               |
+| `role`      | str       | `"general assistant"` | 角色定位（planner、analyst 等）            |
+| `goals`     | List[str] | `[]`                  | 长期目标列表                               |
+| `tasks`     | List[str] | `[]`                  | 常见任务模板                               |
+| `backstory` | str       | `""`                  | 背景故事（可空）                           |
+| `language`  | str       | `"zh"`                | 默认输出语言                               |
+| `tone`      | str       | `"concise"`           | 输出语气（如 concise、detailed、socratic） |
 
 ______________________________________________________________________
 

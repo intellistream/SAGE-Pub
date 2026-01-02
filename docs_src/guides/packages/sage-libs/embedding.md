@@ -6,13 +6,13 @@ SAGE 提供了统一的 Embedding 接口，支持多种嵌入方法将文本转�
 
 SAGE 提供三层 Embedding API：
 
-| 层级 | API | 用途 |
-|------|-----|------|
-| **统一客户端** | `UnifiedInferenceClient` | LLM + Embedding 混合场景（推荐） |
-| **工厂模式** | `EmbeddingFactory` | 本地模型或单一 Embedding 场景 |
-| **服务模式** | `EmbeddingService` | Pipeline 集成，支持 setup/teardown |
+| 层级           | API                      | 用途                               |
+| -------------- | ------------------------ | ---------------------------------- |
+| **统一客户端** | `UnifiedInferenceClient` | LLM + Embedding 混合场景（推荐）   |
+| **工厂模式**   | `EmbeddingFactory`       | 本地模型或单一 Embedding 场景      |
+| **服务模式**   | `EmbeddingService`       | Pipeline 集成，支持 setup/teardown |
 
----
+______________________________________________________________________
 
 ## 快速开始
 
@@ -57,7 +57,7 @@ client = EmbeddingClientAdapter(raw_embedder)
 vectors = client.embed(["Text 1", "Text 2", "Text 3"])
 ```
 
----
+______________________________________________________________________
 
 ## 支持的 Embedding 方法
 
@@ -72,26 +72,26 @@ for method, info in list_embedding_models().items():
 
 ### 本地模型（无需 API Key）
 
-| 方法 | 描述 | 示例模型 |
-|------|------|----------|
-| `hash` | 轻量级哈希 embedding（测试用） | `hash-384`, `hash-768` |
-| `mockembedder` | 随机 embedding（单元测试用） | `mock-128`, `mock-384` |
-| `hf` | HuggingFace 本地模型 | `BAAI/bge-small-zh-v1.5`, `all-MiniLM-L6-v2` |
-| `ollama` | Ollama 本地部署 | `nomic-embed-text`, `mxbai-embed-large` |
+| 方法           | 描述                           | 示例模型                                     |
+| -------------- | ------------------------------ | -------------------------------------------- |
+| `hash`         | 轻量级哈希 embedding（测试用） | `hash-384`, `hash-768`                       |
+| `mockembedder` | 随机 embedding（单元测试用）   | `mock-128`, `mock-384`                       |
+| `hf`           | HuggingFace 本地模型           | `BAAI/bge-small-zh-v1.5`, `all-MiniLM-L6-v2` |
+| `ollama`       | Ollama 本地部署                | `nomic-embed-text`, `mxbai-embed-large`      |
 
 ### 云端 API（需要 API Key）
 
-| 方法 | 描述 | 示例模型 |
-|------|------|----------|
-| `openai` | OpenAI API | `text-embedding-3-small`, `text-embedding-ada-002` |
-| `jina` | Jina AI 多语言 | `jina-embeddings-v3` |
-| `zhipu` | 智谱 AI（国内访问快） | `embedding-3` |
-| `cohere` | Cohere 多语言 | `embed-multilingual-v3.0` |
-| `siliconcloud` | 硅基流动（国内） | `netease-youdao/bce-embedding-base_v1` |
-| `bedrock` | AWS Bedrock | `amazon.titan-embed-text-v2:0` |
-| `nvidia_openai` | NVIDIA NIM | `nvidia/llama-3.2-nv-embedqa-1b-v1` |
+| 方法            | 描述                  | 示例模型                                           |
+| --------------- | --------------------- | -------------------------------------------------- |
+| `openai`        | OpenAI API            | `text-embedding-3-small`, `text-embedding-ada-002` |
+| `jina`          | Jina AI 多语言        | `jina-embeddings-v3`                               |
+| `zhipu`         | 智谱 AI（国内访问快） | `embedding-3`                                      |
+| `cohere`        | Cohere 多语言         | `embed-multilingual-v3.0`                          |
+| `siliconcloud`  | 硅基流动（国内）      | `netease-youdao/bce-embedding-base_v1`             |
+| `bedrock`       | AWS Bedrock           | `amazon.titan-embed-text-v2:0`                     |
+| `nvidia_openai` | NVIDIA NIM            | `nvidia/llama-3.2-nv-embedqa-1b-v1`                |
 
----
+______________________________________________________________________
 
 ## 详细用法
 
@@ -169,7 +169,7 @@ v2 = client.embed(["test"])
 assert v1 == v2  # True
 ```
 
----
+______________________________________________________________________
 
 ## 接口对比
 
@@ -212,7 +212,7 @@ client = EmbeddingClientAdapter(embedder)
 client.embed(["a", "b"])  # OK
 ```
 
----
+______________________________________________________________________
 
 ## 检查模型可用性
 
@@ -230,7 +230,7 @@ print(status)
 # {'status': 'needs_api_key', 'message': '⚠️ 需要 API Key', 'action': '...'}
 ```
 
----
+______________________________________________________________________
 
 ## 在 Pipeline 中使用
 
@@ -254,7 +254,7 @@ stream = env.from_source(text_source).map(service)
 env.execute()
 ```
 
----
+______________________________________________________________________
 
 ## 启动 Embedding 服务器
 
@@ -281,7 +281,7 @@ client = UnifiedInferenceClient.create(
 vectors = client.embed(["Hello", "World"])
 ```
 
----
+______________________________________________________________________
 
 ## 环境变量配置
 
@@ -299,39 +299,41 @@ COHERE_API_KEY=xxx
 HF_ENDPOINT=https://hf-mirror.com
 ```
 
----
+______________________________________________________________________
 
 ## 配置参数说明
 
-| 参数 | 描述 | 默认值 |
-|------|------|--------|
-| `method` | Embedding 方法（hf, openai, hash, ...） | 必需 |
-| `model` | 模型名称 | 方法依赖 |
-| `api_key` | API 密钥（云端方法需要） | 环境变量 |
-| `dim` | 嵌入维度（hash, mock 需要） | 384 |
-| `base_url` | 自定义 API 端点 | 方法默认 |
+| 参数       | 描述                                    | 默认值   |
+| ---------- | --------------------------------------- | -------- |
+| `method`   | Embedding 方法（hf, openai, hash, ...） | 必需     |
+| `model`    | 模型名称                                | 方法依赖 |
+| `api_key`  | API 密钥（云端方法需要）                | 环境变量 |
+| `dim`      | 嵌入维度（hash, mock 需要）             | 384      |
+| `base_url` | 自定义 API 端点                         | 方法默认 |
 
----
+______________________________________________________________________
 
 ## 最佳实践
 
 1. **选择合适的 API 层级**:
+
    - 需要 LLM + Embedding → `UnifiedInferenceClient`
    - 只需 Embedding → `EmbeddingFactory` + `EmbeddingClientAdapter`
    - Pipeline 集成 → `EmbeddingService`
 
-2. **本地 vs 云端**:
+1. **本地 vs 云端**:
+
    - 开发测试用 `hash` 或 `mockembedder`
    - 生产环境推荐 HuggingFace 本地模型（数据隐私）
    - 高质量要求选择 OpenAI 或 Jina API
 
-3. **批量处理**: 对于大量文本，使用批量接口可显著提高效率
+1. **批量处理**: 对于大量文本，使用批量接口可显著提高效率
 
-4. **缓存嵌入**: 对于不变的文本，考虑缓存结果避免重复计算
+1. **缓存嵌入**: 对于不变的文本，考虑缓存结果避免重复计算
 
-5. **维度一致性**: 确保同一应用中使用相同维度的嵌入
+1. **维度一致性**: 确保同一应用中使用相同维度的嵌入
 
----
+______________________________________________________________________
 
 ## 迁移指南
 

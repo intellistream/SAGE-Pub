@@ -1,17 +1,20 @@
 # Task 2.3: 向量存储集成
 
 ## 目标
+
 集成向量数据库，实现文档的向量化存储和检索。
 
 ## 依赖
+
 - Task 2.2 (DocumentLoader, DocumentChunk)
 
 ## 文件位置
+
 `packages/sage-studio/src/sage/studio/services/vector_store.py`
 
 ## 提示词
 
-```
+````
 请实现向量存储服务，封装 Embedding 生成和向量数据库操作。
 
 ## 背景
@@ -54,18 +57,21 @@ SAGE 已有以下组件可复用:
        def get_stats(self) -> dict:
            """获取统计信息"""
            pass
-   ```
+````
 
 3. Embedding 服务选择:
+
    - 优先使用 sage.common.components.sage_embedding
    - 备选: 直接使用 sentence-transformers
    - 支持本地模型和远程 API
 
-4. 向量数据库选择:
+1. 向量数据库选择:
+
    - 默认使用 ChromaDB (轻量、易部署)
    - 可选: Milvus (生产级、高性能)
 
 ## 代码模板
+
 ```python
 from pathlib import Path
 from typing import Any
@@ -177,9 +183,11 @@ class VectorStore:
 ```
 
 ## 注意
+
 - 使用 async/await 保持异步接口一致性
 - 持久化目录使用 XDG 标准路径
 - 批量操作时控制 batch size
+
 ```
 
 ## 验收标准
@@ -187,3 +195,4 @@ class VectorStore:
 - [ ] 文档可正确添加到向量库
 - [ ] 语义检索返回相关结果
 - [ ] 支持持久化和重新加载
+```

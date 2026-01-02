@@ -1,10 +1,10 @@
 # CI/CD Migration to sage-dev Commands
 
-**Date**: 2025-10-26  
-**Author**: GitHub Copilot  
+**Date**: 2025-10-26\
+**Author**: GitHub Copilot\
 **Summary**: 将 CI/CD 工作流从独立 Python 脚本迁移到统一的 `sage-dev` CLI 命令
 
----
+______________________________________________________________________
 
 ## 📋 概述
 
@@ -13,9 +13,9 @@
 ## 🎯 迁移目标
 
 1. **统一命令接口** - 所有质量检查使用统一的 `sage-dev` 命令
-2. **简化维护** - 集中管理检查工具，避免重复代码
-3. **改善用户体验** - 提供一致的命令行体验和错误提示
-4. **增强功能** - 添加架构信息查询等新功能
+1. **简化维护** - 集中管理检查工具，避免重复代码
+1. **改善用户体验** - 提供一致的命令行体验和错误提示
+1. **增强功能** - 添加架构信息查询等新功能
 
 ## 📊 迁移对比
 
@@ -142,6 +142,7 @@ sage-dev architecture --format markdown
 ```
 
 **功能特性**：
+
 - 显示 L1-L6 分层架构定义
 - 显示每个包的依赖关系（按层级顺序）
 - 支持查询特定包的信息
@@ -152,12 +153,14 @@ sage-dev architecture --format markdown
 修正了 `sage-kernel` 和 `sage-libs` 的依赖关系：
 
 **修改前**：
+
 ```python
 "sage-kernel": {"sage-common", "sage-platform", "sage-libs"},  # ❌ 错误
 "sage-libs": {"sage-common", "sage-platform"},
 ```
 
 **修改后**：
+
 ```python
 "sage-kernel": {"sage-common", "sage-platform"},  # ✅ 正确
 "sage-libs": {"sage-common", "sage-platform"},    # ✅ 正确
@@ -170,6 +173,7 @@ sage-dev architecture --format markdown
 #### 测试覆盖
 
 新增测试类 `TestArchitectureCommand`，包含 6 个测试用例：
+
 - ✅ 帮助信息显示
 - ✅ 基本架构显示
 - ✅ 特定包查询
@@ -180,14 +184,17 @@ sage-dev architecture --format markdown
 #### 文档更新
 
 1. **packages/sage-tools/README.md**
+
    - 添加 `architecture` 命令使用示例
    - 更新架构检查命令说明
 
-2. **docs-public/docs_src/dev-notes/package-architecture.md**
+1. **docs-public/docs_src/dev-notes/package-architecture.md**
+
    - 添加 "🛠️ 架构相关命令" 部分
    - 包含命令示例和使用说明
 
-3. **工具脚本**
+1. **工具脚本**
+
    - 创建 `tools/tests/test_ci_commands.sh` - CI 命令测试脚本
 
 ## ✅ 验证结果
@@ -208,6 +215,7 @@ sage-dev architecture --format markdown
 ### CI/CD 兼容性
 
 所有修改后的命令都已在本地验证：
+
 - ✅ `sage-dev check-architecture --changed-only`
 - ✅ `sage-dev check-devnotes --changed-only`
 - ✅ `sage-dev check-readme`
@@ -261,16 +269,19 @@ sage-dev architecture --package sage-kernel
 ## 🔄 向后兼容性
 
 **旧脚本保留**：
+
 - `tools/architecture_checker.py` - ❌ 已移除（集成到 sage-tools）
 - `tools/devnotes_checker.py` - ❌ 已移除（集成到 sage-tools）
 - `tools/package_readme_checker.py` - ❌ 已移除（集成到 sage-tools）
 
 **新位置**：
+
 - `packages/sage-tools/src/sage/tools/dev/tools/architecture_checker.py`
 - `packages/sage-tools/src/sage/tools/dev/tools/devnotes_checker.py`
 - `packages/sage-tools/src/sage/tools/dev/tools/package_readme_checker.py`
 
 **CLI 入口**：
+
 - `packages/sage-tools/src/sage/tools/cli/commands/dev/main.py`
 
 ## 📝 其他改进
@@ -293,21 +304,24 @@ sage-dev architecture --package sage-kernel
 
 修正了 `sage-dev architecture` 命令的显示顺序：
 
-**修改前**：按字母顺序显示（sage-apps, sage-benchmark, sage-common, ...）  
+**修改前**：按字母顺序显示（sage-apps, sage-benchmark, sage-common, ...）\
 **修改后**：按层级顺序显示（L1 → L6）
 
 ## 🚀 未来计划
 
 1. **继续集成其他工具**
+
    - 考虑集成 `tools/maintenance/` 下的 shell 脚本
    - 提供 Python API 用于程序化调用
 
-2. **增强功能**
+1. **增强功能**
+
    - 添加架构可视化（生成依赖图）
    - 提供交互式修复建议
    - 集成更多代码质量检查
 
-3. **性能优化**
+1. **性能优化**
+
    - 缓存检查结果
    - 并行化检查流程
    - 增量检查优化
@@ -319,9 +333,10 @@ sage-dev architecture --package sage-kernel
 - [开发者指南](../../../../DEVELOPER.md)
 - [贡献指南](../../../../CONTRIBUTING.md)
 
----
+______________________________________________________________________
 
 **变更历史**：
+
 - 2025-10-26: 初始版本 - CI/CD 迁移到 sage-dev 命令
 - 2025-10-26: 修正 sage-kernel 架构依赖定义
 - 2025-10-26: 添加 architecture 命令显示架构信息

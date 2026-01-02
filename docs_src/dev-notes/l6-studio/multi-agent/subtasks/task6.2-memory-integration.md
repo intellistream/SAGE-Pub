@@ -1,18 +1,21 @@
 # Task 6.2: Memory 集成服务
 
 ## 目标
+
 实现 Memory 集成服务，连接 sage-memory 的短期/长期记忆。
 
 ## 依赖
+
 - sage-memory 包
 - Task 3.2 (AgentOrchestrator)
 
 ## 文件位置
+
 `packages/sage-studio/src/sage/studio/services/memory_integration.py`
 
 ## 提示词
 
-```
+````
 请实现 Memory 集成服务，连接 sage-memory 的记忆功能。
 
 ## 背景
@@ -196,12 +199,14 @@ def get_memory_service(session_id: str) -> MemoryIntegrationService:
     if session_id not in _memory_instances:
         _memory_instances[session_id] = MemoryIntegrationService(session_id)
     return _memory_instances[session_id]
-```
+````
 
 ## 注意
+
 - sage-memory 不可用时使用 fallback
 - 短期/长期记忆分开管理
 - 会话级别缓存实例
+
 ```
 
 ## 验收标准
@@ -209,3 +214,4 @@ def get_memory_service(session_id: str) -> MemoryIntegrationService:
 - [ ] 支持短期/长期记忆
 - [ ] Fallback 机制正常
 - [ ] 检索结果按相关性排序
+```

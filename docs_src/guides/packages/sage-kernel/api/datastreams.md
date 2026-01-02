@@ -181,8 +181,8 @@ upstream.fill_future(future)
 - 并行度控制仅在算子创建时接受参数，尚未提供 `set_parallelism` 之类的链式方法；
 - 侧输出、副输出流、定时器等功能在源码中暂未实现。
 
-如果需要这些高级特性，请关注仓库中的相关 Issue 或自行扩展 `transformation` 与 `operator` 层，并同步更新文档。 self.reuse_dict\["input"\]
-= value self.reuse_dict\["processed"\] = process(value) return self.reuse_dict
+如果需要这些高级特性，请关注仓库中的相关 Issue 或自行扩展 `transformation` 与 `operator` 层，并同步更新文档。 self.reuse_dict["input"] =
+value self.reuse_dict["processed"] = process(value) return self.reuse_dict
 
 ````
 

@@ -66,7 +66,7 @@ ______________________________________________________________________
 
 1. 作为 Memory/Neuromem 的后端（推荐使用方式）
 
-- 参考 Neuromem 文档与 Memory Service 示例：在 Function 中使用 self.call_service\["memory_service"\] 完成长记忆写入与检索
+- 参考 Neuromem 文档与 Memory Service 示例：在 Function 中使用 self.call_service["memory_service"] 完成长记忆写入与检索
 - SAGE-DB 在内部承担向量写入/检索的后端职责
 
 2. 直接通过 VDB Service 访问向量数据库

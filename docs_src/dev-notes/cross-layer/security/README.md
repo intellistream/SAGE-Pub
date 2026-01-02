@@ -1,10 +1,12 @@
 # Security Documentation
 
-This directory contains security-related documentation, configuration guides, and security update summaries.
+This directory contains security-related documentation, configuration guides, and security update
+summaries.
 
 ## Overview
 
-Security is a critical aspect of SAGE. This directory tracks security improvements, best practices, and configuration guidelines.
+Security is a critical aspect of SAGE. This directory tracks security improvements, best practices,
+and configuration guidelines.
 
 ## Documents
 
@@ -18,11 +20,13 @@ Security is a critical aspect of SAGE. This directory tracks security improvemen
 ### Security Reports
 
 - **`CONFIG_CLEANUP_REPORT.md`** - Report on configuration file security cleanup
+
   - Identified security issues
   - Cleanup actions taken
   - Recommendations
 
 - **`SECURITY_UPDATE_SUMMARY.md`** - Summary of security updates and improvements
+
   - Security patches applied
   - Vulnerability fixes
   - Security enhancements
@@ -37,9 +41,9 @@ Security is a critical aspect of SAGE. This directory tracks security improvemen
 ## Key Security Topics
 
 1. **API Key Management**: Secure storage and usage of API keys
-2. **Configuration Security**: Protecting sensitive configuration data
-3. **Credential Management**: Best practices for handling credentials
-4. **Environment Variables**: Using environment variables for sensitive data
+1. **Configuration Security**: Protecting sensitive configuration data
+1. **Credential Management**: Best practices for handling credentials
+1. **Environment Variables**: Using environment variables for sensitive data
 
 ## Best Practices
 

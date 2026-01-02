@@ -1,19 +1,22 @@
 # Task 3.2: Orchestrator 核心实现
 
 ## 目标
+
 实现 AgentOrchestrator 的核心逻辑，作为 Multi-Agent 系统的入口。
 
 ## 依赖
+
 - Task 1.3 (IntentClassifier)
 - Task 2.4 (KnowledgeManager)
 - Task 3.1 (AgentStep Schema)
 
 ## 文件位置
+
 `packages/sage-studio/src/sage/studio/services/agent_orchestrator.py`
 
 ## 提示词
 
-```
+````
 请实现 AgentOrchestrator 的核心逻辑。
 
 ## 背景
@@ -42,13 +45,15 @@ AgentOrchestrator 是 Multi-Agent 系统的"大脑"，负责:
        ) -> AsyncGenerator[AgentStep | str, None]:
            """处理用户消息，流式返回结果"""
            pass
-   ```
+````
 
 3. 流式输出两种类型:
+
    - AgentStep: 执行步骤（用于前端展示推理过程）
    - str: 最终回复文本片段（用于打字机效果）
 
-4. 处理流程:
+1. 处理流程:
+
    ```
    用户消息 → 意图识别 → 路由分发 → 执行处理器 → 流式输出
                 ↓
@@ -62,6 +67,7 @@ AgentOrchestrator 是 Multi-Agent 系统的"大脑"，负责:
    ```
 
 ## 代码模板
+
 ```python
 from __future__ import annotations
 
@@ -267,9 +273,11 @@ def get_orchestrator() -> AgentOrchestrator:
 ```
 
 ## 注意
+
 - 所有处理器都是 async generator
 - 错误处理要完善
 - 考虑超时机制
+
 ```
 
 ## 验收标准
@@ -277,3 +285,4 @@ def get_orchestrator() -> AgentOrchestrator:
 - [ ] 4 种意图都有对应处理器
 - [ ] 流式输出 AgentStep 和 str
 - [ ] 错误处理覆盖
+```

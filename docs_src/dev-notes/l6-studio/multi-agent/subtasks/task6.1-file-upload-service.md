@@ -1,14 +1,16 @@
 # Task 6.1: 文件上传服务
 
 ## 目标
+
 实现后端文件上传服务，支持用户上传文档到知识库。
 
 ## 文件位置
+
 `packages/sage-studio/src/sage/studio/services/file_upload_service.py`
 
 ## 提示词
 
-```
+````
 请实现文件上传服务，处理用户上传的文档。
 
 ## 要求
@@ -76,19 +78,22 @@
        def get_file_path(self, file_id: str) -> Path | None:
            """获取文件路径"""
            pass
-   ```
+````
 
 4. 安全考虑:
+
    - 文件大小限制 (默认 10MB)
    - 文件类型白名单
    - 文件名消毒（防止路径遍历）
    - 使用 UUID 作为存储文件名
 
-5. 元数据持久化:
+1. 元数据持久化:
+
    - 使用 JSON 文件存储元数据
    - 或使用 SQLite 轻量数据库
 
 ## 代码模板
+
 ```python
 from __future__ import annotations
 
@@ -261,9 +266,11 @@ def get_file_upload_service() -> FileUploadService:
 ```
 
 ## 注意
+
 - 使用 XDG 标准路径
 - 处理并发上传
 - 定期清理过期文件（可选）
+
 ```
 
 ## 验收标准
@@ -271,3 +278,4 @@ def get_file_upload_service() -> FileUploadService:
 - [ ] 文件大小和类型验证
 - [ ] 元数据持久化
 - [ ] 文件名安全处理
+```

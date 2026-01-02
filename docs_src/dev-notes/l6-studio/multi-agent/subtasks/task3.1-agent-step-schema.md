@@ -1,17 +1,20 @@
 # Task 3.1: AgentStep Schema 定义
 
 ## 目标
+
 定义 Agent 执行步骤的数据模型，用于前后端通信。
 
 ## 依赖
+
 无（基础模块）
 
 ## 文件位置
+
 `packages/sage-studio/src/sage/studio/models/agent_step.py`
 
 ## 提示词
 
-```
+````
 请定义 AgentStep 数据模型，作为 Agent 执行步骤的标准格式。
 
 ## 背景
@@ -30,13 +33,14 @@ Multi-Agent 系统需要流式输出执行步骤，前端展示推理过程。
        content: str
        status: StepStatus
        metadata: dict[str, Any]
-   ```
+````
 
 3. 定义枚举:
    - StepType: reasoning, tool_call, tool_result, response
    - StepStatus: pending, running, completed, failed
 
 ## 代码模板
+
 ```python
 from __future__ import annotations
 
@@ -142,9 +146,11 @@ def tool_result_step(content: str, tool_name: str, **metadata) -> AgentStep:
 ```
 
 ## 注意
+
 - Enum 值使用字符串便于 JSON 序列化
 - 提供 to_dict/from_dict 便于序列化
 - 便捷工厂函数简化创建
+
 ```
 
 ## 验收标准
@@ -152,3 +158,4 @@ def tool_result_step(content: str, tool_name: str, **metadata) -> AgentStep:
 - [ ] dataclass 正确实现
 - [ ] JSON 序列化/反序列化正常
 - [ ] 工厂函数可用
+```

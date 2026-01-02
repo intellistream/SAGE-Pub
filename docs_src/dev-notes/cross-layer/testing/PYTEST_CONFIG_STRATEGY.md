@@ -1,7 +1,7 @@
 # Pytest 配置策略
 
-**Date**: 2025-10-29  
-**Author**: SAGE Team  
+**Date**: 2025-10-29\
+**Author**: SAGE Team\
 **Summary**: SAGE 项目 pytest 配置策略说明，采用分布式配置+标准化模板的最佳实践
 
 ## 概述
@@ -15,14 +15,15 @@ SAGE 项目采用**分布式配置 + 标准化模板**的 pytest 配置策略（
 虽然集中式配置（单一 `pytest.ini`）在 monorepo 中更容易维护，但存在以下问题：
 
 1. **不利于独立发布**：子包发布到 PyPI 后，无法携带测试配置
-2. **不符合 Python 生态**：独立安装的包应该是自包含的
-3. **工具兼容性差**：pytest 不支持像 ruff 那样的 `extend` 机制
+1. **不符合 Python 生态**：独立安装的包应该是自包含的
+1. **工具兼容性差**：pytest 不支持像 ruff 那样的 `extend` 机制
 
 ### ✅ 我们的方案：分布式 + 模板化
 
 每个子包的 `pyproject.toml` 包含完整的 pytest 配置，通过自动化工具保持一致性。
 
 **优势**：
+
 - ✅ 每个包可独立测试和发布
 - ✅ 配置随包分发，不依赖 monorepo 结构
 - ✅ 灵活性高，可按需定制（markers, filterwarnings）
@@ -67,6 +68,7 @@ package-name/
 ```
 
 **设计原则**:
+
 - ✅ `testpaths` 统一为 `["tests", "src"]`
 - ✅ 如果某个包的测试路径不同，说明代码结构需要调整
 - ✅ 保持一致性优于灵活性
@@ -76,7 +78,7 @@ package-name/
 每个包可以自定义：
 
 1. **markers**：测试标记（如 `@pytest.mark.slow`）
-2. **filterwarnings**：警告过滤规则
+1. **filterwarnings**：警告过滤规则
 
 示例：
 
@@ -180,7 +182,7 @@ A: 可以在同步脚本中添加特殊逻辑，或者在该包的 `pyproject.to
 - [Python Packaging Best Practices](https://packaging.python.org/en/latest/guides/)
 - [Monorepo Testing Strategies](https://monorepo.tools/#testing)
 
----
+______________________________________________________________________
 
-**维护者**: SAGE Core Team  
+**维护者**: SAGE Core Team\
 **最后更新**: 2025-10-29

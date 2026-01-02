@@ -1,22 +1,23 @@
 # Development Infrastructure Setup - Summary
 
-**Date**: 2024-11-01  
-**Author**: SAGE Team  
+**Date**: 2024-11-01\
+**Author**: SAGE Team\
 **Summary**: 开发基础设施配置指南
 
----
+______________________________________________________________________
 
-
-**Date**: 2025-10-02  
+**Date**: 2025-10-02\
 **Commits**:
+
 - `510ae5e7` - docs: reorganize and cleanup dev-notes directory (#880)
 - `49586b5c` - feat: add development infrastructure and documentation
 
----
+______________________________________________________________________
 
 ## 🎯 What Was Added
 
 ### 1. CHANGELOG.md
+
 - Follows [Keep a Changelog](https://keepachangelog.com/) format
 - Tracks all notable changes to the project
 - Includes guidelines for maintaining the changelog
@@ -26,10 +27,12 @@
 **Location**: `/CHANGELOG.md`
 
 ### 2. Pre-commit Configuration
+
 - **File**: `tools/pre-commit-config.yaml`
 - **Purpose**: Automated code quality checks before commits
 
 **Hooks included**:
+
 - **General checks**: trailing whitespace, end-of-file, YAML/JSON validation
 - **Python formatting**: black (line-length=100), isort (black profile)
 - **Python linting**: ruff (fast linter), mypy (type checking)
@@ -38,11 +41,13 @@
 - **Security**: detect-secrets to prevent credential leaks
 
 **Installation**:
+
 ```bash
 pre-commit install
 ```
 
 **Usage**:
+
 ```bash
 # Run manually
 pre-commit run --all-files
@@ -52,11 +57,13 @@ pre-commit autoupdate
 ```
 
 ### 3. Developer Helper Script
+
 - **File**: `scripts/dev.sh`
 - **Purpose**: Common development commands in one place
 - **Executable**: Yes (chmod +x)
 
 **Available commands**:
+
 ```bash
 ./scripts/dev.sh setup          # Initial dev setup
 ./scripts/dev.sh install        # Install in dev mode
@@ -75,16 +82,19 @@ pre-commit autoupdate
 ```
 
 **Features**:
+
 - Color-coded output
 - Error handling
 - Comprehensive validation suite
 - Helpful error messages
 
 ### 4. Developer Guide
+
 - **File**: `DEVELOPER.md`
 - **Purpose**: Comprehensive guide for contributors
 
 **Sections**:
+
 - Development setup instructions
 - Development workflow with dev.sh
 - Code quality standards (black, isort, ruff, mypy)
@@ -95,22 +105,26 @@ pre-commit autoupdate
 - Pull request process
 
 ### 5. Architecture Diagram
+
 - **File**: `docs/images/architecture.svg`
 - **Purpose**: Visual representation of SAGE architecture
 - **Format**: SVG (scalable vector graphics)
 
 **Layers shown**:
+
 1. User Layer (Applications)
-2. API Layer (LocalEnvironment, RemoteEnvironment)
-3. Core Layer (Dispatcher, Job Manager, Services, Runtime)
-4. Libraries Layer (RAG, Agents, Memory, Middleware, Tools)
-5. Infrastructure Layer (Compute, Storage, Models, Monitoring)
+1. API Layer (LocalEnvironment, RemoteEnvironment)
+1. Core Layer (Dispatcher, Job Manager, Services, Runtime)
+1. Libraries Layer (RAG, Agents, Memory, Middleware, Tools)
+1. Infrastructure Layer (Compute, Storage, Models, Monitoring)
 
 **Referenced in**:
+
 - README.md (Architecture Excellence section)
 - DEVELOPER.md (Useful Resources)
 
 ### 6. Secrets Baseline
+
 - **File**: `tools/secrets.baseline`
 - **Purpose**: Baseline for detect-secrets hook
 - **Content**: Empty JSON object `{}`
@@ -119,20 +133,23 @@ pre-commit autoupdate
 ### 7. Updated Documentation
 
 #### README.md
+
 - Added "System Architecture" section with diagram
 - Reorganized architecture content
 - Better visual structure
 
 #### CONTRIBUTING.md
+
 - Added "Developer Resources" section at the top
 - Links to all new documentation
 - Quick start commands with dev.sh
 
----
+______________________________________________________________________
 
 ## 📊 Statistics
 
 **Files Added**: 6
+
 - `tools/pre-commit-config.yaml`
 - `tools/secrets.baseline`
 - `CHANGELOG.md`
@@ -141,15 +158,17 @@ pre-commit autoupdate
 - `scripts/dev.sh`
 
 **Files Modified**: 2
+
 - `CONTRIBUTING.md`
 - `README.md`
 
 **Files Moved**: 1
+
 - `dev.sh` → `scripts/dev.sh`
 
 **Total Lines Added**: ~1,149 lines
 
----
+______________________________________________________________________
 
 ## 🚀 Quick Start for Developers
 
@@ -193,6 +212,7 @@ git commit -m "feat: my new feature"
 ### Pre-commit Hooks
 
 Pre-commit hooks run automatically on `git commit`. They will:
+
 - Format your code (black, isort)
 - Check for linting issues (ruff, mypy)
 - Validate shell scripts (shellcheck)
@@ -201,11 +221,12 @@ Pre-commit hooks run automatically on `git commit`. They will:
 
 If hooks fail, fix the issues and commit again.
 
----
+______________________________________________________________________
 
 ## 🎨 Code Quality Standards
 
 ### Python Code Style
+
 - **Line length**: 100 characters
 - **Formatter**: black
 - **Import sorting**: isort (black profile)
@@ -213,12 +234,15 @@ If hooks fail, fix the issues and commit again.
 - **Type checking**: mypy
 
 ### Shell Scripts
+
 - **Checker**: shellcheck
 - **Style**: Follow Google Shell Style Guide
 - **Shebang**: Use `#!/usr/bin/env bash`
 
 ### Commit Messages
+
 Follow [Conventional Commits](https://www.conventionalcommits.org/):
+
 - `feat:` New features
 - `fix:` Bug fixes
 - `docs:` Documentation only
@@ -227,7 +251,7 @@ Follow [Conventional Commits](https://www.conventionalcommits.org/):
 - `test:` Adding/updating tests
 - `chore:` Build process, tooling
 
----
+______________________________________________________________________
 
 ## 📖 Documentation Structure
 
@@ -251,11 +275,12 @@ SAGE/
     └── dev.sh            # Developer helper script
 ```
 
----
+______________________________________________________________________
 
 ## 🔧 Troubleshooting
 
 ### Pre-commit Hooks Not Running
+
 ```bash
 # Reinstall hooks
 pre-commit uninstall
@@ -263,12 +288,14 @@ pre-commit install
 ```
 
 ### Format Check Fails
+
 ```bash
 # Auto-fix formatting
 ./scripts/dev.sh format
 ```
 
 ### Tests Fail
+
 ```bash
 # Run with verbose output
 pytest tests/ -vv
@@ -278,16 +305,18 @@ pytest tests/test_specific.py::test_function -v
 ```
 
 ### Dev Script Permission Denied
+
 ```bash
 # Make executable
 chmod +x scripts/dev.sh
 ```
 
----
+______________________________________________________________________
 
 ## 🎉 Benefits
 
 ### For Developers
+
 - ✅ Consistent code style across the project
 - ✅ Automated quality checks before commit
 - ✅ Easy-to-use development commands
@@ -295,6 +324,7 @@ chmod +x scripts/dev.sh
 - ✅ Visual architecture reference
 
 ### For the Project
+
 - ✅ Higher code quality
 - ✅ Fewer bugs and issues
 - ✅ Easier onboarding for new contributors
@@ -302,13 +332,14 @@ chmod +x scripts/dev.sh
 - ✅ Professional development workflow
 
 ### For Maintainers
+
 - ✅ Standardized changelog format
 - ✅ Automated code review checks
 - ✅ Clear release process
 - ✅ Better code organization
 - ✅ Reduced review time
 
----
+______________________________________________________________________
 
 ## 📚 Related Documentation
 
@@ -319,7 +350,7 @@ chmod +x scripts/dev.sh
 - [Black Code Formatter](https://black.readthedocs.io/)
 - [Ruff Linter](https://docs.astral.sh/ruff/)
 
----
+______________________________________________________________________
 
 ## ✅ Checklist
 
@@ -335,7 +366,7 @@ Development infrastructure is now complete:
 - [x] All files committed and pushed
 - [x] Documentation verified
 
----
+______________________________________________________________________
 
-**Status**: ✅ Complete  
+**Status**: ✅ Complete\
 **Next Steps**: Contributors can now use the new development workflow!

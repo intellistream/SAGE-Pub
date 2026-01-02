@@ -9,22 +9,26 @@
 ## 核心功能
 
 ### 1. 用户流量模拟
+
 - 可变负载模式（渐增、峰值、渐减）
 - 可配置基准负载和峰值负载
 - 真实的流量模拟
 
 ### 2. 自动扩缩容
+
 - 基于负载阈值的扩容决策
 - 自动缩容节省资源
 - 冷却期防止频繁扩缩
 - 可配置的最小/最大服务器数
 
 ### 3. 负载均衡
+
 - 轮询（Round-Robin）分发
 - 服务器负载跟踪
 - 动态调整分发策略
 
 ### 4. 性能监控
+
 - 实时负载监控
 - 吞吐量统计
 - 扩缩容事件记录
@@ -48,14 +52,14 @@ MetricsCollector (SinkFunction)
 
 ### 算子说明
 
-| 算子 | 类型 | 功能 |
-|------|------|------|
-| UserTrafficSource | BatchFunction | 生成模拟用户请求 |
-| AutoScaler | MapFunction | 扩缩容决策引擎 |
-| LoadBalancer | MapFunction | 请求分发到服务器 |
-| RequestProcessor | MapFunction | 模拟请求处理 |
-| MetricsCollector | SinkFunction | 收集性能指标 |
-| ScalingEventsSink | SinkFunction | 记录扩缩容事件（可选）|
+| 算子              | 类型          | 功能                   |
+| ----------------- | ------------- | ---------------------- |
+| UserTrafficSource | BatchFunction | 生成模拟用户请求       |
+| AutoScaler        | MapFunction   | 扩缩容决策引擎         |
+| LoadBalancer      | MapFunction   | 请求分发到服务器       |
+| RequestProcessor  | MapFunction   | 模拟请求处理           |
+| MetricsCollector  | SinkFunction  | 收集性能指标           |
+| ScalingEventsSink | SinkFunction  | 记录扩缩容事件（可选） |
 
 ## 使用方法
 
@@ -175,16 +179,19 @@ scaler = AutoScaler(
 ## 应用场景
 
 ### 云应用
+
 - Web 应用弹性伸缩
 - API 网关自动扩容
 - 微服务架构
 
 ### 聊天系统
+
 - 即时通讯服务
 - 在线客服系统
 - 游戏聊天服务器
 
 ### 流式处理
+
 - 实时数据处理
 - 事件驱动系统
 - 流媒体服务
@@ -194,6 +201,7 @@ scaler = AutoScaler(
 ### 系统内置模式
 
 **三阶段负载**：
+
 - 阶段 1 (0-30%)：渐增期
 - 阶段 2 (30-70%)：峰值期
 - 阶段 3 (70-100%)：渐减期

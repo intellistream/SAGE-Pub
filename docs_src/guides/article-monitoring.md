@@ -9,6 +9,7 @@
 ## 核心功能
 
 ### 1. 实时数据获取
+
 - 从 arXiv API 获取最新论文
 - 支持多个学科分类（cs.AI, cs.LG, cs.CL 等）
 - 可配置获取数量和频率
@@ -16,16 +17,19 @@
 ### 2. 多级过滤
 
 **关键词过滤**：
+
 - 基于词袋模型的快速筛选
 - 支持自定义关键词列表
 - 可配置最低匹配分数
 
 **语义过滤**：
+
 - 基于 Jaccard 相似度的语义匹配
 - 支持自定义兴趣主题
 - 提取与研究方向最相关的论文
 
 ### 3. 智能排序
+
 - 综合关键词分数和语义分数
 - 自动排序推荐结果
 - 提供详细的评分解释
@@ -48,13 +52,13 @@ ArticleRankingSink (SinkFunction)
 
 ### 算子说明
 
-| 算子 | 类型 | 功能 |
-|------|------|------|
-| ArxivSource | BatchFunction | 从 arXiv API 获取论文，逐条发送 |
-| KeywordFilter | MapFunction | 基于关键词过滤论文 |
-| SemanticFilter | MapFunction | 基于语义相似度过滤论文 |
-| ArticleScorer | MapFunction | 计算综合评分 |
-| ArticleRankingSink | SinkFunction | 收集并展示排序结果 |
+| 算子               | 类型          | 功能                            |
+| ------------------ | ------------- | ------------------------------- |
+| ArxivSource        | BatchFunction | 从 arXiv API 获取论文，逐条发送 |
+| KeywordFilter      | MapFunction   | 基于关键词过滤论文              |
+| SemanticFilter     | MapFunction   | 基于语义相似度过滤论文          |
+| ArticleScorer      | MapFunction   | 计算综合评分                    |
+| ArticleRankingSink | SinkFunction  | 收集并展示排序结果              |
 
 ## 使用方法
 
@@ -102,10 +106,11 @@ python examples/apps/run_article_monitoring.py --category cs.AI
 ## 配置选项
 
 ### 关键词设置
+
 ```python
 keywords = [
     "machine learning",
-    "deep learning", 
+    "deep learning",
     "neural network",
     "transformer",
     "attention mechanism"
@@ -113,6 +118,7 @@ keywords = [
 ```
 
 ### 兴趣主题
+
 ```python
 interest_topics = [
     "artificial intelligence and machine learning applications",
@@ -124,9 +130,10 @@ interest_topics = [
 ### arXiv 分类
 
 常用分类：
+
 - `cs.AI` - Artificial Intelligence
 - `cs.LG` - Machine Learning
-- `cs.CL` - Computation and Language  
+- `cs.CL` - Computation and Language
 - `cs.CV` - Computer Vision
 - `cs.NE` - Neural and Evolutionary Computing
 - `stat.ML` - Machine Learning (Statistics)
@@ -172,16 +179,19 @@ Interest Topics: artificial intelligence and machine...
 ## 应用场景
 
 ### 学术研究
+
 - 跟踪特定领域的最新进展
 - 发现相关研究工作
 - 文献综述自动化
 
 ### 研究团队
+
 - 团队成员共享感兴趣的论文
 - 定期推送领域动态
 - 知识管理
 
 ### 个人学习
+
 - 探索新的研究方向
 - 学习最新技术
 - 建立个人知识库
@@ -189,6 +199,7 @@ Interest Topics: artificial intelligence and machine...
 ## 扩展功能
 
 ### 持续监控（Future）
+
 ```python
 from sage.apps.article_monitoring import ArticleMonitorPipeline
 
@@ -198,11 +209,13 @@ pipeline.run_continuous(interval=3600)
 ```
 
 ### 通知集成（Future）
+
 - 邮件通知
 - Slack/Discord 集成
 - RSS 订阅
 
 ### 存储集成（Future）
+
 ```python
 # 集成 SageDB 存储历史记录
 from sage.middleware.components.sage_db import SageDBService
@@ -215,15 +228,18 @@ db.store("articles", recommended_articles)
 ## 性能优化
 
 ### 批量处理
+
 - 调整 `max_articles` 控制批量大小
 - 平衡获取速度和网络负载
 
 ### 过滤策略
+
 - 先使用关键词快速过滤
 - 再使用语义分析精细筛选
 - 减少不必要的计算
 
 ### 缓存机制（Future）
+
 - 缓存已处理的论文
 - 避免重复获取
 - 提高响应速度

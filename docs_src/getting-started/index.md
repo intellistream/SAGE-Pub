@@ -55,25 +55,31 @@
 ## 🎯 学习路径建议
 
 === "初学者"
-    
-    1. ✅ [安装 SAGE](installation.md)
-    2. ✅ [快速入门](quickstart.md)
-    3. ✅ [流式处理 101](../tutorials/basic/streaming-101.md)
-    4. ✅ [基础算子](../tutorials/basic/operators/hello_filter_world.md)
+
+```
+1. ✅ [安装 SAGE](installation.md)
+2. ✅ [快速入门](quickstart.md)
+3. ✅ [流式处理 101](../tutorials/basic/streaming-101.md)
+4. ✅ [基础算子](../tutorials/basic/operators/hello_filter_world.md)
+```
 
 === "中级用户"
 
-    1. ✅ [架构总览](../concepts/architecture/overview.md)
-    2. ✅ [包结构](../concepts/architecture/package-structure.md)
-    3. ✅ [自定义算子](../tutorials/advanced/custom-operators.md)
-    4. ✅ [性能优化](../tutorials/advanced/performance-tuning.md)
+```
+1. ✅ [架构总览](../concepts/architecture/overview.md)
+2. ✅ [包结构](../concepts/architecture/package-structure.md)
+3. ✅ [自定义算子](../tutorials/advanced/custom-operators.md)
+4. ✅ [性能优化](../tutorials/advanced/performance-tuning.md)
+```
 
 === "高级开发者"
 
-    1. ✅ [分布式部署](../tutorials/advanced/distributed-pipeline.md)
-    2. ✅ [容错机制](../tutorials/advanced/fault-tolerance.md)
-    3. ✅ [设计决策文档](../concepts/architecture/design-decisions/sage-libs-restructuring.md)
-    4. ✅ [贡献指南](../developers/commands.md)
+```
+1. ✅ [分布式部署](../tutorials/advanced/distributed-pipeline.md)
+2. ✅ [容错机制](../tutorials/advanced/fault-tolerance.md)
+3. ✅ [设计决策文档](../concepts/architecture/design-decisions/sage-libs-restructuring.md)
+4. ✅ [贡献指南](../developers/commands.md)
+```
 
 ## 💡 常见使用场景
 
@@ -136,36 +142,36 @@ env.from_bot(question_bot).connect(answer_bot).sink(output)
 
 <div class="grid cards" markdown>
 
--   :material-download:{ .lg .middle } __安装 SAGE__
+- :material-download:{ .lg .middle } __安装 SAGE__
 
-    ---
+  ______________________________________________________________________
 
-    了解如何安装 SAGE 及其依赖
+  了解如何安装 SAGE 及其依赖
 
-    [:octicons-arrow-right-24: 安装指南](installation.md)
+  [:octicons-arrow-right-24: 安装指南](installation.md)
 
--   :material-rocket-launch:{ .lg .middle } __快速入门__
+- :material-rocket-launch:{ .lg .middle } __快速入门__
 
-    ---
+  ______________________________________________________________________
 
-    5 分钟内运行第一个 SAGE 应用
+  5 分钟内运行第一个 SAGE 应用
 
-    [:octicons-arrow-right-24: 开始教程](quickstart.md)
+  [:octicons-arrow-right-24: 开始教程](quickstart.md)
 
--   :material-book-open-variant:{ .lg .middle } __基础教程__
+- :material-book-open-variant:{ .lg .middle } __基础教程__
 
-    ---
+  ______________________________________________________________________
 
-    学习 SAGE 的核心概念和用法
+  学习 SAGE 的核心概念和用法
 
-    [:octicons-arrow-right-24: 查看教程](../tutorials/basic/streaming-101.md)
+  [:octicons-arrow-right-24: 查看教程](../tutorials/basic/streaming-101.md)
 
--   :material-rocket:{ .lg .middle } __高级特性__
+- :material-rocket:{ .lg .middle } __高级特性__
 
-    ---
+  ______________________________________________________________________
 
-    探索分布式、自定义算子等高级功能
+  探索分布式、自定义算子等高级功能
 
-    [:octicons-arrow-right-24: 高级教程](../tutorials/advanced/index.md)
+  [:octicons-arrow-right-24: 高级教程](../tutorials/advanced/index.md)
 
 </div>

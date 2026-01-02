@@ -1,26 +1,31 @@
 # ANNS Architecture Refactor Plan
 
-**Date**: 2025-12-28  
-**Status**: 🚧 Planning  
+**Date**: 2025-12-28\
+**Status**: 🚧 Planning\
 **Issue**: ANNS-related code scattered across 3 locations with unclear separation
 
----
+______________________________________________________________________
 
 ## 🚨 Current Problem
 
-ANNS (Approximate Nearest Neighbor Search) related code is currently **scattered across three locations**:
+ANNS (Approximate Nearest Neighbor Search) related code is currently **scattered across three
+locations**:
 
 1. **`packages/sage-libs/src/sage/libs/ann/`** (L3)
+
    - Purpose: Unified ANN interface (abstract base classes)
    - Contains: `AnnIndex`, `AnnIndexMeta`, factory, registry
    - Size: ~5 files, interface-only
 
-2. **`packages/sage-libs/src/sage/libs/anns/`** (L3)
+1. **`packages/sage-libs/src/sage/libs/anns/`** (L3)
+
    - Purpose: Python wrappers for various ANNS algorithms
-   - Contains: 23 algorithm implementations (faiss_HNSW, vsag_hnsw, diskann, candy_*, cufe, gti, puck, etc.)
+   - Contains: 23 algorithm implementations (faiss_HNSW, vsag_hnsw, diskann, candy\_\*, cufe, gti,
+     puck, etc.)
    - Size: 23 subdirectories, each with Python wrappers
 
-3. **`packages/sage-benchmark/src/sage/benchmark/benchmark_anns/algorithms_impl/`** (L5)
+1. **`packages/sage-benchmark/src/sage/benchmark/benchmark_anns/algorithms_impl/`** (L5)
+
    - Purpose: C++ source code implementations
    - Contains: candy/, diskann-ms/, faiss/, gti/, puck/, vsag/, SPTAG/, include/, bindings/
    - Size: Large C++ codebase with multiple ANNS libraries
@@ -28,12 +33,12 @@ ANNS (Approximate Nearest Neighbor Search) related code is currently **scattered
 ### Why This Is Problematic
 
 1. **Confusing naming**: `ann` (singular) vs `anns` (plural) - unclear distinction
-2. **Scattered responsibilities**: Interface, wrappers, and implementations in 3 different packages
-3. **Cross-layer dependencies**: L5 (benchmark) contains code that L3 (libs) depends on
-4. **Duplicate structure**: benchmark_anns has algorithms_impl that mirrors sage-libs/anns
-5. **Unclear ownership**: Who maintains what? Where to add new algorithms?
+1. **Scattered responsibilities**: Interface, wrappers, and implementations in 3 different packages
+1. **Cross-layer dependencies**: L5 (benchmark) contains code that L3 (libs) depends on
+1. **Duplicate structure**: benchmark_anns has algorithms_impl that mirrors sage-libs/anns
+1. **Unclear ownership**: Who maintains what? Where to add new algorithms?
 
----
+______________________________________________________________________
 
 ## ✅ Proposed Solution
 
@@ -101,20 +106,20 @@ packages/sage-libs/src/sage/libs/anns/
 ### Key Benefits
 
 1. **Single source of truth**: Everything ANNS in one place
-2. **Clear separation**: interface/ → wrappers/ → implementations/ → benchmarks/
-3. **Easy navigation**: Developers know exactly where to look
-4. **Consistent ownership**: sage-libs package owns all ANNS code
-5. **Proper layering**: L3 doesn't depend on L5 anymore
+1. **Clear separation**: interface/ → wrappers/ → implementations/ → benchmarks/
+1. **Easy navigation**: Developers know exactly where to look
+1. **Consistent ownership**: sage-libs package owns all ANNS code
+1. **Proper layering**: L3 doesn't depend on L5 anymore
 
----
+______________________________________________________________________
 
 ## 📋 Migration Steps
 
 ### Phase 1: Create New Structure (No Code Changes)
 
 1. Create `/home/shuhao/SAGE/packages/sage-libs/src/sage/libs/anns_new/` (temporary)
-2. Create subdirectories: `interface/`, `wrappers/`, `implementations/`, `benchmarks/`
-3. Copy README and architecture docs
+1. Create subdirectories: `interface/`, `wrappers/`, `implementations/`, `benchmarks/`
+1. Copy README and architecture docs
 
 ### Phase 2: Move Interface Layer
 
@@ -125,6 +130,7 @@ mv packages/sage-libs/src/sage/libs/ann/factory.py packages/sage-libs/src/sage/l
 ```
 
 **Files to update**:
+
 - All imports: `from sage.libs.ann` → `from sage.libs.anns.interface`
 
 ### Phase 3: Reorganize Wrappers
@@ -140,6 +146,7 @@ mv packages/sage-libs/src/sage/libs/anns/faiss_* packages/sage-libs/src/sage/lib
 ```
 
 **Files to update**:
+
 - All imports: `from sage.libs.anns.faiss_HNSW` → `from sage.libs.anns.wrappers.faiss.faiss_HNSW`
 
 ### Phase 4: Move C++ Implementations
@@ -151,6 +158,7 @@ mv packages/sage-benchmark/src/sage/benchmark/benchmark_anns/algorithms_impl/* \
 ```
 
 **Files to update**:
+
 - CMakeLists.txt paths
 - Build scripts
 - Python bindings imports
@@ -164,6 +172,7 @@ mv packages/sage-benchmark/src/sage/benchmark/benchmark_anns/{run_benchmark.py,p
 ```
 
 **Keep in benchmark_anns**:
+
 - High-level benchmark orchestration
 - Results visualization
 - CI/CD integration scripts
@@ -171,6 +180,7 @@ mv packages/sage-benchmark/src/sage/benchmark/benchmark_anns/{run_benchmark.py,p
 ### Phase 6: Update All Imports
 
 Files likely to need updates:
+
 ```bash
 # Find all imports
 rg "from sage\.libs\.ann " --type py
@@ -180,6 +190,7 @@ rg "benchmark_anns\.algorithms_impl" --type py
 ```
 
 Update patterns:
+
 - `sage.libs.ann` → `sage.libs.anns.interface`
 - `sage.libs.anns.<algo>` → `sage.libs.anns.wrappers.<family>.<algo>`
 - `benchmark_anns.algorithms_impl` → `sage.libs.anns.implementations`
@@ -199,12 +210,12 @@ rm -rf packages/sage-benchmark/src/sage/benchmark/benchmark_anns/algorithms_impl
 ### Phase 8: Testing
 
 1. **Build tests**: Ensure C++ implementations compile
-2. **Import tests**: Verify all imports work
-3. **Unit tests**: Run existing algorithm tests
-4. **Benchmark tests**: Verify benchmarks still run
-5. **Integration tests**: Test with sage-db, sage-flow
+1. **Import tests**: Verify all imports work
+1. **Unit tests**: Run existing algorithm tests
+1. **Benchmark tests**: Verify benchmarks still run
+1. **Integration tests**: Test with sage-db, sage-flow
 
----
+______________________________________________________________________
 
 ## 🎯 Success Criteria
 
@@ -215,18 +226,18 @@ rm -rf packages/sage-benchmark/src/sage/benchmark/benchmark_anns/algorithms_impl
 - [ ] Documentation updated
 - [ ] No `sage.libs.ann` (singular) references remain
 
----
+______________________________________________________________________
 
 ## ⚠️ Risks and Mitigation
 
-| Risk | Impact | Mitigation |
-|------|--------|-----------|
-| Break existing code | High | Phase-by-phase migration with tests |
-| C++ build issues | Medium | Keep build scripts, update paths carefully |
-| Import path confusion | High | Clear deprecation warnings, update all at once |
-| Submodule conflicts | Medium | Document submodule structure, test builds |
+| Risk                  | Impact | Mitigation                                     |
+| --------------------- | ------ | ---------------------------------------------- |
+| Break existing code   | High   | Phase-by-phase migration with tests            |
+| C++ build issues      | Medium | Keep build scripts, update paths carefully     |
+| Import path confusion | High   | Clear deprecation warnings, update all at once |
+| Submodule conflicts   | Medium | Document submodule structure, test builds      |
 
----
+______________________________________________________________________
 
 ## 📅 Timeline Estimate
 
@@ -240,7 +251,7 @@ rm -rf packages/sage-benchmark/src/sage/benchmark/benchmark_anns/algorithms_impl
 
 **Total**: 12-17 hours
 
----
+______________________________________________________________________
 
 ## 🔗 Related Documents
 
@@ -248,18 +259,18 @@ rm -rf packages/sage-benchmark/src/sage/benchmark/benchmark_anns/algorithms_impl
 - **ANN Interface**: `packages/sage-libs/src/sage/libs/ann/README.md` (if exists)
 - **Package Architecture**: `docs-public/docs_src/dev-notes/package-architecture.md`
 
----
+______________________________________________________________________
 
 ## 💡 Future Enhancements (Post-Refactor)
 
 1. **Unified documentation**: Single README explaining all ANNS algorithms
-2. **Benchmark dashboard**: Visualize algorithm performance comparisons
-3. **Auto-registration**: Wrappers auto-register with factory on import
-4. **Type stubs**: Better IDE support for algorithm selection
-5. **Performance profiles**: Pre-computed characteristics for each algorithm
+1. **Benchmark dashboard**: Visualize algorithm performance comparisons
+1. **Auto-registration**: Wrappers auto-register with factory on import
+1. **Type stubs**: Better IDE support for algorithm selection
+1. **Performance profiles**: Pre-computed characteristics for each algorithm
 
----
+______________________________________________________________________
 
-**Status**: Ready for implementation  
-**Owner**: SAGE Core Team  
+**Status**: Ready for implementation\
+**Owner**: SAGE Core Team\
 **Priority**: Medium (improves maintainability, not urgent)

@@ -2,7 +2,8 @@
 
 ## Overview
 
-This document describes the memory statistics and audit functionality added to `VDBMemoryCollection` in the neuromem submodule.
+This document describes the memory statistics and audit functionality added to `VDBMemoryCollection`
+in the neuromem submodule.
 
 ## Issue Reference
 
@@ -11,11 +12,12 @@ This document describes the memory statistics and audit functionality added to `
 
 ## Motivation
 
-The VDBMemoryCollection previously lacked observability features needed for production deployments and debugging:
+The VDBMemoryCollection previously lacked observability features needed for production deployments
+and debugging:
 
 1. **No memory usage monitoring** - Unable to track total vectors stored or memory consumption
-2. **No retrieval performance metrics** - No tracking of recall time or accuracy
-3. **No index rebuild tracking** - Unknown frequency of index rebuilds
+1. **No retrieval performance metrics** - No tracking of recall time or accuracy
+1. **No index rebuild tracking** - Unknown frequency of index rebuilds
 
 ## Implementation
 
@@ -38,26 +40,32 @@ statistics = {
 ### Modified Methods
 
 #### 1. `__init__()`
+
 - Initializes statistics structure
 
 #### 2. `create_index()`
+
 - Increments `index_create_count`
 - Creates entry in `index_stats` with creation timestamp
 
 #### 3. `init_index()`
+
 - Updates vector count in index stats
 - Recalculates `total_vectors_stored`
 
 #### 4. `update_index()`
+
 - Increments `index_rebuild_count`
 - Records rebuild timestamp
 
 #### 5. `insert()`
+
 - Increments `insert_count`
 - Updates vector count for the index
 - Recalculates `total_vectors_stored`
 
 #### 6. `retrieve()`
+
 - Increments `retrieve_count`
 - Records detailed statistics:
   - Timestamp
@@ -67,15 +75,18 @@ statistics = {
   - Requested topk
 
 #### 7. `store()`
+
 - Persists statistics to `config.json`
 
 #### 8. `load()`
+
 - Restores statistics from `config.json`
 - Backwards compatible (works without statistics in old configs)
 
 ### New API Methods
 
 #### `get_statistics()`
+
 Returns all statistics as a dictionary.
 
 ```python
@@ -84,6 +95,7 @@ stats = collection.get_statistics()
 ```
 
 #### `get_memory_stats()`
+
 Returns memory usage information with estimated memory consumption.
 
 ```python
@@ -102,10 +114,12 @@ memory_stats = collection.get_memory_stats()
 ```
 
 Memory estimation formula:
+
 - Each vector: `dim × 4 bytes (float32) × 1.2 (20% metadata overhead)`
 - Result in MB: `total_bytes / (1024 × 1024)`
 
 #### `get_retrieve_stats(last_n=None)`
+
 Returns retrieval performance statistics.
 
 ```python
@@ -128,6 +142,7 @@ retrieve_stats = collection.get_retrieve_stats(last_n=10)
 ```
 
 #### `get_index_rebuild_stats()`
+
 Returns index rebuild frequency information.
 
 ```python
@@ -146,6 +161,7 @@ rebuild_stats = collection.get_index_rebuild_stats()
 ```
 
 #### `reset_statistics()`
+
 Resets all counters while preserving index structure.
 
 ```python
@@ -225,9 +241,11 @@ for index_name, index_stat in stats["index_stats"].items():
 ## Testing
 
 Comprehensive tests are provided in:
+
 - `packages/sage-middleware/tests/components/sage_mem/test_vdb_statistics.py`
 
 Tests cover:
+
 - Initial statistics state
 - Insert operation tracking
 - Batch insert tracking
@@ -240,11 +258,13 @@ Tests cover:
 - Statistics reset functionality
 
 Run tests with:
+
 ```bash
 pytest packages/sage-middleware/tests/components/sage_mem/test_vdb_statistics.py -v
 ```
 
 Or run the manual test:
+
 ```bash
 python packages/sage-middleware/tests/components/sage_mem/test_vdb_statistics.py
 ```
@@ -254,24 +274,25 @@ python packages/sage-middleware/tests/components/sage_mem/test_vdb_statistics.py
 The implementation is fully backwards compatible:
 
 1. **Old collections without statistics**: Load correctly with default statistics
-2. **Existing code**: Works without modification
-3. **New methods**: Optional, existing code doesn't need them
-4. **Persistence**: Old configs without statistics field are handled gracefully
+1. **Existing code**: Works without modification
+1. **New methods**: Optional, existing code doesn't need them
+1. **Persistence**: Old configs without statistics field are handled gracefully
 
 ## Performance Impact
 
 The implementation has minimal performance impact:
 
 1. **Insert operations**: ~5 integer increments per operation
-2. **Retrieve operations**: ~1 timestamp, ~6 arithmetic operations
-3. **Memory overhead**: ~few KB for statistics structure
-4. **No impact on**: Core embedding, indexing, or search algorithms
+1. **Retrieve operations**: ~1 timestamp, ~6 arithmetic operations
+1. **Memory overhead**: ~few KB for statistics structure
+1. **No impact on**: Core embedding, indexing, or search algorithms
 
 ## Implementation Notes
 
 ### Submodule Changes
 
 The core implementation is in the neuromem submodule:
+
 - Repository: `https://github.com/intellistream/neuromem.git`
 - Branch: `feat/memory-statistics` (local)
 - File: `memory_collection/vdb_collection.py`
@@ -279,6 +300,7 @@ The core implementation is in the neuromem submodule:
 ### Test Location
 
 Tests are in the main SAGE repository:
+
 - File: `packages/sage-middleware/tests/components/sage_mem/test_vdb_statistics.py`
 
 ## Future Enhancements
@@ -286,12 +308,12 @@ Tests are in the main SAGE repository:
 Potential future improvements:
 
 1. **Accuracy metrics**: Track recall@k, precision metrics
-2. **Query latency percentiles**: P50, P95, P99
-3. **Memory breakdown**: Per-component memory usage
-4. **Export to monitoring systems**: Prometheus, Grafana integration
-5. **Anomaly detection**: Automatic alerts for unusual patterns
-6. **Index efficiency metrics**: Fill rate, fragmentation
-7. **Historical trends**: Time-series statistics
+1. **Query latency percentiles**: P50, P95, P99
+1. **Memory breakdown**: Per-component memory usage
+1. **Export to monitoring systems**: Prometheus, Grafana integration
+1. **Anomaly detection**: Automatic alerts for unusual patterns
+1. **Index efficiency metrics**: Fill rate, fragmentation
+1. **Historical trends**: Time-series statistics
 
 ## References
 

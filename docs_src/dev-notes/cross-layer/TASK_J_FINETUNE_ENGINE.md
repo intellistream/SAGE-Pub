@@ -1,18 +1,21 @@
 # Task J: Fine-tune Engine Integration
 
-**Status**: 🆕 IN PROGRESS  
-**Date**: 2025-12-28  
+**Status**: 🆕 IN PROGRESS\
+**Date**: 2025-12-28\
 **Owner**: Architecture Team
 
----
+______________________________________________________________________
 
 ## 🎯 Goal
 
-Integrate existing fine-tune functionality (`sage.libs.finetune`) into Control Plane as a new `finetune` engine kind, replacing the stub implementation and providing unified resource management.
+Integrate existing fine-tune functionality (`sage.libs.finetune`) into Control Plane as a new
+`finetune` engine kind, replacing the stub implementation and providing unified resource management.
 
 ## 📋 Background
 
-Currently, `sage llm fine-tune` is a stub that raises `NotImplementedError`. However, SAGE already has a complete fine-tuning implementation in:
+Currently, `sage llm fine-tune` is a stub that raises `NotImplementedError`. However, SAGE already
+has a complete fine-tuning implementation in:
+
 - `packages/sage-libs/src/sage/libs/finetune/` - Training manager, service, CLI
 - `packages/sage-studio/src/sage/studio/services/finetune_manager.py` - Studio integration
 
@@ -21,12 +24,14 @@ This task connects these implementations to Control Plane for unified management
 ## 🏗️ Architecture
 
 ### Before (Current State)
+
 ```
 User → sage llm fine-tune → VLLMService.fine_tune() → NotImplementedError ❌
 User → Studio UI → FinetuneManager → Training ✅ (isolated)
 ```
 
 ### After (Target State)
+
 ```
 User → sage llm engine start --engine-kind finetune
      → Control Plane
@@ -45,6 +50,7 @@ User → sage llm fine-tune (convenience wrapper)
 **Location**: `packages/sage-llm-core/src/sage/llm/control_plane/executors/finetune_executor.py`
 
 **Interface**:
+
 ```python
 from dataclasses import dataclass
 from typing import Any, Dict, Optional
@@ -67,31 +73,31 @@ class FinetuneEngineConfig:
 
 class FinetuneEngine:
     """Fine-tune engine managed by Control Plane"""
-    
+
     engine_kind = "finetune"
-    
+
     def __init__(self, config: FinetuneEngineConfig):
         self.config = config
         self.manager = FinetuneManager()
         self.task_id: Optional[str] = None
         self.status = "not_started"
-        
+
     async def start(self) -> Dict[str, Any]:
         """Start fine-tuning task"""
         # 1. Create task in FinetuneManager
         # 2. Start training process
         # 3. Return task_id and initial status
-        
+
     async def stop(self) -> Dict[str, Any]:
         """Stop training and save checkpoint"""
         # 1. Signal training to stop
         # 2. Wait for checkpoint save
         # 3. Update status
-        
+
     async def get_status(self) -> Dict[str, Any]:
         """Get training progress"""
         # Return: status, progress, loss, ETA, GPU usage
-        
+
     async def get_logs(self, tail: int = 100) -> List[str]:
         """Get training logs"""
         # Return last N lines of training log
@@ -102,6 +108,7 @@ class FinetuneEngine:
 **Update**: `packages/sage-cli/src/sage/cli/commands/apps/llm.py`
 
 #### Option 1: Enhance `engine start`
+
 ```bash
 # Start fine-tune as engine
 sage llm engine start Qwen/Qwen2.5-0.5B-Instruct \
@@ -122,6 +129,7 @@ sage llm engine stop <engine-id>
 ```
 
 #### Option 2: Keep `fine-tune` as wrapper
+
 ```bash
 # Convenience command (internally calls engine start)
 sage llm fine-tune \
@@ -152,6 +160,7 @@ if engine_kind == "finetune":
 ### 4. Gateway API (L6)
 
 **Existing endpoints work automatically**:
+
 - `POST /v1/management/engines/start` - Start finetune engine
 - `GET /v1/management/engines` - List with status/progress
 - `DELETE /v1/management/engines/{engine_id}` - Stop and save
@@ -160,35 +169,40 @@ if engine_kind == "finetune":
 ## 🔧 Implementation Steps
 
 ### Phase 1: Core Engine (Priority)
+
 1. ✅ Create `FinetuneEngineConfig` dataclass
-2. ✅ Create `FinetuneEngine` class skeleton
-3. ✅ Implement `start()` - connect to `FinetuneManager.start_training()`
-4. ✅ Implement `stop()` - save checkpoint logic
-5. ✅ Implement `get_status()` - read training metrics
-6. ✅ Implement `get_logs()` - tail training log file
+1. ✅ Create `FinetuneEngine` class skeleton
+1. ✅ Implement `start()` - connect to `FinetuneManager.start_training()`
+1. ✅ Implement `stop()` - save checkpoint logic
+1. ✅ Implement `get_status()` - read training metrics
+1. ✅ Implement `get_logs()` - tail training log file
 
 ### Phase 2: Control Plane Integration
+
 1. ✅ Register `finetune` in supported engine kinds
-2. ✅ Add finetune-specific validation in `ControlPlaneManager`
-3. ✅ Handle GPU resource coordination (optional: pause inference)
-4. ✅ Emit metrics to monitoring system
+1. ✅ Add finetune-specific validation in `ControlPlaneManager`
+1. ✅ Handle GPU resource coordination (optional: pause inference)
+1. ✅ Emit metrics to monitoring system
 
 ### Phase 3: CLI Updates
+
 1. ✅ Add `--engine-kind finetune` support to `sage llm engine start`
-2. ✅ Add fine-tune specific arguments (dataset, output, lora config)
-3. ✅ Update `sage llm fine-tune` to call engine start internally
-4. ✅ Add helpful error messages and progress indicators
+1. ✅ Add fine-tune specific arguments (dataset, output, lora config)
+1. ✅ Update `sage llm fine-tune` to call engine start internally
+1. ✅ Add helpful error messages and progress indicators
 
 ### Phase 4: Testing & Documentation
+
 1. ✅ Write unit tests for `FinetuneEngine`
-2. ✅ Write integration test: start → monitor → stop → load model
-3. ✅ Update CLI help text and examples
-4. ✅ Update user documentation with fine-tune workflow
-5. ✅ Add smoke test to verification suite
+1. ✅ Write integration test: start → monitor → stop → load model
+1. ✅ Update CLI help text and examples
+1. ✅ Update user documentation with fine-tune workflow
+1. ✅ Add smoke test to verification suite
 
 ## 📊 Success Criteria
 
 ### Functional Requirements
+
 - ✅ `sage llm engine start --engine-kind finetune` launches training
 - ✅ Training appears in `sage llm engine list` with real-time status
 - ✅ `sage llm engine logs <id>` shows training logs
@@ -196,12 +210,14 @@ if engine_kind == "finetune":
 - ✅ Fine-tuned model can be loaded: `sage llm engine start <path> --engine-kind llm`
 
 ### Non-Functional Requirements
+
 - ✅ Training metrics visible in Control Plane dashboard
 - ✅ GPU memory tracked and managed
 - ✅ Checkpoints saved to XDG user paths (`~/.local/share/sage/models/finetuned/`)
 - ✅ Training survives Gateway restart (task persistence)
 
 ### Integration Test
+
 ```bash
 # 1. Start fine-tune
 ENGINE_ID=$(sage llm engine start Qwen/Qwen2.5-0.5B-Instruct \
@@ -232,20 +248,25 @@ curl -X POST http://localhost:8889/v1/chat/completions \
 ## 🚧 Implementation Notes
 
 ### GPU Resource Coordination
+
 When fine-tuning starts, Control Plane can optionally:
+
 1. Check available GPU memory
-2. If insufficient, pause/scale-down inference engines
-3. Resume inference after training completes
+1. If insufficient, pause/scale-down inference engines
+1. Resume inference after training completes
 
 This is optional for v1 - users can manually stop inference first.
 
 ### Checkpoint Management
+
 - Checkpoints saved to: `get_user_paths().models_dir / "finetuned" / <task-id> / checkpoint-<step>`
 - Final model saved to: `output_dir` specified by user
 - Intermediate checkpoints configurable via `--save-steps`
 
 ### Progress Tracking
+
 FinetuneEngine reads metrics from training log:
+
 - Parse loss, accuracy from log file
 - Estimate ETA based on steps/epoch
 - Track GPU memory usage via nvidia-smi
@@ -275,14 +296,15 @@ FinetuneEngine reads metrics from training log:
 ## 🚀 Next Steps
 
 1. Create `finetune_executor.py` skeleton
-2. Implement basic `start()` connecting to FinetuneManager
-3. Test with minimal training run
-4. Add progress tracking
-5. Integrate into CLI
-6. Write tests and documentation
+1. Implement basic `start()` connecting to FinetuneManager
+1. Test with minimal training run
+1. Add progress tracking
+1. Integrate into CLI
+1. Write tests and documentation
 
----
+______________________________________________________________________
 
 **Status Updates**:
+
 - 2025-12-28: Task created, design documented
 - 2025-12-28: Implementation started (Phase 1 in progress)

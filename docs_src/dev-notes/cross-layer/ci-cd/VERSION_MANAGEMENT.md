@@ -1,7 +1,7 @@
 # SAGE 版本管理策略
 
-**Date**: 2025-11-10  
-**Author**: GitHub Copilot & ShuhaoZhangTony  
+**Date**: 2025-11-10\
+**Author**: GitHub Copilot & ShuhaoZhangTony\
 **Summary**: 新的版本管理策略 - 禁用 main-dev 自动 version bump 以减少 feature 分支 rebase 冲突
 
 ## 📋 概述

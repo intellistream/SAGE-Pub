@@ -1,13 +1,13 @@
 # SAGE Finetune 重构总结
 
-**Date**: 2024-10-12  
-**Author**: SAGE Team  
+**Date**: 2024-10-12\
+**Author**: SAGE Team\
 **Summary**: Finetune 模块重构总结
 
----
+______________________________________________________________________
 
-
-> **✅ 当前文档**: 本文档描述了微调功能的模块化重构。完整 API 文档和使用指南见 `packages/sage-tools/src/sage/tools/finetune/README.md`。
+> **✅ 当前文档**: 本文档描述了微调功能的模块化重构。完整 API 文档和使用指南见
+> `packages/sage-tools/src/sage/tools/finetune/README.md`。
 
 ## 🎯 重构目标
 
@@ -35,11 +35,13 @@ SAGE/
 ### 1. 模块化设计
 
 **Before (单一脚本)**:
+
 ```
 scripts/simple_finetune.py  (~200行，所有功能耦合)
 ```
 
 **After (模块化)**:
+
 ```
 sage/tools/finetune/
 ├── __init__.py     # 导出接口
@@ -105,15 +107,18 @@ config = PresetConfigs.minimal()
 ### 5. 完整的 API
 
 #### Config API
+
 - `TrainingConfig` - 训练配置
 - `LoRAConfig` - LoRA 配置
 - `PresetConfigs` - 预设配置集合
 
 #### Trainer API
+
 - `LoRATrainer` - 主训练器
 - `train_from_meta()` - 从元信息训练（兼容旧接口）
 
 #### Data API
+
 - `load_training_data()` - 加载数据
 - `prepare_dataset()` - 准备数据集
 - `format_*_sample()` - 格式化样本
@@ -252,6 +257,7 @@ git push
 #### 2.3 使用子模块
 
 **克隆 SAGE（包含子模块）**:
+
 ```bash
 git clone --recursive https://github.com/intellistream/SAGE.git
 
@@ -261,6 +267,7 @@ git submodule update
 ```
 
 **更新子模块**:
+
 ```bash
 cd packages/sage-finetune
 git pull origin main
@@ -270,6 +277,7 @@ git commit -m "Update sage-finetune submodule"
 ```
 
 **独立开发子模块**:
+
 ```bash
 # Fork sage-finetune 仓库
 git clone https://github.com/YOUR_USERNAME/sage-finetune.git
@@ -295,6 +303,7 @@ python -m twine upload dist/*
 ```
 
 **用户安装**:
+
 ```bash
 # 作为独立包使用
 pip install sage-finetune
@@ -308,12 +317,14 @@ pip install isage-tools[finetune]
 ### 当前文档
 
 1. **README.md** - 完整使用指南
+
    - 快速开始
    - 预设配置
    - API 文档
    - 故障排除
 
-2. **代码文档** - 完整的文档字符串
+1. **代码文档** - 完整的文档字符串
+
    - 所有公共类和函数
    - 类型注解
    - 使用示例
@@ -321,12 +332,14 @@ pip install isage-tools[finetune]
 ### 未来文档（作为子模块后）
 
 3. **docs/** - 详细文档
+
    - 架构设计
    - 开发指南
    - 贡献指南
    - API 参考
 
-4. **examples/** - 示例代码
+1. **examples/** - 示例代码
+
    - 基础示例
    - 高级用法
    - 自定义扩展
@@ -336,23 +349,27 @@ pip install isage-tools[finetune]
 ### 对于想研究微调的同学
 
 1. **Fork 独立仓库**（未来）
+
    ```bash
    git clone https://github.com/YOUR_USERNAME/sage-finetune.git
    ```
 
-2. **本地开发**
+1. **本地开发**
+
    ```bash
    cd sage-finetune
    pip install -e ".[full]"
    ```
 
-3. **修改和扩展**
+1. **修改和扩展**
+
    - 添加新的训练策略
    - 支持新的数据格式
    - 优化训练性能
    - 添加新的模型架构
 
-4. **贡献回社区**
+1. **贡献回社区**
+
    - 提交 Issue
    - 创建 PR
    - 分享经验
@@ -385,6 +402,7 @@ python -m pytest tests/  # (需要添加测试)
 如果之前使用过 `scripts/simple_finetune.py`：
 
 **旧方式**:
+
 ```bash
 python scripts/simple_finetune.py finetune_output/code
 ```
@@ -392,16 +410,19 @@ python scripts/simple_finetune.py finetune_output/code
 **新方式**:
 
 1. **使用 CLI（推荐）**:
+
 ```bash
 sage finetune run finetune_output/code
 ```
 
 2. **使用 Python 模块**:
+
 ```bash
 python -m sage.tools.finetune.trainer finetune_output/code
 ```
 
 3. **使用代码**:
+
 ```python
 from sage.tools.finetune.trainer import train_from_meta
 train_from_meta("finetune_output/code")
@@ -452,54 +473,56 @@ trainer = LoRATrainer(config)
 ### VS Code 崩溃修复
 
 1. **8-bit 量化**: 减少 50% 显存占用
-2. **Gradient Checkpointing**: 减少 30% 显存占用
-3. **Batch size = 1**: 避免 OOM
-4. **Max length = 1024**: 适配 RTX 3060
+1. **Gradient Checkpointing**: 减少 30% 显存占用
+1. **Batch size = 1**: 避免 OOM
+1. **Max length = 1024**: 适配 RTX 3060
 
 ### 预设配置效果
 
-| 配置 | 显卡 | Batch Size | Max Length | 显存占用 |
-|------|------|------------|-----------|----------|
-| minimal | <8GB | 1 | 512 | ~6GB |
-| rtx_3060 | 12GB | 1 | 1024 | ~10GB |
-| rtx_4090 | 24GB | 4 | 2048 | ~20GB |
-| a100 | 40GB+ | 8 | 4096 | ~35GB |
+| 配置     | 显卡  | Batch Size | Max Length | 显存占用 |
+| -------- | ----- | ---------- | ---------- | -------- |
+| minimal  | \<8GB | 1          | 512        | ~6GB     |
+| rtx_3060 | 12GB  | 1          | 1024       | ~10GB    |
+| rtx_4090 | 24GB  | 4          | 2048       | ~20GB    |
+| a100     | 40GB+ | 8          | 4096       | ~35GB    |
 
 ## 🎯 总结
 
 ### 已完成 ✅
 
 1. ✅ 模块化重构
-2. ✅ 预设配置
-3. ✅ 数据格式支持
-4. ✅ 完整 API
-5. ✅ 向后兼容
-6. ✅ 完整文档
-7. ✅ VS Code 崩溃修复
+1. ✅ 预设配置
+1. ✅ 数据格式支持
+1. ✅ 完整 API
+1. ✅ 向后兼容
+1. ✅ 完整文档
+1. ✅ VS Code 崩溃修复
 
 ### 下一步 🚀
 
 1. 📝 添加单元测试
-2. 📝 添加更多示例
-3. 📦 拆分为独立子模块
-4. 🌐 发布到 PyPI
-5. 📚 建立独立文档站
+1. 📝 添加更多示例
+1. 📦 拆分为独立子模块
+1. 🌐 发布到 PyPI
+1. 📚 建立独立文档站
 
 ### 对研究者的建议
 
 **现在**:
+
 - 可以直接修改 `packages/sage-tools/src/sage/tools/finetune/` 中的代码
 - 遵循模块化设计原则
 - 提交 PR 到 SAGE 主仓库
 
 **未来（子模块后）**:
+
 - Fork `sage-finetune` 独立仓库
 - 完全独立开发
 - 更灵活的版本管理
 - 更容易贡献和分享
 
----
+______________________________________________________________________
 
-**作者**: GitHub Copilot  
-**日期**: 2025-10-07  
+**作者**: GitHub Copilot\
+**日期**: 2025-10-07\
 **版本**: v1.0

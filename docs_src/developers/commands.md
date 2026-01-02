@@ -50,17 +50,17 @@ pip install -e .
 
 ## `sage-dev` CLI 速查表
 
-| 模块 | 常用命令 | 作用 |
-|------|----------|------|
-| 项目测试 | `sage-dev project test [--quick|--coverage|--jobs 4 --timeout 300]` | 运行主测试矩阵；`--quick` 跳过 `@slow`，`--coverage` 生成覆盖率 |
-| 示例测试 | `sage-dev examples test [--filter <name>]` | 运行 `examples/` 下的教程与应用脚本 |
-| 文档 | `sage-dev docs build` / `sage-dev docs serve` | 构建或本地预览 `docs-public`（使用 MkDocs） |
-| 质量检查 | `sage-dev quality check --check-only` / `sage-dev quality fix` | 触发 Ruff/Mypy/架构合规；`--check-only` 不改文件 |
-| Submodule 维护 | `sage-dev maintain submodule (status|init|switch|update)` | 封装 `tools/maintenance/sage-maintenance.sh`，用于 C++ 依赖同步 |
-| C++ 扩展 | `sage-dev extensions install all [--force]` | 在 `.sage/build/` 构建扩展，支持 `--force` 重编 |
-| 打包/发布 | `sage-dev package pypi (build|check|publish)` | 构建 wheel、检查 metadata、推送 PyPI/TestPyPI |
-| 版本管理 | `sage-dev package version (list|bump|set|sync)` | 与 `Makefile` 版本命令一致，支持 `patch/minor/major` |
-| 工具版本校验 | `./tools/install/check_tool_versions.sh [--fix]` | 确保 `tools/pre-commit-config.yaml` 与 `packages/sage-tools/pyproject.toml` 的 Ruff 版本一致 |
+| 模块           | 常用命令                                                       | 作用                                                                                         |
+| -------------- | -------------------------------------------------------------- | -------------------------------------------------------------------------------------------- |
+| 项目测试       | \`sage-dev project test \[--quick                              | --coverage                                                                                   |
+| 示例测试       | `sage-dev examples test [--filter <name>]`                     | 运行 `examples/` 下的教程与应用脚本                                                          |
+| 文档           | `sage-dev docs build` / `sage-dev docs serve`                  | 构建或本地预览 `docs-public`（使用 MkDocs）                                                  |
+| 质量检查       | `sage-dev quality check --check-only` / `sage-dev quality fix` | 触发 Ruff/Mypy/架构合规；`--check-only` 不改文件                                             |
+| Submodule 维护 | \`sage-dev maintain submodule (status                          | init                                                                                         |
+| C++ 扩展       | `sage-dev extensions install all [--force]`                    | 在 `.sage/build/` 构建扩展，支持 `--force` 重编                                              |
+| 打包/发布      | \`sage-dev package pypi (build                                 | check                                                                                        |
+| 版本管理       | \`sage-dev package version (list                               | bump                                                                                         |
+| 工具版本校验   | `./tools/install/check_tool_versions.sh [--fix]`               | 确保 `tools/pre-commit-config.yaml` 与 `packages/sage-tools/pyproject.toml` 的 Ruff 版本一致 |
 
 > 所有 `make`、`dev.sh` 命令最终都会调用 `sage-dev`，因此在 CI/自动化脚本中直接使用 `sage-dev` 可减少封装层次数。
 

@@ -1,18 +1,21 @@
 # Task 3.4: Chat API 路由集成
 
 ## 目标
+
 将 AgentOrchestrator 集成到现有的 Chat API 路由。
 
 ## 依赖
+
 - Task 3.2 (Orchestrator 核心)
 - Task 3.3 (Stream Handler)
 
 ## 文件位置
+
 `packages/sage-studio/src/sage/studio/routes/chat.py`（修改现有文件）
 
 ## 提示词
 
-```
+````
 请将 AgentOrchestrator 集成到现有的 Chat API 路由。
 
 ## 背景
@@ -32,9 +35,10 @@ SAGE Studio 已有 chat 路由，需要修改以支持 Multi-Agent 模式。
      "session_id": "string",
      "history": [{"role": "user", "content": "..."}, ...]
    }
-   ```
+````
 
 ## 代码模板
+
 ```python
 # 在现有 chat.py 中添加:
 
@@ -95,9 +99,11 @@ async def agent_chat_sync(request: AgentChatRequest):
 ```
 
 ## 注意
+
 - 保持与现有路由兼容
 - 流式接口返回 StreamingResponse
 - 提供同步接口便于调试
+
 ```
 
 ## 验收标准
@@ -105,3 +111,4 @@ async def agent_chat_sync(request: AgentChatRequest):
 - [ ] /api/chat/agent/sync 返回 JSON
 - [ ] 现有接口不受影响
 - [ ] 错误处理完善
+```

@@ -2,8 +2,9 @@
 
 ## 问题描述
 
-在 `feat/unified-chat-canvas-rebased` 分支中，我们将 `sage_vllm` 重命名为 `sage_llm`（提交 f78318b6c）。
-但是 `main-dev` 分支在此之后仍然更新了 `packages/sage-common/src/sage/common/components/sage_vllm/sageLLM` submodule。
+在 `feat/unified-chat-canvas-rebased` 分支中，我们将 `sage_vllm` 重命名为 `sage_llm`（提交 f78318b6c）。 但是
+`main-dev` 分支在此之后仍然更新了 `packages/sage-common/src/sage/common/components/sage_vllm/sageLLM`
+submodule。
 
 当尝试将 `feat/unified-chat-canvas-rebased` 合并回 `main-dev` 时，会出现冲突：
 
@@ -13,7 +14,6 @@ deleted in HEAD and modified in origin/main-dev.
 ```
 
 ## 冲突原因
-
 
 Git 无法自动处理这种"删除 vs 修改"的冲突。
 
@@ -126,9 +126,9 @@ git push origin feat/unified-chat-canvas-rebased --force-with-lease
 **对于当前情况，推荐使用方案 1 (Rebase)**，原因：
 
 1. **线性历史**: 你的分支本身就是从 main-dev rebased 而来，继续保持线性最合理
-2. **干净的 PR**: 合并回 main-dev 时只会是 fast-forward merge
-3. **易于 code review**: 审查者看到的是清晰的提交序列
-4. **符合项目习惯**: 从分支名 `feat/unified-chat-canvas-rebased` 可见项目倾向 rebase
+1. **干净的 PR**: 合并回 main-dev 时只会是 fast-forward merge
+1. **易于 code review**: 审查者看到的是清晰的提交序列
+1. **符合项目习惯**: 从分支名 `feat/unified-chat-canvas-rebased` 可见项目倾向 rebase
 
 ## 详细步骤（方案 1）
 
@@ -191,26 +191,28 @@ sage-dev project test --quick
 ## 后续注意事项
 
 1. **通知团队成员**: 如果使用了 force push，需要通知其他开发者
+
    ```bash
    # 其他开发者需要：
    git fetch origin
    git reset --hard origin/feat/unified-chat-canvas-rebased
    ```
 
-2. **更新 PR**: 如果已有 PR，GitHub 会自动更新，但需要重新请求 review
+1. **更新 PR**: 如果已有 PR，GitHub 会自动更新，但需要重新请求 review
 
-3. **CI/CD**: 推送后检查 CI 是否通过，特别是：
+1. **CI/CD**: 推送后检查 CI 是否通过，特别是：
+
    - 构建测试
    - 导入测试
    - Submodule 一致性检查
 
-4. **文档更新**: 更新相关文档中的 `sage_vllm` 引用为 `sage_llm`
+1. **文档更新**: 更新相关文档中的 `sage_vllm` 引用为 `sage_llm`
 
 ## 预防未来冲突
 
 1. **及时同步**: 定期 rebase main-dev，避免分支分叉太久
-2. **重命名沟通**: 大规模重命名前先在 main-dev 完成，或通知团队
-3. **子模块管理**: 使用 `./manage.sh` 统一管理 submodule 更新
+1. **重命名沟通**: 大规模重命名前先在 main-dev 完成，或通知团队
+1. **子模块管理**: 使用 `./manage.sh` 统一管理 submodule 更新
 
 ## 常见问题
 
@@ -255,4 +257,3 @@ grep -r "import sage.*sage_vllm" packages/ --include="*.py"
 ```
 
 ## 参考资料
-

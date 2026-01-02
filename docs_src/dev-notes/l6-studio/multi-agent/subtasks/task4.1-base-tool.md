@@ -1,14 +1,16 @@
 # Task 4.1: BaseTool 基类
 
 ## 目标
+
 定义工具基类，为所有工具提供统一接口。
 
 ## 文件位置
+
 `packages/sage-studio/src/sage/studio/tools/base.py`
 
 ## 提示词
 
-```
+````
 请实现 Studio 工具层的基类。
 
 ## 背景
@@ -43,14 +45,16 @@ sage-libs 中已有 BaseTool 定义:
        def get_schema(self) -> dict:
            """返回 OpenAI function calling 格式的 schema"""
            pass
-   ```
+````
 
 3. 兼容性考虑:
+
    - 尝试继承 sage.libs.foundation.tools.tool.BaseTool
    - 如果不可用，使用独立定义
    - 支持同步和异步执行
 
-4. 工具注册机制:
+1. 工具注册机制:
+
    ```python
    class ToolRegistry:
        def __init__(self):
@@ -68,6 +72,7 @@ sage-libs 中已有 BaseTool 定义:
    ```
 
 ## 代码模板
+
 ```python
 from __future__ import annotations
 
@@ -176,9 +181,11 @@ def get_tool_registry() -> ToolRegistry:
 ```
 
 ## 注意
+
 - 保持与 OpenAI function calling 格式兼容
 - 日志要包含足够的调试信息
 - 考虑工具超时机制
+
 ```
 
 ## 验收标准
@@ -186,3 +193,4 @@ def get_tool_registry() -> ToolRegistry:
 - [ ] ToolRegistry 支持注册和查询
 - [ ] get_schema() 输出符合 OpenAI 格式
 - [ ] 错误处理覆盖常见情况
+```

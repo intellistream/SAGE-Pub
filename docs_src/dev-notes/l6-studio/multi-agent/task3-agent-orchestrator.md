@@ -4,16 +4,16 @@
 
 实现 Agent 编排器，作为 Multi-Agent 系统的核心大脑。它负责接收用户输入，调用意图分类器，根据意图路由到相应的 Agent 或 Tool，并协调执行过程。
 
-**优先级**: P0 (高)  
-**预计工时**: 3-4 天  
+**优先级**: P0 (高)\
+**预计工时**: 3-4 天\
 **可并行**: 否（依赖 Task 1, 2 接口，但可先 Mock）
 
 ## 目标
 
 1. **统一入口**: 替代现有的简单 Chat 逻辑，成为所有对话请求的入口
-2. **动态路由**: 根据意图动态选择执行路径
-3. **执行流管理**: 管理"思考-工具调用-响应"的完整生命周期
-4. **流式输出**: 支持将推理步骤和最终结果流式传输给前端
+1. **动态路由**: 根据意图动态选择执行路径
+1. **执行流管理**: 管理"思考-工具调用-响应"的完整生命周期
+1. **流式输出**: 支持将推理步骤和最终结果流式传输给前端
 
 ## 文件位置
 
@@ -137,17 +137,18 @@ class AgentOrchestrator:
 
 ### 1. 意图路由表
 
-| 意图类型 | 处理逻辑 | 涉及组件 |
-|---------|---------|---------|
-| `KNOWLEDGE_QUERY` | RAG 流程：加载源 -> 检索 -> 生成 | KnowledgeManager, LLM |
-| `PIPELINE_GENERATION` | 工作流生成：分析需求 -> 生成配置 -> 可视化 | WorkflowGenerator |
-| `CODE_ASSISTANCE` | 代码助手：检索 API -> 生成代码 | KnowledgeManager (API docs), LLM |
-| `SYSTEM_OPERATION` | 工具调用：解析参数 -> 调用系统 API | SystemTools |
-| `GENERAL_CHAT` | 直接对话：调用 LLM | LLM |
+| 意图类型              | 处理逻辑                                   | 涉及组件                         |
+| --------------------- | ------------------------------------------ | -------------------------------- |
+| `KNOWLEDGE_QUERY`     | RAG 流程：加载源 -> 检索 -> 生成           | KnowledgeManager, LLM            |
+| `PIPELINE_GENERATION` | 工作流生成：分析需求 -> 生成配置 -> 可视化 | WorkflowGenerator                |
+| `CODE_ASSISTANCE`     | 代码助手：检索 API -> 生成代码             | KnowledgeManager (API docs), LLM |
+| `SYSTEM_OPERATION`    | 工具调用：解析参数 -> 调用系统 API         | SystemTools                      |
+| `GENERAL_CHAT`        | 直接对话：调用 LLM                         | LLM                              |
 
 ### 2. 上下文管理
 
 Orchestrator 需要维护当前会话的上下文，特别是：
+
 - **当前任务状态**: 是否正在生成 Pipeline？是否在等待用户确认？
 - **工具执行结果**: 上一步工具的输出作为下一步的输入。
 

@@ -9,6 +9,7 @@ SAGE Studio 是一个基于 React + Vite 的前端应用，配合 Python 后端 
 ### 系统依赖
 
 1. **Node.js 18+** 和 **npm**（TypeScript 5.x 需要 Node.js 14+，推荐 18+）
+
    ```bash
    # 推荐通过 conda 安装（确保版本正确）
    conda install -y nodejs=20 -c conda-forge
@@ -20,11 +21,14 @@ SAGE Studio 是一个基于 React + Vite 的前端应用，配合 Python 后端 
    which node  # 应该指向 conda 环境中的 node
    ```
 
-   **常见问题**：如果系统通过 apt 安装了旧版 Node.js（如 v12），可能会导致 TypeScript 编译失败（`SyntaxError: Unexpected token '?'`）。解决方法：
+   **常见问题**：如果系统通过 apt 安装了旧版 Node.js（如 v12），可能会导致 TypeScript
+   编译失败（`SyntaxError: Unexpected token '?'`）。解决方法：
+
    - 使用 conda 安装 Node.js 20+
    - 或使用 nvm 管理 Node.js 版本：`nvm install 20 && nvm use 20`
 
-2. **Python 3.10+** 和 SAGE 开发环境
+1. **Python 3.10+** 和 SAGE 开发环境
+
    ```bash
    ./quickstart.sh --dev --yes
    ```
@@ -46,6 +50,7 @@ sage studio start --dev --host 0.0.0.0 --port 5173
 ```
 
 特点：
+
 - 无需预先构建
 - 支持 HMR (Hot Module Replacement)
 - 更快的启动速度
@@ -66,6 +71,7 @@ sage studio start --prod --host 0.0.0.0 --port 5173
 ```
 
 特点：
+
 - 需要先执行 `build` 步骤
 - 更高的性能和稳定性
 - 优化后的静态资源
@@ -152,6 +158,7 @@ Tunnel 会将外部域名（如 `studio.sage.org.ai`）代理到本地端口 517
 **原因**：TypeScript 编译器未安装或 `node_modules` 不完整。
 
 **解决**：
+
 ```bash
 sage studio install  # 重新安装前端依赖
 ```
@@ -161,6 +168,7 @@ sage studio install  # 重新安装前端依赖
 **原因**：服务启动失败或使用了错误的 host。
 
 **排查**：
+
 ```bash
 # 检查端口监听
 ss -tlnp | grep 5173
@@ -175,10 +183,11 @@ sage studio logs
 ### 3. 外部无法访问
 
 **检查清单**：
+
 1. 是否使用 `--host 0.0.0.0`
-2. 防火墙是否开放端口
-3. `allowedHosts` 是否配置正确
-4. 反向代理是否正确转发
+1. 防火墙是否开放端口
+1. `allowedHosts` 是否配置正确
+1. 反向代理是否正确转发
 
 ## 架构图
 

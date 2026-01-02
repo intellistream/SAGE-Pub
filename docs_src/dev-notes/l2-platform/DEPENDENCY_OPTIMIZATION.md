@@ -116,7 +116,8 @@ compiling it locally, ensuring that the package can still be installed.
 
 ## 4. Torch & vLLM Compatibility Guide
 
-Torch 和 vLLM 的版本必须保持同步，否则会出现 `torch._inductor.config` 缺失或 CUDA 运算符注册失败等问题。SAGE 已经在 `packages/sage-common/pyproject.toml` 中通过 extras 为可选的 vLLM 功能声明了如下约束：
+Torch 和 vLLM 的版本必须保持同步，否则会出现 `torch._inductor.config` 缺失或 CUDA 运算符注册失败等问题。SAGE 已经在
+`packages/sage-common/pyproject.toml` 中通过 extras 为可选的 vLLM 功能声明了如下约束：
 
 ```toml
 [project.optional-dependencies]
@@ -131,8 +132,9 @@ vllm = [
 ### 快速自检
 
 1. 运行 `python tools/install/verify_dependencies.py --verbose`，脚本会自动检查 torch/vLLM 组合是否满足上述范围。
-2. CI 失败时可参考 `.github/workflows/code-quality.yml` 中的 "Verify Dependency Compatibility" 步骤输出。
-3. 如果看到 `AttributeError: module 'torch._inductor' has no attribute 'config'`，说明当前 torch 版本 < 2.4，需要升级。
+1. CI 失败时可参考 `.github/workflows/code-quality.yml` 中的 "Verify Dependency Compatibility" 步骤输出。
+1. 如果看到 `AttributeError: module 'torch._inductor' has no attribute 'config'`，说明当前 torch 版本 \<
+   2.4，需要升级。
 
 ### 推荐修复步骤
 

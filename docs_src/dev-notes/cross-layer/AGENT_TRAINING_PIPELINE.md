@@ -4,12 +4,12 @@
 
 针对华为**技术目标1：大模型Agent核心能力提升**的训练方案设计：
 
-| 挑战 | 训练目标 | 方法 |
-|------|----------|------|
-| 工具选择困难 | 提升工具调用准确率 | SFT + 工具选择专项数据 |
-| 计划能力薄弱 | 增强多步推理能力 | 多步骤规划 SFT + Outcome Reward |
-| 时机判断不准 | 优化调用时机决策 | RL with timing rewards |
-| 千级工具检索 | 大规模检索能力 | Embedding + Contrastive Learning |
+| 挑战         | 训练目标           | 方法                             |
+| ------------ | ------------------ | -------------------------------- |
+| 工具选择困难 | 提升工具调用准确率 | SFT + 工具选择专项数据           |
+| 计划能力薄弱 | 增强多步推理能力   | 多步骤规划 SFT + Outcome Reward  |
+| 时机判断不准 | 优化调用时机决策   | RL with timing rewards           |
+| 千级工具检索 | 大规模检索能力     | Embedding + Contrastive Learning |
 
 ## 2. 整体架构
 
@@ -182,7 +182,8 @@ class AgentSFTFormatter:
 - `CoresetSelector`: 支持 `loss_topk`、`diversity`、`hybrid`、`random` 四种策略，对 `ProcessedDialog` 做轻量采样。
 - `OnlineContinualLearner`: 维护 rehearsal buffer，并在 `prepare_datasets()` 阶段按 `replay_ratio` 追加历史样本。
 - `AgentSFTTrainer` 会根据 `AgentSFTConfig` 的新开关自动实例化并应用上述组件。
-- `AgentDialogProcessor` 会为每条 `ProcessedDialog` 追加 `loss`（难度 proxy）、`token_length`、`lexical_diversity` 等指标，供 coreset/replay 筛选使用；若原始 metadata 已带 `loss`，则尊重该值。
+- `AgentDialogProcessor` 会为每条 `ProcessedDialog` 追加 `loss`（难度
+  proxy）、`token_length`、`lexical_diversity` 等指标，供 coreset/replay 筛选使用；若原始 metadata 已带 `loss`，则尊重该值。
 
 ```python
 from sage.tools.agent_training import AgentSFTTrainer, AgentSFTConfig
@@ -634,11 +635,11 @@ print(f"Plan Success Rate: {results['plan_success_rate']['mean']:.2%}")
 
 ### 6.1 训练资源需求
 
-| 阶段 | GPU | 显存 | 训练时间 | 数据量 |
-|------|-----|------|----------|--------|
-| SFT | 1x A100-80G | ~60GB | ~8h | 4K dialogs |
-| DPO | 1x A100-80G | ~70GB | ~4h | 2K pairs |
-| PPO | 2x A100-80G | ~140GB | ~12h | online |
+| 阶段 | GPU         | 显存   | 训练时间 | 数据量     |
+| ---- | ----------- | ------ | -------- | ---------- |
+| SFT  | 1x A100-80G | ~60GB  | ~8h      | 4K dialogs |
+| DPO  | 1x A100-80G | ~70GB  | ~4h      | 2K pairs   |
+| PPO  | 2x A100-80G | ~140GB | ~12h     | online     |
 
 ### 6.2 推荐配置
 
@@ -665,17 +666,20 @@ production:
 ## 7. 下一步计划
 
 1. **Phase 1** (1-2周):
+
    - 实现 `AgentSFTFormatter` 数据格式转换
    - 扩展 `LoRATrainer` 支持 Agent 任务
    - 基础 SFT 训练流程
-    - Coreset Selection + 在线复习（RTX 3060 友好）
+   - Coreset Selection + 在线复习（RTX 3060 友好）
 
-2. **Phase 2** (2-3周):
+1. **Phase 2** (2-3周):
+
    - 实现 `AgentRewardModel` 奖励模型
    - DPO 训练管线
    - 评估框架集成
 
-3. **Phase 3** (3-4周):
+1. **Phase 3** (3-4周):
+
    - PPO/GRPO 支持 (可选)
    - 在线学习支持
    - 完整评估报告

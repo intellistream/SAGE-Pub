@@ -1,17 +1,20 @@
 # Task 5.2: ChatMessage 组件更新
 
 ## 目标
+
 更新 ChatMessage 组件，支持显示 Agent 推理步骤。
 
 ## 依赖
+
 - Task 5.1 (ReasoningAccordion)
 
 ## 文件位置
+
 `packages/sage-studio/src/sage/studio/frontend/src/components/ChatMessage.tsx`（修改现有）
 
 ## 提示词
 
-```
+````
 请更新 ChatMessage 组件，集成 ReasoningAccordion 展示推理步骤。
 
 ## 背景
@@ -29,7 +32,7 @@ Multi-Agent 模式下，消息可能包含推理步骤。
      steps?: AgentStep[];  // 新增：Agent 执行步骤
      isStreaming?: boolean;
    }
-   ```
+````
 
 3. 布局:
    ```
@@ -43,6 +46,7 @@ Multi-Agent 模式下，消息可能包含推理步骤。
    ```
 
 ## 代码模板
+
 ```tsx
 import React from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -110,9 +114,11 @@ export default ChatMessage;
 ```
 
 ## 注意
+
 - steps 可选，兼容旧消息格式
 - 仅 assistant 消息显示推理步骤
 - 流式输出时显示光标动画
+
 ```
 
 ## 验收标准
@@ -120,3 +126,4 @@ export default ChatMessage;
 - [ ] ReasoningAccordion 正确集成
 - [ ] 兼容旧消息格式
 - [ ] 流式光标显示正常
+```

@@ -4,20 +4,22 @@
 
 ## 概述
 
-企业级 RAG（Retrieval-Augmented Generation）系统需要考虑检索质量、性能、可扩展性等多方面因素。SAGE 提供了 `UnifiedInferenceClient` 统一接口，可以无缝集成 LLM 和 Embedding 服务，简化 RAG 系统的开发。
+企业级 RAG（Retrieval-Augmented Generation）系统需要考虑检索质量、性能、可扩展性等多方面因素。SAGE 提供了 `UnifiedInferenceClient`
+统一接口，可以无缝集成 LLM 和 Embedding 服务，简化 RAG 系统的开发。
 
 ## 示例上手三件套
 
-| 项 | 内容 |
-| --- | --- |
-| **源码入口** | `examples/tutorials/L3-libs/rag/usage_4_complete_rag.py`（含完整 RAG + DP Unlearning Pipeline） |
-| **运行命令** | `python examples/tutorials/L3-libs/rag/usage_4_complete_rag.py` |
+| 项           | 内容                                                                                                                                                                               |
+| ------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **源码入口** | `examples/tutorials/L3-libs/rag/usage_4_complete_rag.py`（含完整 RAG + DP Unlearning Pipeline）                                                                                    |
+| **运行命令** | `python examples/tutorials/L3-libs/rag/usage_4_complete_rag.py`                                                                                                                    |
 | **预期日志** | 终端会先打印 `RAGUnlearningSystem initialized`，后续 `✓ Initialized RAG corpus ...`、`📎 Forget request ...`、`✅ Completed unlearning` 等步骤；如启用调试模式还会显示审计日志写入 |
 
 > 建议在运行前：
+>
 > 1. 启动基础推理服务：`sage llm serve --with-embedding --model Qwen/Qwen2.5-7B-Instruct --embedding-model BAAI/bge-m3`
-> 2. 设置 `.env` 中的 `OPENAI_API_KEY` / `HF_TOKEN`（若需访问云端模型）。
-> 3. 执行 `sage-dev quality --check-only`，确保脚本依赖的 `sage-libs`、`sage-middleware` 子包已通过静态检查。
+> 1. 设置 `.env` 中的 `OPENAI_API_KEY` / `HF_TOKEN`（若需访问云端模型）。
+> 1. 执行 `sage-dev quality --check-only`，确保脚本依赖的 `sage-libs`、`sage-middleware` 子包已通过静态检查。
 
 ## UnifiedInferenceClient 快速入门
 
@@ -71,7 +73,8 @@ sage llm status
 sage llm stop
 ```
 
-> WSL2 上 `SagePorts.LLM_DEFAULT (8001)` 可能拒绝连接，`sage llm serve` 会自动回退到 `SagePorts.LLM_WSL_FALLBACK (8901)`，`UnifiedInferenceClient.create()` 同样按此顺序探测。
+> WSL2 上 `SagePorts.LLM_DEFAULT (8001)` 可能拒绝连接，`sage llm serve` 会自动回退到
+> `SagePorts.LLM_WSL_FALLBACK (8901)`，`UnifiedInferenceClient.create()` 同样按此顺序探测。
 
 ### 环境变量与本地模型
 
@@ -88,7 +91,8 @@ HF_ENDPOINT=https://hf-mirror.com
 ```
 
 - CLI 会在启动/下载模型前调用 `ensure_hf_mirror_configured()`；若想手动检测，可在脚本中调用 `detect_china_mainland()`。
-- 不想运行服务时，可使用 `EmbeddingFactory.create("hf", model=...)` 并用 `EmbeddingClientAdapter` 包装成批量接口，再与 `UnifiedInferenceClient` 搭配仅负责 LLM 调用。
+- 不想运行服务时，可使用 `EmbeddingFactory.create("hf", model=...)` 并用 `EmbeddingClientAdapter` 包装成批量接口，再与
+  `UnifiedInferenceClient` 搭配仅负责 LLM 调用。
 
 ## 构建 RAG Pipeline
 
@@ -111,7 +115,7 @@ class QuerySource(BatchFunction):
         super().__init__(**kwargs)
         self.queries = queries
         self.index = 0
-    
+
     def execute(self):
         if self.index >= len(self.queries):
             return None
@@ -137,7 +141,7 @@ class RetrievalOperator(MapFunction):
     def __init__(self, knowledge_base, **kwargs):
         super().__init__(**kwargs)
         self.knowledge_base = knowledge_base
-    
+
     def execute(self, data):
         # 实际应用中，这里会查询向量数据库
         # 例如 ChromaDB, Milvus, Qdrant 等
@@ -154,7 +158,7 @@ class GenerationOperator(MapFunction):
     def execute(self, data):
         query = data["query"]
         context = data["context"]
-        
+
         prompt = f"""基于以下上下文回答问题：
 
 上下文：
@@ -163,12 +167,12 @@ class GenerationOperator(MapFunction):
 问题：{query}
 
 回答："""
-        
+
         # 使用 UnifiedInferenceClient 生成回答
         response = client.chat([
             {"role": "user", "content": prompt}
         ])
-        
+
         return {
             "query": query,
             "answer": response
@@ -185,18 +189,18 @@ class ResultSink(SinkFunction):
 
 def main():
     env = LocalEnvironment("RAG_Pipeline")
-    
+
     queries = [
         "SAGE 支持哪些 LLM?",
         "如何部署分布式 Pipeline?"
     ]
-    
+
     knowledge_base = [
         "SAGE 支持 vLLM、OpenAI API 等多种 LLM 后端。",
         "SAGE 基于 Ray 构建分布式执行能力。",
         "使用 RemoteEnvironment 可以在集群上运行 Pipeline。"
     ]
-    
+
     (
         env.from_batch(QuerySource, queries=queries)
         .map(EmbeddingOperator)
@@ -204,7 +208,7 @@ def main():
         .map(GenerationOperator)
         .sink(ResultSink)
     )
-    
+
     env.submit(autostop=True)
 
 
@@ -227,31 +231,31 @@ class MultiSourceRetriever(MapFunction):
     def __init__(self, sources, **kwargs):
         super().__init__(**kwargs)
         self.sources = sources  # 多个知识库配置
-    
+
     def execute(self, data):
         query = data["query"]
         query_embedding = client.embed([query])[0]
-        
+
         all_results = []
         for source_name, source_config in self.sources.items():
             # 从每个源检索
             results = self._retrieve_from_source(
-                query_embedding, 
+                query_embedding,
                 source_config,
                 top_k=3
             )
             for r in results:
                 r["source"] = source_name
             all_results.extend(results)
-        
+
         # 结果融合：按相关性得分排序
         all_results.sort(key=lambda x: x["score"], reverse=True)
-        
+
         return {
             "query": query,
             "results": all_results[:5]  # 取 Top-5
         }
-    
+
     def _retrieve_from_source(self, embedding, config, top_k):
         # 实际实现中查询对应的向量数据库
         # 这里返回模拟结果
@@ -265,27 +269,27 @@ class MultiSourceRetriever(MapFunction):
 ```python
 class HierarchicalRetriever(MapFunction):
     """分层检索：粗检索 -> 细检索"""
-    
+
     def execute(self, data):
         query = data["query"]
-        
+
         # 阶段 1: 粗粒度检索（文档级）
         coarse_results = self._coarse_retrieve(query, top_k=10)
-        
+
         # 阶段 2: 细粒度检索（段落级）
         fine_results = self._fine_retrieve(query, coarse_results, top_k=3)
-        
+
         return {
             "query": query,
             "context": "\n".join([r["text"] for r in fine_results])
         }
-    
+
     def _coarse_retrieve(self, query, top_k):
         """粗粒度检索：基于文档摘要或标题"""
         query_embedding = client.embed([query])[0]
         # 使用文档级索引检索
         return []  # 返回候选文档
-    
+
     def _fine_retrieve(self, query, candidates, top_k):
         """细粒度检索：在候选文档内检索段落"""
         query_embedding = client.embed([query])[0]
@@ -300,28 +304,28 @@ class HierarchicalRetriever(MapFunction):
 ```python
 class RerankOperator(MapFunction):
     """使用 Cross-Encoder 重排序检索结果"""
-    
+
     def execute(self, data):
         query = data["query"]
         candidates = data["candidates"]
-        
+
         # 构建 query-document 对
         pairs = [(query, doc["text"]) for doc in candidates]
-        
+
         # 使用 LLM 进行相关性评分
         scored_results = []
         for doc, (q, d) in zip(candidates, pairs):
             score = self._compute_relevance(q, d)
             scored_results.append({**doc, "rerank_score": score})
-        
+
         # 按重排序得分排序
         scored_results.sort(key=lambda x: x["rerank_score"], reverse=True)
-        
+
         return {
             "query": query,
             "results": scored_results[:3]
         }
-    
+
     def _compute_relevance(self, query, document):
         """使用 LLM 评估相关性"""
         prompt = f"""评估以下文档与查询的相关性（0-10分）：
@@ -330,7 +334,7 @@ class RerankOperator(MapFunction):
 文档: {document[:500]}
 
 只返回数字分数："""
-        
+
         response = client.chat([
             {"role": "user", "content": prompt}
         ])
@@ -347,7 +351,7 @@ class RerankOperator(MapFunction):
 ```python
 class HybridRetriever(MapFunction):
     """混合检索：结合向量相似度和关键词匹配"""
-    
+
     def __init__(self, alpha=0.7, **kwargs):
         """
         Args:
@@ -355,47 +359,47 @@ class HybridRetriever(MapFunction):
         """
         super().__init__(**kwargs)
         self.alpha = alpha
-    
+
     def execute(self, data):
         query = data["query"]
-        
+
         # 向量检索
         vector_results = self._vector_search(query, top_k=10)
-        
+
         # BM25 关键词检索
         bm25_results = self._bm25_search(query, top_k=10)
-        
+
         # 融合结果 (Reciprocal Rank Fusion)
         fused_results = self._rrf_fusion(vector_results, bm25_results)
-        
+
         return {
             "query": query,
             "results": fused_results[:5]
         }
-    
+
     def _vector_search(self, query, top_k):
         """向量相似度检索"""
         embedding = client.embed([query])[0]
         # 查询向量数据库
         return []
-    
+
     def _bm25_search(self, query, top_k):
         """BM25 关键词检索"""
         # 使用 BM25 算法检索
         return []
-    
+
     def _rrf_fusion(self, results1, results2, k=60):
         """Reciprocal Rank Fusion 结果融合"""
         scores = {}
-        
+
         for rank, doc in enumerate(results1):
             doc_id = doc["id"]
             scores[doc_id] = scores.get(doc_id, 0) + 1 / (k + rank + 1)
-        
+
         for rank, doc in enumerate(results2):
             doc_id = doc["id"]
             scores[doc_id] = scores.get(doc_id, 0) + 1 / (k + rank + 1)
-        
+
         # 按融合得分排序
         sorted_ids = sorted(scores.keys(), key=lambda x: scores[x], reverse=True)
         return [{"id": doc_id, "score": scores[doc_id]} for doc_id in sorted_ids]
@@ -428,10 +432,10 @@ print(f"Embedding 可用: {status['embedding_available']}")
 ### ✅ 推荐做法
 
 1. **使用 UnifiedInferenceClient** - 统一管理 LLM 和 Embedding 调用
-2. **分批嵌入** - 大量文本使用批量 embed 提高效率
-3. **缓存策略** - 对重复查询缓存 embedding 结果
-4. **重排序** - 使用 Cross-Encoder 提升检索质量
-5. **混合检索** - 结合向量和关键词检索
+1. **分批嵌入** - 大量文本使用批量 embed 提高效率
+1. **缓存策略** - 对重复查询缓存 embedding 结果
+1. **重排序** - 使用 Cross-Encoder 提升检索质量
+1. **混合检索** - 结合向量和关键词检索
 
 ### ❌ 避免的问题
 
@@ -447,6 +451,6 @@ print(f"Embedding 可用: {status['embedding_available']}")
 - [性能调优](performance-tuning.md) - 优化 RAG 系统性能
 - [sage-common 概览](../../guides/packages/sage-common/overview.md) - 包含 UnifiedInferenceClient 说明
 
----
+______________________________________________________________________
 
 **下一步**：学习 [性能调优](performance-tuning.md) 优化 RAG 系统性能

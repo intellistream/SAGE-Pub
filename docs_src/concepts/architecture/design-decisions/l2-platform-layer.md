@@ -28,7 +28,8 @@
 
 ### 问题
 
-`sage-platform.queue.RPCQueueDescriptor` 需要实例化 `sage-kernel.runtime.communication.rpc.RPCQueue`，但 L2 不能直接 import L3。
+`sage-platform.queue.RPCQueueDescriptor` 需要实例化 `sage-kernel.runtime.communication.rpc.RPCQueue`，但 L2
+不能直接 import L3。
 
 ### 方案
 
@@ -67,17 +68,18 @@ register_rpc_queue_factory(_rpc_queue_factory)
 
 ## 决策 3：定义 L2 职责边界
 
-| 模块 | 说明 | 下游使用者 |
-|------|------|------------|
-| `sage.platform.queue` | Python/Ray/RPC Queue 描述符、注册 API | `sage-kernel.runtime`, `sage-middleware.operators` |
-| `sage.platform.storage` | KV 抽象：Dict/Redis/RocksDB | RAG 组件、控制面缓存 |
-| `sage.platform.service` | `BaseService`、生命周期 hook、健康检查 | CLI JobManager、Gateway、Studio 后端 |
+| 模块                    | 说明                                   | 下游使用者                                         |
+| ----------------------- | -------------------------------------- | -------------------------------------------------- |
+| `sage.platform.queue`   | Python/Ray/RPC Queue 描述符、注册 API  | `sage-kernel.runtime`, `sage-middleware.operators` |
+| `sage.platform.storage` | KV 抽象：Dict/Redis/RocksDB            | RAG 组件、控制面缓存                               |
+| `sage.platform.service` | `BaseService`、生命周期 hook、健康检查 | CLI JobManager、Gateway、Studio 后端               |
 
 > **不属于 L2 的内容**：LLM/Embedding 服务（仍在 L1 `sage-common.components`），任何算子/业务逻辑（L3+）。
 
 ## 决策 4：文档与工具链同步
 
-- `docs-public/docs_src/dev-notes/package-architecture.md`、`concepts/architecture/*.md` 更新为“11 个包 + meta-package”。
+- `docs-public/docs_src/dev-notes/package-architecture.md`、`concepts/architecture/*.md` 更新为“11 个包 +
+  meta-package”。
 - `docs-public/docs_src/concepts/architecture/package-structure.md` 显式标注 L2 及其 C++ 依赖（无）。
 - `docs-public/docs_src/guides/packages/sage-platform/overview.md`（新增）覆盖 API。
 - `sage-dev quality` 检查新增 `layer.yaml` 规则：确保任何新包声明的层级不违反 L1→L6 单向依赖。
@@ -85,8 +87,8 @@ register_rpc_queue_factory(_rpc_queue_factory)
 ## 仍需关注的事项
 
 1. **文档一致性**：所有层级描述都应提及 L2；本文件为历史记录，不再将 “缺失 L2” 作为现状。
-2. **扩展接口**：若未来需要统一 Streaming Storage / Scheduler，可继续在 L2 扩展子模块。
-3. **CI 检查**：`tools/install/check_tool_versions.sh` 已纳入 `sage-platform` 依赖的版本锁定，防止缺包。
+1. **扩展接口**：若未来需要统一 Streaming Storage / Scheduler，可继续在 L2 扩展子模块。
+1. **CI 检查**：`tools/install/check_tool_versions.sh` 已纳入 `sage-platform` 依赖的版本锁定，防止缺包。
 
 ## TL;DR
 

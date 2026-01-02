@@ -10,6 +10,7 @@
     </div>
 
 <!-- Token 配置弹窗 -->
+
 <div id="token-config-modal" class="modal" style="display: none;">
     <div class="modal-content">
         <div class="modal-header">
@@ -43,6 +44,7 @@
 </div>
 
 <!-- 周期信息显示 -->
+
 <div class="cycle-info">
     <span>当前周期: <strong id="current-cycle">1</strong></span>
     <span>本周日期: <strong id="current-week-date">加载中...</strong></span>
@@ -50,6 +52,7 @@
 </div>
 
 <!-- 上方两个区域 - 并排显示 -->
+
 <div class="presenters-sections">
     <div class="presenters-column">
         <h3>本周汇报人员</h3>
@@ -58,15 +61,19 @@
         </div>
     </div>
 
-    <div class="presenters-column">
-        <h3>下周准备汇报人员</h3>
-        <div id="next-presenters" class="drop-zone next-week-zone">
-            <div class="zone-hint">下周准备汇报人员</div>
-        </div>
+```
+<div class="presenters-column">
+    <h3>下周准备汇报人员</h3>
+    <div id="next-presenters" class="drop-zone next-week-zone">
+        <div class="zone-hint">下周准备汇报人员</div>
     </div>
+</div>
+```
+
 </div>
 
 <!-- 下方两个区域 - 并排显示 -->
+
 <div class="members-sections">
     <div class="members-column">
         <h3>已汇报成员 (本周期)</h3>
@@ -75,12 +82,15 @@
         </div>
     </div>
 
-    <div class="members-column">
-        <h3>待汇报成员</h3>
-        <div id="pending-members" class="drop-zone pending-zone">
-            <div class="zone-hint">待汇报的成员</div>
-        </div>
+```
+<div class="members-column">
+    <h3>待汇报成员</h3>
+    <div id="pending-members" class="drop-zone pending-zone">
+        <div class="zone-hint">待汇报的成员</div>
     </div>
+</div>
+```
+
 </div>
 
 </div>

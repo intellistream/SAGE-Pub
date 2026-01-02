@@ -39,6 +39,7 @@ Version: 0.1.8.8
 ```
 
 输出示例：
+
 ```
 🧹 检查构建缓存...
  检查 egg-info 缓存...
@@ -69,29 +70,30 @@ bash tools/install/fixes/build_cache_cleaner.sh detect
 
 清理工具支持多种模式：
 
-| 命令 | 说明 | 清理内容 |
-|------|------|----------|
-| `detect` | 自动检测并清理（默认） | 仅清理版本不一致的 egg-info |
-| `clean` | 强制清理所有缓存 | egg-info + build + dist |
-| `egg-info` | 仅清理 egg-info | 所有 egg-info 目录 |
-| `build` | 仅清理 build | 所有 build 目录 |
-| `dist` | 仅清理 dist | 所有 dist 目录 |
+| 命令       | 说明                   | 清理内容                    |
+| ---------- | ---------------------- | --------------------------- |
+| `detect`   | 自动检测并清理（默认） | 仅清理版本不一致的 egg-info |
+| `clean`    | 强制清理所有缓存       | egg-info + build + dist     |
+| `egg-info` | 仅清理 egg-info        | 所有 egg-info 目录          |
+| `build`    | 仅清理 build           | 所有 build 目录             |
+| `dist`     | 仅清理 dist            | 所有 dist 目录              |
 
 ## 工作原理
 
 ### 检测逻辑
 
 1. 扫描 `packages/*/src/*.egg-info/` 目录
-2. 读取每个 egg-info 中的 `PKG-INFO` 文件获取缓存版本
-3. 查找对应包的 `_version.py` 文件获取源码版本
-4. 比较两个版本号
-5. 如果发现不一致，删除所有 egg-info 缓存
+1. 读取每个 egg-info 中的 `PKG-INFO` 文件获取缓存版本
+1. 查找对应包的 `_version.py` 文件获取源码版本
+1. 比较两个版本号
+1. 如果发现不一致，删除所有 egg-info 缓存
 
 ### 集成点
 
 清理功能集成在以下位置：
 
 **安装流程** (`tools/install/installation_table/main_installer.sh`):
+
 ```bash
 # 配置安装环境（包含所有检查）
 configure_installation_environment "$environment" "$mode"
@@ -104,6 +106,7 @@ clean_pip_cache "$log_file"
 ```
 
 **命令行工具** (`Makefile`):
+
 ```makefile
 clean-cache:
 	@bash tools/install/fixes/build_cache_cleaner.sh clean
@@ -116,19 +119,22 @@ clean-cache:
 虽然 `quickstart.sh` 会自动处理，但在以下情况下可能需要手动清理：
 
 1. **更新代码后版本显示错误**
+
    ```bash
    git pull origin main-dev
    make clean-cache
    ./quickstart.sh --dev --yes
    ```
 
-2. **版本升级前**
+1. **版本升级前**
+
    ```bash
    # 修改所有 _version.py 后
    make clean-cache
    ```
 
-3. **排查安装问题**
+1. **排查安装问题**
+
    ```bash
    make clean-cache
    pip uninstall -y isage-common isage-kernel ...
@@ -154,25 +160,26 @@ grep "BuildCache" .sage/logs/install.log
 ```
 
 日志级别：
+
 - `[INFO]`: 正常操作信息
 - `[WARN]`: 发现问题但可以处理
 - `[DEBUG]`: 详细的调试信息
 
 ## 相关文件
 
-| 文件 | 说明 |
-|------|------|
-| `tools/install/fixes/build_cache_cleaner.sh` | 缓存清理工具主脚本 |
-| `tools/install/installation_table/main_installer.sh` | 集成点：安装流程 |
-| `Makefile` | 集成点：make clean-cache |
-| `DEVELOPER.md` | 用户文档 |
+| 文件                                                 | 说明                     |
+| ---------------------------------------------------- | ------------------------ |
+| `tools/install/fixes/build_cache_cleaner.sh`         | 缓存清理工具主脚本       |
+| `tools/install/installation_table/main_installer.sh` | 集成点：安装流程         |
+| `Makefile`                                           | 集成点：make clean-cache |
+| `DEVELOPER.md`                                       | 用户文档                 |
 
 ## 最佳实践
 
 1. **使用 quickstart.sh 安装**：自动处理缓存问题
-2. **版本升级后检查**：运行 `pip list | grep isage` 验证版本一致性
-3. **遇到版本问题时**：先运行 `make clean-cache`
-4. **CI/CD 环境**：已自动集成，无需额外配置
+1. **版本升级后检查**：运行 `pip list | grep isage` 验证版本一致性
+1. **遇到版本问题时**：先运行 `make clean-cache`
+1. **CI/CD 环境**：已自动集成，无需额外配置
 
 ## 故障排除
 

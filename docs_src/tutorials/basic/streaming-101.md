@@ -9,13 +9,14 @@ SAGE 中主要以 **DataStream** 的形式进行编程。如图所示，数据�
 
 ## 上手三件套
 
-| 项 | 内容 |
-| --- | --- |
-| **源码入口** | `examples/tutorials/hello_world.py` （与本文示例 1:1 对齐） |
-| **运行命令** | `python examples/tutorials/hello_world.py` |
+| 项           | 内容                                                                                                                                           |
+| ------------ | ---------------------------------------------------------------------------------------------------------------------------------------------- |
+| **源码入口** | `examples/tutorials/hello_world.py` （与本文示例 1:1 对齐）                                                                                    |
+| **运行命令** | `python examples/tutorials/hello_world.py`                                                                                                     |
 | **预期日志** | `HELLO, WORLD! #1~#10` 逐行打印，并看到 `Hello World 批处理示例结束`；JobManager 侧可在 `.sage/logs/jobmanager/session_*` 中看到批作业完成记录 |
 
-> 运行脚本前建议执行 `sage-dev quality --check-only` 确认依赖环境健康；如需自定义日志级别，可在脚本末尾的 `CustomLogger.disable_global_console_debug()` 周边进行调整。
+> 运行脚本前建议执行 `sage-dev quality --check-only` 确认依赖环境健康；如需自定义日志级别，可在脚本末尾的
+> `CustomLogger.disable_global_console_debug()` 周边进行调整。
 
 ______________________________________________________________________
 
@@ -29,7 +30,7 @@ ______________________________________________________________________
 1. **声明数据流出**
 1. **提交任务**
 
-让我们来看一个完整的 SAGE 程序，本程序演示了如何利用 SAGE 的 DataStream 接口去编写一个简单的批处理\[^1\] 任务：
+让我们来看一个完整的 SAGE 程序，本程序演示了如何利用 SAGE 的 DataStream 接口去编写一个简单的批处理[^1] 任务：
 
 \[^1\]: 批处理任务主要是指处理 **有界流** 数据，这意味着数据是有限的，任务是可终结的。
 

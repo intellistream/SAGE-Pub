@@ -3,24 +3,24 @@
 This document provides comprehensive API documentation for the `sage.libs.finetune.agent` module,
 which implements specialized tools for fine-tuning language models on agent tasks.
 
-**Module Path**: `sage.libs.finetune.agent`  
-**Package**: `sage-libs`  
+**Module Path**: `sage.libs.finetune.agent`\
+**Package**: `sage-libs`\
 **Layer**: L3 (Libraries)
 
----
+______________________________________________________________________
 
 ## Table of Contents
 
 1. [Configuration Classes](#configuration-classes)
-2. [Training Components](#training-components)
-3. [Coreset Selection](#coreset-selection)
-4. [Continual Learning](#continual-learning)
-5. [Trajectory Collection (FireAct)](#trajectory-collection-fireact)
-6. [Multi-Task Training (AgentTuning)](#multi-task-training-agenttuning)
-7. [Evaluation](#evaluation)
-8. [Method Registry](#method-registry)
+1. [Training Components](#training-components)
+1. [Coreset Selection](#coreset-selection)
+1. [Continual Learning](#continual-learning)
+1. [Trajectory Collection (FireAct)](#trajectory-collection-fireact)
+1. [Multi-Task Training (AgentTuning)](#multi-task-training-agenttuning)
+1. [Evaluation](#evaluation)
+1. [Method Registry](#method-registry)
 
----
+______________________________________________________________________
 
 ## Configuration Classes
 
@@ -34,29 +34,29 @@ from sage.libs.finetune.agent import AgentSFTConfig
 
 **Attributes**:
 
-| Attribute | Type | Default | Description |
-|-----------|------|---------|-------------|
-| `base_model` | `str` | Required | HuggingFace model ID or path |
-| `train_data` | `str` | Required | Training data path or DataManager reference |
-| `eval_data` | `str \| None` | `None` | Evaluation data path |
-| `output_dir` | `Path` | `.sage/finetune/` | Output directory for checkpoints |
-| `num_epochs` | `int` | `3` | Number of training epochs |
-| `batch_size` | `int` | `8` | Per-device batch size |
-| `learning_rate` | `float` | `2e-5` | Learning rate |
-| `gradient_accumulation_steps` | `int` | `4` | Gradient accumulation steps |
-| `max_seq_length` | `int` | `2048` | Maximum sequence length |
-| `use_lora` | `bool` | `True` | Use LoRA for parameter-efficient tuning |
-| `lora_r` | `int` | `16` | LoRA rank |
-| `lora_alpha` | `int` | `32` | LoRA alpha |
-| `use_dora` | `bool` | `False` | Use DoRA (Weight-Decomposed LoRA) |
-| `use_lora_plus` | `bool` | `False` | Use LoRA+ (Differentiated LR) |
-| `lora_plus_lr_ratio` | `float` | `16.0` | LoRA+ B matrix LR ratio |
-| `use_coreset_selection` | `bool` | `False` | Enable coreset selection |
-| `coreset_strategy` | `str` | `"hybrid"` | Coreset strategy |
-| `coreset_target_size` | `int \| None` | `None` | Target coreset size |
-| `use_online_continual` | `bool` | `False` | Enable continual learning |
-| `continual_buffer_size` | `int` | `2048` | Replay buffer size |
-| `continual_replay_ratio` | `float` | `0.25` | Replay ratio per batch |
+| Attribute                     | Type          | Default           | Description                                 |
+| ----------------------------- | ------------- | ----------------- | ------------------------------------------- |
+| `base_model`                  | `str`         | Required          | HuggingFace model ID or path                |
+| `train_data`                  | `str`         | Required          | Training data path or DataManager reference |
+| `eval_data`                   | `str \| None` | `None`            | Evaluation data path                        |
+| `output_dir`                  | `Path`        | `.sage/finetune/` | Output directory for checkpoints            |
+| `num_epochs`                  | `int`         | `3`               | Number of training epochs                   |
+| `batch_size`                  | `int`         | `8`               | Per-device batch size                       |
+| `learning_rate`               | `float`       | `2e-5`            | Learning rate                               |
+| `gradient_accumulation_steps` | `int`         | `4`               | Gradient accumulation steps                 |
+| `max_seq_length`              | `int`         | `2048`            | Maximum sequence length                     |
+| `use_lora`                    | `bool`        | `True`            | Use LoRA for parameter-efficient tuning     |
+| `lora_r`                      | `int`         | `16`              | LoRA rank                                   |
+| `lora_alpha`                  | `int`         | `32`              | LoRA alpha                                  |
+| `use_dora`                    | `bool`        | `False`           | Use DoRA (Weight-Decomposed LoRA)           |
+| `use_lora_plus`               | `bool`        | `False`           | Use LoRA+ (Differentiated LR)               |
+| `lora_plus_lr_ratio`          | `float`       | `16.0`            | LoRA+ B matrix LR ratio                     |
+| `use_coreset_selection`       | `bool`        | `False`           | Enable coreset selection                    |
+| `coreset_strategy`            | `str`         | `"hybrid"`        | Coreset strategy                            |
+| `coreset_target_size`         | `int \| None` | `None`            | Target coreset size                         |
+| `use_online_continual`        | `bool`        | `False`           | Enable continual learning                   |
+| `continual_buffer_size`       | `int`         | `2048`            | Replay buffer size                          |
+| `continual_replay_ratio`      | `float`       | `0.25`            | Replay ratio per batch                      |
 
 **Example**:
 
@@ -71,7 +71,7 @@ config = AgentSFTConfig(
 )
 ```
 
----
+______________________________________________________________________
 
 ### RLTrainingConfig
 
@@ -83,14 +83,14 @@ from sage.libs.finetune.agent import RLTrainingConfig
 
 **Attributes**:
 
-| Attribute | Type | Default | Description |
-|-----------|------|---------|-------------|
-| `algorithm` | `str` | `"ppo"` | RL algorithm ("ppo", "dpo") |
-| `reward_model` | `str \| None` | `None` | Reward model path |
-| `kl_coef` | `float` | `0.1` | KL divergence coefficient |
-| `gamma` | `float` | `0.99` | Discount factor |
+| Attribute      | Type          | Default | Description                 |
+| -------------- | ------------- | ------- | --------------------------- |
+| `algorithm`    | `str`         | `"ppo"` | RL algorithm ("ppo", "dpo") |
+| `reward_model` | `str \| None` | `None`  | Reward model path           |
+| `kl_coef`      | `float`       | `0.1`   | KL divergence coefficient   |
+| `gamma`        | `float`       | `0.99`  | Discount factor             |
 
----
+______________________________________________________________________
 
 ## Training Components
 
@@ -110,12 +110,12 @@ AgentSFTTrainer(config: AgentSFTConfig)
 
 **Methods**:
 
-| Method | Returns | Description |
-|--------|---------|-------------|
-| `train()` | `TrainingResult` | Execute training |
-| `evaluate(data)` | `EvalResult` | Evaluate on data |
-| `save_model(path)` | `None` | Save model checkpoint |
-| `load_model(path)` | `None` | Load model checkpoint |
+| Method             | Returns          | Description           |
+| ------------------ | ---------------- | --------------------- |
+| `train()`          | `TrainingResult` | Execute training      |
+| `evaluate(data)`   | `EvalResult`     | Evaluate on data      |
+| `save_model(path)` | `None`           | Save model checkpoint |
+| `load_model(path)` | `None`           | Load model checkpoint |
 
 **Example**:
 
@@ -139,7 +139,7 @@ print(f"Accuracy: {eval_result.accuracy}")
 trainer.save_model("./my_agent_model")
 ```
 
----
+______________________________________________________________________
 
 ## Coreset Selection
 
@@ -163,20 +163,20 @@ CoresetSelector(
 
 **Methods**:
 
-| Method | Returns | Description |
-|--------|---------|-------------|
-| `select(samples, model=None)` | `list[dict]` | Select samples from pool |
+| Method                           | Returns       | Description               |
+| -------------------------------- | ------------- | ------------------------- |
+| `select(samples, model=None)`    | `list[dict]`  | Select samples from pool  |
 | `compute_losses(samples, model)` | `list[float]` | Compute per-sample losses |
-| `compute_diversity(samples)` | `np.ndarray` | Compute diversity matrix |
+| `compute_diversity(samples)`     | `np.ndarray`  | Compute diversity matrix  |
 
 **Strategies**:
 
-| Strategy | Description | Requires Model |
-|----------|-------------|----------------|
-| `loss_topk` | Select samples with highest loss | Yes |
-| `diversity` | Select most diverse samples | No |
-| `hybrid` | 60% loss + 40% diversity | Yes |
-| `random` | Random selection (baseline) | No |
+| Strategy    | Description                      | Requires Model |
+| ----------- | -------------------------------- | -------------- |
+| `loss_topk` | Select samples with highest loss | Yes            |
+| `diversity` | Select most diverse samples      | No             |
+| `hybrid`    | 60% loss + 40% diversity         | Yes            |
+| `random`    | Random selection (baseline)      | No             |
 
 **Example**:
 
@@ -195,7 +195,7 @@ print(f"Selected {len(selected)} samples")
 losses = selector.compute_losses(all_samples, model=my_model)
 ```
 
----
+______________________________________________________________________
 
 ## Continual Learning
 
@@ -219,12 +219,12 @@ OnlineContinualLearner(
 
 **Methods**:
 
-| Method | Returns | Description |
-|--------|---------|-------------|
-| `mix_with_replay(batch)` | `dict` | Mix batch with replay samples |
-| `update_buffer(batch)` | `None` | Add samples to buffer |
-| `get_replay_samples(n)` | `list` | Sample from buffer |
-| `clear_buffer()` | `None` | Clear replay buffer |
+| Method                   | Returns | Description                   |
+| ------------------------ | ------- | ----------------------------- |
+| `mix_with_replay(batch)` | `dict`  | Mix batch with replay samples |
+| `update_buffer(batch)`   | `None`  | Add samples to buffer         |
+| `get_replay_samples(n)`  | `list`  | Sample from buffer            |
+| `clear_buffer()`         | `None`  | Clear replay buffer           |
 
 **Example**:
 
@@ -245,7 +245,7 @@ for batch in data_loader:
     learner.update_buffer(batch)
 ```
 
----
+______________________________________________________________________
 
 ## Trajectory Collection (FireAct)
 
@@ -261,25 +261,25 @@ from sage.libs.finetune.agent import AgentTrajectory, TrajectoryStep
 
 **TrajectoryStep Attributes**:
 
-| Attribute | Type | Description |
-|-----------|------|-------------|
-| `thought` | `str` | Agent's reasoning |
-| `action` | `str` | Action/tool name |
-| `action_input` | `dict` | Action parameters |
-| `observation` | `str` | Environment feedback |
-| `reward` | `float` | Step reward |
+| Attribute      | Type    | Description          |
+| -------------- | ------- | -------------------- |
+| `thought`      | `str`   | Agent's reasoning    |
+| `action`       | `str`   | Action/tool name     |
+| `action_input` | `dict`  | Action parameters    |
+| `observation`  | `str`   | Environment feedback |
+| `reward`       | `float` | Step reward          |
 
 **AgentTrajectory Attributes**:
 
-| Attribute | Type | Description |
-|-----------|------|-------------|
-| `task_id` | `str` | Unique task identifier |
-| `instruction` | `str` | Original task instruction |
-| `steps` | `list[TrajectoryStep]` | Execution steps |
-| `success` | `bool` | Whether task succeeded |
-| `total_reward` | `float` | Cumulative reward |
+| Attribute      | Type                   | Description               |
+| -------------- | ---------------------- | ------------------------- |
+| `task_id`      | `str`                  | Unique task identifier    |
+| `instruction`  | `str`                  | Original task instruction |
+| `steps`        | `list[TrajectoryStep]` | Execution steps           |
+| `success`      | `bool`                 | Whether task succeeded    |
+| `total_reward` | `float`                | Cumulative reward         |
 
----
+______________________________________________________________________
 
 ### TrajectoryCollector
 
@@ -291,18 +291,18 @@ from sage.libs.finetune.agent import TrajectoryCollector, CollectorConfig
 
 **CollectorConfig Attributes**:
 
-| Attribute | Type | Default | Description |
-|-----------|------|---------|-------------|
-| `max_steps` | `int` | `10` | Max steps per trajectory |
-| `require_success` | `bool` | `True` | Only collect successful trajectories |
-| `save_intermediate` | `bool` | `True` | Save intermediate observations |
+| Attribute           | Type   | Default | Description                          |
+| ------------------- | ------ | ------- | ------------------------------------ |
+| `max_steps`         | `int`  | `10`    | Max steps per trajectory             |
+| `require_success`   | `bool` | `True`  | Only collect successful trajectories |
+| `save_intermediate` | `bool` | `True`  | Save intermediate observations       |
 
 **TrajectoryCollector Methods**:
 
-| Method | Returns | Description |
-|--------|---------|-------------|
-| `collect(tasks)` | `list[AgentTrajectory]` | Collect trajectories for tasks |
-| `collect_single(task)` | `AgentTrajectory` | Collect single trajectory |
+| Method                 | Returns                 | Description                    |
+| ---------------------- | ----------------------- | ------------------------------ |
+| `collect(tasks)`       | `list[AgentTrajectory]` | Collect trajectories for tasks |
+| `collect_single(task)` | `AgentTrajectory`       | Collect single trajectory      |
 
 **Example**:
 
@@ -315,7 +315,7 @@ trajectories = collector.collect(task_list)
 print(f"Collected {len(trajectories)} trajectories")
 ```
 
----
+______________________________________________________________________
 
 ### TrajectoryFilter
 
@@ -337,10 +337,10 @@ TrajectoryFilter(
 
 **Methods**:
 
-| Method | Returns | Description |
-|--------|---------|-------------|
-| `filter(trajectories)` | `list[AgentTrajectory]` | Filter trajectories |
-| `get_stats(trajectories)` | `dict` | Get filtering statistics |
+| Method                    | Returns                 | Description              |
+| ------------------------- | ----------------------- | ------------------------ |
+| `filter(trajectories)`    | `list[AgentTrajectory]` | Filter trajectories      |
+| `get_stats(trajectories)` | `dict`                  | Get filtering statistics |
 
 **Example**:
 
@@ -355,7 +355,7 @@ stats = filter.get_stats(all_trajectories)
 print(f"Kept {stats['kept']} / {stats['total']} trajectories")
 ```
 
----
+______________________________________________________________________
 
 ### TrajectoryToSFTConverter
 
@@ -367,18 +367,18 @@ from sage.libs.finetune.agent import TrajectoryToSFTConverter, SFTConversionConf
 
 **SFTConversionConfig Attributes**:
 
-| Attribute | Type | Default | Description |
-|-----------|------|---------|-------------|
-| `format` | `str` | `"chatml"` | Output format ("chatml", "alpaca") |
-| `include_observation` | `bool` | `True` | Include observations in output |
-| `system_prompt` | `str \| None` | `None` | Custom system prompt |
+| Attribute             | Type          | Default    | Description                        |
+| --------------------- | ------------- | ---------- | ---------------------------------- |
+| `format`              | `str`         | `"chatml"` | Output format ("chatml", "alpaca") |
+| `include_observation` | `bool`        | `True`     | Include observations in output     |
+| `system_prompt`       | `str \| None` | `None`     | Custom system prompt               |
 
 **Methods**:
 
-| Method | Returns | Description |
-|--------|---------|-------------|
-| `convert(trajectories)` | `list[dict]` | Convert to SFT format |
-| `convert_single(trajectory)` | `dict` | Convert single trajectory |
+| Method                       | Returns      | Description               |
+| ---------------------------- | ------------ | ------------------------- |
+| `convert(trajectories)`      | `list[dict]` | Convert to SFT format     |
+| `convert_single(trajectory)` | `dict`       | Convert single trajectory |
 
 **Example**:
 
@@ -395,7 +395,7 @@ with open("sft_data.jsonl", "w") as f:
         f.write(json.dumps(sample) + "\n")
 ```
 
----
+______________________________________________________________________
 
 ### Convenience Functions
 
@@ -414,7 +414,7 @@ sft_data = collect_and_convert(
 trajectories = load_trajectories("trajectories.jsonl")
 ```
 
----
+______________________________________________________________________
 
 ## Multi-Task Training (AgentTuning)
 
@@ -430,26 +430,26 @@ from sage.libs.finetune.agent import MultiTaskMixer, MixerConfig, TaskSample
 
 **MixerConfig Attributes**:
 
-| Attribute | Type | Default | Description |
-|-----------|------|---------|-------------|
-| `task_weights` | `dict[str, float]` | Required | Per-task weights |
-| `strategy` | `str` | `"weighted"` | Mixing strategy |
-| `shuffle` | `bool` | `True` | Shuffle after mixing |
+| Attribute      | Type               | Default      | Description          |
+| -------------- | ------------------ | ------------ | -------------------- |
+| `task_weights` | `dict[str, float]` | Required     | Per-task weights     |
+| `strategy`     | `str`              | `"weighted"` | Mixing strategy      |
+| `shuffle`      | `bool`             | `True`       | Shuffle after mixing |
 
 **TaskSample Attributes**:
 
-| Attribute | Type | Description |
-|-----------|------|-------------|
-| `task_type` | `str` | Task category |
-| `data` | `dict` | Sample data |
-| `source` | `str \| None` | Data source |
+| Attribute   | Type          | Description   |
+| ----------- | ------------- | ------------- |
+| `task_type` | `str`         | Task category |
+| `data`      | `dict`        | Sample data   |
+| `source`    | `str \| None` | Data source   |
 
 **Methods**:
 
-| Method | Returns | Description |
-|--------|---------|-------------|
-| `mix(task_datasets)` | `list[TaskSample]` | Mix datasets |
-| `get_task_distribution(samples)` | `dict[str, int]` | Get task counts |
+| Method                           | Returns            | Description     |
+| -------------------------------- | ------------------ | --------------- |
+| `mix(task_datasets)`             | `list[TaskSample]` | Mix datasets    |
+| `get_task_distribution(samples)` | `dict[str, int]`   | Get task counts |
 
 **Example**:
 
@@ -479,7 +479,7 @@ dist = mixer.get_task_distribution(mixed_data)
 print(f"Task distribution: {dist}")
 ```
 
----
+______________________________________________________________________
 
 ### AgentCapabilityEvaluator
 
@@ -493,36 +493,36 @@ from sage.libs.finetune.agent import (
 
 **Capabilities Evaluated**:
 
-| Capability | Description |
-|------------|-------------|
-| `tool_use` | Tool calling accuracy |
-| `planning` | Multi-step planning quality |
-| `reasoning` | Reasoning chain coherence |
-| `instruction_following` | Instruction adherence |
+| Capability              | Description                 |
+| ----------------------- | --------------------------- |
+| `tool_use`              | Tool calling accuracy       |
+| `planning`              | Multi-step planning quality |
+| `reasoning`             | Reasoning chain coherence   |
+| `instruction_following` | Instruction adherence       |
 
 **Methods**:
 
-| Method | Returns | Description |
-|--------|---------|-------------|
-| `evaluate(model, test_sets)` | `CapabilityReport` | Full evaluation |
-| `evaluate_capability(model, cap, data)` | `CapabilityScore` | Single capability |
+| Method                                  | Returns            | Description       |
+| --------------------------------------- | ------------------ | ----------------- |
+| `evaluate(model, test_sets)`            | `CapabilityReport` | Full evaluation   |
+| `evaluate_capability(model, cap, data)` | `CapabilityScore`  | Single capability |
 
 **CapabilityScore Attributes**:
 
-| Attribute | Type | Description |
-|-----------|------|-------------|
-| `capability` | `str` | Capability name |
-| `score` | `float` | Score (0-1) |
-| `num_samples` | `int` | Samples evaluated |
-| `details` | `dict` | Detailed metrics |
+| Attribute     | Type    | Description       |
+| ------------- | ------- | ----------------- |
+| `capability`  | `str`   | Capability name   |
+| `score`       | `float` | Score (0-1)       |
+| `num_samples` | `int`   | Samples evaluated |
+| `details`     | `dict`  | Detailed metrics  |
 
 **CapabilityReport Methods**:
 
-| Method | Returns | Description |
-|--------|---------|-------------|
-| `summary()` | `str` | Text summary |
-| `to_dict()` | `dict` | Dict representation |
-| `get_score(capability)` | `float` | Get single score |
+| Method                  | Returns | Description         |
+| ----------------------- | ------- | ------------------- |
+| `summary()`             | `str`   | Text summary        |
+| `to_dict()`             | `dict`  | Dict representation |
+| `get_score(capability)` | `float` | Get single score    |
 
 **Example**:
 
@@ -550,7 +550,7 @@ print(report.summary())
 tool_score = report.get_score("tool_use")
 ```
 
----
+______________________________________________________________________
 
 ## Method Registry
 
@@ -566,39 +566,39 @@ from sage.benchmark.benchmark_agent.experiments.method_comparison import (
 
 **Class Methods**:
 
-| Method | Returns | Description |
-|--------|---------|-------------|
-| `get_all_methods()` | `dict[str, MethodConfig]` | All predefined methods |
+| Method                | Returns                   | Description              |
+| --------------------- | ------------------------- | ------------------------ |
+| `get_all_methods()`   | `dict[str, MethodConfig]` | All predefined methods   |
 | `get_quick_methods()` | `dict[str, MethodConfig]` | Subset for quick testing |
 
 **MethodConfig Attributes**:
 
-| Attribute | Type | Description |
-|-----------|------|-------------|
-| `name` | `str` | Display name |
-| `description` | `str` | Method description |
-| `use_coreset` | `bool` | Enable coreset selection |
-| `coreset_strategy` | `str` | Coreset strategy |
-| `use_continual` | `bool` | Enable continual learning |
-| `use_dora` | `bool` | Enable DoRA |
-| `use_lora_plus` | `bool` | Enable LoRA+ |
-| `use_trajectory_collection` | `bool` | Enable FireAct |
-| `use_multi_task` | `bool` | Enable AgentTuning |
+| Attribute                   | Type   | Description               |
+| --------------------------- | ------ | ------------------------- |
+| `name`                      | `str`  | Display name              |
+| `description`               | `str`  | Method description        |
+| `use_coreset`               | `bool` | Enable coreset selection  |
+| `coreset_strategy`          | `str`  | Coreset strategy          |
+| `use_continual`             | `bool` | Enable continual learning |
+| `use_dora`                  | `bool` | Enable DoRA               |
+| `use_lora_plus`             | `bool` | Enable LoRA+              |
+| `use_trajectory_collection` | `bool` | Enable FireAct            |
+| `use_multi_task`            | `bool` | Enable AgentTuning        |
 
 **Predefined Methods**:
 
-| ID | Name | Key Features |
-|----|------|--------------|
-| `A_baseline` | Baseline | Standard SFT |
-| `B1_coreset_loss` | Coreset (Loss) | Loss-based selection |
-| `B2_coreset_diversity` | Coreset (Diversity) | Diversity selection |
-| `B3_coreset_hybrid` | Coreset (Hybrid) | Combined selection |
-| `C_continual` | Continual | Experience replay |
-| `D_combined` | Combined | Coreset + Continual |
-| `E_fireact` | FireAct | Trajectory fine-tuning |
-| `F_agenttuning` | AgentTuning | Multi-task training |
-| `G_dora` | DoRA | Weight-decomposed LoRA |
-| `H_lora_plus` | LoRA+ | Differentiated LR |
+| ID                     | Name                | Key Features           |
+| ---------------------- | ------------------- | ---------------------- |
+| `A_baseline`           | Baseline            | Standard SFT           |
+| `B1_coreset_loss`      | Coreset (Loss)      | Loss-based selection   |
+| `B2_coreset_diversity` | Coreset (Diversity) | Diversity selection    |
+| `B3_coreset_hybrid`    | Coreset (Hybrid)    | Combined selection     |
+| `C_continual`          | Continual           | Experience replay      |
+| `D_combined`           | Combined            | Coreset + Continual    |
+| `E_fireact`            | FireAct             | Trajectory fine-tuning |
+| `F_agenttuning`        | AgentTuning         | Multi-task training    |
+| `G_dora`               | DoRA                | Weight-decomposed LoRA |
+| `H_lora_plus`          | LoRA+               | Differentiated LR      |
 
 **Example**:
 
@@ -621,7 +621,7 @@ custom = MethodConfig(
 )
 ```
 
----
+______________________________________________________________________
 
 ## See Also
 

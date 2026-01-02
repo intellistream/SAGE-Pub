@@ -5,6 +5,7 @@
 > 最后更新：2025-12-02（任务 A 架构文档刷新）
 >
 > **变更日志**:
+>
 > - 2025-12-02: 补充 C++ 扩展位置信息，更新 sage-llm-gateway 说明，统一 L6 层描述
 > - 2025-10-23: 完整架构审查完成
 
@@ -16,19 +17,19 @@
 
 ### 审查成果
 
-| 层级 | 包名            | 文件数 | 测试通过 | Layer 标记 | 架构合规 | C++ 扩展 | 备注        |
-| ---- | --------------- | ------ | -------- | ---------- | -------- | -------- | ----------- |
-| L1   | sage-common     | 22     | ✅ 119   | ✅         | ✅       | -        | -           |
-| L2   | sage-platform   | 7      | ✅ 30    | ✅         | ✅       | -        | -           |
-| L3   | sage-kernel     | 268    | ✅ 753   | ✅         | ✅       | -        | -           |
-| L3   | sage-libs       | 65     | ✅ 169   | ✅         | ✅       | -        | 200 skipped |
-| L4   | sage-middleware | 150    | ✅ 22    | ✅         | ✅       | ✅ sageFlow, NeuromMem | C++ via pybind11 |
-| L5   | sage-apps       | 24     | ✅ 21    | ✅         | ✅       | -        | -           |
-| L5   | sage-benchmark  | 42     | ✅ 17    | ✅         | ✅       | -        | -           |
-| L6   | sage-studio     | 8      | ✅ 51    | ✅         | ✅       | -        | -           |
-| L6   | sage-cli        | 45     | ✅ 32    | ✅         | ✅       | -        | 统一 CLI 入口 |
-| L6   | sage-tools      | 106    | ✅ 78    | ✅         | ✅       | -        | 开发工具集  |
-| L6   | sage-llm-gateway    | 8      | ✅ 37    | ✅         | ✅       | -        | PyPI: `isage-llm-gateway` |
+| 层级 | 包名             | 文件数 | 测试通过 | Layer 标记 | 架构合规 | C++ 扩展               | 备注                      |
+| ---- | ---------------- | ------ | -------- | ---------- | -------- | ---------------------- | ------------------------- |
+| L1   | sage-common      | 22     | ✅ 119   | ✅         | ✅       | -                      | -                         |
+| L2   | sage-platform    | 7      | ✅ 30    | ✅         | ✅       | -                      | -                         |
+| L3   | sage-kernel      | 268    | ✅ 753   | ✅         | ✅       | -                      | -                         |
+| L3   | sage-libs        | 65     | ✅ 169   | ✅         | ✅       | -                      | 200 skipped               |
+| L4   | sage-middleware  | 150    | ✅ 22    | ✅         | ✅       | ✅ sageFlow, NeuromMem | C++ via pybind11          |
+| L5   | sage-apps        | 24     | ✅ 21    | ✅         | ✅       | -                      | -                         |
+| L5   | sage-benchmark   | 42     | ✅ 17    | ✅         | ✅       | -                      | -                         |
+| L6   | sage-studio      | 8      | ✅ 51    | ✅         | ✅       | -                      | -                         |
+| L6   | sage-cli         | 45     | ✅ 32    | ✅         | ✅       | -                      | 统一 CLI 入口             |
+| L6   | sage-tools       | 106    | ✅ 78    | ✅         | ✅       | -                      | 开发工具集                |
+| L6   | sage-llm-gateway | 8      | ✅ 37    | ✅         | ✅       | -                      | PyPI: `isage-llm-gateway` |
 
 **核心指标**:
 
@@ -39,7 +40,8 @@
 - ✅ 依赖关系: **单向向下，清晰可控**
 - ✅ C++ 扩展: **2 个组件** (sageFlow, NeuromMem in L4)
 
-详见: [RPC_QUEUE_REFACTORING_2025.md](https://github.com/intellistream/SAGE/tree/main/docs/dev-notes/cross-layer/architecture)
+详见:
+[RPC_QUEUE_REFACTORING_2025.md](https://github.com/intellistream/SAGE/tree/main/docs/dev-notes/cross-layer/architecture)
 
 ______________________________________________________________________
 
@@ -82,10 +84,10 @@ Meta: packages/sage/    # Meta-package (isage)，聚合安装所有包
 
 SAGE 在 L4 层包含两个主要的 C++ 扩展组件，通过 pybind11 提供 Python 绑定：
 
-| 组件 | 路径 | 描述 |
-|------|------|------|
-| **sageFlow** | `packages/sage-middleware/src/sage/middleware/components/sage_flow/sageFlow/` | 高性能向量检索引擎，支持 HNSW/IVF 等索引 |
-| **NeuromMem** | `packages/sage-middleware/src/sage/middleware/components/sage_mem/neuromem/` | 神经记忆系统，支持多层记忆抽象 |
+| 组件          | 路径                                                                          | 描述                                     |
+| ------------- | ----------------------------------------------------------------------------- | ---------------------------------------- |
+| **sageFlow**  | `packages/sage-middleware/src/sage/middleware/components/sage_flow/sageFlow/` | 高性能向量检索引擎，支持 HNSW/IVF 等索引 |
+| **NeuromMem** | `packages/sage-middleware/src/sage/middleware/components/sage_mem/neuromem/`  | 神经记忆系统，支持多层记忆抽象           |
 
 **构建产物**: `_sage_flow.cpython-*.so` 等动态库，位于 `.sage/build/` 目录
 
@@ -265,7 +267,8 @@ register_rpc_queue_factory(_rpc_queue_factory)
 - 注册调用: `packages/sage-kernel/src/sage/kernel/__init__.py`
 - RPC实现: `packages/sage-kernel/src/sage/kernel/runtime/communication/rpc/rpc_queue.py`
 
-详见: [架构设计文档](https://github.com/intellistream/SAGE/tree/main/docs/dev-notes/cross-layer/architecture)
+详见:
+[架构设计文档](https://github.com/intellistream/SAGE/tree/main/docs/dev-notes/cross-layer/architecture)
 
 ## 🔍 包详细说明
 
@@ -370,7 +373,8 @@ ______________________________________________________________________
 - ✅ 完整文档覆盖（10/10 modules）
 - ✅ 169 tests passed (0 failed)
 
-详见: [sage-libs 重构文档](https://github.com/intellistream/SAGE/tree/main/docs/dev-notes/cross-layer/architecture)
+详见:
+[sage-libs 重构文档](https://github.com/intellistream/SAGE/tree/main/docs/dev-notes/cross-layer/architecture)
 
 **依赖**: `sage-common`, `sage-kernel` (可选)
 
@@ -501,9 +505,9 @@ ______________________________________________________________________
 
 **与 sage-tools 的区别**:
 
-| 工具 | 定位 | 典型命令 |
-|------|------|----------|
-| `sage` (sage-cli) | 生产运维 | `sage cluster start`, `sage job submit` |
+| 工具                    | 定位     | 典型命令                                    |
+| ----------------------- | -------- | ------------------------------------------- |
+| `sage` (sage-cli)       | 生产运维 | `sage cluster start`, `sage job submit`     |
 | `sage-dev` (sage-tools) | 开发调试 | `sage-dev quality`, `sage-dev project test` |
 
 **公共 API**:
@@ -524,14 +528,14 @@ ______________________________________________________________________
 **提供**:
 
 - `sage-dev`: 开发辅助工具套件
-   - `sage-dev quality` - 代码质量检查（architecture/devnotes/readme/...）
-   - `sage-dev project` - 项目管理（status/analyze/test/clean/...）
-   - `sage-dev maintain` - 维护工具（doctor、hooks、submodule/...）
-   - `sage-dev package` - 包发布/版本管理（pypi/version/install）
-   - `sage-dev resource` - 模型缓存等资源管理
-   - `sage-dev github` - GitHub Issues 管理
-   - `sage-dev examples` - 示例分析与测试
-   - `sage-dev docs` - 文档构建/预览/检查
+  - `sage-dev quality` - 代码质量检查（architecture/devnotes/readme/...）
+  - `sage-dev project` - 项目管理（status/analyze/test/clean/...）
+  - `sage-dev maintain` - 维护工具（doctor、hooks、submodule/...）
+  - `sage-dev package` - 包发布/版本管理（pypi/version/install）
+  - `sage-dev resource` - 模型缓存等资源管理
+  - `sage-dev github` - GitHub Issues 管理
+  - `sage-dev examples` - 示例分析与测试
+  - `sage-dev docs` - 文档构建/预览/检查
 - `sage llm` / `sage embedding` - LLM/Embedding 服务管理（开发调试用）
 - `sage studio` - Web UI 管理（调用 sage-studio）
 - `sage pipeline` - Pipeline 构建工具
@@ -544,9 +548,9 @@ ______________________________________________________________________
 **为什么在 L6？**
 
 1. **开发工具定位**: 为所有下层包（L1-L5）提供开发、测试、质量检查能力
-2. **横向工具**: 不是用户接口，而是开发者工具集
-3. **系统管理**: 包管理、测试框架、代码质量检查
-4. **依赖方向**: 需要依赖所有包以进行测试和验证
+1. **横向工具**: 不是用户接口，而是开发者工具集
+1. **系统管理**: 包管理、测试框架、代码质量检查
+1. **依赖方向**: 需要依赖所有包以进行测试和验证
 
 **公共 API**:
 
@@ -563,13 +567,14 @@ ______________________________________________________________________
 **提供**:
 
 - `FastAPI Server` (`sage.llm.gateway.server`)
-   - `/v1/chat/completions`：OpenAI Chat 接口，支持非流式与 SSE 流式
-   - `/sessions/**`：聊天会话管理（创建、重命名、清空、删除、统计）
-   - `/memory/**`：查询/配置记忆后端 (`short_term`、`vdb`、`kv`、`graph`)
-   - `/admin/index/**`：RAG 索引状态、构建、删除
+  - `/v1/chat/completions`：OpenAI Chat 接口，支持非流式与 SSE 流式
+  - `/sessions/**`：聊天会话管理（创建、重命名、清空、删除、统计）
+  - `/memory/**`：查询/配置记忆后端 (`short_term`、`vdb`、`kv`、`graph`)
+  - `/admin/index/**`：RAG 索引状态、构建、删除
 - `adapters.openai`：协议适配器，将请求注入持久化的 `RAGPipelineService`，并在必要时自动构建 `docs-public/docs_src` 索引
 - `session.manager`：会话与记忆管理，落盘到 `~/.sage/gateway/`，可选 Neuromem collection
-- `rag_pipeline`：基于 `LocalEnvironment + Map/Source/Sink` 的长驻 Pipeline，负责 RAG 检索与工作流意图识别（调用 `sage.libs.agentic.workflow`）
+- `rag_pipeline`：基于 `LocalEnvironment + Map/Source/Sink` 的长驻 Pipeline，负责 RAG 检索与工作流意图识别（调用
+  `sage.libs.agentic.workflow`）
 
 **依赖**: `sage-common`, `sage-kernel`, `sage-libs`, `sage-middleware`
 
@@ -585,7 +590,8 @@ sage studio start   # 若未检测到 Gateway，会自动拉起
 
 - Studio Chat/Canvas：默认将 API 请求发送至 Gateway（`http://{host}:{port}/v1/chat/completions`）
 - 外部客户端：通过 OpenAI SDK / cURL 直连，`api_key` 仅用于鉴权（本地可任意字符串）
-- 运营管理：使用 `/admin/index/build` 快速 ingest `docs-public`，并通过 `/sessions/cleanup`、`SAGE_GATEWAY_LOG_LEVEL` 保持运行状态可控
+- 运营管理：使用 `/admin/index/build` 快速 ingest `docs-public`，并通过
+  `/sessions/cleanup`、`SAGE_GATEWAY_LOG_LEVEL` 保持运行状态可控
 
 ## 🔗 依赖关系图
 
@@ -730,20 +736,20 @@ graph TD
 
 ## 📊 包统计
 
-| 包              | 层级 | 模块数   | 测试数  | 代码行数  | 依赖数 | C++ 扩展 | 测试状态    |
-| --------------- | ---- | -------- | ------- | --------- | ------ | -------- | ----------- |
-| sage-common     | L1   | 15+      | 119     | ~15K      | 0      | -        | ✅ 通过     |
-| sage-platform   | L2   | 3        | 30      | ~1K       | 1      | -        | ✅ 通过     |
-| sage-kernel     | L3   | 268      | 753     | ~20K      | 2      | -        | ✅ 通过     |
-| sage-libs       | L3   | 10       | 169     | ~18K      | 2      | -        | ✅ 通过     |
-| sage-middleware | L4   | 150      | 22      | ~25K      | 4      | ✅ sageFlow, NeuromMem | ✅ 通过     |
-| sage-apps       | L5   | 24       | 21      | ~8K       | 4      | -        | ✅ 通过     |
-| sage-benchmark  | L5   | 42       | 17      | ~12K      | 4      | -        | ✅ 通过     |
-| sage-studio     | L6   | 8        | 51      | ~8K       | 4      | -        | ✅ 通过     |
-| sage-cli        | L6   | 45       | 32      | ~5K       | 5      | -        | ✅ 通过     |
-| sage-tools      | L6   | 106      | 78      | ~10K      | 5      | -        | ✅ 通过     |
-| sage-llm-gateway    | L6   | 8        | 37      | ~3K       | 4      | -        | ✅ 通过     |
-| **总计**        | -    | **679+** | **1,329+** | **~125K** | -   | **2** | **99.7%** ✅ |
+| 包               | 层级 | 模块数   | 测试数     | 代码行数  | 依赖数 | C++ 扩展               | 测试状态     |
+| ---------------- | ---- | -------- | ---------- | --------- | ------ | ---------------------- | ------------ |
+| sage-common      | L1   | 15+      | 119        | ~15K      | 0      | -                      | ✅ 通过      |
+| sage-platform    | L2   | 3        | 30         | ~1K       | 1      | -                      | ✅ 通过      |
+| sage-kernel      | L3   | 268      | 753        | ~20K      | 2      | -                      | ✅ 通过      |
+| sage-libs        | L3   | 10       | 169        | ~18K      | 2      | -                      | ✅ 通过      |
+| sage-middleware  | L4   | 150      | 22         | ~25K      | 4      | ✅ sageFlow, NeuromMem | ✅ 通过      |
+| sage-apps        | L5   | 24       | 21         | ~8K       | 4      | -                      | ✅ 通过      |
+| sage-benchmark   | L5   | 42       | 17         | ~12K      | 4      | -                      | ✅ 通过      |
+| sage-studio      | L6   | 8        | 51         | ~8K       | 4      | -                      | ✅ 通过      |
+| sage-cli         | L6   | 45       | 32         | ~5K       | 5      | -                      | ✅ 通过      |
+| sage-tools       | L6   | 106      | 78         | ~10K      | 5      | -                      | ✅ 通过      |
+| sage-llm-gateway | L6   | 8        | 37         | ~3K       | 4      | -                      | ✅ 通过      |
+| **总计**         | -    | **679+** | **1,329+** | **~125K** | -      | **2**                  | **99.7%** ✅ |
 
 ## 🔄 重构历史
 
@@ -876,7 +882,8 @@ ______________________________________________________________________
 - 标准化的测试结构
 - 完整的文档
 
-参见: [架构审查文档](https://github.com/intellistream/SAGE/tree/main/docs/dev-notes/cross-layer/architecture)
+参见:
+[架构审查文档](https://github.com/intellistream/SAGE/tree/main/docs/dev-notes/cross-layer/architecture)
 
 ### 2025-01 架构审查（Top-Layer Review）
 
@@ -979,7 +986,8 @@ L6 (sage-studio)       - 接口层
 - 修复 L1→L3 依赖违规
 - 所有测试通过
 
-参见: [架构审查文档](https://github.com/intellistream/SAGE/tree/main/docs/dev-notes/cross-layer/architecture)
+参见:
+[架构审查文档](https://github.com/intellistream/SAGE/tree/main/docs/dev-notes/cross-layer/architecture)
 
 ## 🚀 使用指南
 
@@ -1028,7 +1036,8 @@ from sage.middleware.operators.rag.retriever.chroma_retriever import ChromaRetri
 
 ## 📚 参考文档
 
-- [架构设计文档](https://github.com/intellistream/SAGE/tree/main/docs/dev-notes/cross-layer/architecture) - 详细架构分析
+- [架构设计文档](https://github.com/intellistream/SAGE/tree/main/docs/dev-notes/cross-layer/architecture)
+  \- 详细架构分析
 - [贡献指南](https://github.com/intellistream/SAGE/blob/main/CONTRIBUTING.md) - 如何参与开发
 
 ## 🛠️ 架构相关命令

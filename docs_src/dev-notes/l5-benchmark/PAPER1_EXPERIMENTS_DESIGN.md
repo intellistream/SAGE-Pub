@@ -2,7 +2,7 @@
 
 > **文档目的**: 定义 Paper 1 (Benchmark) 的完整实验设计，按论文 Experiment Section 叙述逻辑组织。
 
----
+______________________________________________________________________
 
 ## 📄 论文实验章节结构
 
@@ -30,7 +30,7 @@
    5.4 Cross-Dataset Generalization
 ```
 
----
+______________________________________________________________________
 
 ## 🗂️ 实验脚本架构
 
@@ -90,7 +90,7 @@ sage-bench paper1 analysis ablation      # 消融实验
 sage-bench paper1 cross-dataset          # 跨数据集泛化
 ```
 
----
+______________________________________________________________________
 
 ## 📊 Section 5.2: Main Results
 
@@ -100,26 +100,28 @@ sage-bench paper1 cross-dataset          # 跨数据集泛化
 
 **实验设计**:
 
-| 方法 | 类型 | 描述 |
-|------|------|------|
-| `timing.rule_based` | Baseline | 关键词 + 正则规则 |
-| `timing.embedding` | Retrieval | 语义相似度判断 |
-| `timing.llm_based` | LLM | 直接 LLM 推理 |
-| `timing.hybrid` | Hybrid | Rule 初筛 + LLM 精判 |
+| 方法                | 类型      | 描述                 |
+| ------------------- | --------- | -------------------- |
+| `timing.rule_based` | Baseline  | 关键词 + 正则规则    |
+| `timing.embedding`  | Retrieval | 语义相似度判断       |
+| `timing.llm_based`  | LLM       | 直接 LLM 推理        |
+| `timing.hybrid`     | Hybrid    | Rule 初筛 + LLM 精判 |
 
 **指标**:
+
 - Primary: Accuracy (target ≥ 95%)
 - Secondary: Precision, Recall, F1
 - Tertiary: Latency (ms)
 
 **输出**:
+
 ```
 figures/fig1_timing_comparison.pdf
 tables/table_timing_results.tex
 results/timing_results.json
 ```
 
----
+______________________________________________________________________
 
 ### 5.2.2 RQ2: Task Planning (`exp_main_planning.py`)
 
@@ -127,26 +129,28 @@ results/timing_results.json
 
 **实验设计**:
 
-| 方法 | 类型 | 参考文献 |
-|------|------|----------|
-| `planner.simple` | Greedy | - |
-| `planner.hierarchical` | Decomposition | HuggingGPT |
-| `planner.llm_based` | LLM | CoT Prompting |
-| `planner.react` | Interleaved | ReAct (Yao et al.) |
+| 方法                   | 类型          | 参考文献           |
+| ---------------------- | ------------- | ------------------ |
+| `planner.simple`       | Greedy        | -                  |
+| `planner.hierarchical` | Decomposition | HuggingGPT         |
+| `planner.llm_based`    | LLM           | CoT Prompting      |
+| `planner.react`        | Interleaved   | ReAct (Yao et al.) |
 
 **指标**:
+
 - Primary: Plan Success Rate (target ≥ 90%)
 - Secondary: Step Accuracy, Tool Coverage
 - Tertiary: Average Plan Length
 
 **输出**:
+
 ```
 figures/fig2_planning_comparison.pdf
 tables/table_planning_results.tex
 results/planning_results.json
 ```
 
----
+______________________________________________________________________
 
 ### 5.2.3 RQ3: Tool Selection (`exp_main_selection.py`)
 
@@ -154,27 +158,29 @@ results/planning_results.json
 
 **实验设计**:
 
-| 方法 | 类型 | 参考文献 |
-|------|------|----------|
-| `selector.keyword` | Lexical | BM25 |
-| `selector.embedding` | Semantic | Dense Retrieval |
-| `selector.hybrid` | Fusion | 40% BM25 + 60% Dense |
-| `selector.gorilla` | LLM-Rerank | Gorilla (Patil et al.) |
-| `selector.dfsdt` | LLM-Score | ToolLLM (Qin et al.) |
+| 方法                 | 类型       | 参考文献               |
+| -------------------- | ---------- | ---------------------- |
+| `selector.keyword`   | Lexical    | BM25                   |
+| `selector.embedding` | Semantic   | Dense Retrieval        |
+| `selector.hybrid`    | Fusion     | 40% BM25 + 60% Dense   |
+| `selector.gorilla`   | LLM-Rerank | Gorilla (Patil et al.) |
+| `selector.dfsdt`     | LLM-Score  | ToolLLM (Qin et al.)   |
 
 **指标**:
+
 - Primary: Top-K Accuracy (target ≥ 95%, K=5)
 - Secondary: MRR, Recall@K, Precision@K
 - Tertiary: Latency (ms)
 
 **输出**:
+
 ```
 figures/fig3_selection_comparison.pdf
 tables/table_selection_results.tex
 results/tool_selection_results.json
 ```
 
----
+______________________________________________________________________
 
 ## 🔬 Section 5.3: Analysis & Discussion
 
@@ -222,13 +228,14 @@ selection_errors = {
 ```
 
 **输出**:
+
 ```
 figures/fig_error_breakdown_by_challenge.pdf
 figures/fig_error_cascade_distribution.pdf  
 tables/table_error_analysis.tex
 ```
 
----
+______________________________________________________________________
 
 ### 5.3.2 Scaling Analysis (`exp_analysis_scaling.py`)
 
@@ -262,13 +269,14 @@ MODELS = [
 ```
 
 **输出**:
+
 ```
 figures/fig_scaling_tool_count.pdf
 figures/fig_scaling_llm_size.pdf
 tables/table_scaling_results.tex
 ```
 
----
+______________________________________________________________________
 
 ### 5.3.3 Robustness Analysis (`exp_analysis_robustness.py`)
 
@@ -312,6 +320,7 @@ latency_spikes = [0.0, 0.10, 0.20, 0.30]
 ```
 
 **输出**:
+
 ```
 figures/fig_robustness_semantic.pdf
 figures/fig_robustness_instruction.pdf
@@ -319,7 +328,7 @@ figures/fig_robustness_reliability.pdf
 tables/table_robustness_results.tex
 ```
 
----
+______________________________________________________________________
 
 ### 5.3.4 Ablation Studies (`exp_analysis_ablation.py`)
 
@@ -359,13 +368,14 @@ timing_ablation = [
 ```
 
 **输出**:
+
 ```
 figures/fig_ablation_prompt.pdf
 figures/fig_ablation_hybrid_weights.pdf
 tables/table_ablation_results.tex
 ```
 
----
+______________________________________________________________________
 
 ## 🌐 Section 5.4: Cross-Dataset Generalization (`exp_cross_dataset.py`)
 
@@ -373,15 +383,16 @@ tables/table_ablation_results.tex
 
 **数据集**:
 
-| 数据集 | 来源 | 任务类型 | 规模 |
-|--------|------|----------|------|
-| SAGE-Bench | Ours | All 3 Challenges | ~1000 |
-| ACE-Bench | External | Tool Selection | ~500 |
-| ToolBench | Qin et al. | Tool Selection | ~2000 |
-| API-Bank | Li et al. | API Call | ~500 |
-| BFCL | Gorilla | Function Calling | ~1000 |
+| 数据集     | 来源       | 任务类型         | 规模  |
+| ---------- | ---------- | ---------------- | ----- |
+| SAGE-Bench | Ours       | All 3 Challenges | ~1000 |
+| ACE-Bench  | External   | Tool Selection   | ~500  |
+| ToolBench  | Qin et al. | Tool Selection   | ~2000 |
+| API-Bank   | Li et al.  | API Call         | ~500  |
+| BFCL       | Gorilla    | Function Calling | ~1000 |
 
 **实验设计**:
+
 ```python
 # 训练/测试分离
 # Train on: SAGE-Bench
@@ -391,12 +402,13 @@ tables/table_ablation_results.tex
 ```
 
 **输出**:
+
 ```
 figures/fig_cross_dataset_comparison.pdf
 tables/table_cross_dataset_results.tex
 ```
 
----
+______________________________________________________________________
 
 ## 📈 输出文件规范
 
@@ -474,34 +486,34 @@ table8_ablation_results.tex       # 消融结果
 table9_cross_dataset.tex          # 跨数据集
 ```
 
----
+______________________________________________________________________
 
 ## ⚙️ 实现优先级
 
 ### Phase 1: 主实验 (Week 1) - P0
 
-| 脚本 | 状态 | 说明 |
-|------|------|------|
-| `exp_main_timing.py` | 🔄 重构 | 基于现有 `run_all_experiments.py` |
-| `exp_main_planning.py` | 🔄 重构 | 基于现有代码 |
-| `exp_main_selection.py` | 🔄 重构 | 基于现有代码 |
+| 脚本                    | 状态    | 说明                              |
+| ----------------------- | ------- | --------------------------------- |
+| `exp_main_timing.py`    | 🔄 重构 | 基于现有 `run_all_experiments.py` |
+| `exp_main_planning.py`  | 🔄 重构 | 基于现有代码                      |
+| `exp_main_selection.py` | 🔄 重构 | 基于现有代码                      |
 
 ### Phase 2: 分析实验 (Week 2-3) - P1
 
-| 脚本 | 状态 | 复杂度 |
-|------|------|--------|
-| `exp_analysis_error.py` | 🆕 新建 | 中 |
-| `exp_analysis_scaling.py` | 🆕 新建 | 高 |
-| `exp_analysis_robustness.py` | 🆕 新建 | 高 |
-| `exp_analysis_ablation.py` | 🆕 新建 | 中 |
+| 脚本                         | 状态    | 复杂度 |
+| ---------------------------- | ------- | ------ |
+| `exp_analysis_error.py`      | 🆕 新建 | 中     |
+| `exp_analysis_scaling.py`    | 🆕 新建 | 高     |
+| `exp_analysis_robustness.py` | 🆕 新建 | 高     |
+| `exp_analysis_ablation.py`   | 🆕 新建 | 中     |
 
 ### Phase 3: 泛化实验 (Week 4) - P2
 
-| 脚本 | 状态 | 依赖 |
-|------|------|------|
+| 脚本                   | 状态    | 依赖           |
+| ---------------------- | ------- | -------------- |
 | `exp_cross_dataset.py` | 🔄 扩展 | 外部数据集加载 |
 
----
+______________________________________________________________________
 
 ## 🔧 共享工具模块
 
@@ -560,23 +572,26 @@ def plot_ablation_heatmap(ablation_results: dict) -> Figure: ...
 def generate_latex_table(results: dict, template: str) -> str: ...
 ```
 
----
+______________________________________________________________________
 
 ## ✅ 实施检查清单
 
 ### 基础设施
+
 - [ ] 创建 `scripts/experiments/` 目录结构
 - [ ] 实现 `exp_utils.py` 共享模块
 - [ ] 实现 `figure_generator.py` 图表模块
 - [ ] 更新 `sage_benchmark_cli.py` 支持新命令
 
 ### Section 5.2: 主实验
+
 - [ ] `exp_main_timing.py` - 重构自现有代码
 - [ ] `exp_main_planning.py` - 重构自现有代码
 - [ ] `exp_main_selection.py` - 重构自现有代码
 - [ ] 生成 fig1-3, table1-4
 
 ### Section 5.3: 分析实验
+
 - [ ] `exp_analysis_error.py` - 错误分析
 - [ ] `exp_analysis_scaling.py` - Scaling 分析
 - [ ] `exp_analysis_robustness.py` - 鲁棒性分析
@@ -584,15 +599,17 @@ def generate_latex_table(results: dict, template: str) -> str: ...
 - [ ] 生成 fig4-8, table5-8
 
 ### Section 5.4: 泛化实验
+
 - [ ] `exp_cross_dataset.py` - 跨数据集验证
 - [ ] 生成 fig9, table9
 
 ### 集成测试
+
 - [ ] 端到端运行 `sage-bench paper1 run --quick`
 - [ ] 验证所有 figures 和 tables 生成
 - [ ] CI/CD 集成
 
----
+______________________________________________________________________
 
 ## 📝 控制变量说明
 
@@ -606,7 +623,8 @@ RANDOM_SEED = 42
 ```
 
 确保公平对比：
+
 1. 所有 embedding 方法使用相同 embedding 模型
-2. 所有 LLM 方法使用相同 temperature
-3. 所有实验使用相同随机种子
-4. 测试数据完全相同
+1. 所有 LLM 方法使用相同 temperature
+1. 所有实验使用相同随机种子
+1. 测试数据完全相同

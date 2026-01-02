@@ -19,6 +19,7 @@
 ### 2. 服务器环境
 
 **最低要求**:
+
 - Ubuntu 20.04+ / CentOS 7+ / Debian 10+
 - Python 3.10+
 - 4GB+ RAM
@@ -44,11 +45,11 @@ sudo yum install -y python3 python3-pip python3-devel git \
 
 在 GitHub 仓库设置中配置以下 Secrets:
 
-| Secret 名称 | 说明 | 必需 |
-|------------|------|------|
-| `SAGE_CHAT_API_KEY` | OpenAI 兼容 LLM 访问密钥 (用于 Gateway/vLLM) | ✅ |
-| `OPENAI_API_KEY` | OpenAI API Key (可选) | ❌ |
-| `HF_TOKEN` | Hugging Face Token (用于模型下载) | ❌ |
+| Secret 名称         | 说明                                         | 必需 |
+| ------------------- | -------------------------------------------- | ---- |
+| `SAGE_CHAT_API_KEY` | OpenAI 兼容 LLM 访问密钥 (用于 Gateway/vLLM) | ✅   |
+| `OPENAI_API_KEY`    | OpenAI API Key (可选)                        | ❌   |
+| `HF_TOKEN`          | Hugging Face Token (用于模型下载)            | ❌   |
 
 配置路径: `Settings → Secrets and variables → Actions → New repository secret`
 
@@ -63,23 +64,24 @@ git push origin feat/unified-chat-canvas-rebased
 ```
 
 GitHub Actions 会自动：
+
 1. 在 self-hosted runner 上拉取最新代码
-2. 安装 SAGE 及依赖
-3. 构建 RAG 索引
-4. 启动 Gateway 和 Studio 服务
-5. 输出访问地址
+1. 安装 SAGE 及依赖
+1. 构建 RAG 索引
+1. 启动 Gateway 和 Studio 服务
+1. 输出访问地址
 
 ### 方式 2: 手动触发部署
 
 在 GitHub Actions 页面手动触发：
 
 1. 进入 `Actions` 标签
-2. 选择 `Deploy SAGE Studio to Self-Hosted Server`
-3. 点击 `Run workflow`
-4. (可选) 自定义端口:
+1. 选择 `Deploy SAGE Studio to Self-Hosted Server`
+1. 点击 `Run workflow`
+1. (可选) 自定义端口:
    - Studio 访问端口 (默认: 4200)
    - Gateway API 端口 (默认: 8000)
-5. 点击 `Run workflow` 执行
+1. 点击 `Run workflow` 执行
 
 ## 📍 访问部署的服务
 
@@ -314,6 +316,7 @@ tail -100 ~/.sage/studio.log
 ### 问题 2: Gateway 启动失败
 
 常见原因:
+
 - API Key 未配置或无效
 - 端口被占用
 - Python 环境问题
@@ -349,9 +352,9 @@ ls -la ~/.sage/cache/chat/
 **检查清单**:
 
 1. ✅ 服务器有公网 IP
-2. ✅ 云服务商安全组开放端口 4200, 8000
-3. ✅ 服务器防火墙允许端口
-4. ✅ 服务监听在 `0.0.0.0` 而非 `127.0.0.1`
+1. ✅ 云服务商安全组开放端口 4200, 8000
+1. ✅ 服务器防火墙允许端口
+1. ✅ 服务监听在 `0.0.0.0` 而非 `127.0.0.1`
 
 ## 📊 监控和维护
 
@@ -419,18 +422,18 @@ check_service "sage studio" 4200
 ## 💡 最佳实践
 
 1. **使用 systemd**: 实现自动重启和开机启动
-2. **配置反向代理**: 通过 Nginx 提供 HTTPS 和域名访问
-3. **定期备份**: 备份 `~/.sage/` 目录（包含索引和配置）
-4. **监控日志**: 定期检查日志文件大小，配置日志轮转
-5. **安全加固**:
+1. **配置反向代理**: 通过 Nginx 提供 HTTPS 和域名访问
+1. **定期备份**: 备份 `~/.sage/` 目录（包含索引和配置）
+1. **监控日志**: 定期检查日志文件大小，配置日志轮转
+1. **安全加固**:
    - 使用非 root 用户运行服务
    - 配置防火墙仅开放必要端口
    - 定期更新系统和依赖
-6. **性能优化**:
+1. **性能优化**:
    - 根据服务器配置调整工作进程数
    - 配置 Redis/Memcached 缓存（可选）
    - 使用 CDN 加速静态资源（可选）
 
----
+______________________________________________________________________
 
 **需要帮助？** 在 [GitHub Issues](https://github.com/intellistream/SAGE/issues) 提交问题。

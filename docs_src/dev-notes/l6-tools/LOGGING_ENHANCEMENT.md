@@ -1,6 +1,5 @@
-**Date**: 2025-11-12
-**Author**: shuhao
-**Summary**: Implementation of comprehensive structured logging system for SAGE installation to address debugging issues.
+**Date**: 2025-11-12 **Author**: shuhao **Summary**: Implementation of comprehensive structured
+logging system for SAGE installation to address debugging issues.
 
 # SAGE 安装日志系统增强
 
@@ -13,6 +12,7 @@
 ### 1. 统一日志框架 (`tools/install/display_tools/logging.sh`)
 
 #### 日志级别
+
 - **DEBUG (0)**: 详细调试信息（命令、参数、路径等）
 - **INFO (1)**: 一般信息（步骤开始/完成）
 - **WARN (2)**: 警告（非致命错误）
@@ -51,15 +51,18 @@ log_python_import_test "module.name" "CONTEXT"
 ### 2. 日志输出特性
 
 #### 双重输出
+
 - **控制台**: 彩色、简洁、用户友好
 - **日志文件**: 完整、带时间戳、结构化
 
 #### 自动时间戳
+
 ```
 [2024-01-15 14:23:45] [INFO] [INSTALL] 开始安装: packages/sage-common
 ```
 
 #### 上下文标签
+
 - `INSTALL`: 包安装过程
 - `MAIN`: 主安装流程
 - `VLLM`: VLLM相关
@@ -71,6 +74,7 @@ log_python_import_test "module.name" "CONTEXT"
 #### `core_installer.sh` 增强内容
 
 **日志初始化**:
+
 ```bash
 # 在开始时记录完整环境信息
 log_environment "INSTALL"
@@ -78,6 +82,7 @@ export SAGE_INSTALL_LOG="$log_file"
 ```
 
 **包安装**（每个包）:
+
 ```bash
 log_info "开始安装: $package" "INSTALL"
 log_debug "PIP命令: $PIP_CMD install..." "INSTALL"
@@ -87,6 +92,7 @@ log_pip_package_info "$pkg_name" "INSTALL"
 ```
 
 **C++编译错误**:
+
 ```bash
 if ! $PIP_CMD install sage-middleware ...; then
     log_error "安装 sage-middleware 失败！" "INSTALL"
@@ -99,6 +105,7 @@ fi
 ```
 
 **外部依赖安装**:
+
 ```bash
 log_phase_start "外部依赖安装" "INSTALL"
 log_info "共提取 $dep_count 个外部依赖" "INSTALL"
@@ -115,6 +122,7 @@ log_phase_end "外部依赖安装" "success" "INSTALL"
 #### `main_installer.sh` 增强内容
 
 **Phase级别跟踪**:
+
 ```bash
 case "$mode" in
     "standard")
@@ -139,6 +147,7 @@ esac
 ```
 
 **环境配置**:
+
 ```bash
 log_phase_start "环境配置" "MAIN"
 configure_installation_environment "$environment" "$mode"
@@ -146,6 +155,7 @@ log_phase_end "环境配置" "success" "MAIN"
 ```
 
 **CI检查**:
+
 ```bash
 log_phase_start "依赖完整性检查" "MAIN"
 if bash "$monitor_script" analyze "$log_file"; then
@@ -239,11 +249,13 @@ ERROR: No matching distribution found for package-x>=1.0.0
 ## 调试建议
 
 ### 1. 实时查看日志
+
 ```bash
 tail -f .sage/logs/install.log
 ```
 
 ### 2. 搜索特定日志级别
+
 ```bash
 # 查看所有错误
 grep "\[ERROR\]" .sage/logs/install.log
@@ -256,6 +268,7 @@ grep "阶段开始\|阶段结束" .sage/logs/install.log
 ```
 
 ### 3. 查看特定上下文
+
 ```bash
 # 查看安装过程
 grep "\[INSTALL\]" .sage/logs/install.log
@@ -265,6 +278,7 @@ grep "\[MAIN\]" .sage/logs/install.log
 ```
 
 ### 4. 查看包安装详情
+
 ```bash
 # 查看某个包的安装
 grep "sage-middleware" .sage/logs/install.log
@@ -273,10 +287,10 @@ grep "sage-middleware" .sage/logs/install.log
 ## 后续改进建议
 
 1. **日志分析工具**: 创建脚本自动分析日志、提取错误摘要
-2. **日志压缩**: 对于成功的安装，可以压缩旧日志
-3. **日志上传**: CI失败时自动上传日志到artifacts
-4. **可视化**: 生成HTML格式的日志报告
-5. **性能追踪**: 记录每个阶段的耗时
+1. **日志压缩**: 对于成功的安装，可以压缩旧日志
+1. **日志上传**: CI失败时自动上传日志到artifacts
+1. **可视化**: 生成HTML格式的日志报告
+1. **性能追踪**: 记录每个阶段的耗时
 
 ## 文件清单
 

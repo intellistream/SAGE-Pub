@@ -8,9 +8,14 @@ SAGE 应用的性能优化涉及多个层面：Pipeline 吞吐量、LLM 推理�
 
 ## 服务栈准备
 
-- **守护式服务**：使用 `sage llm serve --model <LLM> --embedding-model <Embedding>` 在 `SagePorts.LLM_DEFAULT`/`SagePorts.EMBEDDING_DEFAULT` 上启动 OpenAI 兼容接口。WSL2 如遇 8001 端口异常，可让 CLI 自动回退到 `SagePorts.LLM_WSL_FALLBACK (8901)`。
-- **统一客户端**：`UnifiedInferenceClient.create()` 是 Chat/Generate/Embed 的首选入口，默认 Control Plane First（本地 → `.env` → 云端），也可 `create(control_plane_url="http://localhost:8000/v1")` 复用已有 Gateway，或 `create(embedded=True)` 在进程内运行调度器。
-- **无服务模式**：若仅需要本地 Embedding，可直接 `EmbeddingFactory.create("hf", model=...)` 并用 `EmbeddingClientAdapter` 获得批量接口；记得 `raw_embedder.embed("one text")` 仍是单文本模式。
+- **守护式服务**：使用 `sage llm serve --model <LLM> --embedding-model <Embedding>` 在
+  `SagePorts.LLM_DEFAULT`/`SagePorts.EMBEDDING_DEFAULT` 上启动 OpenAI 兼容接口。WSL2 如遇 8001 端口异常，可让 CLI
+  自动回退到 `SagePorts.LLM_WSL_FALLBACK (8901)`。
+- **统一客户端**：`UnifiedInferenceClient.create()` 是 Chat/Generate/Embed 的首选入口，默认 Control Plane First（本地
+  → `.env` → 云端），也可 `create(control_plane_url="http://localhost:8000/v1")` 复用已有 Gateway，或
+  `create(embedded=True)` 在进程内运行调度器。
+- **无服务模式**：若仅需要本地 Embedding，可直接 `EmbeddingFactory.create("hf", model=...)` 并用
+  `EmbeddingClientAdapter` 获得批量接口；记得 `raw_embedder.embed("one text")` 仍是单文本模式。
 
 ### 端口与网络配置
 
@@ -56,30 +61,30 @@ from sage.common.core.functions.map_function import MapFunction
 
 class ProfiledOperator(MapFunction):
     """带性能分析的算子"""
-    
+
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.total_time = 0
         self.call_count = 0
-    
+
     def execute(self, data):
         start = time.perf_counter()
-        
+
         result = self._process(data)
-        
+
         elapsed = time.perf_counter() - start
         self.total_time += elapsed
         self.call_count += 1
-        
+
         # 每 100 次输出统计
         if self.call_count % 100 == 0:
             avg_time = self.total_time / self.call_count * 1000
             print(f"[{self.__class__.__name__}] "
                   f"调用次数: {self.call_count}, "
                   f"平均耗时: {avg_time:.2f}ms")
-        
+
         return result
-    
+
     def _process(self, data):
         # 子类重写此方法
         return data
@@ -96,12 +101,12 @@ def profile_pipeline():
     """对 Pipeline 进行性能分析"""
     profiler = cProfile.Profile()
     profiler.enable()
-    
+
     # 运行你的 Pipeline
     run_my_pipeline()
-    
+
     profiler.disable()
-    
+
     # 输出分析结果
     stream = StringIO()
     stats = pstats.Stats(profiler, stream=stream)
@@ -133,7 +138,8 @@ print(status)
 
 ### 控制面多实例 + SLA 示例
 
-当需要精细化控制吞吐量与延迟时，可以直接启动 `UnifiedAPIServer`，并启用 `SchedulingPolicyType.SLO_AWARE`。下面示例展示如何在同一台机器上注册两个 LLM 实例（主/备）以及一个 Embedding 实例，全部使用 `SagePorts` 常量，避免端口漂移：
+当需要精细化控制吞吐量与延迟时，可以直接启动 `UnifiedAPIServer`，并启用 `SchedulingPolicyType.SLO_AWARE`。下面示例展示如何在同一台机器上注册两个
+LLM 实例（主/备）以及一个 Embedding 实例，全部使用 `SagePorts` 常量，避免端口漂移：
 
 ```python
 from sage.llm import (
@@ -179,8 +185,10 @@ server = UnifiedAPIServer(config)
 server.start()  # 阻塞运行；若需后台可用 asyncio + server.run_async
 ```
 
-- `SchedulingPolicyType.SLO_AWARE` 会在控制面内部启用 `HybridSchedulingPolicy` + `SLOAwarePolicy`，根据 P95 延迟指标动态调整请求顺序。
-- 可通过 `UnifiedInferenceClient.create(control_plane_url=...)` 接入上面的 Gateway，实现多实例 SLA 分层：例如低延迟流量打到主模型，高吞吐流量落到 `SagePorts.BENCHMARK_LLM`。
+- `SchedulingPolicyType.SLO_AWARE` 会在控制面内部启用 `HybridSchedulingPolicy` + `SLOAwarePolicy`，根据 P95
+  延迟指标动态调整请求顺序。
+- 可通过 `UnifiedInferenceClient.create(control_plane_url=...)` 接入上面的 Gateway，实现多实例 SLA
+  分层：例如低延迟流量打到主模型，高吞吐流量落到 `SagePorts.BENCHMARK_LLM`。
 
 ### 批量请求优化
 
@@ -190,43 +198,43 @@ from sage.common.core.functions.map_function import MapFunction
 
 class BatchLLMOperator(MapFunction):
     """批量 LLM 请求算子"""
-    
+
     def __init__(self, batch_size=8, timeout=5.0, **kwargs):
         super().__init__(**kwargs)
         self.batch_size = batch_size
         self.timeout = timeout
         self.buffer = []
         self.last_flush = time.time()
-    
+
     def execute(self, data):
         self.buffer.append(data)
-        
+
         # 触发批处理条件：达到批量大小或超时
         should_flush = (
             len(self.buffer) >= self.batch_size or
             time.time() - self.last_flush > self.timeout
         )
-        
+
         if should_flush:
             results = self._process_batch(self.buffer)
             self.buffer = []
             self.last_flush = time.time()
             return results
-        
+
         return None  # 等待更多数据
-    
+
     def _process_batch(self, batch):
         """批量处理 - 减少 API 调用次数"""
         prompts = [item["prompt"] for item in batch]
-        
+
         # 使用批量 API（如果支持）
         responses = []
         for prompt in prompts:
             resp = client.generate(prompt, max_tokens=256)
             responses.append(resp)
-        
+
         return [
-            {"prompt": p, "response": r} 
+            {"prompt": p, "response": r}
             for p, r in zip(prompts, responses)
         ]
 ```
@@ -269,15 +277,15 @@ for text in texts:
 def embed_large_dataset(texts, batch_size=32):
     """分批嵌入大数据集"""
     all_vectors = []
-    
+
     for i in range(0, len(texts), batch_size):
         batch = texts[i:i + batch_size]
         vectors = client.embed(batch)
         all_vectors.extend(vectors)
-        
+
         # 可选：显示进度
         print(f"已处理: {min(i + batch_size, len(texts))}/{len(texts)}")
-    
+
     return all_vectors
 
 # 使用
@@ -335,7 +343,7 @@ env = RemoteEnvironment(
 ```python
 class StreamingProcessor(MapFunction):
     """流式处理，避免一次性加载全部数据"""
-    
+
     def execute(self, data):
         # 处理单条数据，立即输出
         result = process(data)
@@ -348,15 +356,15 @@ class StreamingProcessor(MapFunction):
 ```python
 class ResourceAwareOperator(MapFunction):
     """资源感知算子"""
-    
+
     def open(self, context):
         """初始化资源"""
         self.model = load_model()
-    
+
     def execute(self, data):
         result = self.model.predict(data)
         return result
-    
+
     def close(self):
         """释放资源"""
         if hasattr(self, 'model'):
@@ -379,21 +387,21 @@ def get_memory_usage():
 
 class MemoryMonitorOperator(MapFunction):
     """内存监控算子"""
-    
+
     def __init__(self, threshold_mb=1000, **kwargs):
         super().__init__(**kwargs)
         self.threshold = threshold_mb
         self.check_interval = 100
         self.counter = 0
-    
+
     def execute(self, data):
         self.counter += 1
-        
+
         if self.counter % self.check_interval == 0:
             memory_mb = get_memory_usage()
             if memory_mb > self.threshold:
                 print(f"Warning: 内存使用: {memory_mb:.1f}MB (超过阈值)")
-        
+
         return data
 ```
 
@@ -480,18 +488,18 @@ from statistics import mean, stdev
 
 def benchmark_llm(client, prompts, warmup=5):
     """LLM 延迟基准测试"""
-    
+
     # Warmup
     for prompt in prompts[:warmup]:
         client.generate(prompt, max_tokens=50)
-    
+
     # 测试
     latencies = []
     for prompt in prompts:
         start = time.perf_counter()
         client.generate(prompt, max_tokens=50)
         latencies.append(time.perf_counter() - start)
-    
+
     print(f"平均延迟: {mean(latencies)*1000:.1f}ms")
     print(f"标准差: {stdev(latencies)*1000:.1f}ms")
     print(f"P95 延迟: {sorted(latencies)[int(len(latencies)*0.95)]*1000:.1f}ms")
@@ -499,26 +507,26 @@ def benchmark_llm(client, prompts, warmup=5):
 
 def benchmark_embedding(client, texts, batch_size=32):
     """Embedding 吞吐量基准测试"""
-    
+
     start = time.perf_counter()
-    
+
     for i in range(0, len(texts), batch_size):
         batch = texts[i:i + batch_size]
         client.embed(batch)
-    
+
     elapsed = time.perf_counter() - start
     throughput = len(texts) / elapsed
-    
+
     print(f"总耗时: {elapsed:.2f}s")
     print(f"吞吐量: {throughput:.1f} texts/s")
 ```
 
 ## Control Plane + 作业管理 + 质量守护示例
 
-| 项 | 内容 |
-| --- | --- |
-| **源码入口** | `examples/tutorials/vllm_control_plane_tutorial.py`（调度示例） + `examples/tutorials/benchmark_control_plane_demo.py`（基准工具） |
-| **运行脚本** | `python examples/tutorials/vllm_control_plane_tutorial.py`，随后运行 `python examples/tutorials/benchmark_control_plane_demo.py` |
+| 项           | 内容                                                                                                                                                                               |
+| ------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **源码入口** | `examples/tutorials/vllm_control_plane_tutorial.py`（调度示例） + `examples/tutorials/benchmark_control_plane_demo.py`（基准工具）                                                 |
+| **运行脚本** | `python examples/tutorials/vllm_control_plane_tutorial.py`，随后运行 `python examples/tutorials/benchmark_control_plane_demo.py`                                                   |
 | **预期日志** | 控制台会输出 `Demo 1: Basic Usage`/`Demo 2: Multi-Instance Load Balancing`，并打印实例端口；基准脚本会展示 `Demo 1: LLM Benchmark Configuration`、`Configuration is valid.` 等字样 |
 
 完整的端到端流程如下：
@@ -533,9 +541,10 @@ def benchmark_embedding(client, texts, batch_size=32):
    sage llm status     # 确认 LLM / Embedding 实例已注册
    ```
 
-   所有端口均来自 `sage.common.config.ports.SagePorts`，在 WSL2 环境可通过 `SagePorts.get_recommended_llm_port()` 自动切换到 8901/8902 等备用端口。
+   所有端口均来自 `sage.common.config.ports.SagePorts`，在 WSL2 环境可通过 `SagePorts.get_recommended_llm_port()`
+   自动切换到 8901/8902 等备用端口。
 
-2. **运行 Control Plane 示例**
+1. **运行 Control Plane 示例**
 
    ```bash
    python examples/tutorials/vllm_control_plane_tutorial.py
@@ -562,17 +571,19 @@ def benchmark_embedding(client, texts, batch_size=32):
    service.cleanup()
    ```
 
-   > 输出中会显示 `Registered X instances`、`Metrics: {..."total_requests": 0}` 等信息，用于确认 Control Plane 已接入多实例。
+   > 输出中会显示 `Registered X instances`、`Metrics: {..."total_requests": 0}` 等信息，用于确认 Control Plane
+   > 已接入多实例。
 
-3. **执行调度基准**
+1. **执行调度基准**
 
    ```bash
    python examples/tutorials/benchmark_control_plane_demo.py
    ```
 
-   该脚本会生成 LLM/Hybrid 请求负载，展示 `LLMBenchmarkConfig`、`HybridBenchmarkConfig`、策略适配器列表及 GPU 监控示例，帮助评估 Control Plane 的吞吐与延迟。
+   该脚本会生成 LLM/Hybrid 请求负载，展示 `LLMBenchmarkConfig`、`HybridBenchmarkConfig`、策略适配器列表及 GPU 监控示例，帮助评估
+   Control Plane 的吞吐与延迟。
 
-4. **质量守护（静态检查）**
+1. **质量守护（静态检查）**
 
    在提交 PR 或调整示例后执行：
 
@@ -588,13 +599,13 @@ def benchmark_embedding(client, texts, batch_size=32):
 
 ### 推荐做法
 
-| 场景 | 优化方法 |
-|------|---------|
-| LLM 高并发 | 使用 Control Plane 模式，启用负载均衡 |
-| 大量 Embedding | 批量处理，batch_size=32-64 |
-| 内存敏感 | 流式处理，及时释放资源 |
-| GPU 受限 | 使用半精度，控制并行度 |
-| 网络延迟 | 优先使用本地服务，复用连接 |
+| 场景           | 优化方法                              |
+| -------------- | ------------------------------------- |
+| LLM 高并发     | 使用 Control Plane 模式，启用负载均衡 |
+| 大量 Embedding | 批量处理，batch_size=32-64            |
+| 内存敏感       | 流式处理，及时释放资源                |
+| GPU 受限       | 使用半精度，控制并行度                |
+| 网络延迟       | 优先使用本地服务，复用连接            |
 
 ### 避免的问题
 
@@ -611,6 +622,6 @@ def benchmark_embedding(client, texts, batch_size=32):
 - [容错与可靠性](fault-tolerance.md) - 生产环境部署
 - [sage-benchmark 文档](../../guides/packages/sage-benchmark/index.md)
 
----
+______________________________________________________________________
 
 **下一步**：学习 [容错与可靠性](fault-tolerance.md) 构建高可用系统

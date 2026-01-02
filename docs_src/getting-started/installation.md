@@ -59,17 +59,18 @@ git checkout main-dev
 
 **quickstart.sh 模式矩阵**：
 
-| 选项 | 包含内容 | 典型用途 |
-|------|----------|----------|
-| `--core` | `sage-common` + `sage-kernel` | 精简运行/CI 快速验证 |
-| `--standard` | 全量运行时（L1-L5） | 生产近似部署 |
-| `--full` | 运行时 + examples/docs | 需要教程与样例资产 |
-| `--dev` | `--full` + 开发工具链 | 贡献者开发、`sage-dev` CLI |
+| 选项         | 包含内容                      | 典型用途                   |
+| ------------ | ----------------------------- | -------------------------- |
+| `--core`     | `sage-common` + `sage-kernel` | 精简运行/CI 快速验证       |
+| `--standard` | 全量运行时（L1-L5）           | 生产近似部署               |
+| `--full`     | 运行时 + examples/docs        | 需要教程与样例资产         |
+| `--dev`      | `--full` + 开发工具链         | 贡献者开发、`sage-dev` CLI |
 
 附加参数：
 
 - `--pip` / `--conda`：显式指定使用系统 Python 或自动创建 Conda 环境（默认 Conda）。
-- `--sync-submodules`：安装前调用 `./manage.sh` 与 `./tools/maintenance/sage-maintenance.sh submodule init`，确保 C++ 扩展子模块拉取到最新。
+- `--sync-submodules`：安装前调用 `./manage.sh` 与
+  `./tools/maintenance/sage-maintenance.sh submodule init`，确保 C++ 扩展子模块拉取到最新。
 - `--yes`：跳过交互确认，适合脚本/CI。
 - `--vllm`：在 GPU 主机上额外安装 vLLM 依赖。
 
@@ -81,7 +82,8 @@ git checkout main-dev
 - ⚡ 四种安装模式：core / standard / full / dev
 - 🔧 自动配置环境和依赖
 - 🪝 默认执行 `./manage.sh`：同步子模块并安装 Git hooks
-- 📏 运行 `./tools/install/check_tool_versions.sh`，保持 `tools/pre-commit-config.yaml` 与 `packages/sage-tools/pyproject.toml` 中 Ruff 版本一致
+- 📏 运行 `./tools/install/check_tool_versions.sh`，保持 `tools/pre-commit-config.yaml` 与
+  `packages/sage-tools/pyproject.toml` 中 Ruff 版本一致
 
 ### 方式 2：使用 PyPI（快速部署）
 
@@ -343,7 +345,9 @@ sage config env show
 sage doctor
 ```
 
-> **版本提示**：若手动升级 `ruff` 或 pre-commit，请运行 `./tools/install/check_tool_versions.sh --fix`，确保 `tools/pre-commit-config.yaml` 与 `packages/sage-tools/pyproject.toml` 中的版本保持一致，再次执行 `sage-dev quality --check-only` 验证结果。
+> **版本提示**：若手动升级 `ruff` 或 pre-commit，请运行 `./tools/install/check_tool_versions.sh --fix`，确保
+> `tools/pre-commit-config.yaml` 与 `packages/sage-tools/pyproject.toml` 中的版本保持一致，再次执行
+> `sage-dev quality --check-only` 验证结果。
 
 ______________________________________________________________________
 

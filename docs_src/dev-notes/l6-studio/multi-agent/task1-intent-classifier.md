@@ -4,8 +4,8 @@
 
 实现用户意图分类器，用于判断用户消息的意图类型，决定是否需要调用知识库检索、工作流生成等功能。
 
-**优先级**: P0 (高)  
-**预计工时**: 2-3 天  
+**优先级**: P0 (高)\
+**预计工时**: 2-3 天\
 **可并行**: 是（无外部依赖）
 
 **✨ 关键改进**: 复用 `sage-libs` 中已有的工具选择（Tool Selection）算法作为意图分类的基础！
@@ -17,13 +17,15 @@
 SAGE 在 `sage-libs` 和 `sage-benchmark` 中已经实现了完善的 **Tool Selection** 算法和评测框架：
 
 1. **多种工具选择策略** (`sage.libs.agentic.agents.action.tool_selection`):
+
    - `KeywordSelector`: 基于关键词匹配
    - `EmbeddingSelector`: 基于语义向量相似度
    - `HybridSelector`: 混合策略（关键词 + Embedding）
    - `GorillaSelector`: 使用 Gorilla API 调用模型
    - `DFSDTSelector`: ToolLLM 的检索增强方法
 
-2. **统一接口** (`SelectorRegistry`):
+1. **统一接口** (`SelectorRegistry`):
+
    ```python
    from sage.libs.agentic.agents.action.tool_selection import (
        get_selector, create_selector_from_config, SelectorConfig
@@ -31,7 +33,8 @@ SAGE 在 `sage-libs` 和 `sage-benchmark` 中已经实现了完善的 **Tool Sel
    selector = get_selector("hybrid", resources)
    ```
 
-3. **Benchmark 评测** (`sage-benchmark/benchmark_agent`):
+1. **Benchmark 评测** (`sage-benchmark/benchmark_agent`):
+
    - 1000+ 工具的真实测试集
    - 标准化评测指标（Accuracy, Recall@5, MRR）
 
@@ -39,14 +42,15 @@ SAGE 在 `sage-libs` 和 `sage-benchmark` 中已经实现了完善的 **Tool Sel
 
 **将"意图分类"建模为"特殊的工具选择问题"**：
 
-| 传统工具选择 | Studio 意图分类 |
-|-------------|----------------|
-| 输入：用户查询 | 输入：用户消息 |
-| 候选集：1000+ 工具 | 候选集：5 种意图类型 |
-| 输出：Top-K 工具 | 输出：最佳意图 + 置信度 |
-| 方法：Keyword/Embedding/Hybrid | **直接复用这些方法** |
+| 传统工具选择                   | Studio 意图分类         |
+| ------------------------------ | ----------------------- |
+| 输入：用户查询                 | 输入：用户消息          |
+| 候选集：1000+ 工具             | 候选集：5 种意图类型    |
+| 输出：Top-K 工具               | 输出：最佳意图 + 置信度 |
+| 方法：Keyword/Embedding/Hybrid | **直接复用这些方法**    |
 
 **优势**：
+
 - ✅ 复用成熟算法，避免重复造轮子
 - ✅ 继承 benchmark 验证的性能表现
 - ✅ 统一的配置和注册机制
@@ -55,9 +59,9 @@ SAGE 在 `sage-libs` 和 `sage-benchmark` 中已经实现了完善的 **Tool Sel
 ## 目标
 
 1. **复用 sage-libs Tool Selector**：将意图作为"伪工具"定义
-2. 支持规则匹配（KeywordSelector）和语义匹配（EmbeddingSelector）两种模式
-3. 返回意图类型和置信度
-4. 为后续升级到 LLM-based 分类留接口
+1. 支持规则匹配（KeywordSelector）和语义匹配（EmbeddingSelector）两种模式
+1. 返回意图类型和置信度
+1. 为后续升级到 LLM-based 分类留接口
 
 ## 文件位置
 
@@ -291,15 +295,17 @@ selector = get_selector("hybrid", resources)  # 或 "keyword", "embedding"
 ### Step 4: （可选）增强规则
 
 如果基础 Selector 不够精准，可以：
+
 1. 丰富 `INTENT_TOOLS` 中的 keywords 和 description
-2. 使用 `HybridSelector` 调整权重
-3. 添加后处理逻辑（如排除明显错误的意图）
+1. 使用 `HybridSelector` 调整权重
+1. 添加后处理逻辑（如排除明显错误的意图）
 
 ## 关键优势
 
 ### 1. 零开发成本的高级特性
 
 直接继承 sage-libs Selector 的能力：
+
 - ✅ **Embedding 缓存**: 避免重复计算
 - ✅ **多种检索策略**: Keyword/Embedding/Hybrid/Gorilla/DFSDT
 - ✅ **Benchmark 验证**: 在 1000+ 工具上测试过的算法
@@ -320,13 +326,14 @@ Phase 3: 接入 SIAS（训练式，持续优化）
 ### 3. 与 Benchmark 对齐
 
 Studio 的意图分类和 Benchmark 的工具选择使用**相同的算法和评测标准**，便于：
+
 - 对比不同方法的性能（Recall@1, MRR）
 - 复现论文实验
 - 迁移最新研究成果
 
 ## 测试用例
 
-```python
+````python
 # tests/unit/test_intent_classifier.py
 
 import pytest
@@ -390,7 +397,7 @@ class TestIntentRules:
         # "怎么创建 pipeline" 应该是 PIPELINE_GENERATION 而不是 KNOWLEDGE_QUERY
         result = await classifier.classify("怎么创建一个 pipeline?")
         assert result.intent == UserIntent.PIPELINE_GENERATION
-```
+````
 
 ## 验收标准
 
@@ -404,7 +411,7 @@ class TestIntentRules:
 
 ## 提示词（复制使用）
 
-```
+````
 请在 SAGE 项目中实现 IntentClassifier 意图分类器。
 
 ## 背景
@@ -419,32 +426,40 @@ SAGE Studio 正在升级为 Multi-Agent 架构，需要一个意图分类器来�
        get_selector, SelectorResources, ToolSelectionQuery
    )
    from sage.libs.agentic.agents.action.tool_selection.schemas import Tool
-   ```
+````
+
 3. 定义 INTENT_TOOLS 列表，将 5 种意图建模为 Tool 对象
-4. 实现 IntentClassifier 类：
+1. 实现 IntentClassifier 类：
    - 初始化时创建 Selector (mode="hybrid" 推荐)
    - classify() 方法将消息转为 ToolSelectionQuery，调用 selector.select()
    - 解析 ToolPrediction 为 IntentResult
-5. 支持通过配置切换 Selector 模式 (keyword/embedding/hybrid)
+1. 支持通过配置切换 Selector 模式 (keyword/embedding/hybrid)
 
 ## 关键点
+
 - 每个意图定义详细的 description 和 keywords (这些会被 Selector 使用)
 - 复用 SelectorResources 管理 Embedding 模型
 - 保留 raw_prediction 字段便于调试
 
 ## 测试
+
 编写单元测试: packages/sage-studio/tests/unit/test_intent_classifier.py
+
 - 测试各种意图的识别准确性
 - 测试 Selector 模式切换
 - Mock SelectorResources 避免加载真实模型
 
 ## 依赖
+
 - sage.libs.agentic.agents.action.tool_selection
 - 无需新增外部依赖
 
 ## 注意
+
 - Layer: L6 (sage-studio)
 - 使用 async/await
 - 遵循项目的代码风格（查看 tools/ruff.toml）
 - 参考 sage-benchmark/benchmark_agent 中的 Selector 使用方式
+
+```
 ```

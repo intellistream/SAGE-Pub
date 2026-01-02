@@ -1,22 +1,22 @@
 # Control Plane Scheduler Benchmark Implementation
 
-> **分支**: `feature/embedding_lmm_mixed_scheduler`  
-> **完成时间**: 2025年11月28日  
+> **分支**: `feature/embedding_lmm_mixed_scheduler`\
+> **完成时间**: 2025年11月28日\
 > **状态**: ✅ 已完成
 
----
+______________________________________________________________________
 
 ## 概述
 
 本次任务为 sageLLM Control Plane 调度策略实现了完整的 Benchmark 评测框架，支持：
 
 1. **LLM 调度 Benchmark** (`llm_scheduler/`): 评测 FIFO、Priority、SLO-Aware 等策略
-2. **混合调度 Benchmark** (`hybrid_scheduler/`): 评测 LLM + Embedding 混合负载调度
-3. **自动可视化** (`visualization/`): Benchmark 运行后自动生成图表和报告
-4. **预定义实验** (`experiments/`): 标准化的 Throughput、Latency、SLO、混合比例实验
-5. **CLI 工具** (`cli.py`): 统一的命令行接口 `sage-cp-bench`
+1. **混合调度 Benchmark** (`hybrid_scheduler/`): 评测 LLM + Embedding 混合负载调度
+1. **自动可视化** (`visualization/`): Benchmark 运行后自动生成图表和报告
+1. **预定义实验** (`experiments/`): 标准化的 Throughput、Latency、SLO、混合比例实验
+1. **CLI 工具** (`cli.py`): 统一的命令行接口 `sage-cp-bench`
 
----
+______________________________________________________________________
 
 ## 实现清单
 
@@ -112,7 +112,7 @@ packages/sage-benchmark/tests/benchmark_control_plane/
 总测试代码: ~3438 行
 ```
 
----
+______________________________________________________________________
 
 ## 核心功能
 
@@ -189,85 +189,93 @@ report.generate_markdown_report("./benchmark_report.md")
 
 ### 4. 预定义实验
 
-| 实验 | 说明 |
-|------|------|
-| `throughput` | 扫描请求速率，找到最大吞吐量 |
-| `latency` | 固定负载下分析延迟分布 |
-| `slo` | 对比各策略的 SLO 达成率 |
-| `mixed_ratio` | 测试不同 LLM/Embedding 比例 |
+| 实验          | 说明                         |
+| ------------- | ---------------------------- |
+| `throughput`  | 扫描请求速率，找到最大吞吐量 |
+| `latency`     | 固定负载下分析延迟分布       |
+| `slo`         | 对比各策略的 SLO 达成率      |
+| `mixed_ratio` | 测试不同 LLM/Embedding 比例  |
 
----
+______________________________________________________________________
 
 ## 支持的调度策略
 
 通过 `StrategyAdapter` 对接 `control_plane/strategies/`:
 
-| 策略 | 类名 | 支持 LLM | 支持 Embedding | 描述 |
-|------|------|:--------:|:--------------:|------|
-| `fifo` | `FIFOPolicy` | ✅ | ❌ | 先进先出 |
-| `priority` | `PriorityPolicy` | ✅ | ❌ | 优先级调度 |
-| `slo_aware` | `SLOAwarePolicy` | ✅ | ❌ | SLO 感知 |
-| `adaptive` | `AdaptivePolicy` | ✅ | ❌ | 自适应调度 |
-| `aegaeon` | `AegaeonPolicy` | ✅ | ❌ | 高级优化 |
-| `cost_optimized` | `CostOptimizedPolicy` | ✅ | ❌ | 成本优化 |
-| `hybrid_slo` | `HybridSchedulingPolicy` | ✅ | ✅ | 混合调度 |
+| 策略             | 类名                     | 支持 LLM | 支持 Embedding | 描述       |
+| ---------------- | ------------------------ | :------: | :------------: | ---------- |
+| `fifo`           | `FIFOPolicy`             |    ✅    |       ❌       | 先进先出   |
+| `priority`       | `PriorityPolicy`         |    ✅    |       ❌       | 优先级调度 |
+| `slo_aware`      | `SLOAwarePolicy`         |    ✅    |       ❌       | SLO 感知   |
+| `adaptive`       | `AdaptivePolicy`         |    ✅    |       ❌       | 自适应调度 |
+| `aegaeon`        | `AegaeonPolicy`          |    ✅    |       ❌       | 高级优化   |
+| `cost_optimized` | `CostOptimizedPolicy`    |    ✅    |       ❌       | 成本优化   |
+| `hybrid_slo`     | `HybridSchedulingPolicy` |    ✅    |       ✅       | 混合调度   |
 
----
+______________________________________________________________________
 
 ## 图表类型
 
 ### 吞吐量图表
+
 - `plot_throughput_comparison()` - 策略对比柱状图
 - `plot_throughput_vs_rate()` - 吞吐量随请求速率变化曲线
 
 ### 延迟图表
+
 - `plot_latency_distribution()` - 延迟分布直方图
 - `plot_latency_percentiles()` - p50/p90/p95/p99 对比
 - `plot_latency_cdf()` - 累积分布函数
 
 ### SLO 图表
+
 - `plot_slo_compliance()` - SLO 达成率对比
 - `plot_slo_by_priority()` - 按优先级分类的 SLO
 
 ### 资源图表
+
 - `plot_gpu_utilization()` - GPU 利用率时序图
 - `plot_gpu_memory()` - GPU 显存使用
 
 ### 混合调度图表
+
 - `plot_mixed_ratio_impact()` - LLM/Embedding 比例影响
 - `plot_type_breakdown()` - 请求类型分布
 - `plot_embedding_batch_efficiency()` - Embedding 批处理效率
 
----
+______________________________________________________________________
 
 ## 代码统计
 
-| 类别 | 文件数 | 代码行数 |
-|------|:------:|:--------:|
-| 源代码 | 36 | ~14,000 |
-| 测试代码 | 7 | ~3,400 |
-| 文档 | 4 | ~1,800 |
+| 类别     | 文件数 |  代码行数   |
+| -------- | :----: | :---------: |
+| 源代码   |   36   |   ~14,000   |
+| 测试代码 |   7    |   ~3,400    |
+| 文档     |   4    |   ~1,800    |
 | **总计** | **47** | **~19,200** |
 
----
+______________________________________________________________________
 
 ## 任务书对应
 
 参考 [TASKS.md](./TASKS.md) 中的任务分解:
 
-| Task | 状态 | 内容 |
-|------|:----:|------|
-| T1: 目录重构与共享组件 | ✅ | `llm_scheduler/`, `common/`, 可视化骨架 |
-| T2: 数据层实现 | ✅ | `data/sources/control_plane_benchmark/`, dataloader |
-| T3: hybrid_scheduler 核心 | ✅ | config, workload, client, metrics, runner, reporter |
-| T4: 可视化模块 | ✅ | charts.py, report_generator.py, Runner 集成 |
-| T5: 预定义实验与 CLI | ✅ | 5 个实验模块, CLI 实现 |
-| T6: 测试与文档 | ✅ | 单元测试, README, 可视化文档 |
+| Task                      | 状态 | 内容                                                |
+| ------------------------- | :--: | --------------------------------------------------- |
+| T1: 目录重构与共享组件    |  ✅  | `llm_scheduler/`, `common/`, 可视化骨架             |
+| T2: 数据层实现            |  ✅  | `data/sources/control_plane_benchmark/`, dataloader |
+| T3: hybrid_scheduler 核心 |  ✅  | config, workload, client, metrics, runner, reporter |
+| T4: 可视化模块            |  ✅  | charts.py, report_generator.py, Runner 集成         |
+| T5: 预定义实验与 CLI      |  ✅  | 5 个实验模块, CLI 实现                              |
+| T6: 测试与文档            |  ✅  | 单元测试, README, 可视化文档                        |
 
----
+______________________________________________________________________
 
 ## 参考文档
 
-- [模块 README](../../../../../packages/sage-benchmark/src/sage/benchmark/benchmark_control_plane/README.md) - CLI 参考和 API 文档
-- [VISUALIZATION.md](../../../../../packages/sage-benchmark/src/sage/benchmark/benchmark_control_plane/VISUALIZATION.md) - 图表和报告指南
-- [DATA_PATHS.md](../../../../../packages/sage-benchmark/src/sage/benchmark/benchmark_control_plane/DATA_PATHS.md) - 数据目录说明
+- [模块 README](../../../../../packages/sage-benchmark/src/sage/benchmark/benchmark_control_plane/README.md)
+  \- CLI 参考和 API 文档
+- [VISUALIZATION.md](../../../../../packages/sage-benchmark/src/sage/benchmark/benchmark_control_plane/VISUALIZATION.md)
+  \- 图表和报告指南
+- [DATA_PATHS.md](../../../../../packages/sage-benchmark/src/sage/benchmark/benchmark_control_plane/DATA_PATHS.md)
+  \- 数据目录说明

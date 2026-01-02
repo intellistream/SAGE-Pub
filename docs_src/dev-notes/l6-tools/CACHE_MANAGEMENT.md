@@ -1,7 +1,7 @@
 # 缓存管理配置说明
 
-**Date**: 2025-10-29  
-**Author**: GitHub Copilot  
+**Date**: 2025-10-29\
+**Author**: GitHub Copilot\
 **Summary**: 统一管理开发工具缓存到 .sage/cache/ 目录，包括 Mypy、Ruff、Pytest 等工具的缓存配置和清理方法
 
 ## 概述
@@ -109,9 +109,9 @@ MYPY_CACHE_DIR=.sage/cache/mypy
 ## 优势
 
 1. **集中管理**: 所有缓存文件都在 `.sage/cache/` 目录下，便于统一管理和清理
-2. **避免污染**: 不会在各个子包目录下产生 `.mypy_cache`、`.ruff_cache` 等散落的缓存目录
-3. **简化清理**: 一个命令即可清理所有缓存
-4. **版本控制**: `.sage/` 目录已在 `.gitignore` 中，不会被提交到版本控制
+1. **避免污染**: 不会在各个子包目录下产生 `.mypy_cache`、`.ruff_cache` 等散落的缓存目录
+1. **简化清理**: 一个命令即可清理所有缓存
+1. **版本控制**: `.sage/` 目录已在 `.gitignore` 中，不会被提交到版本控制
 
 ## 相关文件
 

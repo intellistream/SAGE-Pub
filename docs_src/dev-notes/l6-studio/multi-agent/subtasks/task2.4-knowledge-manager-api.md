@@ -1,19 +1,22 @@
 # Task 2.4: KnowledgeManager API
 
 ## 目标
+
 实现 KnowledgeManager 的完整 API，整合配置加载、文档加载、向量存储。
 
 ## 依赖
+
 - Task 2.1 (Schema)
 - Task 2.2 (DocumentLoader)
 - Task 2.3 (VectorStore)
 
 ## 文件位置
+
 `packages/sage-studio/src/sage/studio/services/knowledge_manager.py` (完善)
 
 ## 提示词
 
-```
+````
 请完善 KnowledgeManager 类，实现知识库的完整管理功能。
 
 ## 要求
@@ -79,19 +82,22 @@
        def get_source_stats(self, source_name: str) -> dict:
            """获取知识源统计信息"""
            pass
-   ```
+````
 
 3. 配置加载:
+
    - 从 knowledge_sources.yaml 读取配置
    - 支持环境变量覆盖
    - 路径支持 ~ 展开
 
-4. 按需加载策略:
+1. 按需加载策略:
+
    - 启动时不加载任何源
    - 首次检索某源时自动加载
    - 缓存已加载状态
 
 ## 代码模板
+
 ```python
 import yaml
 from pathlib import Path
@@ -196,9 +202,11 @@ class KnowledgeManager:
 ```
 
 ## 注意
+
 - 线程安全：考虑并发访问
 - 错误处理：源不存在、加载失败等情况
 - 日志记录：加载和检索过程
+
 ```
 
 ## 验收标准
@@ -206,3 +214,4 @@ class KnowledgeManager:
 - [ ] 按需加载工作正常
 - [ ] 多源检索并合并结果
 - [ ] 支持用户上传文档
+```

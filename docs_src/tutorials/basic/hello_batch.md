@@ -11,6 +11,7 @@
 - ✅ 适合一次性数据处理场景
 
 常见的批处理场景包括：
+
 - 处理文件中的数据
 - 执行一次性的数据转换
 - 批量导入/导出数据
@@ -114,6 +115,7 @@ class HelloBatch(BatchFunction):
 ```
 
 **关键点**：
+
 - 继承自 `BatchFunction`
 - 实现 `execute()` 方法，每次调用返回一条数据
 - **返回 `None` 表示批处理结束**，框架会自动停止数据源
@@ -127,6 +129,7 @@ class UpperCaseMap(MapFunction):
 ```
 
 **关键点**：
+
 - 继承自 `MapFunction`
 - 实现 `execute(data)` 方法，接收上游数据，返回处理后的结果
 - 一对一转换：输入一条数据，输出一条数据
@@ -140,6 +143,7 @@ class PrintSink(SinkFunction):
 ```
 
 **关键点**：
+
 - 继承自 `SinkFunction`
 - 实现 `execute(data)` 方法，定义如何输出数据
 - 不需要返回值
@@ -153,6 +157,7 @@ env.submit(autostop=True)
 ```
 
 **关键点**：
+
 - `LocalEnvironment` 创建本地执行环境
 - `from_batch()` 指定批处理数据源
 - `map()` 添加数据转换算子
@@ -237,7 +242,7 @@ class ChunkedBatch(BatchFunction):
     def execute(self):
         if self.processed >= self.total:
             return None
-        
+
         # 返回一批数据
         chunk = []
         for i in range(self.chunk_size):
@@ -245,7 +250,7 @@ class ChunkedBatch(BatchFunction):
                 break
             chunk.append(self.fetch_data(self.processed))
             self.processed += 1
-        
+
         return chunk
 
     def fetch_data(self, index):
@@ -255,37 +260,41 @@ class ChunkedBatch(BatchFunction):
 
 ## 批处理 vs 流处理
 
-| 特性       | 批处理（Batch）         | 流处理（Stream）        |
-| ---------- | ----------------------- | ----------------------- |
-| 数据量     | 有限（有界流）          | 无限（无界流）          |
-| 执行时间   | 自动结束                | 持续运行                |
-| 数据源     | `from_batch()`          | `from_stream()`         |
-| 结束标志   | 返回 `None`             | 不主动结束              |
-| 适用场景   | 文件处理、一次性任务    | 实时数据、持续监控      |
+| 特性     | 批处理（Batch）      | 流处理（Stream）   |
+| -------- | -------------------- | ------------------ |
+| 数据量   | 有限（有界流）       | 无限（无界流）     |
+| 执行时间 | 自动结束             | 持续运行           |
+| 数据源   | `from_batch()`       | `from_stream()`    |
+| 结束标志 | 返回 `None`          | 不主动结束         |
+| 适用场景 | 文件处理、一次性任务 | 实时数据、持续监控 |
 
 ## 最佳实践
 
 ### ✅ DO（推荐做法）
 
 1. **使用 `autostop=True`** - 批处理完成后自动停止
+
    ```python
    env.submit(autostop=True)
    ```
 
-2. **明确返回 `None`** - 清晰地表示批处理结束
+1. **明确返回 `None`** - 清晰地表示批处理结束
+
    ```python
    if self.counter >= self.max_count:
        return None
    ```
 
-3. **资源清理** - 在返回 `None` 前关闭文件/连接
+1. **资源清理** - 在返回 `None` 前关闭文件/连接
+
    ```python
    if self.index >= len(self.data):
        self.file.close()
        return None
    ```
 
-4. **关闭调试日志** - 生产环境减少日志噪音
+1. **关闭调试日志** - 生产环境减少日志噪音
+
    ```python
    CustomLogger.disable_global_console_debug()
    ```
@@ -293,6 +302,7 @@ class ChunkedBatch(BatchFunction):
 ### ❌ DON'T（避免做法）
 
 1. **忘记返回 `None`** - 会导致程序无法自动结束
+
    ```python
    # ❌ 错误：没有结束标志
    def execute(self):
@@ -301,13 +311,15 @@ class ChunkedBatch(BatchFunction):
        # ...
    ```
 
-2. **未使用 `autostop`** - 批处理结束后仍保持运行
+1. **未使用 `autostop`** - 批处理结束后仍保持运行
+
    ```python
    # ❌ 错误：批处理完成后不会自动停止
    env.submit()
    ```
 
-3. **忘记调用 `super().__init__()`**
+1. **忘记调用 `super().__init__()`**
+
    ```python
    # ❌ 错误：未初始化父类
    def __init__(self):

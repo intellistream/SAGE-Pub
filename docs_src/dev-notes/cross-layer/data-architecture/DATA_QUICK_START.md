@@ -23,25 +23,26 @@ queries = qa_loader.load_queries()
 
 ## 📊 可用的数据源
 
-| 数据源 | 描述 | 类型 |
-|--------|------|------|
-| `qa_base` | QA 知识库 | text |
-| `bbh` | BIG-Bench Hard 推理任务 | text |
-| `mmlu` | MMLU 多任务评估 | text (HuggingFace) |
-| `gpqa` | 研究生级别专家问题 | text (HuggingFace) |
-| `locomo` | 长上下文记忆数据 | text |
+| 数据源    | 描述                    | 类型               |
+| --------- | ----------------------- | ------------------ |
+| `qa_base` | QA 知识库               | text               |
+| `bbh`     | BIG-Bench Hard 推理任务 | text               |
+| `mmlu`    | MMLU 多任务评估         | text (HuggingFace) |
+| `gpqa`    | 研究生级别专家问题      | text (HuggingFace) |
+| `locomo`  | 长上下文记忆数据        | text               |
 
 ## 🎯 可用的用途
 
-| 用途 | 包含数据集 | 适用场景 |
-|------|-----------|---------|
-| `rag` | qa_base, mmlu, locomo, bbh, gpqa | RAG 实验 |
-| `libamm` | libamm_data | 矩阵近似乘法基准测试 |
-| `neuromem` | conversation_data (=locomo) | 记忆系统实验 |
+| 用途       | 包含数据集                       | 适用场景             |
+| ---------- | -------------------------------- | -------------------- |
+| `rag`      | qa_base, mmlu, locomo, bbh, gpqa | RAG 实验             |
+| `libamm`   | libamm_data                      | 矩阵近似乘法基准测试 |
+| `neuromem` | conversation_data (=locomo)      | 记忆系统实验         |
 
 ## 💡 实用示例
 
 ### 示例 1: RAG 实验
+
 ```python
 from sage.data import DataManager
 
@@ -63,6 +64,7 @@ subjects = mmlu_loader.get_all_subjects()
 ```
 
 ### 示例 2: 直接访问特定数据集
+
 ```python
 from sage.data import DataManager
 
@@ -75,6 +77,7 @@ examples = bbh_loader.load_task("boolean_expressions")
 ```
 
 ### 示例 3: 使用便捷函数
+
 ```python
 from sage.data import load_dataset, get_usage_view
 
@@ -87,6 +90,7 @@ qa_loader = rag.load("qa_base")
 ```
 
 ### 示例 4: 探索数据集
+
 ```python
 from sage.data import DataManager
 
@@ -108,13 +112,15 @@ print(f"Size: {metadata.size}")
 ## 🔧 添加自己的数据
 
 ### 添加数据源
+
 1. 在 `sources/` 下创建目录
-2. 添加 `dataset.yaml`
-3. 添加包装器 `__init__.py`
+1. 添加 `dataset.yaml`
+1. 添加包装器 `__init__.py`
 
 ### 添加用途
+
 1. 在 `usages/` 下创建目录
-2. 添加 `config.yaml` 指定需要的数据集
+1. 添加 `config.yaml` 指定需要的数据集
 
 详见：[Extension Guide](./data_extension_guide.md)
 

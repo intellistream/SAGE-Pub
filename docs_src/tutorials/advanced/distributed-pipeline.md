@@ -8,13 +8,14 @@ SAGE 基于 Ray 构建分布式执行能力，支持在多节点集群上运行�
 
 ## 示例上手三件套
 
-| 项 | 内容 |
-| --- | --- |
-| **源码入口** | `examples/tutorials/L3-kernel/advanced/parallelism_remote_validation.py` |
-| **运行命令** | `python examples/tutorials/L3-kernel/advanced/parallelism_remote_validation.py` |
+| 项           | 内容                                                                                                                                                             |
+| ------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **源码入口** | `examples/tutorials/L3-kernel/advanced/parallelism_remote_validation.py`                                                                                         |
+| **运行命令** | `python examples/tutorials/L3-kernel/advanced/parallelism_remote_validation.py`                                                                                  |
 | **预期日志** | 终端会打印 `REMOTE ENVIRONMENT - SINGLE STREAM PARALLELISM VALIDATION`、多条 `⚙️  DistProcessor[...]`/`✅ Filter[...]`/`🎯 SINK[...]`，并输出 Ray 节点并行度统计 |
 
-脚本默认会连接当前 JobManager 已配置的 Ray 集群；执行前建议运行 `sage-dev quality --check-only` 和必要的 `sage cluster status` 检查，以便排除环境问题。
+脚本默认会连接当前 JobManager 已配置的 Ray 集群；执行前建议运行 `sage-dev quality --check-only` 和必要的 `sage cluster status`
+检查，以便排除环境问题。
 
 ## 分布式环境配置
 
@@ -90,9 +91,9 @@ env.submit(autostop=True)
 ### 资源分配
 
 > **⚠️ 功能开发中**：当前版本的 `map()` 方法仅支持 `parallelism` 参数。
-> 
+>
 > 细粒度的资源分配功能（如 `num_cpus`、`memory`、`num_gpus`）正在开发中。
-> 
+>
 > 相关 Issue: [#TODO: 添加算子级别的资源配置支持](https://github.com/intellistream/SAGE/issues/)
 
 当前可用的并行度配置：
@@ -136,7 +137,8 @@ stream = (
 
 ### 并行 Embedding
 
-示例脚本中也包含 RAG 相关算子占位，可根据自身环境替换为 `examples/tutorials/L3-libs/rag/*.py` 中的 VDB/Chroma 操作，并沿用相同的 RemoteEnvironment 配置。
+示例脚本中也包含 RAG 相关算子占位，可根据自身环境替换为 `examples/tutorials/L3-libs/rag/*.py` 中的 VDB/Chroma 操作，并沿用相同的
+RemoteEnvironment 配置。
 
 ### 并行检索和生成
 
@@ -215,13 +217,13 @@ from sage.kernel.api.runtime import RuntimeContext
 class MonitoredOperator(MapFunction):
     def open(self, context: RuntimeContext):
         self.metrics = context.get_metrics()
-    
+
     def map(self, record):
         # 记录处理时间
         start = time.time()
         result = self.process(record)
         duration = time.time() - start
-        
+
         self.metrics.record("processing_time", duration)
         return result
 ```
@@ -270,6 +272,6 @@ class MonitoredOperator(MapFunction):
 - [性能调优](performance-tuning.md) - 优化分布式性能
 - [容错与可靠性](fault-tolerance.md) - 分布式容错机制
 
----
+______________________________________________________________________
 
 **下一步**：学习 [自定义算子](custom-operators.md) 封装业务逻辑

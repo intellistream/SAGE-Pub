@@ -4,8 +4,8 @@
 
 ## 1. 调用入口（统一 API）
 
-- 同步：self.call_service\["service_name"\].method(args...)
-- 异步：self.call_service_async\["service_name"\].method(args...) → Future（.result(timeout=...)）
+- 同步：self.call_service["service_name"].method(args...)
+- 异步：self.call_service_async["service_name"].method(args...) → Future（.result(timeout=...)）
 
 示例：
 

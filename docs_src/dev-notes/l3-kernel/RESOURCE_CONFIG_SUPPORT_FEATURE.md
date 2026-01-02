@@ -1,7 +1,7 @@
 # 添加算子级别的资源配置支持
 
-**Date**: 2025-11-04  
-**Author**: SAGE Team  
+**Date**: 2025-11-04\
+**Author**: SAGE Team\
 **Summary**: 为 Kernel 算子（map/filter等）添加细粒度资源配置支持（CPU、GPU、内存），提升分布式场景下的资源利用效率
 
 ## 问题描述

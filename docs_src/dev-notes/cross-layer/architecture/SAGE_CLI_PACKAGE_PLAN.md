@@ -1,14 +1,14 @@
-**Date**: 2025-10-26  
-**Author**: SAGE Development Team  
+**Date**: 2025-10-26\
+**Author**: SAGE Development Team\
 **Summary**: sage-cli 独立包创建计划 - 将 CLI 命令从 sage-tools 迁移到专门的包中
 
----
+______________________________________________________________________
 
 # SAGE CLI Package 创建计划
 
-> **文档版本**: 1.0  
-> **创建日期**: 2025-10-26  
-> **状态**: 规划中  
+> **文档版本**: 1.0\
+> **创建日期**: 2025-10-26\
+> **状态**: 规划中
 
 ## 📋 概述
 
@@ -17,9 +17,9 @@
 ## 🎯 目标
 
 1. **职责分离**: CLI 命令与开发工具分离
-2. **架构清晰**: sage-tools 回归纯开发工具库定位
-3. **易于维护**: CLI 代码集中管理，便于升级和扩展
-4. **符合架构**: sage-cli 作为 L6 层用户接口
+1. **架构清晰**: sage-tools 回归纯开发工具库定位
+1. **易于维护**: CLI 代码集中管理，便于升级和扩展
+1. **符合架构**: sage-cli 作为 L6 层用户接口
 
 ## 🏗️ 包结构设计
 
@@ -214,17 +214,20 @@ ALLOWED_DEPENDENCIES = {
 ### Phase 1: 准备工作
 
 1. **创建 sage-cli 包结构**
+
    ```bash
    mkdir -p packages/sage-cli/src/sage/cli/{commands/{platform,apps,dev},utils,management}
    mkdir -p packages/sage-cli/tests
    ```
 
-2. **设置 pyproject.toml**
+1. **设置 pyproject.toml**
+
    - 包名: `sage-cli`
    - 版本: `0.1.0`
    - 依赖: typer, rich, pyyaml, 等
 
-3. **创建基础文件**
+1. **创建基础文件**
+
    - `__init__.py` 文件
    - `main.py` 入口点
    - `README.md` 说明文档
@@ -270,6 +273,7 @@ ALLOWED_DEPENDENCIES = {
 - `dev/github/` → `dev/github/`
 
 整合孤立命令:
+
 - `commands/env.py` → `dev/project/env.py`
 - `commands/llm_config.py` → `dev/project/llm_config.py`
 
@@ -364,6 +368,7 @@ sage = "sage.cli.main:app"
 ### Phase 6: 清理 sage-tools
 
 1. **删除 CLI 相关目录**
+
    ```bash
    rm -rf packages/sage-tools/src/sage/tools/cli/commands/
    rm -rf packages/sage-tools/src/sage/tools/cli/utils/
@@ -371,7 +376,8 @@ sage = "sage.cli.main:app"
    rm packages/sage-tools/src/sage/tools/cli/main.py
    ```
 
-2. **保留开发工具**
+1. **保留开发工具**
+
    ```
    packages/sage-tools/
    └── src/sage/tools/
@@ -414,12 +420,14 @@ ALLOWED_DEPENDENCIES = {
 ### Phase 8: 测试
 
 1. **安装 sage-cli 包**
+
    ```bash
    cd packages/sage-cli
    pip install -e .
    ```
 
-2. **测试所有命令**
+1. **测试所有命令**
+
    ```bash
    sage --help
    sage cluster --help
@@ -427,12 +435,14 @@ ALLOWED_DEPENDENCIES = {
    sage llm --help
    ```
 
-3. **运行测试套件**
+1. **运行测试套件**
+
    ```bash
    pytest packages/sage-cli/tests/
    ```
 
-4. **架构检查**
+1. **架构检查**
+
    ```bash
    sage-dev quality architecture
    ```
@@ -444,6 +454,7 @@ ALLOWED_DEPENDENCIES = {
 **影响**: 可能导致导入错误
 
 **缓解措施**:
+
 - 使用自动化脚本批量更新
 - 分阶段测试
 - 提供兼容性导入别名 (过渡期)
@@ -469,6 +480,7 @@ def __getattr__(name):
 **影响**: 运行时错误
 
 **缓解措施**:
+
 - 仔细检查 pyproject.toml 依赖
 - 确保所有依赖都已声明
 - 在虚拟环境中测试
@@ -478,6 +490,7 @@ def __getattr__(name):
 **影响**: 文档过时，脚本失效
 
 **缓解措施**:
+
 - 更新所有文档
 - 更新 CI/CD 脚本
 - 提供迁移指南

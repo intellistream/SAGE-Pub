@@ -6,11 +6,11 @@
 
 ## 功能特性
 
-✅ **完整支持**: 通过JobManager将任务分配给CPU SAGE节点  
-✅ **智能调度**: 资源感知的节点选择（CPU、内存需求）  
-✅ **灵活策略**: 支持负载均衡、紧凑放置、分散放置等调度策略  
-✅ **监控日志**: 完整的任务执行监控和日志记录能力  
-✅ **易于使用**: 无需额外配置，开箱即用  
+✅ **完整支持**: 通过JobManager将任务分配给CPU SAGE节点\
+✅ **智能调度**: 资源感知的节点选择（CPU、内存需求）\
+✅ **灵活策略**: 支持负载均衡、紧凑放置、分散放置等调度策略\
+✅ **监控日志**: 完整的任务执行监控和日志记录能力\
+✅ **易于使用**: 无需额外配置，开箱即用
 
 ## 验收标准（Issue #573）
 
@@ -175,9 +175,9 @@ class CPUComputeProcessor(MapFunction):
 ### 节点选择流程
 
 1. **提取需求**: Scheduler从Operator提取资源需求
-2. **过滤节点**: NodeSelector过滤满足条件的节点
-3. **排序选择**: 根据策略（balanced/pack/spread）排序
-4. **返回决策**: 生成PlacementDecision返回给Dispatcher
+1. **过滤节点**: NodeSelector过滤满足条件的节点
+1. **排序选择**: 根据策略（balanced/pack/spread）排序
+1. **返回决策**: 生成PlacementDecision返回给Dispatcher
 
 ### 调度策略
 

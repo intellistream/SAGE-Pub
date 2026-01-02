@@ -13,10 +13,12 @@ AttributeError: module 'torch._inductor' has no attribute 'config'
 ### 1. 版本不匹配
 
 **当前安装的版本**:
+
 - torch: 2.2.0+cpu
 - vllm: 0.10.1.1
 
 **vllm 0.10.1.1 的实际要求**:
+
 ```
 Requires-Dist: torch==2.7.1
 Requires-Dist: torchaudio==2.7.1
@@ -26,14 +28,17 @@ Requires-Dist: torchvision==0.22.1
 ### 2. 为什么会出现这个问题？
 
 1. **pip 的依赖解析问题**:
+
    - vllm 0.10.1.1 在 `METADATA` 中明确要求 `torch==2.7.1`
    - 但由于某种原因（可能是安装时使用了 `--no-deps` 或先安装了旧版 torch），pip 没有自动升级 torch
 
-2. **torch._inductor.config 的引入时间**:
+1. **torch.\_inductor.config 的引入时间**:
+
    - `torch._inductor.config` 是在 torch 2.4.0+ 版本中引入的
    - torch 2.2.0 没有这个属性，导致 vllm 无法导入
 
-3. **项目依赖配置不够严格**:
+1. **项目依赖配置不够严格**:
+
    - `packages/sage-common/pyproject.toml` 中只指定了 `vllm>=0.9.2`
    - 没有明确指定 torch 的版本要求
 
@@ -188,13 +193,13 @@ if __name__ == "__main__":
 
 ## 📊 vLLM 版本兼容性表
 
-| vLLM 版本 | 所需 Torch 版本 | Python 版本 | 备注 |
-|-----------|----------------|-------------|------|
-| 0.11.x    | >= 2.5.0       | >= 3.9      | 最新版 |
-| 0.10.x    | >= 2.4.0       | >= 3.9      | 需要 torch._inductor.config |
-| 0.9.x     | >= 2.3.0       | >= 3.8      |  |
-| 0.8.x     | >= 2.2.0       | >= 3.8      |  |
-| 0.4.x     | >= 2.2.0       | >= 3.8      | 稳定版，兼容旧 torch |
+| vLLM 版本 | 所需 Torch 版本 | Python 版本 | 备注                         |
+| --------- | --------------- | ----------- | ---------------------------- |
+| 0.11.x    | >= 2.5.0        | >= 3.9      | 最新版                       |
+| 0.10.x    | >= 2.4.0        | >= 3.9      | 需要 torch.\_inductor.config |
+| 0.9.x     | >= 2.3.0        | >= 3.8      |                              |
+| 0.8.x     | >= 2.2.0        | >= 3.8      |                              |
+| 0.4.x     | >= 2.2.0        | >= 3.8      | 稳定版，兼容旧 torch         |
 
 ## 🚀 立即修复步骤
 

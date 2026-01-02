@@ -2,9 +2,11 @@
 
 ## Problem
 
-When both nvm and conda Node.js are installed, the system may use the wrong version due to PATH priority.
+When both nvm and conda Node.js are installed, the system may use the wrong version due to PATH
+priority.
 
 **Symptom**:
+
 ```bash
 $ conda install -y nodejs=22 -c conda-forge  # Install Node.js 22
 $ node --version                              # Still shows v18.x (from nvm)
@@ -21,6 +23,7 @@ export NVM_DIR="$HOME/.nvm"
 ```
 
 This causes:
+
 ```
 PATH = /home/user/.nvm/versions/node/v18.20.8/bin:...:/home/user/miniconda3/envs/sage/bin
        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -31,7 +34,8 @@ PATH = /home/user/.nvm/versions/node/v18.20.8/bin:...:/home/user/miniconda3/envs
 
 ### Solution 1: Remove nvm, use conda exclusively (Recommended ✅)
 
-**Best long-term solution**: Since you're already using conda for Python, unify Node.js management with conda.
+**Best long-term solution**: Since you're already using conda for Python, unify Node.js management
+with conda.
 
 ```bash
 # 1. Backup .bashrc
@@ -54,17 +58,20 @@ rm -rf ~/.nvm  # Frees ~240MB
 ```
 
 **Pros**:
+
 - ✅ Permanently solves PATH conflicts
 - ✅ Unified environment management (Python + Node.js in conda)
 - ✅ No additional shell configuration needed
 - ✅ Reduces disk usage (~240MB)
 
 **Cons**:
+
 - ❌ Less flexible if you need to frequently switch Node.js versions
 
 ### Solution 2: Temporarily fix PATH (Quick workaround)
 
 **Temporarily** (current terminal session):
+
 ```bash
 export PATH="/home/shuhao/miniconda3/envs/sage/bin:$PATH"
 node --version  # Now shows v22.x
@@ -91,6 +98,7 @@ export NVM_DIR="$HOME/.nvm"
 ```
 
 Then reload:
+
 ```bash
 source ~/.bashrc  # or ~/.zshrc
 conda activate sage
@@ -100,6 +108,7 @@ node --version  # Should show v22.x
 ### Solution 2: Use nvm Node.js (Alternative)
 
 If you prefer nvm:
+
 ```bash
 nvm install 22
 nvm use 22
@@ -109,12 +118,14 @@ nvm alias default 22
 ### Solution 3: Uninstall One Version (Clean)
 
 **Remove nvm** (if using conda):
+
 ```bash
 rm -rf ~/.nvm
 # Remove nvm lines from ~/.bashrc or ~/.zshrc
 ```
 
 **Remove conda Node.js** (if using nvm):
+
 ```bash
 conda remove nodejs
 ```
@@ -122,6 +133,7 @@ conda remove nodejs
 ## Verification
 
 After applying a solution:
+
 ```bash
 which node       # Should point to desired Node.js
 node --version   # Should show v22.x (for Vite 7.x)

@@ -17,32 +17,32 @@
 }
 
 @keyframes nodeFloat {
-    0% { 
+    0% {
         transform: translate(0, 0) scale(1);
         opacity: 0;
     }
     10% {
         opacity: 1;
     }
-    50% { 
+    50% {
         transform: translate(100vw, -50px) scale(1.2);
         opacity: 0.8;
     }
     90% {
         opacity: 1;
     }
-    100% { 
+    100% {
         transform: translate(200vw, 0) scale(1);
         opacity: 0;
     }
 }
 
 @keyframes pulse {
-    0%, 100% { 
+    0%, 100% {
         opacity: 0.3;
         transform: scaleX(1);
     }
-    50% { 
+    50% {
         opacity: 0.8;
         transform: scaleX(1.1);
     }
@@ -188,7 +188,7 @@
     border-radius: 20px;
     overflow: hidden;
     margin: 2rem 0;
-    box-shadow: 
+    box-shadow:
         0 20px 60px rgba(0, 0, 0, 0.4),
         0 8px 25px rgba(0, 0, 0, 0.15),
         inset 0 1px 0 rgba(255, 255, 255, 0.1);
@@ -202,7 +202,7 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background: 
+    background:
         radial-gradient(circle at 25% 25%, rgba(59, 130, 246, 0.04) 0%, transparent 50%),
         radial-gradient(circle at 75% 75%, rgba(16, 185, 129, 0.04) 0%, transparent 50%);
     pointer-events: none;
@@ -311,11 +311,11 @@
     transform: translateX(-50%);
     width: 280px;
     height: 160px;
-    background: 
+    background:
         linear-gradient(135deg, rgba(15, 23, 42, 0.95) 0%, rgba(30, 41, 59, 0.95) 100%);
     border-radius: 16px;
     border: 1px solid rgba(148, 163, 184, 0.2);
-    box-shadow: 
+    box-shadow:
         0 10px 30px rgba(0, 0, 0, 0.3),
         inset 0 1px 0 rgba(255, 255, 255, 0.1);
     display: flex;
@@ -330,7 +330,7 @@
 
 .sage-processor.processing {
     border-color: rgba(59, 130, 246, 0.4);
-    box-shadow: 
+    box-shadow:
         0 15px 35px rgba(0, 0, 0, 0.4),
         0 0 30px rgba(59, 130, 246, 0.1),
         inset 0 1px 0 rgba(255, 255, 255, 0.2);
@@ -640,35 +640,35 @@
     .article-monitoring-container {
         height: 320px;
     }
-    
+
     .sage-processor {
         width: 200px;
         height: 130px;
         padding: 12px;
     }
-    
+
     .data-source,
     .result-storage {
         width: 80px;
         height: 60px;
         font-size: 10px;
     }
-    
+
     .source-content i,
     .storage-content i {
         font-size: 16px;
     }
-    
+
     .sage-text {
         font-size: 14px;
     }
-    
+
     .animation-process-step {
         min-width: 28px;
         padding: 4px 2px;
         font-size: 8px;
     }
-    
+
     .input-flow,
     .output-flow {
         width: calc(50% - 200px);
@@ -679,32 +679,32 @@
     .article-monitoring-container {
         height: 280px;
     }
-    
+
     .sage-processor {
         width: 160px;
         height: 110px;
         padding: 10px;
     }
-    
+
     .data-source,
     .result-storage {
         width: 70px;
         height: 50px;
     }
-    
+
     .process-flow {
         gap: 4px;
     }
-    
+
     .animation-process-step {
         min-width: 24px;
         padding: 3px 1px;
     }
-    
+
     .animation-process-step i {
         font-size: 10px;
     }
-    
+
     .input-flow,
     .output-flow {
         width: calc(50% - 160px);
@@ -1067,45 +1067,45 @@
     .article-monitoring-container {
         height: 350px;
     }
-    
+
     .processing-pipeline {
         width: 260px;
         height: 140px;
         padding: 16px;
     }
-    
+
     .pipeline-stages {
         gap: 6px;
     }
-    
+
     .stage {
         padding: 6px;
     }
-    
+
     .stage i {
         font-size: 14px;
     }
-    
+
     .stage span {
         font-size: 9px;
     }
-    
+
     .arxiv-source,
     .result-folder {
         width: 80px;
         height: 100px;
     }
-    
+
     .source-icon,
     .folder-icon {
         font-size: 24px;
     }
-    
+
     .source-label,
     .folder-label {
         font-size: 11px;
     }
-    
+
     .document {
         width: 28px;
         height: 36px;
@@ -1118,28 +1118,28 @@
         height: 300px;
         margin: 1rem 0;
     }
-    
+
     .processing-pipeline {
         width: 240px;
         height: 120px;
         padding: 12px;
     }
-    
+
     .pipeline-stages {
         gap: 4px;
         margin-bottom: 12px;
     }
-    
+
     .stage {
         padding: 4px;
     }
-    
+
     .arxiv-source,
     .result-folder {
         width: 70px;
         height: 90px;
     }
-    
+
     .document {
         width: 24px;
         height: 32px;
@@ -1150,17 +1150,17 @@
     .article-monitoring-container {
         height: 300px;
     }
-    
+
     .processing-pipeline {
         gap: 40px;
     }
-    
+
     .process-stage {
         width: 45px;
         height: 45px;
         font-size: 16px;
     }
-    
+
     .arxiv-source,
     .user-interface {
         width: 60px;
@@ -1740,31 +1740,31 @@
     .smart-home-container {
         height: 300px;
     }
-    
+
     .laundry-robot {
         width: 32px;
         height: 32px;
         font-size: 14px;
     }
-    
+
     .washing-machine {
         width: 48px;
         height: 36px;
         font-size: 14px;
     }
-    
+
     .drying-rack {
         width: 40px;
         height: 24px;
         font-size: 12px;
     }
-    
+
     .environmental-sensor {
         width: 16px;
         height: 16px;
         font-size: 6px;
     }
-    
+
     .device-tooltip {
         font-size: 10px;
         padding: 6px 8px;
@@ -1775,19 +1775,19 @@
     .smart-home-container {
         height: 250px;
     }
-    
+
     .laundry-robot {
         left: 30px;
         width: 28px;
         height: 28px;
     }
-    
+
     .washing-machine {
         left: 150px;
         width: 40px;
         height: 30px;
     }
-    
+
     .drying-rack {
         right: 150px;
         width: 32px;
@@ -2411,43 +2411,43 @@
     .auto-scaling-container {
         height: 300px;
     }
-    
+
     .server-grid {
         width: 100px;
         grid-template-columns: repeat(2, 1fr);
     }
-    
+
     .server-instance {
         width: 32px;
         height: 48px;
     }
-    
+
     .load-balancer {
         width: 48px;
         height: 48px;
         font-size: 16px;
     }
-    
+
     .user-load-section {
         width: 100px;
         height: 80px;
     }
-    
+
     .user-icons-grid {
         grid-template-columns: repeat(6, 1fr);
     }
-    
+
     .user-icon {
         width: 10px;
         height: 10px;
     }
-    
+
     .metrics-dashboard {
         width: 160px;
         height: 60px;
         padding: 8px;
     }
-    
+
     .user-load-slider {
         width: 120px;
         padding: 8px;
@@ -2458,31 +2458,31 @@
     .auto-scaling-container {
         height: 250px;
     }
-    
+
     .server-grid {
         width: 80px;
     }
-    
+
     .server-instance {
         width: 28px;
         height: 40px;
     }
-    
+
     .load-balancer {
         width: 40px;
         height: 40px;
         font-size: 14px;
     }
-    
+
     .user-load-section {
         width: 80px;
         height: 60px;
     }
-    
+
     .user-icons-grid {
         grid-template-columns: repeat(4, 1fr);
     }
-    
+
     .metrics-dashboard {
         width: 140px;
         height: 50px;

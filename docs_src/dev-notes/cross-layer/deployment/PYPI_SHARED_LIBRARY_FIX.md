@@ -1,7 +1,7 @@
 # PyPI Installation Test - Shared Library Fix
 
-**Date**: 2025-10-29  
-**Author**: GitHub Copilot  
+**Date**: 2025-10-29\
+**Author**: GitHub Copilot\
 **Summary**: 修复 PyPI 安装测试中共享库缺失问题，确保 C++ 库正确打包到 wheel 中
 
 **问题**: PyPI Installation Test 失败，报错 `libsageflow.so: cannot open shared object file`
@@ -18,20 +18,23 @@ ImportError: libsageflow.so: cannot open shared object file: No such file or dir
 
 ## 根本原因
 
-使用 `scikit-build-core` 构建 wheel 包时，C++ 共享库（如 `libsageflow.so`、`libsage_db.so`、`libsage_tsdb_core.so` 等）没有被正确安装到 wheel 包中。
+使用 `scikit-build-core` 构建 wheel 包时，C++ 共享库（如 `libsageflow.so`、`libsage_db.so`、`libsage_tsdb_core.so`
+等）没有被正确安装到 wheel 包中。
 
 具体问题：
+
 1. CMakeLists.txt 中使用了 `SKBUILD_PLATLIB_DIR` 变量来判断是否为 Python 包构建模式
-2. 但在 editable install 和 wheel build 两种情况下，安装目标路径应该不同：
+1. 但在 editable install 和 wheel build 两种情况下，安装目标路径应该不同：
    - **Editable install**: 安装到源码树 `python/` 目录
    - **Wheel build**: 安装到 wheel 的 platlib 目录（与 Python 扩展同目录）
-3. 原代码只检查 `SKBUILD_PLATLIB_DIR` 是否定义，在 wheel build 时错误地安装到了源码树，导致 wheel 包中缺少这些共享库
+1. 原代码只检查 `SKBUILD_PLATLIB_DIR` 是否定义，在 wheel build 时错误地安装到了源码树，导致 wheel 包中缺少这些共享库
 
 ## 修复方案
 
 ### 1. 修复 sage_flow 的 CMakeLists.txt
 
-**文件**: `packages/sage-middleware/src/sage/middleware/components/sage_flow/sageFlow/src/CMakeLists.txt`
+**文件**:
+`packages/sage-middleware/src/sage/middleware/components/sage_flow/sageFlow/src/CMakeLists.txt`
 
 ```cmake
 # 修复前
@@ -71,6 +74,7 @@ endif()
 **文件**: `packages/sage-middleware/src/sage/middleware/components/sage_db/sageDB/CMakeLists.txt`
 
 应用相同的修复模式：
+
 - 检查 `SKBUILD` 变量而不是 `SKBUILD_PLATLIB_DIR`
 - 根据 `SKBUILD_STATE` 变量区分 editable install 和 wheel build
 - Wheel build 时安装到 `${SKBUILD_PLATLIB_DIR}/sage/middleware/components/sage_db/python`
@@ -144,6 +148,7 @@ deactivate
 ### CI 测试
 
 GitHub Actions workflow `pip-installation-test.yml` 会自动测试：
+
 - 从 wheel 安装
 - 从源码安装
 - 多个 Python 版本 (3.10, 3.11, 3.12)
@@ -154,9 +159,9 @@ GitHub Actions workflow `pip-installation-test.yml` 会自动测试：
 ### 修改的文件
 
 1. `packages/sage-middleware/src/sage/middleware/components/sage_flow/sageFlow/src/CMakeLists.txt`
-2. `packages/sage-middleware/src/sage/middleware/components/sage_db/sageDB/CMakeLists.txt`
-3. `packages/sage-middleware/src/sage/middleware/components/sage_tsdb/sageTSDB/CMakeLists.txt`
-4. `packages/sage-middleware/MANIFEST.in`
+1. `packages/sage-middleware/src/sage/middleware/components/sage_db/sageDB/CMakeLists.txt`
+1. `packages/sage-middleware/src/sage/middleware/components/sage_tsdb/sageTSDB/CMakeLists.txt`
+1. `packages/sage-middleware/MANIFEST.in`
 
 ### 受影响的组件
 
@@ -177,8 +182,8 @@ GitHub Actions workflow `pip-installation-test.yml` 会自动测试：
 ## 后续工作
 
 1. 确保所有 C++ 子模块遵循相同的安装模式
-2. 考虑在 SAGE 根 CMakeLists.txt 中定义统一的安装宏
-3. 在 CI 中添加 wheel 内容验证步骤
+1. 考虑在 SAGE 根 CMakeLists.txt 中定义统一的安装宏
+1. 在 CI 中添加 wheel 内容验证步骤
 
 ## 参考资料
 

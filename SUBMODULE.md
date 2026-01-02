@@ -57,6 +57,7 @@ git commit -m "chore: update SAGE-Pub to latest"
 **Problem:** You're in the main repository trying to commit submodule files.
 
 **Solution:**
+
 ```bash
 cd docs-public  # Enter the submodule first
 git add .
@@ -68,6 +69,7 @@ git commit -m "your message"
 **Problem:** You committed in the submodule but forgot to update the reference.
 
 **Solution:**
+
 ```bash
 cd ../  # Back to main repo
 git add docs-public
@@ -79,6 +81,7 @@ git commit -m "chore: update SAGE-Pub reference"
 **Problem:** Submodule is in detached HEAD state.
 
 **Solution:**
+
 ```bash
 cd docs-public
 git checkout main-dev
@@ -88,11 +91,11 @@ git pull origin main-dev
 ## Development Workflow
 
 1. **Always work on the correct branch:** `main-dev`
-2. **Commit in submodule first**, then update reference in main repo
-3. **Push both repositories** to share your changes
-4. **Pull both repositories** when updating
+1. **Commit in submodule first**, then update reference in main repo
+1. **Push both repositories** to share your changes
+1. **Pull both repositories** when updating
 
----
+______________________________________________________________________
 
 📚 For more details, see [CONTRIBUTING.md](../CONTRIBUTING.md#working-with-submodules)
 

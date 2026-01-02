@@ -8,19 +8,19 @@ Application layer packages showcasing SAGE's end-to-end capabilities.
 
 `packages/sage-apps/src/sage/apps/` currently包含以下五个应用模块，每个模块都对应 `examples/apps/` 下的一个运行脚本：
 
-| Application | Module | Launcher | Focus |
-| --- | --- | --- | --- |
+| Application        | Module                         | Launcher                                  | Focus                     |
+| ------------------ | ------------------------------ | ----------------------------------------- | ------------------------- |
 | Article Monitoring | `sage.apps.article_monitoring` | `examples/apps/run_article_monitoring.py` | arXiv 数据摄取 + 多级筛选 |
-| Auto-scaling Chat | `sage.apps.auto_scaling_chat` | `examples/apps/run_auto_scaling_chat.py` | 弹性扩缩容策略演示 |
-| Smart Home | `sage.apps.smart_home` | `examples/apps/run_smart_home.py` | IoT 协同与事件驱动工作流 |
-| Video Intelligence | `sage.apps.video` | `examples/apps/run_video_intelligence.py` | 多模型视频理解 |
-| Medical Diagnosis | `sage.apps.medical_diagnosis` | `examples/apps/run_medical_diagnosis.py` | 多智能体医疗影像分析 |
+| Auto-scaling Chat  | `sage.apps.auto_scaling_chat`  | `examples/apps/run_auto_scaling_chat.py`  | 弹性扩缩容策略演示        |
+| Smart Home         | `sage.apps.smart_home`         | `examples/apps/run_smart_home.py`         | IoT 协同与事件驱动工作流  |
+| Video Intelligence | `sage.apps.video`              | `examples/apps/run_video_intelligence.py` | 多模型视频理解            |
+| Medical Diagnosis  | `sage.apps.medical_diagnosis`  | `examples/apps/run_medical_diagnosis.py`  | 多智能体医疗影像分析      |
 
 每个模块都提供：
 
 1. **Python API**（`run_*` 帮助函数/类）
-2. **命令行入口**（`python -m sage.apps.<module>.pipeline`）
-3. **示例脚本**（`examples/apps/run_*.py` 带参数解析与测试标记）
+1. **命令行入口**（`python -m sage.apps.<module>.pipeline`）
+1. **示例脚本**（`examples/apps/run_*.py` 带参数解析与测试标记）
 
 ## 应用详情
 
@@ -139,9 +139,9 @@ cd packages/sage-apps && pytest tests/ -v
 ## 开发指南
 
 1. 在 `packages/sage-apps/src/sage/apps/<new_app>/` 创建模块（含 README、operators、pipeline 等）。
-2. 提供 Python API + CLI + `examples/apps/run_<new_app>.py` 入口。
-3. 在 `docs/dev-notes/l5-apps/README.md` 和 `docs-public` 中更新说明。
-4. 添加对应测试：`packages/sage-apps/tests/<new_app>/`。
+1. 提供 Python API + CLI + `examples/apps/run_<new_app>.py` 入口。
+1. 在 `docs/dev-notes/l5-apps/README.md` 和 `docs-public` 中更新说明。
+1. 添加对应测试：`packages/sage-apps/tests/<new_app>/`。
 
 ## 参考
 

@@ -1,14 +1,18 @@
 # sage-studio
 
-Interactive web console for building SAGE pipe- 
+Interactive web console for building SAGE pipe-
+
 - Chat tab calls Gateway's `/v1/chat/completions`, reusing the same session IDs as the UI.
 - Built-in session list (create, rename, clear, delete) talks to Gateway's `/sessions/**` routes.
-- Memory panel (`MemorySettings.tsx`) uses `/memory/config|stats` to display backend type, short-term usage, or Neuromem collection state.
+- Memory panel (`MemorySettings.tsx`) uses `/memory/config|stats` to display backend type,
+  short-term usage, or Neuromem collection state.
 - `UnifiedInferenceClient` 优先本地 LLM；未检测到可用端点时会报错并提示启动本地服务或显式配置 `SAGE_CHAT_BASE_URL`，不再隐式回退云端。
 
 ### Fine-tuning Centerb calls Gateway's `/v1/chat/completions`, reusing the same session IDs as the UI.
+
 - Built-in session list (create, rename, clear, delete) talks to Gateway's `/sessions/**` routes.
-- Memory panel (`MemorySettings.tsx`) uses `/memory/config|stats` to display backend type, short-term usage, or Neuromem collection state.
+- Memory panel (`MemorySettings.tsx`) uses `/memory/config|stats` to display backend type,
+  short-term usage, or Neuromem collection state.
 - `UnifiedInferenceClient` 优先本地 LLM；未检测到可用端点时会报错并提示启动本地服务或显式配置 `SAGE_CHAT_BASE_URL`，不会自动回退云端。
 
 **Layer**: L6 (Interface) · **Package**: `packages/sage-studio`
@@ -18,11 +22,16 @@ Interactive web console for building SAGE pipe-
 Studio bundles four major experiences in a single CLI-driven service:
 
 - **Visual Flow Editor** – drag-and-drop pipelines backed by `PipelineBuilder` + `NodeRegistry`.
-- **Playground / Chat Mode** – OpenAI-compatible chat UI on top of `sage-llm-gateway`, including memory inspection and session tools.
-- **Fine-tuning Center** – upload datasets, launch finetune jobs, monitor GPU usage, and hot-swap models without leaving the browser.
-- **Local LLM Orchestration** – `ChatModeManager` can start/stop a vLLM server (port 8001) and fall back to cloud APIs automatically.
+- **Playground / Chat Mode** – OpenAI-compatible chat UI on top of `sage-llm-gateway`, including
+  memory inspection and session tools.
+- **Fine-tuning Center** – upload datasets, launch finetune jobs, monitor GPU usage, and hot-swap
+  models without leaving the browser.
+- **Local LLM Orchestration** – `ChatModeManager` can start/stop a vLLM server (port 8001) and fall
+  back to cloud APIs automatically.
 
-All flows share one CLI entrypoint (`sage studio ...`) that supervises the frontend (Vite, port 5173), backend API (FastAPI, port 8080), Gateway (FastAPI, port 8000), and optional local LLM service.
+All flows share one CLI entrypoint (`sage studio ...`) that supervises the frontend (Vite, port
+5173), backend API (FastAPI, port 8080), Gateway (FastAPI, port 8000), and optional local LLM
+service.
 
 ```
 ┌──────────────────────────────────────────────────────────────────┐
@@ -62,29 +71,38 @@ All flows share one CLI entrypoint (`sage studio ...`) that supervises the front
 ### Visual Flow Editor
 
 - Canvas built with React Flow (`FlowEditor.tsx`).
-- `NodeRegistry` exposes curated operators (retrievers, promptors, generators, sinks, adapters, etc.).
-- `PipelineBuilder` turns `VisualPipeline` JSON into an executable `LocalEnvironment` pipeline, preserving node configuration.
-- Supports import/export to `.sage/pipelines/pipeline_*.json`, undo/redo, template palette, and Python export.
+- `NodeRegistry` exposes curated operators (retrievers, promptors, generators, sinks, adapters,
+  etc.).
+- `PipelineBuilder` turns `VisualPipeline` JSON into an executable `LocalEnvironment` pipeline,
+  preserving node configuration.
+- Supports import/export to `.sage/pipelines/pipeline_*.json`, undo/redo, template palette, and
+  Python export.
 
 ### Playground & Chat Mode
 
 - Chat tab calls Gateway’s `/v1/chat/completions`, reusing the same session IDs as the UI.
 - Built-in session list (create, rename, clear, delete) talks to Gateway’s `/sessions/**` routes.
-- Memory panel (`MemorySettings.tsx`) uses `/memory/config|stats` to display backend type, short-term usage, or Neuromem collection state.
+- Memory panel (`MemorySettings.tsx`) uses `/memory/config|stats` to display backend type,
+  short-term usage, or Neuromem collection state.
 - `UnifiedInferenceClient` 优先本地 LLM；如果不可用需显式配置 `SAGE_CHAT_BASE_URL` 或启动本地服务，不会自动回退云端。
 
 ### Fine-tuning Center
 
 - `FinetunePanel.tsx` uploads datasets, runs validation, and calls `/api/finetune/create`.
-- `services/finetune_manager.py` schedules tasks, gathers GPU metadata, streams logs, and stores outputs at `~/.sage/studio_finetune/<task_id>/`.
-- Completed runs surface as selectable models. Clicking “切换为对话后端” or picking from the “当前使用的模型” dropdown triggers a hot switch (LLM server restart + environment update).
-- API endpoints mirror the UI: `/api/finetune/tasks`, `/models`, `/current-model`, `/switch-model`, `/use-as-backend`, `/prepare-sage-docs`.
+- `services/finetune_manager.py` schedules tasks, gathers GPU metadata, streams logs, and stores
+  outputs at `~/.sage/studio_finetune/<task_id>/`.
+- Completed runs surface as selectable models. Clicking “切换为对话后端” or picking from the “当前使用的模型”
+  dropdown triggers a hot switch (LLM server restart + environment update).
+- API endpoints mirror the UI: `/api/finetune/tasks`, `/models`, `/current-model`, `/switch-model`,
+  `/use-as-backend`, `/prepare-sage-docs`.
 
 ### Local LLM orchestration
 
 - CLI flag `--llm/--no-llm` controls whether a vLLM server launches.
-- `ChatModeManager._start_llm_service()` wraps `LLMAPIServer` (from `sage.llm`) and binds to port 8001.
-- Automatic cache lookup via `vllm_registry` accelerates model startup; environment variables `SAGE_STUDIO_LLM_MODEL`, `SAGE_STUDIO_LLM_GPU_MEMORY`, `SAGE_CHAT_MODEL` override defaults.
+- `ChatModeManager._start_llm_service()` wraps `LLMAPIServer` (from `sage.llm`) and binds to port
+  8001\.
+- Automatic cache lookup via `vllm_registry` accelerates model startup; environment variables
+  `SAGE_STUDIO_LLM_MODEL`, `SAGE_STUDIO_LLM_GPU_MEMORY`, `SAGE_CHAT_MODEL` override defaults.
 - Orphaned processes are cleaned up via `lsof + kill` if Studio restarts unexpectedly.
 
 ## Installation
@@ -124,7 +142,8 @@ Useful flags:
 --use-finetuned        # auto-select latest finetuned model
 ```
 
-Services start in this order: (1) optional LLM ➜ (2) Gateway ➜ (3) FastAPI backend ➜ (4) Vite/production frontend. Logs live under `~/.sage/studio/*`.
+Services start in this order: (1) optional LLM ➜ (2) Gateway ➜ (3) FastAPI backend ➜ (4)
+Vite/production frontend. Logs live under `~/.sage/studio/*`.
 
 ### Manual dev mode
 
@@ -148,13 +167,13 @@ python -m sage.llm.gateway.server  # http://localhost:8000
 ## Fine-tuning workflow
 
 1. Open the **Finetune** tab.
-2. Upload JSON/JSONL or click “使用 SAGE 文档样例” to auto-generate training data.
-3. Configure epochs, batch size, learning rate (GPU-aware recommendations appear automatically).
-4. Submit the task and monitor the table (refreshes every 3 seconds). Click a row to view live logs.
-5. When status turns ✅, either:
+1. Upload JSON/JSONL or click “使用 SAGE 文档样例” to auto-generate training data.
+1. Configure epochs, batch size, learning rate (GPU-aware recommendations appear automatically).
+1. Submit the task and monitor the table (refreshes every 3 seconds). Click a row to view live logs.
+1. When status turns ✅, either:
    - Choose the model from the “当前使用的模型” dropdown (hot switch), or
    - Click “切换为对话后端”.
-6. Switch to **Chat** to test the model; Gateway now points at the restarted vLLM server.
+1. Switch to **Chat** to test the model; Gateway now points at the restarted vLLM server.
 
 CLI shortcuts:
 
@@ -167,8 +186,10 @@ sage studio start --use-finetuned
 ## Memory dashboard
 
 - Navigate to Settings → “记忆管理”.
-- Cards show the active backend (`short_term`, `vdb`, `kv`, `graph`), max dialogs, embedding model, and total sessions.
-- Table rows mirror `GET /memory/stats`: short-term sessions display dialog counts + progress bars; Neuromem-backed sessions display collection/index info.
+- Cards show the active backend (`short_term`, `vdb`, `kv`, `graph`), max dialogs, embedding model,
+  and total sessions.
+- Table rows mirror `GET /memory/stats`: short-term sessions display dialog counts + progress bars;
+  Neuromem-backed sessions display collection/index info.
 - Automate via Gateway endpoints:
 
 ```bash
@@ -252,4 +273,5 @@ pnpm test
 - [Package architecture (dev notes)](../../../dev-notes/package-architecture.md#sage-studio-l6)
 - [Finetune & memory deep dives](../../../dev-notes/index.md)
 
-Studio evolves alongside Gateway, sage-memory, and sage-llm; update this page whenever new endpoints or UI panels land so public docs stay aligned with the dev notes.
+Studio evolves alongside Gateway, sage-memory, and sage-llm; update this page whenever new endpoints
+or UI panels land so public docs stay aligned with the dev notes.

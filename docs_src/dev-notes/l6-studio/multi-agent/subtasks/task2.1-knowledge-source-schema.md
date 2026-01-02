@@ -1,15 +1,17 @@
 # Task 2.1: 知识源 Schema 定义
 
 ## 目标
+
 定义知识源的数据结构和配置 Schema。
 
 ## 文件位置
+
 - `packages/sage-studio/src/sage/studio/services/knowledge_manager.py` (部分)
 - `packages/sage-studio/src/sage/studio/config/knowledge_sources.yaml`
 
 ## 提示词
 
-```
+````
 请创建知识库管理器的基础数据结构和配置文件。
 
 ## 要求
@@ -59,9 +61,10 @@ class SearchResult:
     file_path: str | None = None       # 原始文件路径
     chunk_id: str | None = None        # 分块 ID
     metadata: dict[str, Any] = field(default_factory=dict)
-```
+````
 
 ### Part 2: YAML 配置文件
+
 文件: packages/sage-studio/src/sage/studio/config/knowledge_sources.yaml
 
 ```yaml
@@ -127,9 +130,11 @@ embedding:
 ```
 
 ## 注意
+
 - 路径支持 ~ 展开
 - file_patterns 使用 glob 语法
 - 所有源默认 auto_load=false（按需加载）
+
 ```
 
 ## 验收标准
@@ -137,3 +142,4 @@ embedding:
 - [ ] KnowledgeSource 包含所有必要字段
 - [ ] YAML 配置文件语法正确
 - [ ] 配置支持 4+ 种知识源
+```

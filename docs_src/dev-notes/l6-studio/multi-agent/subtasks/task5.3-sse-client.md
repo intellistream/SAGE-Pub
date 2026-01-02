@@ -1,12 +1,15 @@
 # Task 5.3: SSE 客户端处理
 
 ## 目标
+
 实现前端 SSE 客户端，处理 Agent 流式响应。
 
 ## 依赖
+
 - Task 3.3 (后端 SSE 格式)
 
 ## 文件位置
+
 `packages/sage-studio/src/sage/studio/frontend/src/lib/sse-client.ts`
 
 ## 提示词
@@ -17,15 +20,14 @@
 ## 背景
 后端 /api/chat/agent 返回 SSE 流，格式如下:
 ```
-event: step
-data: {"step_id": "abc", "type": "reasoning", ...}
 
-event: text
-data: 你好
+event: step data: {"step_id": "abc", "type": "reasoning", ...}
 
-event: done
-data:
-```
+event: text data: 你好
+
+event: done data:
+
+````
 
 ## 要求
 1. 文件位置: packages/sage-studio/src/sage/studio/frontend/src/lib/sse-client.ts
@@ -33,7 +35,7 @@ data:
 2. 提供 hook 方式使用:
    ```typescript
    const { sendMessage, steps, text, isLoading, error } = useAgentChat();
-   ```
+````
 
 3. 处理三种事件:
    - step: 累积到 steps 数组
@@ -42,6 +44,7 @@ data:
    - done: 设置 isLoading = false
 
 ## 代码模板
+
 ```typescript
 // sse-client.ts
 export interface AgentStep {
@@ -189,10 +192,12 @@ export function useAgentChat() {
 ```
 
 ## 注意
+
 - 正确处理 SSE 格式
 - 支持中文和特殊字符
 - 错误时调用 onError
 - 考虑取消请求
+
 ```
 
 ## 验收标准
@@ -200,3 +205,4 @@ export function useAgentChat() {
 - [ ] steps 和 text 正确累积
 - [ ] 错误处理完善
 - [ ] hook API 易用
+```

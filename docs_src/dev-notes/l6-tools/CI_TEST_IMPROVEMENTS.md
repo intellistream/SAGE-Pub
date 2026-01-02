@@ -1,20 +1,25 @@
 # CI 测试与覆盖率强化
 
-**Date**: 2025-11-25  \
-**Author**: SAGE Development Team  \
-**Summary**: Consolidated record of the late-2025 hardening work for `sage-dev project test`, integrated coverage reporting, and CI import validation.
+**Date**: 2025-11-25 \
+**Author**: SAGE Development Team \
+**Summary**: Consolidated record of the late-2025 hardening work for `sage-dev project test`,
+integrated coverage reporting, and CI import validation.
 
----
+______________________________________________________________________
 
 ## 🎯 改动概览
 
-- 统一所有本地与 CI 的测试入口为 `sage-dev project test --coverage`，并新增 `--coverage-report`, `--jobs`, `--timeout`, `--skip-quality-check`, `--debug` 等控制参数。
-- 修复 `test_network.py`, `test_monitoring_integration.py`, `test_agent_config.py`, `test_install_modes.py`, `test_main.py` 等关键失败案例，使 `sage-common` 等包重新达到配置的覆盖率门槛。
-- 在 `.github/workflows/build-test.yml` 与配套 pipelines 中替换掉手写 `pytest`，确保测试失败会终止工作流，并自动将 `.sage/coverage/{coverage.xml,htmlcov/}`、`.sage/logs/`、`.sage/reports/` 作为 artifact 上传。
-- `sage-dev project test` 负责在 `.sage/coverage/` 合并 `.coverage.*` 文件并生成 term / XML / HTML 三种报告，解决覆盖率散落在根目录的问题。
+- 统一所有本地与 CI 的测试入口为 `sage-dev project test --coverage`，并新增 `--coverage-report`, `--jobs`,
+  `--timeout`, `--skip-quality-check`, `--debug` 等控制参数。
+- 修复 `test_network.py`, `test_monitoring_integration.py`, `test_agent_config.py`,
+  `test_install_modes.py`, `test_main.py` 等关键失败案例，使 `sage-common` 等包重新达到配置的覆盖率门槛。
+- 在 `.github/workflows/build-test.yml` 与配套 pipelines 中替换掉手写 `pytest`，确保测试失败会终止工作流，并自动将
+  `.sage/coverage/{coverage.xml,htmlcov/}`、`.sage/logs/`、`.sage/reports/` 作为 artifact 上传。
+- `sage-dev project test` 负责在 `.sage/coverage/` 合并 `.coverage.*` 文件并生成 term / XML / HTML
+  三种报告，解决覆盖率散落在根目录的问题。
 - `pip-installation-test.yml` 的导入验证覆盖 `sage.benchmark`, `sage.data`, `sage.apps` 等可选组件，禁止静默跳过导入错误。
 
----
+______________________________________________________________________
 
 ## 1. 统一的测试入口
 
@@ -38,17 +43,17 @@ sage-dev project test --coverage \
 
 ### 已修复的失败测试
 
-| 文件 | 原因 | 修复 | 结果 |
-|------|------|------|------|
-| `sage/common/utils/system/test_network.py` | `pid` 作用域错误 | 初始化 `pid=None` 并兼容 `psutil.Process` mock | ✅ |
-| `kernel/runtime/monitoring/test_monitoring_integration.py` | `MockEnvironment` 未实现抽象方法 | 添加空的 `submit` | ✅ |
-| `libs/agents/test_agent_config.py` | 期望的路径与示例不符 | 更新断言为 `examples.tutorials...` | ✅ |
-| `sage-tools/tests/pypi/test_install_modes.py` | `minimal` extras 缺失 | 补充 `project.optional-dependencies.minimal` | ✅ |
-| `sage-tools/tests/test_cli/test_main.py` | Typer app 重复传入 `dev` | 直接调用 `runner.invoke(app, ["project", "status"])` | ✅ |
+| 文件                                                       | 原因                             | 修复                                                 | 结果 |
+| ---------------------------------------------------------- | -------------------------------- | ---------------------------------------------------- | ---- |
+| `sage/common/utils/system/test_network.py`                 | `pid` 作用域错误                 | 初始化 `pid=None` 并兼容 `psutil.Process` mock       | ✅   |
+| `kernel/runtime/monitoring/test_monitoring_integration.py` | `MockEnvironment` 未实现抽象方法 | 添加空的 `submit`                                    | ✅   |
+| `libs/agents/test_agent_config.py`                         | 期望的路径与示例不符             | 更新断言为 `examples.tutorials...`                   | ✅   |
+| `sage-tools/tests/pypi/test_install_modes.py`              | `minimal` extras 缺失            | 补充 `project.optional-dependencies.minimal`         | ✅   |
+| `sage-tools/tests/test_cli/test_main.py`                   | Typer app 重复传入 `dev`         | 直接调用 `runner.invoke(app, ["project", "status"])` | ✅   |
 
 `sage-common` 在 83 秒内执行 12 个测试文件，覆盖率从 60% 目标提升到 67%。
 
----
+______________________________________________________________________
 
 ## 2. 覆盖率报告与 Artifact
 
@@ -67,7 +72,7 @@ ls -la .sage/coverage/
 xdg-open .sage/coverage/htmlcov/index.html
 ```
 
----
+______________________________________________________________________
 
 ## 3. GitHub Actions 行为调整
 
@@ -109,18 +114,18 @@ esac
 
 - 移除 `2>/dev/null || echo "可选"` 之类静默忽略错误的做法。
 
----
+______________________________________________________________________
 
 ## 4. 使用建议
 
 1. **本地**：始终通过 `sage-dev project test --coverage` 运行测试；必要时指定 `--packages` 缩小范围。
-2. **CI**：所有 workflow 若还引用旧命令（`sage-dev test` / `pytest`）应切换到新的入口以获得统一日志和 artefact 布局。
-3. **故障排查**：
+1. **CI**：所有 workflow 若还引用旧命令（`sage-dev test` / `pytest`）应切换到新的入口以获得统一日志和 artefact 布局。
+1. **故障排查**：
    - 覆盖率缺失 → 检查 `.sage/coverage/` 是否生成。
    - 测试卡住 → 使用 `--debug` 查看阶段日志。
    - pip 安装导入失败 → 在本地复现 `pip-installation-test.yml` 的导入片段。
 
----
+______________________________________________________________________
 
 ## 5. 后续计划
 

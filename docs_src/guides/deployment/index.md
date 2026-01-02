@@ -1,8 +1,9 @@
 # Deployment Guide
 
-Deploy SAGE applications and the sageLLM服务栈 (LLM / Embedding / Gateway) in a variety of environments.
+Deploy SAGE applications and the sageLLM服务栈 (LLM / Embedding / Gateway) in a variety of
+environments.
 
----
+______________________________________________________________________
 
 ## Quick Start: sage llm serve
 
@@ -32,16 +33,16 @@ sage llm stop
 
 > 💡 使用 `sage llm model list-remote` 可以查看官方推荐的常用模型，并结合 `sage llm model download` 预热缓存。
 
-| 常量 | 端口 | 用途 |
-|------|------|------|
-| `SagePorts.GATEWAY_DEFAULT` | 8000 | OpenAI 兼容 Gateway |
-| `SagePorts.LLM_DEFAULT` | 8001 | vLLM 推理服务 |
-| `SagePorts.BENCHMARK_LLM` | 8901 | WSL2 / Benchmark 备用 |
-| `SagePorts.EMBEDDING_DEFAULT` | 8090 | Embedding 服务 |
-| `SagePorts.STUDIO_BACKEND` | 8080 | Studio 后端 |
-| `SagePorts.STUDIO_FRONTEND` | 5173 | Studio 前端 |
+| 常量                          | 端口 | 用途                  |
+| ----------------------------- | ---- | --------------------- |
+| `SagePorts.GATEWAY_DEFAULT`   | 8000 | OpenAI 兼容 Gateway   |
+| `SagePorts.LLM_DEFAULT`       | 8001 | vLLM 推理服务         |
+| `SagePorts.BENCHMARK_LLM`     | 8901 | WSL2 / Benchmark 备用 |
+| `SagePorts.EMBEDDING_DEFAULT` | 8090 | Embedding 服务        |
+| `SagePorts.STUDIO_BACKEND`    | 8080 | Studio 后端           |
+| `SagePorts.STUDIO_FRONTEND`   | 5173 | Studio 前端           |
 
----
+______________________________________________________________________
 
 ## 动态引擎管理
 
@@ -101,7 +102,7 @@ engines:
     label: embedding-bge
 ```
 
----
+______________________________________________________________________
 
 ## Deploy Individual Services
 
@@ -147,7 +148,7 @@ client = UnifiedInferenceClient.create(
 )
 ```
 
----
+______________________________________________________________________
 
 ## Deployment Options
 
@@ -464,7 +465,8 @@ config = {"gpu_enabled": True, "gpu_memory_fraction": 0.8}
 
 ### 服务栈常见问题
 
-- **LLM 端口启动但无法连接（特别是 WSL2）**：使用 `SagePorts.get_recommended_llm_port()` 或 `sage llm serve --port 8901`。
+- **LLM 端口启动但无法连接（特别是 WSL2）**：使用 `SagePorts.get_recommended_llm_port()` 或
+  `sage llm serve --port 8901`。
 - **Embedding 生成 404**：确认 `sage llm status` 显示服务运行中，并使用 `/v1/embeddings` 端点。
 - **Gateway 返回 502**：Gateway 无法连接下游 LLM，检查 `--llm-port` 参数是否正确。
 - **模型下载缓慢**：设置 `HF_ENDPOINT=https://hf-mirror.com` 以使用国内镜像。

@@ -64,12 +64,14 @@
 ### 步骤 1: 用户完成微调
 
 在 Finetune 页面：
+
 1. 选择基础模型（如 `Qwen/Qwen2.5-Coder-1.5B-Instruct`）
-2. 上传训练数据或使用 SAGE 文档
-3. 点击 "开始微调"
-4. 等待训练完成（状态变为 "已完成"）
+1. 上传训练数据或使用 SAGE 文档
+1. 点击 "开始微调"
+1. 等待训练完成（状态变为 "已完成"）
 
 **微调输出**：
+
 - 模型保存在：`~/.sage/studio_finetune/outputs/{task_id}/`
 - 包含：
   - `adapter_model.bin` - LoRA 适配器权重
@@ -97,6 +99,7 @@
 #### 2.2 确认对话框
 
 弹出确认框：
+
 ```
 切换为对话后端
 确定要将此微调模型设置为 Studio 的对话后端吗？当前对话将使用此模型。
@@ -259,6 +262,7 @@ async def chat(request: ChatRequest):
 ```
 
 **关键点**：
+
 - ✅ Chat API 不需要修改任何代码
 - ✅ `vllm_registry.generate()` 自动使用 `current_model`
 - ✅ `current_model` 已被 `switch_model()` 设置为微调模型
@@ -300,11 +304,11 @@ if num_gpus > 0:
 
 ### 支持的场景
 
-| GPU 数量 | 配置策略 | 适用场景 |
-|---------|---------|---------|
-| 0 (CPU) | 不设置 GPU 参数 | 测试/调试（非常慢） |
-| 1 GPU | `gpu_memory_utilization=0.8` | RTX 3060, RTX 4090 等 |
-| 2+ GPU | 额外设置 `tensor_parallel_size` | A100 x2, H100 集群 |
+| GPU 数量 | 配置策略                        | 适用场景              |
+| -------- | ------------------------------- | --------------------- |
+| 0 (CPU)  | 不设置 GPU 参数                 | 测试/调试（非常慢）   |
+| 1 GPU    | `gpu_memory_utilization=0.8`    | RTX 3060, RTX 4090 等 |
+| 2+ GPU   | 额外设置 `tensor_parallel_size` | A100 x2, H100 集群    |
 
 ### GPU 显存自适应
 
@@ -326,19 +330,22 @@ else:
 ### 完整操作步骤
 
 1. **微调模型**
+
    - 进入 Finetune 页面
    - 选择 `Qwen/Qwen2.5-Coder-1.5B-Instruct`
    - 使用 SAGE 文档（一键准备）
    - 点击 "开始微调"
    - 等待 2-4 小时（取决于数据量）
 
-2. **切换后端**
+1. **切换后端**
+
    - 训练完成后，任务状态显示 "已完成"
    - 点击任务旁边的 **"设为后端"** 按钮
    - 确认对话框点击 "确定"
    - 看到提示：`✅ 已切换到微调模型: sage-finetuned-{task_id}`
 
-3. **测试模型**
+1. **测试模型**
+
    - 切换到 Chat 页面
    - 发送测试消息，例如：
      ```
@@ -350,12 +357,14 @@ else:
 ### 预期效果
 
 **切换前（使用原始模型）**：
+
 ```
 用户: 什么是 SAGE？
 模型: SAGE 可能指多个含义...（通用回答）
 ```
 
 **切换后（使用微调模型）**：
+
 ```
 用户: 什么是 SAGE？
 模型: SAGE 是一个用于构建 AI/LLM 数据处理流水线的 Python 框架，
@@ -397,10 +406,12 @@ print(os.environ.get("SAGE_STUDIO_LLM_PATH"))
 ### Q1: 切换后 Chat 仍使用旧模型？
 
 **可能原因**：
+
 - 浏览器缓存未刷新
 - 后端未正确重启
 
 **解决方案**：
+
 ```bash
 # 1. 重启 Studio
 sage studio restart
@@ -415,6 +426,7 @@ sage studio restart
 **原因**：微调输出目录不存在或被删除
 
 **解决方案**：
+
 ```bash
 # 检查模型是否存在
 ls -la ~/.sage/studio_finetune/outputs/{task_id}/
@@ -425,10 +437,12 @@ ls -la ~/.sage/studio_finetune/outputs/{task_id}/
 ### Q3: 模型加载速度慢？
 
 **原因**：
+
 - 模型文件大
 - GPU 显存不足需要卸载旧模型
 
 **优化**：
+
 - 使用更小的基础模型（1.5B vs 7B）
 - 增加 GPU 显存
 - 使用量化技术（未来支持）
@@ -436,11 +450,13 @@ ls -la ~/.sage/studio_finetune/outputs/{task_id}/
 ### Q4: 如何切换回原始模型？
 
 **方法 1**: 重启 Studio
+
 ```bash
 sage studio restart
 ```
 
 **方法 2**: 手动切换（未来支持）
+
 ```python
 from sage.platform.llm.vllm_registry import vllm_registry
 vllm_registry.switch_model("original-model-name")
@@ -461,14 +477,16 @@ assert id(vllm_registry) == id(another_import.vllm_registry)
 ### 模型切换的内存管理
 
 切换模型时的内存流程：
+
 1. 调用 `engine.shutdown()` 卸载旧模型
-2. 等待 GPU 显存释放
-3. 加载新模型到 GPU
-4. 更新 `current_model` 指针
+1. 等待 GPU 显存释放
+1. 加载新模型到 GPU
+1. 更新 `current_model` 指针
 
 ### LoRA 适配器加载
 
 微调使用 LoRA（Low-Rank Adaptation），加载时：
+
 ```python
 # vLLM 自动检测并加载 LoRA 适配器
 engine = LLM(
@@ -488,6 +506,7 @@ engine = LLM(
 ### 1. 模型管理 UI
 
 在 Settings 页面添加 "模型管理" 面板：
+
 - 查看所有已注册模型
 - 一键切换模型
 - 删除不需要的模型
@@ -496,6 +515,7 @@ engine = LLM(
 ### 2. 多模型对比
 
 支持同时加载多个模型，对话时选择使用哪个：
+
 ```tsx
 <Select>
     <Option value="original">原始模型</Option>
@@ -511,6 +531,7 @@ engine = LLM(
 ### 4. 模型性能监控
 
 显示模型的：
+
 - 推理速度（tokens/s）
 - GPU 使用率
 - 显存占用
@@ -519,13 +540,16 @@ engine = LLM(
 ## 相关文件
 
 **前端**：
+
 - `packages/sage-studio/src/sage/studio/frontend/src/components/FinetunePanel.tsx`
 
 **后端**：
+
 - `packages/sage-studio/src/sage/studio/config/backend/api.py`
 - `packages/sage-platform/src/sage/platform/llm/vllm_registry.py`
 
 **服务**：
+
 - `packages/sage-studio/src/sage/studio/services/finetune_manager.py`
 
 ## 总结
@@ -533,7 +557,7 @@ engine = LLM(
 整个流程的核心是 **vLLM Registry**：
 
 1. **Finetune** → 训练模型，保存到 `~/.sage/studio_finetune/outputs/`
-2. **"设为后端"** → 调用 `vllm_registry.register_model()` + `switch_model()`
-3. **Chat** → 自动使用 `vllm_registry.current_model` 生成回复
+1. **"设为后端"** → 调用 `vllm_registry.register_model()` + `switch_model()`
+1. **Chat** → 自动使用 `vllm_registry.current_model` 生成回复
 
 用户只需点击一次 "设为后端" 按钮，后续所有对话都会自动使用微调后的模型，无需任何额外配置。

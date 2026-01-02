@@ -2,7 +2,8 @@
 
 ## Issue
 
-Codecov reported **23.80% patch coverage** against a target of **37.13%** for the keyed state support PR. The new code added in the following files had insufficient test coverage:
+Codecov reported **23.80% patch coverage** against a target of **37.13%** for the keyed state
+support PR. The new code added in the following files had insufficient test coverage:
 
 - `packages/sage-kernel/src/sage/kernel/api/operator/base_operator.py` (12 new lines)
 - `packages/sage-kernel/src/sage/kernel/runtime/context/base_context.py` (52 new lines)
@@ -13,13 +14,15 @@ Codecov reported **23.80% patch coverage** against a target of **37.13%** for th
 ### New Test Files Created
 
 1. **`packages/sage-kernel/tests/unit/runtime/context/test_keyed_state_context.py`**
+
    - 14 unit tests for `BaseRuntimeContext` keyed state methods
    - Tests `set_current_key()`, `get_key()`, and `clear_key()` directly
    - Covers edge cases: None keys, complex keys, key isolation, multiple cycles
    - Tests the docstring example to ensure documentation accuracy
    - **Result**: 100% coverage of new methods in `base_context.py`
 
-2. **`packages/sage-kernel/tests/unit/api/operator/test_base_operator_keyed_state.py`**
+1. **`packages/sage-kernel/tests/unit/api/operator/test_base_operator_keyed_state.py`**
+
    - 10 unit tests for `BaseOperator.receive_packet()` keyed state integration
    - Tests key lifecycle: set → process → clear (including exception handling)
    - Tests None packets, None keys, complex keys, sequential processing
@@ -81,14 +84,13 @@ pytest packages/sage-kernel/tests/unit/core/function/test_keyed_state.py
 
 ### What's Covered
 
-✅ `BaseRuntimeContext.__init__()` - `_current_packet_key` initialization
-✅ `BaseRuntimeContext.set_current_key()` - All key types (str, int, dict, tuple, None)
-✅ `BaseRuntimeContext.get_key()` - Return current key
-✅ `BaseRuntimeContext.clear_key()` - Clear key to None
-✅ `BaseOperator.receive_packet()` - Set key before processing
-✅ `BaseOperator.receive_packet()` - Clear key after processing (normal flow)
-✅ `BaseOperator.receive_packet()` - Clear key after processing (exception flow)
-✅ `TaskContext.__state_exclude__` - Keyed state exclusion from serialization
+✅ `BaseRuntimeContext.__init__()` - `_current_packet_key` initialization ✅
+`BaseRuntimeContext.set_current_key()` - All key types (str, int, dict, tuple, None) ✅
+`BaseRuntimeContext.get_key()` - Return current key ✅ `BaseRuntimeContext.clear_key()` - Clear key
+to None ✅ `BaseOperator.receive_packet()` - Set key before processing ✅
+`BaseOperator.receive_packet()` - Clear key after processing (normal flow) ✅
+`BaseOperator.receive_packet()` - Clear key after processing (exception flow) ✅
+`TaskContext.__state_exclude__` - Keyed state exclusion from serialization
 
 ## Testing Strategy
 
@@ -109,21 +111,21 @@ pytest packages/sage-kernel/tests/unit/core/function/test_keyed_state.py
 ### Edge Cases Tested
 
 1. **None keys**: Unkeyed streams (backward compatibility)
-2. **Complex keys**: Dicts, tuples, custom objects
-3. **Key isolation**: Multiple contexts don't interfere
-4. **Exception safety**: Keys cleared even on errors
-5. **State serialization**: `_current_packet_key` not persisted
-6. **Concurrent access**: Keys correct under concurrent processing
+1. **Complex keys**: Dicts, tuples, custom objects
+1. **Key isolation**: Multiple contexts don't interfere
+1. **Exception safety**: Keys cleared even on errors
+1. **State serialization**: `_current_packet_key` not persisted
+1. **Concurrent access**: Keys correct under concurrent processing
 
 ## CI/CD Impact
 
 These comprehensive tests will:
 
 1. ✅ **Improve Codecov patch coverage** from 23.80% to target level
-2. ✅ **Prevent regressions** in keyed state functionality
-3. ✅ **Document API usage** through test examples
-4. ✅ **Validate edge cases** that users might encounter
-5. ✅ **Ensure backward compatibility** with existing unkeyed streams
+1. ✅ **Prevent regressions** in keyed state functionality
+1. ✅ **Document API usage** through test examples
+1. ✅ **Validate edge cases** that users might encounter
+1. ✅ **Ensure backward compatibility** with existing unkeyed streams
 
 ## Files Modified
 
@@ -163,4 +165,5 @@ The keyed state functionality now has **comprehensive test coverage** with:
 - ✅ **Integration testing** for real-world validation
 - ✅ **Documentation validation** through docstring examples
 
-This should significantly improve the Codecov patch coverage metric and provide confidence in the keyed state implementation.
+This should significantly improve the Codecov patch coverage metric and provide confidence in the
+keyed state implementation.

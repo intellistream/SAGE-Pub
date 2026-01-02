@@ -55,8 +55,8 @@ class BaseService:
     def call_service_async(self): ...
 ```
 
-- 同步：self.call_service\["service_name"\].method(args...)
-- 异步：self.call_service_async\["service_name"\].method(args...) -> Future（用 .result(timeout=…) 获取结果）
+- 同步：self.call_service["service_name"].method(args...)
+- 异步：self.call_service_async["service_name"].method(args...) -> Future（用 .result(timeout=…) 获取结果）
 - 若运行时上下文未注入，访问上述属性会抛出 RuntimeError
 
 ______________________________________________________________________

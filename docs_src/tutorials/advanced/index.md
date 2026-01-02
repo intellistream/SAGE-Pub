@@ -90,44 +90,50 @@
 
 === "分布式系统开发者"
 
-    1. [分布式 Pipeline](distributed-pipeline.md) - 理解分布式架构
-    2. [性能调优](performance-tuning.md) - 优化系统性能
-    3. [容错与可靠性](fault-tolerance.md) - 构建高可用系统
-    
+```
+1. [分布式 Pipeline](distributed-pipeline.md) - 理解分布式架构
+2. [性能调优](performance-tuning.md) - 优化系统性能
+3. [容错与可靠性](fault-tolerance.md) - 构建高可用系统
+```
+
 === "算法工程师"
 
-    1. [自定义算子](custom-operators.md) - 封装算法逻辑
-    2. [复杂工作流](complex-workflows.md) - 构建算法 Pipeline
-    3. [性能调优](performance-tuning.md) - 优化推理性能
+```
+1. [自定义算子](custom-operators.md) - 封装算法逻辑
+2. [复杂工作流](complex-workflows.md) - 构建算法 Pipeline
+3. [性能调优](performance-tuning.md) - 优化推理性能
+```
 
 === "AI 应用开发者"
 
-    1. [高级 RAG 技术](advanced-rag.md) - 构建智能问答
-    2. [复杂工作流](complex-workflows.md) - 多模态处理
-    3. [容错与可靠性](fault-tolerance.md) - 保障服务质量
+```
+1. [高级 RAG 技术](advanced-rag.md) - 构建智能问答
+2. [复杂工作流](complex-workflows.md) - 多模态处理
+3. [容错与可靠性](fault-tolerance.md) - 保障服务质量
+```
 
 ## 🔍 快速参考
 
 ### 常见高级场景
 
-| 场景 | 推荐教程 | 关键技术 |
-|------|---------|---------|
+| 场景               | 推荐教程                                   | 关键技术             |
+| ------------------ | ------------------------------------------ | -------------------- |
 | **大规模数据处理** | [分布式 Pipeline](distributed-pipeline.md) | Ray 集群、并行度配置 |
-| **实时推荐系统** | [复杂工作流](complex-workflows.md) | 流连接、窗口聚合 |
-| **智能客服** | [高级 RAG](advanced-rag.md) | 多源检索、重排序 |
-| **业务定制化** | [自定义算子](custom-operators.md) | 算子开发、状态管理 |
-| **性能瓶颈** | [性能调优](performance-tuning.md) | Profiling、批处理 |
-| **生产部署** | [容错与可靠性](fault-tolerance.md) | 检查点、监控告警 |
+| **实时推荐系统**   | [复杂工作流](complex-workflows.md)         | 流连接、窗口聚合     |
+| **智能客服**       | [高级 RAG](advanced-rag.md)                | 多源检索、重排序     |
+| **业务定制化**     | [自定义算子](custom-operators.md)          | 算子开发、状态管理   |
+| **性能瓶颈**       | [性能调优](performance-tuning.md)          | Profiling、批处理    |
+| **生产部署**       | [容错与可靠性](fault-tolerance.md)         | 检查点、监控告警     |
 
 ### 核心概念对照
 
-| SAGE 概念 | Apache Flink 类比 | Spark Streaming 类比 |
-|-----------|-------------------|---------------------|
-| MapFunction | MapFunction | map() |
-| FilterFunction | FilterFunction | filter() |
-| Checkpoint | Savepoint | Checkpoint |
-| Parallelism | Parallelism | Partitions |
-| Window | Window | Window |
+| SAGE 概念      | Apache Flink 类比 | Spark Streaming 类比 |
+| -------------- | ----------------- | -------------------- |
+| MapFunction    | MapFunction       | map()                |
+| FilterFunction | FilterFunction    | filter()             |
+| Checkpoint     | Savepoint         | Checkpoint           |
+| Parallelism    | Parallelism       | Partitions           |
+| Window         | Window            | Window               |
 
 ## 📖 前置知识
 
@@ -164,40 +170,41 @@
 
 <div class="grid cards" markdown>
 
--   :material-rocket-launch:{ .lg .middle } **部署应用**
+- :material-rocket-launch:{ .lg .middle } **部署应用**
 
-    ---
+  ______________________________________________________________________
 
-    将 SAGE 应用部署到生产环境
+  将 SAGE 应用部署到生产环境
 
-    [:octicons-arrow-right-24: 部署指南](../../guides/deployment/index.md)
+  [:octicons-arrow-right-24: 部署指南](../../guides/deployment/index.md)
 
--   :material-code-braces:{ .lg .middle } **深入源码**
+- :material-code-braces:{ .lg .middle } **深入源码**
 
-    ---
+  ______________________________________________________________________
 
-    理解 SAGE 的内部实现
+  理解 SAGE 的内部实现
 
-    [:octicons-arrow-right-24: 架构设计](../../concepts/architecture/overview.md)
+  [:octicons-arrow-right-24: 架构设计](../../concepts/architecture/overview.md)
 
--   :material-account-group:{ .lg .middle } **参与贡献**
+- :material-account-group:{ .lg .middle } **参与贡献**
 
-    ---
+  ______________________________________________________________________
 
-    为 SAGE 项目做出贡献
+  为 SAGE 项目做出贡献
 
-    [:octicons-arrow-right-24: 贡献指南](../../developers/commands.md)
+  [:octicons-arrow-right-24: 贡献指南](../../developers/commands.md)
 
--   :material-forum:{ .lg .middle } **加入社区**
+- :material-forum:{ .lg .middle } **加入社区**
 
-    ---
+  ______________________________________________________________________
 
-    与其他开发者交流经验
+  与其他开发者交流经验
 
-    [:octicons-arrow-right-24: 社区](../../community/community.md)
+  [:octicons-arrow-right-24: 社区](../../community/community.md)
 
 </div>
 
----
+______________________________________________________________________
 
-**注意**：本章内容持续更新中，部分教程页面正在完善。如有问题或建议，欢迎通过 [GitHub Issues](https://github.com/intellistream/SAGE/issues) 反馈。
+**注意**：本章内容持续更新中，部分教程页面正在完善。如有问题或建议，欢迎通过
+[GitHub Issues](https://github.com/intellistream/SAGE/issues) 反馈。

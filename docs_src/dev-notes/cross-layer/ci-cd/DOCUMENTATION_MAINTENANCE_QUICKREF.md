@@ -1,10 +1,10 @@
 # 文档维护快速参考
 
-**Date**: 2024-10-24  
-**Author**: GitHub Copilot  
+**Date**: 2024-10-24\
+**Author**: GitHub Copilot\
 **Summary**: 文档维护快速参考 - 常用命令和工作流程
 
----
+______________________________________________________________________
 
 ## 🚀 快速命令
 
@@ -125,11 +125,13 @@ sage-dev check-readme --package <package-name>
 ### Dev-notes 文档
 
 **必需**:
+
 - ✅ 放在正确的分类目录下
 - ✅ 包含元数据（Date, Author, Summary）
 - ✅ 日期格式正确（YYYY-MM-DD）
 
 **推荐**:
+
 - 📝 使用清晰的标题结构
 - 📝 包含代码示例
 - 📝 添加相关链接（Related字段）
@@ -137,6 +139,7 @@ sage-dev check-readme --package <package-name>
 ### Package README
 
 **必需章节** (70%权重):
+
 - ✅ Title (包名称)
 - ✅ Overview (概述)
 - ✅ Installation (安装)
@@ -144,6 +147,7 @@ sage-dev check-readme --package <package-name>
 - ✅ License (许可证)
 
 **推荐章节** (30%权重):
+
 - 📝 Key Features
 - 📝 Package Structure
 - 📝 Configuration
@@ -152,6 +156,7 @@ sage-dev check-readme --package <package-name>
 - 📝 Contributing
 
 **评分标准**:
+
 - 100-80分: ✅ 优秀
 - 79-60分: ⚠️ 良好
 - 59-0分: ❌ 需改进
@@ -228,13 +233,14 @@ sage-dev check-devnotes --changed-only --diff HEAD~5
 
 ### Package README 质量
 
-| 分数段 | 数量 | 状态 |
-|--------|------|------|
+| 分数段 | 数量 | 状态    |
+| ------ | ---- | ------- |
 | 100分  | 6个  | ✅ 优秀 |
 | 90分   | 3个  | ✅ 优秀 |
 | 平均   | 98.9 | 🏆 卓越 |
 
 **详细分数**:
+
 - sage-platform: 100.0
 - sage-common: 100.0
 - sage-kernel: 100.0
@@ -279,23 +285,27 @@ sage-dev check-devnotes --changed-only --diff HEAD~5
 ## 💡 最佳实践
 
 1. **写文档时**:
+
    - 先查看模板
    - 参考现有优秀文档
    - 包含可运行的代码示例
    - 添加清晰的标题结构
 
-2. **提交前**:
+1. **提交前**:
+
    - 运行 `make docs-check`
    - 修复所有错误
    - 确保 README 至少 80 分
 
-3. **定期维护**:
+1. **定期维护**:
+
    - 每月运行 `make docs-report`
    - 更新过时的文档
    - 改进低分 README
    - 清理 TODO 标记
 
-4. **协作时**:
+1. **协作时**:
+
    - PR 中包含文档更新
    - 功能变更同步更新文档
    - Review 时检查文档质量
@@ -305,11 +315,13 @@ sage-dev check-devnotes --changed-only --diff HEAD~5
 ### 优秀示例
 
 - **Package README**:
+
   - `packages/sage-platform/README.md` (100分)
   - `packages/sage-common/README.md` (100分)
   - `packages/sage-benchmark/README.md` (90分)
 
 - **Dev-notes**:
+
   - `docs/dev-notes/ci-cd/PACKAGE_README_GUIDELINES.md`
   - `docs/dev-notes/architecture/DATA_TYPES_ARCHITECTURE.md`
 
@@ -319,8 +331,8 @@ sage-dev check-devnotes --changed-only --diff HEAD~5
 - [Markdown Guide](https://www.markdownguide.org/)
 - [Documentation Best Practices](https://www.writethedocs.org/guide/writing/beginners-guide-to-docs/)
 
----
+______________________________________________________________________
 
-**维护者**: SAGE Team  
-**最后更新**: 2024-10-24  
+**维护者**: SAGE Team\
+**最后更新**: 2024-10-24\
 **下次审查**: 每月第一周

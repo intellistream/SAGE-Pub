@@ -6,14 +6,16 @@
 
 ### 具体表现
 
-1. **Visual Pipeline 格式错误**：LLM/规则生成器生成的节点格式使用了 React Flow 的格式（`type: "custom"`, `data: {...}`），而非 SAGE Studio 的 VisualNode 格式
-2. **聊天回复的代码示例错误**：返回的是命令式编程代码，而非 SAGE dataflow API
+1. **Visual Pipeline 格式错误**：LLM/规则生成器生成的节点格式使用了 React Flow 的格式（`type: "custom"`, `data: {...}`），而非
+   SAGE Studio 的 VisualNode 格式
+1. **聊天回复的代码示例错误**：返回的是命令式编程代码，而非 SAGE dataflow API
 
 ## 根本原因
 
 ### 问题 1：Visual Pipeline 格式不匹配
 
 **错误格式（React Flow 风格）**：
+
 ```python
 {
     "id": "source-0",
@@ -28,6 +30,7 @@
 ```
 
 **正确格式（SAGE Studio VisualNode）**：
+
 ```python
 {
     "id": "source-0",
@@ -41,6 +44,7 @@
 ### 问题 2：Dataflow 范式理解错误
 
 **错误代码示例（命令式）**：
+
 ```python
 # ❌ 不符合 SAGE dataflow 范式
 texts = ['文档1', '文档2']
@@ -51,6 +55,7 @@ response = generator.generate(prompt)
 ```
 
 **正确代码示例（SAGE Dataflow）**：
+
 ```python
 # ✅ 符合 SAGE dataflow 范式
 env.from_source(QuestionSource)
@@ -67,6 +72,7 @@ env.from_source(QuestionSource)
 **文件**：`packages/sage-libs/src/sage/libs/agentic/workflow/generators/llm_generator.py`
 
 **关键修改**：
+
 - `_convert_to_visual_format()` 方法
 - 使用 `_class_to_node_type()` 将类名转换为 snake_case
 - 节点类型直接使用操作符类型（如 `"file_source"`）
@@ -98,6 +104,7 @@ def _class_to_node_type(class_name: str) -> str:
 **文件**：`packages/sage-libs/src/sage/libs/agentic/workflow/generators/rule_based_generator.py`
 
 **关键修改**：
+
 - `_build_visual_pipeline()` 方法的 `add_node()` 函数
 - 节点类型直接使用注册的操作符名称（如 `"character_splitter"` 而非 `"simple_splitter"`）
 - 移除 `type: "custom"` 和 `data` 嵌套结构
@@ -105,14 +112,14 @@ def _class_to_node_type(class_name: str) -> str:
 
 ### 3. 节点类型对照表
 
-| 生成器使用的名称 | 注册表中的名称 | 说明 |
-|---|---|---|
-| `SimpleSplitter` → `simple_splitter` | `character_splitter` | ❌ 需修正 |
-| `ChromaRetriever` → `chroma_retriever` | `chroma_retriever` | ✅ 正确 |
-| `QAPromptor` → `qa_promptor` | `qa_promptor` | ✅ 正确 |
-| `OpenAIGenerator` → `openai_generator` | `openai_generator` | ✅ 正确 |
-| `TerminalSink` → `terminal_sink` | `terminal_sink` | ✅ 正确 |
-| `FileSource` → `file_source` | `file_source` | ✅ 正确 |
+| 生成器使用的名称                       | 注册表中的名称       | 说明      |
+| -------------------------------------- | -------------------- | --------- |
+| `SimpleSplitter` → `simple_splitter`   | `character_splitter` | ❌ 需修正 |
+| `ChromaRetriever` → `chroma_retriever` | `chroma_retriever`   | ✅ 正确   |
+| `QAPromptor` → `qa_promptor`           | `qa_promptor`        | ✅ 正确   |
+| `OpenAIGenerator` → `openai_generator` | `openai_generator`   | ✅ 正确   |
+| `TerminalSink` → `terminal_sink`       | `terminal_sink`      | ✅ 正确   |
+| `FileSource` → `file_source`           | `file_source`        | ✅ 正确   |
 
 ## 验证测试
 
@@ -138,6 +145,7 @@ def _class_to_node_type(class_name: str) -> str:
 ### 1. 完善 RAG 文档内容
 
 检查 `~/.sage/cache/chat/` 索引中的文档，确保：
+
 - 所有 RAG 示例代码使用 dataflow API
 - 移除命令式编程的示例
 - 强调 `env.from_source().map().sink()` 模式

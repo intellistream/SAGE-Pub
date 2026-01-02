@@ -1,9 +1,10 @@
 # Examples Testing Tools - PyPI Distribution Strategy
 
-**Date**: 2025-10-27  
-**Author**: Development Team  
-**Summary**: Decision to position Examples testing tools as development-only features rather than PyPI distribution  
-**Status**: Implemented  
+**Date**: 2025-10-27\
+**Author**: Development Team\
+**Summary**: Decision to position Examples testing tools as development-only features rather than
+PyPI distribution\
+**Status**: Implemented\
 **Category**: Architecture Decision
 
 ## 📋 Summary
@@ -14,16 +15,17 @@
 
 ### 问题
 
-SAGE 项目有一套完整的 Examples 测试工具（位于 `tools/tests/`），用于验证 `examples/` 目录中的示例代码。在将这些工具集成到 `sage-tools` 包时，面临一个关键问题：
+SAGE 项目有一套完整的 Examples 测试工具（位于 `tools/tests/`），用于验证 `examples/` 目录中的示例代码。在将这些工具集成到 `sage-tools`
+包时，面临一个关键问题：
 
 **通过 PyPI 安装的包不包含 `examples/` 目录，导致测试工具无法运行。**
 
 ### 需求
 
 1. 保持 Examples 测试工具的功能完整性
-2. 不影响普通用户通过 PyPI 安装 `sage-tools`
-3. 为开发者提供清晰的使用指引
-4. 避免增加 PyPI 包的大小
+1. 不影响普通用户通过 PyPI 安装 `sage-tools`
+1. 为开发者提供清晰的使用指引
+1. 避免增加 PyPI 包的大小
 
 ## 🤔 Options Considered
 
@@ -40,9 +42,11 @@ SAGE 项目有一套完整的 Examples 测试工具（位于 `tools/tests/`）�
 ```
 
 **优点**：
+
 - ✅ 从 PyPI 安装也能使用测试工具
 
 **缺点**：
+
 - ❌ 显著增加包大小（examples 目录可能有数百个文件）
 - ❌ Examples 更新频繁，会导致 sage-tools 频繁发版
 - ❌ 违背了工具和示例分离的原则
@@ -62,10 +66,12 @@ def ensure_examples_available():
 ```
 
 **优点**：
+
 - ✅ PyPI 包保持小巧
 - ✅ 可以从 PyPI 安装后使用
 
 **缺点**：
+
 - ❌ 需要网络连接
 - ❌ 版本同步复杂（工具版本与 examples 版本）
 - ❌ 下载缓存管理复杂
@@ -77,11 +83,13 @@ def ensure_examples_available():
 ### Option 3: 定位为开发环境专用工具 ✅ (Chosen)
 
 **方案**：
+
 1. 工具只在开发环境中可用（需要克隆仓库）
-2. 通过环境检测提供清晰的错误信息
-3. 导入时警告，使用时报错
+1. 通过环境检测提供清晰的错误信息
+1. 导入时警告，使用时报错
 
 **优点**：
+
 - ✅ 设计简洁，职责清晰
 - ✅ 符合实际使用场景（开发者会克隆仓库）
 - ✅ 不增加 PyPI 包大小
@@ -90,6 +98,7 @@ def ensure_examples_available():
 - ✅ 错误信息清晰，易于理解
 
 **缺点**：
+
 - ⚠️ 从 PyPI 安装无法使用（但这是设计目标）
 
 **结论**：**最佳方案** ⭐
@@ -99,9 +108,11 @@ def ensure_examples_available():
 **方案**：创建独立的 `sage-examples-testing` 包
 
 **优点**：
+
 - ✅ 完全分离关注点
 
 **缺点**：
+
 - ❌ 增加包管理复杂度
 - ❌ 依然面临 examples 目录的问题
 - ❌ 对用户来说增加了安装步骤
@@ -145,8 +156,9 @@ raise RuntimeError(
 #### 4. 文档说明
 
 在多个地方明确说明：
+
 - Package README
-- Module docstring  
+- Module docstring
 - 错误消息
 - 设计文档
 
@@ -242,6 +254,7 @@ pip install -e packages/sage-tools[dev]
 **风险**：用户可能不理解为什么某些功能需要开发环境
 
 **缓解**：
+
 - ✅ 在多处文档中说明
 - ✅ 清晰的错误消息
 - ✅ 在 README 中突出显示
@@ -251,6 +264,7 @@ pip install -e packages/sage-tools[dev]
 **风险**：某些边缘情况下无法找到 examples 目录
 
 **缓解**：
+
 - ✅ 多重检测机制（环境变量、向上查找、Git）
 - ✅ 允许手动设置 SAGE_ROOT
 - ✅ 详细的调试信息
@@ -260,6 +274,7 @@ pip install -e packages/sage-tools[dev]
 **风险**：某些 CI 环境可能配置特殊
 
 **缓解**：
+
 - ✅ 支持 SAGE_ROOT 环境变量
 - ✅ Git 仓库自动检测
 - ✅ 提供配置示例
@@ -293,19 +308,23 @@ pip install -e packages/sage-tools[dev]
 已创建以下文档：
 
 1. **Module README** (`packages/sage-tools/src/sage/tools/dev/examples/README.md`)
+
    - 详细的使用指南
    - 环境设置说明
    - FAQ 和故障排除
 
-2. **Package README 更新** (`packages/sage-tools/README.md`)
+1. **Package README 更新** (`packages/sage-tools/README.md`)
+
    - 安装说明区分 PyPI vs 源码
    - 特性列表标注开发环境需求
 
-3. **Module Docstrings**
+1. **Module Docstrings**
+
    - `__init__.py` 中的模块级文档
    - 清晰说明使用要求
 
-4. **Error Messages**
+1. **Error Messages**
+
    - 详细的错误信息
    - 可操作的解决步骤
 
@@ -324,9 +343,9 @@ pip install -e packages/sage-tools[dev]
 ## 🎓 Lessons Learned
 
 1. **明确目标用户**：不是所有功能都需要对所有人可用
-2. **职责分离**：开发工具应该服务于开发者
-3. **简洁优于复杂**：避免过度工程化
-4. **清晰的沟通**：通过文档和错误消息说明设计意图
+1. **职责分离**：开发工具应该服务于开发者
+1. **简洁优于复杂**：避免过度工程化
+1. **清晰的沟通**：通过文档和错误消息说明设计意图
 
 ## 🔗 Related Documents
 
@@ -340,6 +359,6 @@ pip install -e packages/sage-tools[dev]
 - **用户反馈**：收集开发者和用户的使用体验
 - **备选方案评估**：如果需求变化，重新评估
 
----
+______________________________________________________________________
 
 **结论**：将 Examples 测试工具定位为开发环境专用是最符合实际需求的设计，保持了代码的简洁性和可维护性，同时为目标用户（开发者）提供了良好的体验。

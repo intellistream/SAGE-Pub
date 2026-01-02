@@ -1,9 +1,8 @@
 # 配置文件 API Key 安全清理报告
 
-**Date**: 2024-10-05  
-**Author**: SAGE Team  
+**Date**: 2024-10-05\
+**Author**: SAGE Team\
 **Summary**: 配置文件清理报告，移除敏感信息和优化配置结构
-
 
 ## 清理概要
 
@@ -18,11 +17,13 @@
 已清理以下文件中的真实 API keys：
 
 - ✅ `new_adaptive.yaml` - 清理了 3 个 sk- 开头的 keys
+
   - refiner.api_key
   - agent.api_key
   - agent.search_api_key
 
 - ✅ `multiagent_config.yaml` - 清理了 6 个 sk- 开头的 keys
+
   - question_bot.api_key
   - chief_bot.llm.api_key
   - searcher_bot.api_key
@@ -54,12 +55,14 @@
 ### 3. 环境变量引用格式
 
 已统一 `config_agent_min.yaml` 中的环境变量引用格式：
+
 - ❌ 旧格式: `api_key: "${OPENAI_API_KEY}"`
 - ✅ 新格式: `api_key: ""`（由代码从环境变量读取）
 
 ## 清理前后对比
 
 ### 之前（❌ 不安全）
+
 ```yaml
 generator:
   vllm:
@@ -68,6 +71,7 @@ generator:
 ```
 
 ### 之后（✅ 安全）
+
 ```yaml
 generator:
   vllm:
@@ -119,18 +123,21 @@ WEB_SEARCH_API_KEY=your_search_key
 ### .env.template 文件
 
 已更新 `.env.template` 文件，添加了：
+
 - `OPENAI_BASE_URL`
 - `OPENAI_MODEL_NAME`
 - `WEB_SEARCH_API_KEY`
 
 团队成员应该：
+
 1. 复制 `.env.template` 到 `.env`
-2. 填入自己的真实 API keys
-3. **永远不要提交 `.env` 文件到 git**
+1. 填入自己的真实 API keys
+1. **永远不要提交 `.env` 文件到 git**
 
 ## Git 保护
 
 `.gitignore` 已包含：
+
 ```
 /.env
 /sage/.env
@@ -178,13 +185,13 @@ SAGE_QA_GENERATOR=openai SAGE_QA_GENERATOR_PROFILE=vllm \
 ## 安全最佳实践
 
 1. ✅ **永远不要在配置文件中硬编码 API keys**
-2. ✅ **使用 .env 文件管理敏感信息**
-3. ✅ **确保 .env 在 .gitignore 中**
-4. ✅ **使用 .env.template 作为团队共享模板**
-5. ✅ **定期轮换 API keys**
-6. ✅ **不要通过邮件/聊天分享 API keys**
-7. ✅ **为不同环境使用不同的 keys**
-8. ✅ **限制 API key 的权限和配额**
+1. ✅ **使用 .env 文件管理敏感信息**
+1. ✅ **确保 .env 在 .gitignore 中**
+1. ✅ **使用 .env.template 作为团队共享模板**
+1. ✅ **定期轮换 API keys**
+1. ✅ **不要通过邮件/聊天分享 API keys**
+1. ✅ **为不同环境使用不同的 keys**
+1. ✅ **限制 API key 的权限和配额**
 
 ## 相关文档
 
@@ -200,9 +207,10 @@ SAGE_QA_GENERATOR=openai SAGE_QA_GENERATOR_PROFILE=vllm \
 - 清理文件数：27 个配置文件
 - 清理 API keys 数：约 30+ 个
 
----
+______________________________________________________________________
 
 **重要提醒：**
+
 - 所有之前泄露的真实 API keys 应该立即在对应平台上撤销/重新生成
 - 建议检查 git 历史记录，确保之前提交的 keys 也被清理
 - 如果 keys 已经被提交到公共仓库，必须立即撤销并重新生成

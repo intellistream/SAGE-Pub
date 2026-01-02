@@ -4,24 +4,24 @@
 
 实现 Multi-Agent 系统所需的具体工具。这些工具将被 AgentOrchestrator 调用，执行实际的任务，如知识检索、代码执行、API 查询等。
 
-**优先级**: P1 (中)  
-**预计工时**: 2-3 天  
+**优先级**: P1 (中)\
+**预计工时**: 2-3 天\
 **可并行**: 是（依赖 Task 2 接口）
 
 ## 目标
 
 1. **标准化接口**: 所有工具遵循统一的 `BaseTool` 接口
-2. **自描述**: 每个工具包含详细的描述和参数 schema，便于 LLM 理解
-3. **安全性**: 对敏感操作（如代码执行）实施安全限制
-4. **复用现有资产**: 优先复用 `sage-libs` 和 `examples` 中的现有工具实现
+1. **自描述**: 每个工具包含详细的描述和参数 schema，便于 LLM 理解
+1. **安全性**: 对敏感操作（如代码执行）实施安全限制
+1. **复用现有资产**: 优先复用 `sage-libs` 和 `examples` 中的现有工具实现
 
 ## 复用策略
 
 SAGE 项目中已存在大量高质量工具，应优先复用：
 
 1. **sage-libs**: `sage.libs.foundation.tools` 和 `sage.libs.agentic.tools`
-2. **examples**: `examples/tutorials/L3-libs/agents/arxiv_search_tool.py` (Arxiv 搜索)
-3. **sage-benchmark**: `sage.benchmark.benchmark_agent.tools_loader` (1000+ 工具集)
+1. **examples**: `examples/tutorials/L3-libs/agents/arxiv_search_tool.py` (Arxiv 搜索)
+1. **sage-benchmark**: `sage.benchmark.benchmark_agent.tools_loader` (1000+ 工具集)
 
 ## 文件位置
 
@@ -155,7 +155,7 @@ class APIDocsTool(BaseTool):
 
 复用 `examples/tutorials/L3-libs/agents/arxiv_search_tool.py` 中的实现。
 
-```python
+````python
 # packages/sage-studio/src/sage/studio/tools/arxiv_search.py
 
 from typing import Any, Dict
@@ -194,7 +194,7 @@ class ArxivSearchTool(BaseTool):
             "with_abstract": True
         })
 ```        pass
-```
+````
 
 ### 4. CodeExecutorTool (代码执行工具) - 可选/高级
 

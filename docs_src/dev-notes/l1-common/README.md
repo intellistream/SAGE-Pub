@@ -1,6 +1,7 @@
 # L1 Common 开发文档
 
-`sage-common` 属于 L1（基础层），提供 SAGE 框架的核心基础设施和通用组件。本目录聚合了与 **sageLLM Control Plane**、**统一 Gateway** 以及 **vLLM 依赖管理** 等主题相关的开发文档，帮助你从整体视角理解 L1 的演进历程。
+`sage-common` 属于 L1（基础层），提供 SAGE 框架的核心基础设施和通用组件。本目录聚合了与 **sageLLM Control Plane**、**统一 Gateway** 以及
+**vLLM 依赖管理** 等主题相关的开发文档，帮助你从整体视角理解 L1 的演进历程。
 
 ## 🚀 Quickstart
 
@@ -62,7 +63,7 @@ sage llm preset apply -n qwen-lite --dry-run  # 预览预设
 sage llm stop
 ```
 
----
+______________________________________________________________________
 
 ## 🖥️ CLI 命令详解
 
@@ -95,6 +96,7 @@ sage llm gpu                                # 显示 GPU 资源状态
 ```
 
 输出示例：
+
 ```
                          GPU 资源  
 ┏━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━┳━━━━━━━━┳━━━━━━━━━━┓
@@ -130,15 +132,16 @@ sage llm engine stop <engine_id>
 ```
 
 **engine start 参数**:
-| 参数 | 说明 |
-|------|------|
-| `--engine-port` | 引擎监听端口 |
-| `-tp, --tensor-parallel` | Tensor 并行 GPU 数 |
-| `-pp, --pipeline-parallel` | Pipeline 并行 GPU 数 |
-| `--engine-kind` | 引擎类型：`llm` (默认) 或 `embedding` |
-| `--use-gpu / --no-gpu` | 是否使用 GPU（默认 LLM 用，Embedding 不用）|
-| `--label` | 自定义标签 |
-| `--max-concurrent` | 最大并发数（默认 256）|
+
+| 参数                       | 说明                                        |
+| -------------------------- | ------------------------------------------- |
+| `--engine-port`            | 引擎监听端口                                |
+| `-tp, --tensor-parallel`   | Tensor 并行 GPU 数                          |
+| `-pp, --pipeline-parallel` | Pipeline 并行 GPU 数                        |
+| `--engine-kind`            | 引擎类型：`llm` (默认) 或 `embedding`       |
+| `--use-gpu / --no-gpu`     | 是否使用 GPU（默认 LLM 用，Embedding 不用） |
+| `--label`                  | 自定义标签                                  |
+| `--max-concurrent`         | 最大并发数（默认 256）                      |
 
 ### 预设系统
 
@@ -157,12 +160,14 @@ sage llm preset apply --file my-preset.yaml -y      # 无需确认
 ```
 
 **内置预设**:
-| 预设名 | 描述 |
-|--------|------|
-| `qwen-lite` | 单个 Qwen 0.5B 引擎（无 Embedding）|
-| `qwen-mini-with-embeddings` | Qwen 1.5B + BGE-small Embedding |
+
+| 预设名                      | 描述                                |
+| --------------------------- | ----------------------------------- |
+| `qwen-lite`                 | 单个 Qwen 0.5B 引擎（无 Embedding） |
+| `qwen-mini-with-embeddings` | Qwen 1.5B + BGE-small Embedding     |
 
 **自定义预设文件示例** (`my-preset.yaml`):
+
 ```yaml
 version: 1
 name: my-custom-preset
@@ -188,7 +193,7 @@ sage llm model download <model_id>          # 下载模型
 sage llm model list                         # 列出已下载模型
 ```
 
----
+______________________________________________________________________
 
 ## 📦 主要模块
 
@@ -202,16 +207,17 @@ sage llm model list                         # 列出已下载模型
 
 统一的 LLM 和 Embedding 推理客户端和调度系统：
 
-| 模块 | 描述 | 位置 |
-|------|------|------|
-| `unified_client.py` | `UnifiedInferenceClient` - 统一推理客户端（**唯一入口**） | `sage-llm-core` |
-| `control_plane_service.py` | Control Plane SAGE 封装层 | `sage-llm-core` |
-| `service.py` | `VLLMService` - vLLM 引擎包装 | `sage-llm-core` |
-| `control_plane/` | 核心调度框架（GPU 管理、引擎生命周期、预设系统） | `sage-llm-core` |
+| 模块                       | 描述                                                      | 位置            |
+| -------------------------- | --------------------------------------------------------- | --------------- |
+| `unified_client.py`        | `UnifiedInferenceClient` - 统一推理客户端（**唯一入口**） | `sage-llm-core` |
+| `control_plane_service.py` | Control Plane SAGE 封装层                                 | `sage-llm-core` |
+| `service.py`               | `VLLMService` - vLLM 引擎包装                             | `sage-llm-core` |
+| `control_plane/`           | 核心调度框架（GPU 管理、引擎生命周期、预设系统）          | `sage-llm-core` |
 
 > **注意**：`UnifiedAPIServer` 已移除，Control Plane 功能现由 `sage-llm-gateway` 提供。
 
 **统一入口 API**:
+
 ```python
 from sage.llm import UnifiedInferenceClient
 
@@ -233,6 +239,7 @@ vectors = client.embed(["text1", "text2"])
 ```
 
 **CLI 引擎管理**:
+
 ```bash
 # 启动 Embedding 引擎（默认 CPU）
 sage llm engine start BAAI/bge-m3 --engine-kind embedding
@@ -248,43 +255,46 @@ sage llm engine list
 
 Embedding 服务和工厂：
 
-| 模块 | 描述 |
-|------|------|
-| `embedding_server.py` | OpenAI 兼容 Embedding 服务器 |
-| `factory.py` | `EmbeddingFactory` - 本地模型加载 |
-| `service.py` | `EmbeddingService` - Embedding 服务管理 |
+| 模块                  | 描述                                    |
+| --------------------- | --------------------------------------- |
+| `embedding_server.py` | OpenAI 兼容 Embedding 服务器            |
+| `factory.py`          | `EmbeddingFactory` - 本地模型加载       |
+| `service.py`          | `EmbeddingService` - Embedding 服务管理 |
 
 > **注意**: 独立的 `IntelligentEmbeddingClient` 已被移除，请使用 `UnifiedInferenceClient.create().embed()` 替代。
 
 ### ⚙️ 配置模块 (`config/`)
 
-| 模块 | 描述 |
-|------|------|
+| 模块       | 描述                       |
+| ---------- | -------------------------- |
 | `ports.py` | `SagePorts` - 统一端口配置 |
-| `env.py` | 环境变量管理 |
+| `env.py`   | 环境变量管理               |
 
 ## 📁 文档结构与主题索引
 
 本目录下的历史开发笔记已按主题整合到本 README 中，推荐从以下几个小节阅读：
 
-- [Control Plane 路线图与任务拆解](#control-plane-路线图与任务拆解)
-- [Unified Gateway 统一网关任务](#unified-gateway-统一网关任务)
-- [Control Plane 增强概要](#control-plane-增强概要)
-- [vLLM 与 Torch 版本兼容性](#vllm-与-torch-版本兼容性)
+- [Control Plane 路线图与任务拆解](#control-plane-%E8%B7%AF%E7%BA%BF%E5%9B%BE%E4%B8%8E%E4%BB%BB%E5%8A%A1%E6%8B%86%E8%A7%A3)
+- [Unified Gateway 统一网关任务](#unified-gateway-%E7%BB%9F%E4%B8%80%E7%BD%91%E5%85%B3%E4%BB%BB%E5%8A%A1)
+- [Control Plane 增强概要](#control-plane-%E5%A2%9E%E5%BC%BA%E6%A6%82%E8%A6%81)
+- [vLLM 与 Torch 版本兼容性](#vllm-%E4%B8%8E-torch-%E7%89%88%E6%9C%AC%E5%85%BC%E5%AE%B9%E6%80%A7)
 
 原始的详细任务文档仍然保留，可用于追溯完整的 AI 提示词、任务清单与文件列表：
 
 ### 核心文档（原始笔记）
 
-- **[control-plane-enhancement.md](./control-plane-enhancement.md)** - Control Plane 动态引擎管理增强（GPU/Lifecycle/预设/`use_gpu` 支持）
-- **[control-plane-roadmap-tasks.md](./control-plane-roadmap-tasks.md)** - Control Plane 任务路线图（详细任务书）
+- **[control-plane-enhancement.md](./control-plane-enhancement.md)** - Control Plane
+  动态引擎管理增强（GPU/Lifecycle/预设/`use_gpu` 支持）
+- **[control-plane-roadmap-tasks.md](./control-plane-roadmap-tasks.md)** - Control Plane
+  任务路线图（详细任务书）
 - **[unified-gateway-tasks.md](./unified-gateway-tasks.md)** - Unified Gateway 开发任务拆解
 - **[PR-unified-gateway.md](./PR-unified-gateway.md)** - Unified Gateway 集成 PR 总结
 
 ### 工具与运维文档
 
 - **[CLEANUP_AUTOMATION.md](./CLEANUP_AUTOMATION.md)** - 自动清理功能说明
-- **[VLLM_TORCH_VERSION_CONFLICT.md](./VLLM_TORCH_VERSION_CONFLICT.md)** - vLLM 和 Torch 版本冲突解决与版本管理建议
+- **[VLLM_TORCH_VERSION_CONFLICT.md](./VLLM_TORCH_VERSION_CONFLICT.md)** - vLLM 和 Torch
+  版本冲突解决与版本管理建议
 
 ## 🏗️ Gateway 架构说明
 
@@ -340,15 +350,15 @@ sage llm preset list               # 查看预设
 
 ## 🎯 快速导航
 
-| 想要了解... | 查看 |
-|-------------|------|
-| 统一推理客户端使用 | [hybrid-scheduler/README.md](./hybrid-scheduler/README.md) |
-| 动态引擎管理 | [control-plane-enhancement.md](./control-plane-enhancement.md) |
-| Embedding GPU 支持 | [control-plane-enhancement.md](./control-plane-enhancement.md) |
-| Control Plane 架构 | `packages/sage-llm-core/src/sage/llm/control_plane/` |
-| 端口配置 | `packages/sage-common/src/sage/common/config/ports.py` |
-| Embedding 服务 | `packages/sage-common/src/sage/common/components/sage_embedding/` |
-| sageLLM 单元测试 | `packages/sage-llm-core/tests/` |
+| 想要了解...        | 查看                                                              |
+| ------------------ | ----------------------------------------------------------------- |
+| 统一推理客户端使用 | [hybrid-scheduler/README.md](./hybrid-scheduler/README.md)        |
+| 动态引擎管理       | [control-plane-enhancement.md](./control-plane-enhancement.md)    |
+| Embedding GPU 支持 | [control-plane-enhancement.md](./control-plane-enhancement.md)    |
+| Control Plane 架构 | `packages/sage-llm-core/src/sage/llm/control_plane/`              |
+| 端口配置           | `packages/sage-common/src/sage/common/config/ports.py`            |
+| Embedding 服务     | `packages/sage-common/src/sage/common/components/sage_embedding/` |
+| sageLLM 单元测试   | `packages/sage-llm-core/tests/`                                   |
 
 ## 🔗 相关资源
 
@@ -356,11 +366,12 @@ sage llm preset list               # 查看预设
 - **测试**: `packages/sage-common/tests/`
 - **Copilot 指南**: `.github/copilot-instructions.md`
 
----
+______________________________________________________________________
 
 ## Control Plane 路线图与任务拆解
 
-该小节对 `control-plane-roadmap-tasks.md` 进行提炼，聚焦于 **UnifiedInferenceClient 统一入口**、**引擎健康检查与自动重启**、以及 **Embedding GPU 支持** 三大方向。
+该小节对 `control-plane-roadmap-tasks.md` 进行提炼，聚焦于 **UnifiedInferenceClient 统一入口**、**引擎健康检查与自动重启**、以及
+**Embedding GPU 支持** 三大方向。
 
 ### 统一入口 `UnifiedInferenceClient.create()`
 
@@ -371,7 +382,8 @@ sage llm preset list               # 查看预设
 - 删除旧 API 和模式枚举，确保所有调用路径都经由 Control Plane 管理。
 - 在 Control Plane Manager 中集中端口和资源管理逻辑，减少分散的端口常量与重复判断。
 
-在实现层面，任务书明确了需要更新的核心文件（`unified_client.py`、`control_plane/__init__.py`、`engine_lifecycle.py`、`manager.py` 及所有调用方），并给出了**验收示例代码**，这些完整细节仍可在原文档中查阅。
+在实现层面，任务书明确了需要更新的核心文件（`unified_client.py`、`control_plane/__init__.py`、`engine_lifecycle.py`、`manager.py`
+及所有调用方），并给出了**验收示例代码**，这些完整细节仍可在原文档中查阅。
 
 ### 引擎健康检查与自动重启
 
@@ -397,7 +409,7 @@ sage llm preset list               # 查看预设
 
 更多包含 AI 提示词的详细拆解，仍保存在 `control-plane-roadmap-tasks.md` 中，适合在做二次重构或回顾设计决策时阅读。
 
----
+______________________________________________________________________
 
 ## Unified Gateway 统一网关任务
 
@@ -410,11 +422,11 @@ sage llm preset list               # 查看预设
 1. **任务组 1：Control Plane 动态引擎管理**
    - 引擎注册与生命周期管理（`EngineState` / `EngineInfo` / 心跳机制 / 优雅关闭）
    - 动态后端发现（定期刷新后端列表、故障转移、客户端透明切换）
-2. **任务组 2：Gateway 统一**
+1. **任务组 2：Gateway 统一**
    - 将 Control Plane 端点迁移到 `sage-llm-gateway`
    - 合并 LLM / Embedding 代理与管理路由
    - CLI 命令统一：增加 `sage gateway` 命令组，重定向 `sage llm engine` 到 Gateway 端点
-3. **任务组 3：测试与文档**
+1. **任务组 3：测试与文档**
    - 编写端到端集成测试（Gateway + Control Plane + Client）
    - 更新文档与示例代码（尤其是 L1 tutorial 与 CLI 参考）
 
@@ -438,9 +450,9 @@ PR 文档记录了这些规划在代码层面的最终落地：
 如果你希望理解“为什么现在的 Gateway/Control Plane 是这个形态”，推荐顺序是：
 
 1. 先读本 README 中的综述小节（路线图 + Gateway 统一）；
-2. 再按需查阅 `unified-gateway-tasks.md`（规划）和 `PR-unified-gateway.md`（实际差异）。
+1. 再按需查阅 `unified-gateway-tasks.md`（规划）和 `PR-unified-gateway.md`（实际差异）。
 
----
+______________________________________________________________________
 
 ## Control Plane 增强概要
 
@@ -460,7 +472,7 @@ PR 文档记录了这些规划在代码层面的最终落地：
 
 对于需要修改 Control Plane 行为（例如新增引擎类型、扩展 GPU 策略）的开发者，建议在阅读源码时将本节与 `control-plane-enhancement.md` 结合使用。
 
----
+______________________________________________________________________
 
 ## vLLM 与 Torch 版本兼容性
 
@@ -483,7 +495,7 @@ PR 文档记录了这些规划在代码层面的最终落地：
 
 如需查看完整的错误日志、表格化的兼容性矩阵以及具体命令示例，请参考原文档 `VLLM_TORCH_VERSION_CONFLICT.md`。
 
----
+______________________________________________________________________
 
 ## 🎓 CLI 使用教程
 
@@ -708,23 +720,23 @@ sage gateway start
 
 ### 常用命令速查表
 
-| 命令 | 描述 |
-|------|------|
-| `sage gateway start` | 启动 Gateway（后台） |
-| `sage gateway start --foreground` | 启动 Gateway（前台调试） |
-| `sage gateway stop` | 停止 Gateway |
-| `sage gateway status` | 查看 Gateway 状态 |
-| `sage gateway logs --follow` | 实时查看日志 |
-| `sage llm engine list` | 列出所有引擎 |
-| `sage llm engine start <model>` | 启动 LLM 引擎 |
-| `sage llm engine start <model> --engine-kind embedding` | 启动 Embedding 引擎 |
-| `sage llm engine start <model> --engine-kind embedding --use-gpu` | GPU Embedding |
-| `sage llm engine stop <id>` | 停止引擎 |
-| `sage llm gpu` | 查看 GPU 状态 |
-| `sage llm preset list` | 列出预设 |
-| `sage llm preset apply --name <preset>` | 应用预设 |
-| `sage llm status` | 查看 LLM 服务状态 |
+| 命令                                                              | 描述                     |
+| ----------------------------------------------------------------- | ------------------------ |
+| `sage gateway start`                                              | 启动 Gateway（后台）     |
+| `sage gateway start --foreground`                                 | 启动 Gateway（前台调试） |
+| `sage gateway stop`                                               | 停止 Gateway             |
+| `sage gateway status`                                             | 查看 Gateway 状态        |
+| `sage gateway logs --follow`                                      | 实时查看日志             |
+| `sage llm engine list`                                            | 列出所有引擎             |
+| `sage llm engine start <model>`                                   | 启动 LLM 引擎            |
+| `sage llm engine start <model> --engine-kind embedding`           | 启动 Embedding 引擎      |
+| `sage llm engine start <model> --engine-kind embedding --use-gpu` | GPU Embedding            |
+| `sage llm engine stop <id>`                                       | 停止引擎                 |
+| `sage llm gpu`                                                    | 查看 GPU 状态            |
+| `sage llm preset list`                                            | 列出预设                 |
+| `sage llm preset apply --name <preset>`                           | 应用预设                 |
+| `sage llm status`                                                 | 查看 LLM 服务状态        |
 
----
+______________________________________________________________________
 
 **最后更新**: 2025-12-03

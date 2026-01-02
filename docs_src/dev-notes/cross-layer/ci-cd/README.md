@@ -1,14 +1,15 @@
 # CI/CD Documentation
 
-**Date**: 2025-11-29  
-**Author**: SAGE Team  
+**Date**: 2025-11-29\
+**Author**: SAGE Team\
 **Summary**: CI/CD pipeline fixes, build issues, and deployment notes for the SAGE project
 
 This directory contains documentation for CI/CD pipeline fixes, build issues, and deployment notes.
 
 ## Overview
 
-Documentation of continuous integration and continuous deployment issues, fixes, and improvements for the SAGE project.
+Documentation of continuous integration and continuous deployment issues, fixes, and improvements
+for the SAGE project.
 
 ## Documents
 
@@ -39,9 +40,9 @@ Documentation of continuous integration and continuous deployment issues, fixes,
 ## Common CI/CD Topics
 
 1. **Build Issues**: Compilation errors, dependency issues
-2. **Test Failures**: Test environment issues, flaky tests
-3. **Deployment**: Deployment scripts and configurations
-4. **Pipeline Optimization**: CI/CD performance improvements
+1. **Test Failures**: Test environment issues, flaky tests
+1. **Deployment**: Deployment scripts and configurations
+1. **Pipeline Optimization**: CI/CD performance improvements
 
 ## Related Documentation
 

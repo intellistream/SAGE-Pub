@@ -3,6 +3,7 @@
 > **最后更新**: 2025-12-02
 >
 > **变更日志**:
+>
 > - 2025-12-02: 添加 sage-llm-gateway，更新统计数据，补充 C++ 扩展位置
 > - 2025-10-23: 初始版本
 
@@ -10,19 +11,19 @@
 
 ## 📦 完整包列表
 
-| 包名            | 层级 | 职责           | 模块数 | 测试数 | C++ 扩展 |
-| --------------- | ---- | -------------- | ------ | ------ | -------- |
-| sage-common     | L1   | 基础设施       | 15+    | 119    | -        |
-| sage-platform   | L2   | 平台服务       | 3      | 30     | -        |
-| sage-kernel     | L3   | 流式引擎       | 268    | 753    | -        |
-| sage-libs       | L3   | 算法库         | 65     | 169    | -        |
-| sage-middleware | L4   | 中间件         | 150    | 22     | ✅ sageFlow, NeuromMem |
-| sage-apps       | L5   | 应用           | 24     | 21     | -        |
-| sage-benchmark  | L5   | 基准测试       | 42     | 17     | -        |
-| sage-studio     | L6   | Web UI         | 8      | 51     | -        |
-| sage-cli        | L6   | 生产 CLI       | 45     | 32     | -        |
-| sage-tools      | L6   | 开发工具       | 106    | 78     | -        |
-| sage-llm-gateway    | L6   | API Gateway    | 8      | 37     | -        |
+| 包名             | 层级 | 职责        | 模块数 | 测试数 | C++ 扩展               |
+| ---------------- | ---- | ----------- | ------ | ------ | ---------------------- |
+| sage-common      | L1   | 基础设施    | 15+    | 119    | -                      |
+| sage-platform    | L2   | 平台服务    | 3      | 30     | -                      |
+| sage-kernel      | L3   | 流式引擎    | 268    | 753    | -                      |
+| sage-libs        | L3   | 算法库      | 65     | 169    | -                      |
+| sage-middleware  | L4   | 中间件      | 150    | 22     | ✅ sageFlow, NeuromMem |
+| sage-apps        | L5   | 应用        | 24     | 21     | -                      |
+| sage-benchmark   | L5   | 基准测试    | 42     | 17     | -                      |
+| sage-studio      | L6   | Web UI      | 8      | 51     | -                      |
+| sage-cli         | L6   | 生产 CLI    | 45     | 32     | -                      |
+| sage-tools       | L6   | 开发工具    | 106    | 78     | -                      |
+| sage-llm-gateway | L6   | API Gateway | 8      | 37     | -                      |
 
 ## 🔗 依赖关系图
 
@@ -214,10 +215,10 @@ ______________________________________________________________________
 
 **C++ 扩展位置**:
 
-| 组件 | 路径 | 描述 |
-|------|------|------|
-| sageFlow | `components/sage_flow/sageFlow/` | 高性能向量检索引擎 |
-| NeuromMem | `components/sage_mem/neuromem/` | 神经记忆系统 |
+| 组件      | 路径                             | 描述               |
+| --------- | -------------------------------- | ------------------ |
+| sageFlow  | `components/sage_flow/sageFlow/` | 高性能向量检索引擎 |
+| NeuromMem | `components/sage_mem/neuromem/`  | 神经记忆系统       |
 
 **公共 API**:
 
@@ -248,7 +249,8 @@ ______________________________________________________________________
 from sage.apps import article_monitoring, auto_scaling_chat, smart_home, video, medical_diagnosis
 ```
 
-> 详见 `docs/dev-notes/l5-apps/README.md` 获取最新的 L5 示例与测试策略。教程示例按照 L1-L6 存放于 `examples/tutorials/`，而完整应用通过 `examples/apps/` 调用本层实现。
+> 详见 `docs/dev-notes/l5-apps/README.md` 获取最新的 L5 示例与测试策略。教程示例按照 L1-L6 存放于
+> `examples/tutorials/`，而完整应用通过 `examples/apps/` 调用本层实现。
 
 **依赖**: sage-common, sage-kernel, sage-libs, sage-middleware
 
@@ -318,9 +320,9 @@ ______________________________________________________________________
 
 **sage-cli vs sage-tools**:
 
-| 工具 | 定位 | 典型命令 |
-|------|------|----------|
-| `sage` (sage-cli) | 生产运维 | `sage cluster start`, `sage job submit` |
+| 工具                    | 定位     | 典型命令                                    |
+| ----------------------- | -------- | ------------------------------------------- |
+| `sage` (sage-cli)       | 生产运维 | `sage cluster start`, `sage job submit`     |
 | `sage-dev` (sage-tools) | 开发调试 | `sage-dev quality`, `sage-dev project test` |
 
 **依赖**: sage-common, sage-kernel, sage-libs, sage-middleware, sage-studio

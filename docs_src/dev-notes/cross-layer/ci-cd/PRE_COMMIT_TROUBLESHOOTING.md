@@ -1,11 +1,10 @@
 # Pre-commit Hooks 故障排除指南
 
-**Date**: 2024-10-29  
-**Author**: SAGE Team  
+**Date**: 2024-10-29\
+**Author**: SAGE Team\
 **Summary**: Pre-commit hooks 的常见问题诊断和故障排除指南
 
-> **注意**: 本文档已整合到 [code-quality-guide.md](./code-quality-guide.md)
-> 请参考主文档获取完整的配置说明和最佳实践。
+> **注意**: 本文档已整合到 [code-quality-guide.md](./code-quality-guide.md) 请参考主文档获取完整的配置说明和最佳实践。
 
 ## 快速诊断
 
@@ -23,6 +22,7 @@
 **症状**: 提交时没有看到 black/ruff 等检查
 
 **解决**:
+
 ```bash
 pre-commit install --config tools/pre-commit-config.yaml -f
 ```
@@ -42,6 +42,7 @@ pre-commit install --config tools/pre-commit-config.yaml -f
 ## 详细文档
 
 完整的配置说明、工作流程和最佳实践，请参考：
+
 - [代码质量配置指南](./code-quality-guide.md)
 
 ## 问题描述
@@ -81,9 +82,10 @@ Pre-commit 只会检查通过 `git add` 添加到暂存区的文件。如果修�
 ```
 
 这个脚本会：
+
 1. 运行 black 格式化所有 Python 文件
-2. 运行 isort 排序所有导入语句
-3. 运行 ruff 修复常见的代码问题
+1. 运行 isort 排序所有导入语句
+1. 运行 ruff 修复常见的代码问题
 
 ### 重新安装 Pre-commit Hooks
 
@@ -124,6 +126,7 @@ pre-commit run ruff --all-files --config tools/pre-commit-config.yaml
 #### VS Code
 
 安装扩展：
+
 - Black Formatter
 - isort
 - Ruff
@@ -148,8 +151,8 @@ pre-commit run ruff --all-files --config tools/pre-commit-config.yaml
 #### PyCharm
 
 1. File → Settings → Tools → Black
-2. 启用 "Run Black on save"
-3. 配置 isort：File → Settings → Tools → External Tools
+1. 启用 "Run Black on save"
+1. 配置 isort：File → Settings → Tools → External Tools
 
 ### 3. 团队协作
 
@@ -204,8 +207,8 @@ pre-commit autoupdate --config tools/pre-commit-config.yaml
 为确保 CI/CD 和本地环境使用相同的检查：
 
 1. **使用相同的配置文件**：`tools/pre-commit-config.yaml`
-2. **使用相同的工具版本**：定期运行 `pre-commit autoupdate`
-3. **在 CI 中使用 pre-commit**：`.github/workflows/ci.yml` 应该运行 `pre-commit run --all-files`
+1. **使用相同的工具版本**：定期运行 `pre-commit autoupdate`
+1. **在 CI 中使用 pre-commit**：`.github/workflows/ci.yml` 应该运行 `pre-commit run --all-files`
 
 ## 工具脚本
 
@@ -254,12 +257,14 @@ ruff.....................................................................Failed
 **核心问题**：Pre-commit hooks 未在本地提交时触发
 
 **核心解决方案**：
+
 1. 重新安装 pre-commit hooks
-2. 不要使用 `--no-verify` 参数
-3. 提交前运行 `./tools/fix-code-quality.sh`
-4. 配置编辑器自动格式化
+1. 不要使用 `--no-verify` 参数
+1. 提交前运行 `./tools/fix-code-quality.sh`
+1. 配置编辑器自动格式化
 
 **预防措施**：
+
 - 团队成员统一安装和配置 pre-commit
 - 在 CI/CD 中强制执行相同的检查
 - 定期更新 pre-commit hooks 版本

@@ -1,10 +1,10 @@
 # SAGE 数据类型架构设计
 
-**Date**: 2024-10-20  
-**Author**: SAGE Team  
+**Date**: 2024-10-20\
+**Author**: SAGE Team\
 **Summary**: SAGE 分层数据类型系统设计文档，包括 BaseDocument、RAGDocument 等核心类型的架构说明
 
----
+______________________________________________________________________
 
 ## 架构概览
 
@@ -34,11 +34,13 @@ SAGE 采用分层的数据类型系统，从通用到专用逐层继承：
 ### 1. 单一真相来源（Single Source of Truth）
 
 **通用类型定义在 `sage-common`**：
+
 - 位置：`packages/sage-common/src/sage/common/core/data_types.py`
 - 目的：框架级别的基础数据结构
 - 适用：所有类型的算子（RAG、搜索、多模态、分析等）
 
 **领域特定类型继承通用类型**：
+
 - RAG：`packages/sage-libs/src/sage/libs/rag/types.py`
 - 搜索：可创建 `packages/sage-middleware/src/sage/middleware/operators/search/types.py`
 - 多模态：可创建 `packages/sage-middleware/src/sage/middleware/operators/multimodal/types.py`
@@ -164,11 +166,13 @@ generic_output = generic_operator.execute(rag_output)  # ✅ 类型兼容
 假设要为"搜索"领域添加专用类型：
 
 1. **创建类型文件**：
+
    ```
    packages/sage-middleware/src/sage/middleware/operators/search/types.py
    ```
 
-2. **继承基础类型**：
+1. **继承基础类型**：
+
    ```python
    from sage.common.core.data_types import BaseDocument, BaseQueryResult
 
@@ -185,7 +189,8 @@ generic_output = generic_operator.execute(rag_output)  # ✅ 类型兼容
        search_time: Optional[float]
    ```
 
-3. **导出类型**：
+1. **导出类型**：
+
    ```python
    # packages/sage-middleware/src/sage/middleware/operators/search/__init__.py
    from sage.middleware.operators.search.types import SearchDocument, SearchResponse
@@ -193,7 +198,8 @@ generic_output = generic_operator.execute(rag_output)  # ✅ 类型兼容
    __all__ = ["SearchDocument", "SearchResponse", ...]
    ```
 
-4. **算子使用**：
+1. **算子使用**：
+
    ```python
    from sage.middleware.operators.search import SearchResponse, create_search_response
 
@@ -205,22 +211,27 @@ generic_output = generic_operator.execute(rag_output)  # ✅ 类型兼容
 ## 优势总结
 
 ### 🎯 代码重用
+
 - 基础类型定义一次，多处使用
 - 减少重复代码
 
 ### 🔒 类型安全
+
 - 完整的 Pylance/IDE 支持
 - 编译时类型检查
 
 ### 🔄 向后兼容
+
 - 支持多种输入格式（dict、tuple、list）
 - 现有代码无需修改
 
 ### 📈 易于扩展
+
 - 新领域继承基础类型
 - 保持架构一致性
 
 ### 🤝 跨域兼容
+
 - 不同领域的算子可以互操作
 - 统一的数据流接口
 

@@ -36,20 +36,22 @@ l4-middleware/
 
 **位置**: `packages/sage-middleware/src/sage/middleware/components/sage_mem/neuromem/`
 
-| 组件 | 位置 | 功能 |
-|------|------|------|
-| `TextStorage` | `storage_engine/text_storage.py` | 原始文档存储 |
-| `MetadataStorage` | `storage_engine/metadata_storage.py` | 元数据管理 |
-| `VectorStorage` | `storage_engine/vector_storage.py` | 向量存储 |
-| `VDBMemoryCollection` | `memory_collection/vdb_collection.py` | 向量数据库集合（RAG） |
-| `GraphMemoryCollection` | `memory_collection/graph_collection.py` | 图记忆集合 ✅ |
-| `MemoryManager` | `memory_manager.py` | 集合生命周期管理 |
+| 组件                    | 位置                                    | 功能                  |
+| ----------------------- | --------------------------------------- | --------------------- |
+| `TextStorage`           | `storage_engine/text_storage.py`        | 原始文档存储          |
+| `MetadataStorage`       | `storage_engine/metadata_storage.py`    | 元数据管理            |
+| `VectorStorage`         | `storage_engine/vector_storage.py`      | 向量存储              |
+| `VDBMemoryCollection`   | `memory_collection/vdb_collection.py`   | 向量数据库集合（RAG） |
+| `GraphMemoryCollection` | `memory_collection/graph_collection.py` | 图记忆集合 ✅         |
+| `MemoryManager`         | `memory_manager.py`                     | 集合生命周期管理      |
 
 ### 2. Multimodal Storage
 
-**位置**: `packages/sage-middleware/src/sage/middleware/components/sage_db/python/multimodal_sage_db.py`
+**位置**:
+`packages/sage-middleware/src/sage/middleware/components/sage_db/python/multimodal_sage_db.py`
 
 支持的模态类型：
+
 - TEXT (文本)
 - IMAGE (图片)
 - AUDIO (音频)
@@ -58,13 +60,15 @@ l4-middleware/
 - TIME_SERIES (时间序列)
 - CUSTOM (自定义)
 
-融合策略 (7 种)：CONCATENATION, WEIGHTED_AVERAGE, ATTENTION_BASED, CROSS_MODAL_TRANSFORMER, TENSOR_FUSION, BILINEAR_POOLING, CUSTOM
+融合策略 (7 种)：CONCATENATION, WEIGHTED_AVERAGE, ATTENTION_BASED, CROSS_MODAL_TRANSFORMER, TENSOR_FUSION,
+BILINEAR_POOLING, CUSTOM
 
 ### 3. Autostop Service
 
 **功能**: 允许 SAGE 应用在完成任务后自动停止并正确清理后台服务。
 
 支持模式：
+
 - ✅ 本地模式 (LocalEnvironment)
 - ✅ Ray 模式 (LocalEnvironment + remote=True)
 - ⚠️ 完全远程模式 (RemoteEnvironment) - 部分支持
@@ -92,17 +96,18 @@ Autostop 相关的开发与问题修复笔记包括：
 
 **位置**: `packages/sage-middleware/src/sage/middleware/components/sage_db/`
 
-已完成从 `sage-db_outdated` 到现代 `sage_db` 的迁移，移除 LibTorch 依赖，保留 CUDA kernel 实现；迁移过程与验证记录在 `SONG_MIGRATION_COMPLETE.md` 中。
+已完成从 `sage-db_outdated` 到现代 `sage_db` 的迁移，移除 LibTorch 依赖，保留 CUDA kernel 实现；迁移过程与验证记录在
+`SONG_MIGRATION_COMPLETE.md` 中。
 
 ## 已完成的功能
 
-| 功能 | 状态 | 相关文档 |
-|------|:----:|----------|
-| Document Storage | ✅ | `DOCUMENT_STORAGE_STATUS.md` |
-| Graph Memory Collection | ✅ | `GRAPH_MEMORY_FINAL_STATUS.md` |
-| Multimodal Storage (#610) | ✅ | `archive/ISSUE_610_STATUS.md` |
-| Autostop Local Mode | ✅ | `AUTOSTOP_MODE_SUPPORT.md` |
-| SONG GPU Migration | ✅ | `SONG_MIGRATION_COMPLETE.md` |
+| 功能                      | 状态 | 相关文档                       |
+| ------------------------- | :--: | ------------------------------ |
+| Document Storage          |  ✅  | `DOCUMENT_STORAGE_STATUS.md`   |
+| Graph Memory Collection   |  ✅  | `GRAPH_MEMORY_FINAL_STATUS.md` |
+| Multimodal Storage (#610) |  ✅  | `archive/ISSUE_610_STATUS.md`  |
+| Autostop Local Mode       |  ✅  | `AUTOSTOP_MODE_SUPPORT.md`     |
+| SONG GPU Migration        |  ✅  | `SONG_MIGRATION_COMPLETE.md`   |
 
 ## 代码位置参考
 

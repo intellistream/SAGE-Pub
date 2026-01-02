@@ -1,8 +1,8 @@
-**Date**: 2025-10-26  
-**Author**: sage-development Team  
+**Date**: 2025-10-26\
+**Author**: sage-development Team\
 **Summary**: 将 tools/ 目录下的质量检查工具集成到 sage-tools 包中，提供统一的 CLI 接口
 
----
+______________________________________________________________________
 
 # Tools 集成到 sage-tools 包
 
@@ -13,23 +13,25 @@
 ## 🎯 目标
 
 1. **统一管理**: 将所有 Python 开发工具集成到 `sage-tools` 包中
-2. **CLI 接口**: 通过 `sage-dev` 命令提供一致的用户体验
-3. **可维护性**: 工具作为 Python 包管理，有测试、版本控制
-4. **可重用性**: 其他模块可以导入使用这些检查器
+1. **CLI 接口**: 通过 `sage-dev` 命令提供一致的用户体验
+1. **可维护性**: 工具作为 Python 包管理，有测试、版本控制
+1. **可重用性**: 其他模块可以导入使用这些检查器
 
 ## 📦 迁移的工具
 
 ### 1. architecture_checker.py → sage-dev check-architecture
 
-**原路径**: `tools/architecture_checker.py`  
+**原路径**: `tools/architecture_checker.py`\
 **新路径**: `packages/sage-tools/src/sage/tools/dev/tools/architecture_checker.py`
 
 **功能**: 检查 SAGE 分层架构合规性
+
 - 包依赖规则检查
 - 导入路径合规性
 - 模块结构规范
 
 **新命令**:
+
 ```bash
 # 检查所有文件
 sage-dev check-architecture
@@ -42,6 +44,7 @@ sage-dev check-architecture --diff main
 ```
 
 **集成到 quality 命令**:
+
 ```bash
 # 默认包含架构检查
 sage-dev quality
@@ -52,15 +55,17 @@ sage-dev quality --no-architecture
 
 ### 2. devnotes_checker.py → sage-dev check-devnotes
 
-**原路径**: `tools/devnotes_checker.py`  
+**原路径**: `tools/devnotes_checker.py`\
 **新路径**: `packages/sage-tools/src/sage/tools/dev/tools/devnotes_checker.py`
 
 **功能**: 检查 dev-notes 文档规范
+
 - 文档分类是否正确
 - 元数据完整性（Date, Author, Summary）
 - 文件名规范
 
 **新命令**:
+
 ```bash
 # 检查所有文档
 sage-dev check-devnotes
@@ -73,6 +78,7 @@ sage-dev check-devnotes --check-structure
 ```
 
 **集成到 quality 命令**:
+
 ```bash
 # 默认包含文档检查
 sage-dev quality
@@ -83,15 +89,17 @@ sage-dev quality --no-devnotes
 
 ### 3. package_readme_checker.py → sage-dev check-readme
 
-**原路径**: `tools/package_readme_checker.py`  
+**原路径**: `tools/package_readme_checker.py`\
 **新路径**: `packages/sage-tools/src/sage/tools/dev/tools/package_readme_checker.py`
 
 **功能**: 检查各包 README 文档质量
+
 - README 文件存在性
 - 必需章节完整性
 - 文档结构规范
 
 **新命令**:
+
 ```bash
 # 检查所有包
 sage-dev check-readme
@@ -107,6 +115,7 @@ sage-dev check-readme sage-libs --fix
 ```
 
 **集成到 quality 命令**:
+
 ```bash
 # 包含 README 检查（默认不包含）
 sage-dev quality --readme
@@ -123,6 +132,7 @@ sage-dev quality --readme
 **用途**: 辅助整理现有 dev-notes 文档，建议分类目录
 
 **使用方式**:
+
 ```bash
 python tools/maintenance/helpers/devnotes_organizer.py
 ```
@@ -134,6 +144,7 @@ python tools/maintenance/helpers/devnotes_organizer.py
 **用途**: 批量修复文档元数据（一次性脚本）
 
 **使用方式**:
+
 ```bash
 python tools/maintenance/helpers/batch_fix_devnotes_metadata.py
 ```
@@ -143,23 +154,29 @@ python tools/maintenance/helpers/batch_fix_devnotes_metadata.py
 `tools/git-hooks/pre-commit` 已更新为优先使用 `sage-dev` 命令：
 
 ### 架构检查
+
 **旧方式**:
+
 ```bash
 python3 "$ROOT_DIR/tools/architecture_checker.py" --root "$ROOT_DIR" --changed-only
 ```
 
 **新方式**:
+
 ```bash
 sage-dev check-architecture --changed-only
 ```
 
 ### 文档检查
+
 **旧方式**:
+
 ```bash
 python3 "$ROOT_DIR/tools/devnotes_checker.py" --root "$ROOT_DIR" --changed-only
 ```
 
 **新方式**:
+
 ```bash
 sage-dev check-devnotes --changed-only
 ```
@@ -171,10 +188,10 @@ sage-dev check-devnotes --changed-only
 已更新以下文档中的命令引用：
 
 1. `docs/dev-notes/architecture/KERNEL_REFACTORING_ANALYSIS_1041.md`
-2. `docs/dev-notes/ci-cd/DOCUMENTATION_MAINTENANCE_QUICKREF.md`
-3. `docs/dev-notes/ci-cd/DOCUMENTATION_CHECK_REPORT.md`
-4. `docs/dev-notes/ci-cd/PACKAGE_README_GUIDELINES.md`
-5. `docs/dev-notes/ci-cd/PACKAGE_README_QUALITY_REPORT.md`
+1. `docs/dev-notes/ci-cd/DOCUMENTATION_MAINTENANCE_QUICKREF.md`
+1. `docs/dev-notes/ci-cd/DOCUMENTATION_CHECK_REPORT.md`
+1. `docs/dev-notes/ci-cd/PACKAGE_README_GUIDELINES.md`
+1. `docs/dev-notes/ci-cd/PACKAGE_README_QUALITY_REPORT.md`
 
 所有 `python tools/xxx_checker.py` 引用都已更新为 `sage-dev check-xxx`。
 
@@ -224,6 +241,7 @@ sage-dev quality --warn-only
 ### 模块导出
 
 `packages/sage-tools/src/sage/tools/dev/tools/__init__.py`:
+
 ```python
 from .architecture_checker import ArchitectureChecker
 from .devnotes_checker import DevNotesChecker
@@ -233,6 +251,7 @@ from .package_readme_checker import PackageREADMEChecker
 ### CLI 命令
 
 `packages/sage-tools/src/sage/tools/cli/commands/dev/main.py`:
+
 - `@app.command() def check_architecture(...)` - 架构检查
 - `@app.command() def check_devnotes(...)` - 文档检查
 - `@app.command() def check_readme(...)` - README 检查
@@ -271,8 +290,8 @@ sage-dev quality \
 - [PACKAGE_ARCHITECTURE.md](../../PACKAGE_ARCHITECTURE.md) - 包架构规范
 - [DOCUMENTATION_MAINTENANCE_QUICKREF.md](../ci-cd/DOCUMENTATION_MAINTENANCE_QUICKREF.md) - 文档维护快速参考
 
----
+______________________________________________________________________
 
-**迁移日期**: 2025-10-26  
-**版本**: v1.0  
+**迁移日期**: 2025-10-26\
+**版本**: v1.0\
 **状态**: ✅ 已完成

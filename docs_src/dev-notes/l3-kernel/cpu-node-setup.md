@@ -31,6 +31,7 @@ sage jobmanager status
 ```
 
 **输出示例**:
+
 ```
 🚀 Starting SAGE JobManager...
 ✅ JobManager service started successfully
@@ -54,6 +55,7 @@ ray start \
 ```
 
 **重要参数说明**:
+
 - `--num-cpus`: CPU核心数
 - `--num-gpus`: GPU数量（CPU节点设为0）
 - `--memory`: 可用内存（字节）
@@ -103,9 +105,10 @@ class CPUComputeProcessor(MapFunction):
 ### 调度器自动识别
 
 Resource-Aware Scheduler会自动：
+
 1. 读取Operator的资源需求
-2. 通过NodeSelector选择满足条件的CPU节点
-3. 将任务分配到选定节点
+1. 通过NodeSelector选择满足条件的CPU节点
+1. 将任务分配到选定节点
 
 ## 自定义CPU调度策略
 
@@ -335,6 +338,7 @@ class BatchCPUProcessor(MapFunction):
 ### Q1: CPU节点如何与GPU节点共存？
 
 A: NodeSelector会根据`gpu_required`参数自动区分：
+
 - `gpu_required=0`: 选择CPU节点
 - `gpu_required>0`: 选择GPU节点
 
@@ -351,11 +355,13 @@ gpu_node = selector.select_best_node(cpu_required=2, gpu_required=1)
 A: 有两种方式：
 
 1. **使用CPU专用调度器**（推荐）：
+
 ```python
 env = RemoteEnvironment(scheduler=CPUOnlyScheduler())
 ```
 
 2. **在Operator中声明**：
+
 ```python
 class MyCPUOperator(MapFunction):
     gpu_required = 0  # 明确不需要GPU
@@ -434,14 +440,15 @@ packages/sage-kernel/src/sage/kernel/
 
 SAGE框架对CPU节点的支持特点：
 
-✅ **开箱即用**: 无需额外配置，默认支持CPU节点  
-✅ **资源感知**: 自动根据CPU/内存需求选择节点  
-✅ **灵活调度**: 支持多种调度策略（负载均衡、紧凑放置等）  
-✅ **完整监控**: 提供任务执行日志和集群资源统计  
-✅ **易于扩展**: 支持自定义调度器和节点选择策略  
+✅ **开箱即用**: 无需额外配置，默认支持CPU节点\
+✅ **资源感知**: 自动根据CPU/内存需求选择节点\
+✅ **灵活调度**: 支持多种调度策略（负载均衡、紧凑放置等）\
+✅ **完整监控**: 提供任务执行日志和集群资源统计\
+✅ **易于扩展**: 支持自定义调度器和节点选择策略\
 ✅ **无缝集成**: 与GPU节点共存，自动区分
 
 如有问题，请查看：
+
 - 示例代码: `examples/tutorials/L3-kernel/cpu_node_demo.py`
 - API文档: `docs/dev-notes/l3-kernel/`
 - Issue跟踪: GitHub Issue #573

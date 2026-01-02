@@ -2,48 +2,51 @@
 
 ## 任务概述
 
-实现知识库管理器，负责管理、加载和检索多种知识源。这是 Multi-Agent 架构中 Knowle    async def ensure_source_loaded(self, source_name: str) -> bool:
-        """确保指定知识源已加载并索引
+实现知识库管理器，负责管理、加载和检索多种知识源。这是 Multi-Agent 架构中 Knowle async def ensure_source_loaded(self, source_name:
+str) -> bool: """确保指定知识源已加载并索引
 
-        如果尚未加载，则触发加载流程：
-        1. 读取源文件
-        2. 切分文档
-        3. 生成 Embedding
-        4. 存入向量库
+```
+    如果尚未加载，则触发加载流程：
+    1. 读取源文件
+    2. 切分文档
+    3. 生成 Embedding
+    4. 存入向量库
 
-        对于 user_uploads 类型，每次调用可能需要检查新文件。
-        """
-        ...
+    对于 user_uploads 类型，每次调用可能需要检查新文件。
+    """
+    ...
 
-    async def add_document(self, file_path: str | Path, source_name: str = "user_uploads") -> bool:
-        """添加单个文档到知识库 (用于文件上传后立即索引)"""
-        ...
+async def add_document(self, file_path: str | Path, source_name: str = "user_uploads") -> bool:
+    """添加单个文档到知识库 (用于文件上传后立即索引)"""
+    ...
 
-    async def search(
-        self,
-        query: str,
-        sources: List[str] | None = None,
-        limit: int = 5,
-        score_threshold: float = 0.7
-    ) -> List[SearchResult]:
-        """在指定知识源中检索"""
-        ...
+async def search(
+    self,
+    query: str,
+    sources: List[str] | None = None,
+    limit: int = 5,
+    score_threshold: float = 0.7
+) -> List[SearchResult]:
+    """在指定知识源中检索"""
+    ...
 
-    async def get_memory_context(self, session_id: str, query: str) -> str:
-        """获取记忆上下文 (集成 sage-memory)
+async def get_memory_context(self, session_id: str, query: str) -> str:
+    """获取记忆上下文 (集成 sage-memory)
 
-        结合长期记忆(向量库)和短期记忆(对话历史)
-        """
-        ...优先级**: P0 (高)  
-**预计工时**: 3-4 天  
+    结合长期记忆(向量库)和短期记忆(对话历史)
+    """
+    ...优先级**: P0 (高)  
+```
+
+**预计工时**: 3-4 天\
 **可并行**: 是（依赖 sage-common, sage-middleware）
 
 ## 目标
 
 1. **按需加载**: 只有在需要时才加载和索引知识源，避免启动慢
-2. **多源支持**: 支持 SAGE 官方文档、示例代码、API 文档、用户自定义文档
-3. **统一检索**: 提供统一的语义检索接口
-4. **持久化**: 支持向量索引的持久化和增量更新
+1. **多源支持**: 支持 SAGE 官方文档、示例代码、API 文档、用户自定义文档
+1. **统一检索**: 提供统一的语义检索接口
+1. **持久化**: 支持向量索引的持久化和增量更新
 
 ## 文件位置
 

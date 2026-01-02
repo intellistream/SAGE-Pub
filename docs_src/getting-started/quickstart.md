@@ -63,7 +63,8 @@ sage env setup
 sage env check
 ```
 
-`.env.template` 会随着仓库更新自动包含最新的必填项；`sage env setup` 会在缺失时帮你生成 `.env` 并提示常用变量（`OPENAI_API_KEY`、`SILICONCLOUD_API_KEY`、`HF_TOKEN` 等）。
+`.env.template` 会随着仓库更新自动包含最新的必填项；`sage env setup` 会在缺失时帮你生成 `.env`
+并提示常用变量（`OPENAI_API_KEY`、`SILICONCLOUD_API_KEY`、`HF_TOKEN` 等）。
 
 若需要将本地 vLLM / Ollama 服务写入 `config/config.yaml` 的 `generator.*` 配置段，可运行：
 
@@ -72,7 +73,8 @@ sage env check
 sage llm-config auto --config-path config/config.yaml --prefer vllm --yes
 ```
 
-命令会备份原文件（`config/config.yaml.bak`），再根据检测到的服务填充 `base_url`、`model_name` 等字段；若未指定 `--config-path`，会自动在 `config/`, `examples/config/`, `~/.sage/` 等位置寻找。
+命令会备份原文件（`config/config.yaml.bak`），再根据检测到的服务填充 `base_url`、`model_name` 等字段；若未指定 `--config-path`，会自动在
+`config/`, `examples/config/`, `~/.sage/` 等位置寻找。
 
 ## 4. 第一个 Pipeline
 

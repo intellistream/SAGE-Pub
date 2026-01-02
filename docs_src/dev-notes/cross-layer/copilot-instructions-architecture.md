@@ -160,11 +160,11 @@ vim .github/chatmodes/sage.chatmode.md
 
 ## History
 
-| Date | Change | Rationale |
-|------|--------|-----------|
-| 2025-12-28 | Created chatmode example template | Addressed "为啥我们需要几个不同的copilot instructions" concern |
-| 2025-12-28 | Made `.github/chatmodes/` gitignored | User-local configurations should not be committed |
-| 2025-12-28 | Condensed chatmode to ~200 lines | Reduced from 626 lines, removed redundancy |
+| Date       | Change                               | Rationale                                                      |
+| ---------- | ------------------------------------ | -------------------------------------------------------------- |
+| 2025-12-28 | Created chatmode example template    | Addressed "为啥我们需要几个不同的copilot instructions" concern |
+| 2025-12-28 | Made `.github/chatmodes/` gitignored | User-local configurations should not be committed              |
+| 2025-12-28 | Condensed chatmode to ~200 lines     | Reduced from 626 lines, removed redundancy                     |
 
 ## FAQ
 
@@ -176,21 +176,21 @@ vim .github/chatmodes/sage.chatmode.md
 - Chat mode: Can use custom `.github/chatmodes/*.chatmode.md` files
 - Chat modes allow **user-specific customizations** (verbosity, tone, additional context)
 
-The quick reference template optimizes for chat interactions (shorter, more focused) while
-linking to complete documentation when needed.
+The quick reference template optimizes for chat interactions (shorter, more focused) while linking
+to complete documentation when needed.
 
 ### Q: What if I want to add my own notes to chat mode?
 
 **A:** That's exactly why chat modes are user-local:
 
 1. Copy template: `cp .github/sage.chatmode.md.example .github/chatmodes/sage.chatmode.md`
-2. Add your notes/reminders to the local file
-3. Changes stay on your machine (gitignored)
+1. Add your notes/reminders to the local file
+1. Changes stay on your machine (gitignored)
 
 ### Q: How do I know if my local chat mode is outdated?
 
-**A:** The template links to `.github/copilot-instructions.md` for all details. As long as the
-main instructions are up-to-date, your chat mode will reference correct information.
+**A:** The template links to `.github/copilot-instructions.md` for all details. As long as the main
+instructions are up-to-date, your chat mode will reference correct information.
 
 If the quick reference template is updated, you'll see changes in:
 
@@ -205,8 +205,8 @@ You can choose to merge those changes into your local chat mode or keep your cus
 **A:** Yes, through:
 
 1. **Internal team wiki** - Share tips on useful customizations
-2. **Pull request to template** - If your changes benefit everyone, propose updating the example
-3. **Personal gists** - Share your customized version externally
+1. **Pull request to template** - If your changes benefit everyone, propose updating the example
+1. **Personal gists** - Share your customized version externally
 
 But don't commit to main repo (defeats the purpose of user-local configs).
 

@@ -1,11 +1,10 @@
 # autostop=True 无法正常停止带有 service 的应用 - 修复方案
 
-**Date**: 2024-11-17  
-**Author**: SAGE Team  
+**Date**: 2024-11-17\
+**Author**: SAGE Team\
 **Summary**: AutoStop 服务清理修复说明
 
----
-
+______________________________________________________________________
 
 ## 问题分析
 
@@ -16,10 +15,12 @@
 这是一个设计上的疏漏：
 
 1. **Dispatcher 只清理任务不清理服务**
+
    - 在 `receive_node_stop_signal` 方法中，当所有计算节点停止后，设置了 `is_running = False`
    - 但此时只清理了任务（tasks），没有清理服务（services）
 
-2. **等待逻辑过早返回**
+1. **等待逻辑过早返回**
+
    - `_wait_for_completion` 方法检测到 `dispatcher.is_running == False` 就立即返回
    - 导致服务清理逻辑没有机会执行
 
@@ -32,6 +33,7 @@
 **位置**：`packages/sage-kernel/src/sage/kernel/runtime/dispatcher.py`
 
 #### 修改点 1：在任务完成后清理服务
+
 ```python
 # 检查是否所有节点都已停止
 if len(self.tasks) == 0:
@@ -47,6 +49,7 @@ if len(self.tasks) == 0:
 ```
 
 #### 修改点 2：新增服务清理方法
+
 ```python
 def _cleanup_services_after_batch_completion(self):
     """在批处理完成后清理所有服务"""
@@ -100,6 +103,7 @@ if dispatcher_stopped:
 ## 修复效果
 
 ### 修复前
+
 ```
 ❌ 问题：
 - 计算任务停止 ✅
@@ -109,6 +113,7 @@ if dispatcher_stopped:
 ```
 
 ### 修复后
+
 ```
 ✅ 正常：
 - 计算任务停止 ✅
@@ -127,6 +132,7 @@ python test_autostop_service_improved.py
 ```
 
 **测试结果：**
+
 ```
 ✅ SUCCESS: Service was properly initialized, used, and cleaned up!
 
@@ -139,6 +145,7 @@ Service Lifecycle:
 ```
 
 监控日志显示清理过程：
+
 ```
 [Monitor] Tasks: 1, Services: 1, Running: True   # 初始状态
 [Monitor] Tasks: 0, Services: 1, Running: False  # 任务完成
@@ -148,9 +155,9 @@ Service Lifecycle:
 
 ## 影响范围
 
-✅ **本地模式**：已测试通过  
-✅ **Ray 远程模式**：通过 `_cleanup_ray_services()` 处理  
-✅ **向后兼容**：不影响现有功能  
+✅ **本地模式**：已测试通过\
+✅ **Ray 远程模式**：通过 `_cleanup_ray_services()` 处理\
+✅ **向后兼容**：不影响现有功能\
 ✅ **现有示例**：测试通过（hello_service_world.py）
 
 ## 适用场景
@@ -158,9 +165,9 @@ Service Lifecycle:
 此修复解决了以下场景的资源泄漏问题：
 
 1. **RAG 应用**：使用向量数据库服务（Milvus、Chroma等）
-2. **Memory Service**：使用记忆服务的应用
-3. **自定义服务**：任何使用 `env.register_service()` 的应用
-4. **批处理任务**：使用 `autostop=True` 的批量处理场景
+1. **Memory Service**：使用记忆服务的应用
+1. **自定义服务**：任何使用 `env.register_service()` 的应用
+1. **批处理任务**：使用 `autostop=True` 的批量处理场景
 
 ## 使用建议
 
@@ -179,11 +186,12 @@ env.submit(autostop=True)  # ✅ 服务会被正确清理
 
 ## 总结
 
-✅ **问题已修复**：`autostop=True` 现在能够正确清理所有资源，包括服务  
-✅ **测试通过**：本地模式和现有示例都工作正常  
-✅ **无需修改**：你的应用代码不需要任何改动  
+✅ **问题已修复**：`autostop=True` 现在能够正确清理所有资源，包括服务\
+✅ **测试通过**：本地模式和现有示例都工作正常\
+✅ **无需修改**：你的应用代码不需要任何改动\
 ✅ **向后兼容**：不影响现有功能和代码
 
 如果你在使用过程中遇到任何问题，可以查看日志文件：
+
 - Dispatcher 日志：`.sage/logs/jobmanager/session_*/Dispatcher.log`
 - 错误日志：`.sage/logs/jobmanager/session_*/Error.log`

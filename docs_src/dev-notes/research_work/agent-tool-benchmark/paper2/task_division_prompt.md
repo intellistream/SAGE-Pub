@@ -40,13 +40,15 @@ Each section includes: Goal, Deliverables, Acceptance, Estimate, and a ready-to-
 
 **Assignment prompt**:
 ```
-Task: Implement StreamingImportanceScorer for SIAS.
-Area: SSIS
-Goal: Provide a plug-and-play scorer with configurable α/β/γ that maintains incremental statistics and exposes update(), score(), and top_k() APIs.
-Files (suggested): packages/sage-libs/src/sage/libs/sias/scorer.py and packages/sage-benchmark/src/sage/benchmark/benchmark_agent/scripts/experiments/paper2/ssis_vs_baselines.py
-Tests required: pytest coverage for empty buffer, streaming spikes, weight reload; comparison script outputs CSV with selectivity/accuracy columns.
-Estimate: 2–4 weeks.
-Notes: Re-use existing SelectionSummary dataclasses; align logging with SAGE style.
+
+Task: Implement StreamingImportanceScorer for SIAS. Area: SSIS Goal: Provide a plug-and-play scorer
+with configurable α/β/γ that maintains incremental statistics and exposes update(), score(), and
+top_k() APIs. Files (suggested): packages/sage-libs/src/sage/libs/sias/scorer.py and
+packages/sage-benchmark/src/sage/benchmark/benchmark_agent/scripts/experiments/paper2/ssis_vs_baselines.py
+Tests required: pytest coverage for empty buffer, streaming spikes, weight reload; comparison script
+outputs CSV with selectivity/accuracy columns. Estimate: 2–4 weeks. Notes: Re-use existing
+SelectionSummary dataclasses; align logging with SAGE style.
+
 ```
 
 ---
@@ -60,13 +62,16 @@ Notes: Re-use existing SelectionSummary dataclasses; align logging with SAGE sty
 
 **Assignment prompt**:
 ```
-Task: Build ReflectiveMemoryStore with pluggable vector index.
-Area: Memory
-Goal: Deliver MemoryStore.append/query/snapshot/load plus summarization hooks; support both in-memory numpy arrays and FAISS-backed ANN.
-Files (suggested): packages/sage-libs/src/sage/libs/sias/memory/store.py, .../memory/embeddings.py, packages/sage-benchmark/src/sage/benchmark/benchmark_agent/scripts/experiments/paper2/memory_latency.py
-Tests required: pytest for snapshot round-trip, filter queries, FAISS optional path; latency script covering 10k insert/query.
-Estimate: 3–5 weeks.
-Notes: Document memory footprint tuning knobs for ICML supplement.
+
+Task: Build ReflectiveMemoryStore with pluggable vector index. Area: Memory Goal: Deliver
+MemoryStore.append/query/snapshot/load plus summarization hooks; support both in-memory numpy arrays
+and FAISS-backed ANN. Files (suggested): packages/sage-libs/src/sage/libs/sias/memory/store.py,
+.../memory/embeddings.py,
+packages/sage-benchmark/src/sage/benchmark/benchmark_agent/scripts/experiments/paper2/memory_latency.py
+Tests required: pytest for snapshot round-trip, filter queries, FAISS optional path; latency script
+covering 10k insert/query. Estimate: 3–5 weeks. Notes: Document memory footprint tuning knobs for
+ICML supplement.
+
 ```
 
 ---
@@ -80,13 +85,15 @@ Notes: Document memory footprint tuning knobs for ICML supplement.
 
 **Assignment prompt**:
 ```
-Task: Implement AdaptiveExecutor with verifier + local replanner hooks.
-Area: Runtime
-Goal: When a tool result mismatches expectations, run verifier.check(), call replanner.generate_local_fix(), and only re-execute impacted sub-steps.
-Files (suggested): packages/sage-libs/src/sage/libs/sias/runtime/adaptive_executor.py, .../workflow/orchestrator.py, packages/sage-benchmark/src/sage/benchmark/benchmark_agent/tests/runtime/test_adaptive_executor.py
-Tests required: integration test that injects tool errors and asserts higher completion rate + fewer restarts.
-Estimate: 2–3 weeks.
-Notes: Follow existing telemetry schema for metrics emission.
+
+Task: Implement AdaptiveExecutor with verifier + local replanner hooks. Area: Runtime Goal: When a
+tool result mismatches expectations, run verifier.check(), call replanner.generate_local_fix(), and
+only re-execute impacted sub-steps. Files (suggested):
+packages/sage-libs/src/sage/libs/sias/runtime/adaptive_executor.py, .../workflow/orchestrator.py,
+packages/sage-benchmark/src/sage/benchmark/benchmark_agent/tests/runtime/test_adaptive_executor.py
+Tests required: integration test that injects tool errors and asserts higher completion rate + fewer
+restarts. Estimate: 2–3 weeks. Notes: Follow existing telemetry schema for metrics emission.
+
 ```
 
 ---
@@ -100,13 +107,16 @@ Notes: Follow existing telemetry schema for metrics emission.
 
 **Assignment prompt**:
 ```
-Task: Implement MultiAgentRouter and specialist roles.
-Area: Router
-Goal: Provide a router that decomposes tasks, dispatches to specialist agents, and synchronizes via shared summaries; Coordinator finalizes outputs.
-Files (suggested): packages/sage-libs/src/sage/libs/sias/agents/router.py, .../agents/specialists/*.py, packages/sage-benchmark/src/sage/benchmark/benchmark_agent/scripts/demos/paper2/multi_agent_collab.py
-Tests required: scenario script comparing single vs multi-agent success; unit tests for routing policies.
-Estimate: 3–6 weeks.
-Notes: Re-use planning/timing utilities from sage.libs.agentic where possible.
+
+Task: Implement MultiAgentRouter and specialist roles. Area: Router Goal: Provide a router that
+decomposes tasks, dispatches to specialist agents, and synchronizes via shared summaries;
+Coordinator finalizes outputs. Files (suggested):
+packages/sage-libs/src/sage/libs/sias/agents/router.py, .../agents/specialists/\*.py,
+packages/sage-benchmark/src/sage/benchmark/benchmark_agent/scripts/demos/paper2/multi_agent_collab.py
+Tests required: scenario script comparing single vs multi-agent success; unit tests for routing
+policies. Estimate: 3–6 weeks. Notes: Re-use planning/timing utilities from sage.libs.agentic where
+possible.
+
 ```
 
 ---
@@ -120,13 +130,15 @@ Notes: Re-use planning/timing utilities from sage.libs.agentic where possible.
 
 **Assignment prompt**:
 ```
-Task: Implement unified Streaming Trainer.
-Area: Trainer
-Goal: Create trainer APIs supporting replay + SSIS sampling, EWC regularizer, and optional PPO/DPO hooks with consistent logging.
-Files (suggested): packages/sage-libs/src/sage/libs/sias/training/*.py, packages/sage-benchmark/src/sage/benchmark/benchmark_agent/configs/paper2/streaming_trainer.yaml, .../scripts/trainers/run_streaming_trainer.py
-Tests required: unit tests for replay scheduling + regularizer, smoke training run (tiny dataset) that completes locally.
-Estimate: 4–6 weeks.
-Notes: Provide metrics export compatible with ICML plots.
+
+Task: Implement unified Streaming Trainer. Area: Trainer Goal: Create trainer APIs supporting replay
+\+ SSIS sampling, EWC regularizer, and optional PPO/DPO hooks with consistent logging. Files
+(suggested): packages/sage-libs/src/sage/libs/sias/training/\*.py,
+packages/sage-benchmark/src/sage/benchmark/benchmark_agent/configs/paper2/streaming_trainer.yaml,
+.../scripts/trainers/run_streaming_trainer.py Tests required: unit tests for replay scheduling +
+regularizer, smoke training run (tiny dataset) that completes locally. Estimate: 4–6 weeks. Notes:
+Provide metrics export compatible with ICML plots.
+
 ```
 
 ---
@@ -140,13 +152,15 @@ Notes: Provide metrics export compatible with ICML plots.
 
 **Assignment prompt**:
 ```
-Task: Implement Streaming Tool-Arena + Continual Tool Drop-In datasets.
-Area: Data
-Goal: Provide reproducible data generation scripts with config knobs and integrate them with benchmark_agent runners.
-Files (suggested): packages/sage-benchmark/src/sage/benchmark/benchmark_agent/data/streaming_tool_arena/*.py, .../data/continual_tool_drop_in/*.py, README snippets.
-Tests required: deterministic generation test, CLI run that materializes sample datasets.
-Estimate: 2–4 weeks.
-Notes: Include license + citation info for any external assets.
+
+Task: Implement Streaming Tool-Arena + Continual Tool Drop-In datasets. Area: Data Goal: Provide
+reproducible data generation scripts with config knobs and integrate them with benchmark_agent
+runners. Files (suggested):
+packages/sage-benchmark/src/sage/benchmark/benchmark_agent/data/streaming_tool_arena/*.py,
+.../data/continual_tool_drop_in/*.py, README snippets. Tests required: deterministic generation
+test, CLI run that materializes sample datasets. Estimate: 2–4 weeks. Notes: Include license +
+citation info for any external assets.
+
 ```
 
 ---
@@ -160,13 +174,14 @@ Notes: Include license + citation info for any external assets.
 
 **Assignment prompt**:
 ```
-Task: Build Paper 2 experiment pipeline under benchmark_agent.
-Area: Experiments
-Goal: Automate baselines + ablations with reproducible configs and artifact export.
-Files (suggested): packages/sage-benchmark/src/sage/benchmark/benchmark_agent/scripts/experiments/paper2/*.py, .../configs/paper2/*.yaml, docs/dev-notes/research_work/agent-tool-benchmark/paper2/figures.md
-Tests required: dry-run smoke test (tiny dataset) per baseline; CI job that validates config loading.
-Estimate: 3–8 weeks.
-Notes: Align naming with Paper 1 experiment scripts for consistency.
+
+Task: Build Paper 2 experiment pipeline under benchmark_agent. Area: Experiments Goal: Automate
+baselines + ablations with reproducible configs and artifact export. Files (suggested):
+packages/sage-benchmark/src/sage/benchmark/benchmark_agent/scripts/experiments/paper2/*.py,
+.../configs/paper2/*.yaml, docs/dev-notes/research_work/agent-tool-benchmark/paper2/figures.md Tests
+required: dry-run smoke test (tiny dataset) per baseline; CI job that validates config loading.
+Estimate: 3–8 weeks. Notes: Align naming with Paper 1 experiment scripts for consistency.
+
 ```
 
 ---
@@ -180,13 +195,13 @@ Notes: Align naming with Paper 1 experiment scripts for consistency.
 
 **Assignment prompt**:
 ```
-Task: Strengthen SIAS test + CI coverage.
-Area: Tests
-Goal: Add targeted unit/integration tests and a lightweight CI workflow to prevent regressions.
-Files (suggested): packages/sage-libs/tests/sias/*, .github/workflows/paper2-experiments.yml
-Tests required: pytest suite + workflow dry run (act or GitHub).
-Estimate: 1–3 weeks.
-Notes: Re-use existing test utilities from sage.libs.agentic where possible.
+
+Task: Strengthen SIAS test + CI coverage. Area: Tests Goal: Add targeted unit/integration tests and
+a lightweight CI workflow to prevent regressions. Files (suggested):
+packages/sage-libs/tests/sias/\*, .github/workflows/paper2-experiments.yml Tests required: pytest
+suite + workflow dry run (act or GitHub). Estimate: 1–3 weeks. Notes: Re-use existing test utilities
+from sage.libs.agentic where possible.
+
 ```
 
 ---
@@ -200,13 +215,14 @@ Notes: Re-use existing test utilities from sage.libs.agentic where possible.
 
 **Assignment prompt**:
 ```
-Task: Finalize docs, LaTeX, and submodule plan.
-Area: Docs
-Goal: Align ICML text with implementation, ensure latex/main.tex compiles, and provide a clear extraction checklist.
-Files (suggested): docs/dev-notes/research_work/agent-tool-benchmark/paper2/*, packages/sage-libs/src/sage/libs/sias/SUBMODULE.md
-Tests required: `make -C docs-public` (or latex build) succeeds; checklist reviewed by maintainer.
-Estimate: 2–3 weeks.
-Notes: Reference Paper 1 prompt structure for tone and citation density.
+
+Task: Finalize docs, LaTeX, and submodule plan. Area: Docs Goal: Align ICML text with
+implementation, ensure latex/main.tex compiles, and provide a clear extraction checklist. Files
+(suggested): docs/dev-notes/research_work/agent-tool-benchmark/paper2/\*,
+packages/sage-libs/src/sage/libs/sias/SUBMODULE.md Tests required: `make -C docs-public` (or latex
+build) succeeds; checklist reviewed by maintainer. Estimate: 2–3 weeks. Notes: Reference Paper 1
+prompt structure for tone and citation density.
+
 ```
 
 ---
@@ -217,19 +233,18 @@ Notes: Reference Paper 1 prompt structure for tone and citation density.
 
 **Body**:
 ```
-Task: <short title>
-Area: <SSIS | Memory | Runtime | Router | Trainer | Data | Experiments | Tests | Docs>
-Assignee: @<github-id>
-Goal: <one-sentence goal + acceptance criteria>
-Scope & files: <relative paths>
-Tests: <unit/integration/benchmark requirements>
-Estimate: <weeks>
-Dependencies: <upstream tasks or data>
+
+Task: <short title> Area: \<SSIS | Memory | Runtime | Router | Trainer | Data | Experiments | Tests
+| Docs> Assignee: @<github-id> Goal: \<one-sentence goal + acceptance criteria> Scope & files:
+<relative paths> Tests: \<unit/integration/benchmark requirements> Estimate: <weeks> Dependencies:
+<upstream tasks or data>
 
 PR Checklist:
+
 - [ ] Linked this issue in the PR description
 - [ ] Attached logs for required tests/benchmarks
 - [ ] Documented configuration or new CLI flags
+
 ```
 
 Each agent should leave a short progress ping in their issue at least once per week (or per sprint), noting blockers or interface changes.

@@ -1,17 +1,20 @@
 # SAGE 集成 sageLLM Control Plane 建议
 
-**Date**: 2025-11-04  
-**Author**: SAGE Development Team  
-**Summary**: Integration proposal for sageLLM Control Plane into SAGE main project, enabling intelligent LLM request scheduling, multi-instance management, and PD separation optimization
+**Date**: 2025-11-04\
+**Author**: SAGE Development Team\
+**Summary**: Integration proposal for sageLLM Control Plane into SAGE main project, enabling
+intelligent LLM request scheduling, multi-instance management, and PD separation optimization
 
 ## 当前状态
 
 **SAGE 主项目** 目前通过 `sage.llm.VLLMService` 使用 vLLM：
+
 - 直接调用 vLLM LLM 类进行推理
 - 单实例模式，没有负载均衡
 - 缺少智能调度、路由、PD 分离等高级功能
 
 **sageLLM Control Plane** 提供的高级功能：
+
 - ✅ 5种智能调度策略（FIFO、Priority、SLO-Aware、Cost-Optimized、Adaptive）
 - ✅ PD 分离优化（+50-80% 吞吐，-50-60% 延迟）
 - ✅ 多实例管理和负载均衡
@@ -111,6 +114,7 @@ class VLLMService(BaseService):
 ## 需要更新的文件
 
 ### 1. 新增文件
+
 ```
 packages/sage-llm-core/src/sage/llm/
 ├── control_plane_service.py  # 新的 Control Plane 服务
@@ -118,6 +122,7 @@ packages/sage-llm-core/src/sage/llm/
 ```
 
 ### 2. 更新文件
+
 ```
 packages/sage-llm-core/src/sage/llm/
 ├── __init__.py               # 导出 Control Plane / VLLM 服务入口
@@ -162,40 +167,46 @@ tensor_parallel_size = 1
 ## 迁移路径
 
 ### 阶段 1：并存（推荐先做这个）
+
 - 保留现有 `VLLMService`（简单场景）
 - 新增 `ControlPlaneVLLMService`（高级场景）
 - 用户根据需求选择
 
 ### 阶段 2：逐步迁移
+
 - 更新文档和示例
 - 在示例应用中演示 Control Plane 用法
 - 收集用户反馈
 
 ### 阶段 3：统一（可选）
+
 - 将 `VLLMService` 标记为简化版
 - 推荐新用户使用 `ControlPlaneVLLMService`
 
 ## 测试计划
 
 1. **单元测试**：在 `packages/sage-common/tests/unit/components/sage_llm/` 添加测试
-2. **集成测试**：测试与现有 SAGE 组件的集成
-3. **性能测试**：验证 Control Plane 带来的性能提升
-4. **向后兼容测试**：确保现有代码继续工作
+1. **集成测试**：测试与现有 SAGE 组件的集成
+1. **性能测试**：验证 Control Plane 带来的性能提升
+1. **向后兼容测试**：确保现有代码继续工作
 
 ## 预期收益
 
 1. **性能提升**：
+
    - PD 分离：+50-80% 吞吐，-50-60% 延迟
    - 智能调度：更好的 SLO 满足率
    - 负载均衡：更高的资源利用率
 
-2. **功能增强**：
+1. **功能增强**：
+
    - 多实例支持
    - 优先级调度
    - 故障容错
    - 性能监控
 
-3. **开发体验**：
+1. **开发体验**：
+
    - 完整的测试覆盖（164+ 测试）
    - CI/CD 集成
    - 详细的文档
@@ -203,21 +214,23 @@ tensor_parallel_size = 1
 ## 建议
 
 **现在就做**：
+
 1. ✅ sageLLM Control Plane 已经完成测试和文档
-2. 创建 `ControlPlaneVLLMService` 作为新选项
-3. 添加配置示例和文档
-4. 在一个示例应用中演示用法
+1. 创建 `ControlPlaneVLLMService` 作为新选项
+1. 添加配置示例和文档
+1. 在一个示例应用中演示用法
 
 **不建议现在做**：
+
 1. ❌ 不要立即替换现有 `VLLMService`
-2. ❌ 不要强制所有用户迁移
-3. ❌ 保持向后兼容
+1. ❌ 不要强制所有用户迁移
+1. ❌ 保持向后兼容
 
 ## 下一步
 
 1. **Review**：团队审查这个提案
-2. **Demo**：创建一个集成示例
-3. **Document**：编写集成指南
-4. **Implement**：实现 `ControlPlaneVLLMService`
-5. **Test**：完整的测试覆盖
-6. **Release**：作为新功能发布
+1. **Demo**：创建一个集成示例
+1. **Document**：编写集成指南
+1. **Implement**：实现 `ControlPlaneVLLMService`
+1. **Test**：完整的测试覆盖
+1. **Release**：作为新功能发布

@@ -1,25 +1,30 @@
 # Task 1.1: Intent 枚举定义
 
 ## 目标
+
 定义用户意图的枚举类型和结果数据结构。
 
 ## 文件位置
+
 `packages/sage-studio/src/sage/studio/services/intent_classifier.py` (部分)
 
 ## 设计说明
 
 ### 意图分类（简化版）
+
 经过分析，用户意图可以简化为 4 类：
 
-| 意图 | 说明 | 示例 |
-|------|------|------|
-| **KNOWLEDGE_QUERY** | 知识库问答（包括研究指导） | "SAGE 怎么安装？"、"怎么写 Related Work？" |
-| **SAGE_CODING** | SAGE 编程助手（Pipeline + 代码） | "帮我写一个数据处理 Pipeline"、"这段代码哪里错了？" |
-| **SYSTEM_OPERATION** | 系统操作 | "启动 LLM 服务"、"查看状态" |
-| **GENERAL_CHAT** | 普通对话 | "你好"、"谢谢" |
+| 意图                 | 说明                             | 示例                                                |
+| -------------------- | -------------------------------- | --------------------------------------------------- |
+| **KNOWLEDGE_QUERY**  | 知识库问答（包括研究指导）       | "SAGE 怎么安装？"、"怎么写 Related Work？"          |
+| **SAGE_CODING**      | SAGE 编程助手（Pipeline + 代码） | "帮我写一个数据处理 Pipeline"、"这段代码哪里错了？" |
+| **SYSTEM_OPERATION** | 系统操作                         | "启动 LLM 服务"、"查看状态"                         |
+| **GENERAL_CHAT**     | 普通对话                         | "你好"、"谢谢"                                      |
 
 ### 知识领域标签
+
 KNOWLEDGE_QUERY 可以进一步标记领域：
+
 - `sage_docs`: SAGE 框架文档
 - `examples`: 代码示例
 - `research_guidance`: 研究方法论（导师经验）
@@ -27,7 +32,7 @@ KNOWLEDGE_QUERY 可以进一步标记领域：
 
 ## 提示词
 
-```
+````
 请在 SAGE 项目中创建意图分类器的基础数据结构。
 
 ## 要求
@@ -112,13 +117,15 @@ class IntentResult:
         if not self.knowledge_domains:
             return ["sage_docs", "examples"]  # 默认检索
         return [d.value for d in self.knowledge_domains]
-```
+````
 
 ## 注意
+
 - Layer: L6 (sage-studio)
 - 使用 Python 3.10+ 语法
 - 添加完整的 docstring
 - 遵循 tools/ruff.toml 代码风格
+
 ```
 
 ## 验收标准
@@ -127,3 +134,4 @@ class IntentResult:
 - [ ] IntentResult 包含所有必要字段
 - [ ] 代码通过 ruff 检查
 - [ ] 有完整的类型注解和 docstring
+```

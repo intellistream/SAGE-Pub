@@ -1,4 +1,4 @@
-```markdown
+````markdown
 # Paper 2 (SIAS) — PPT Prompt
 
 You are acting as an elite technical presentation designer. Produce a 18–22 slide PPT (16:9) summarizing Paper 2 “SIAS: Self-Improving Agentic Systems with Reflective Memory and Streaming Adaptation.” Follow these rules:
@@ -54,7 +54,11 @@ Return a structured JSON with fields:
   "styleGuide": "...",
   "todoPlaceholders": ["List any figures/data still pending"]
 }
-```
+````
 
-The JSON should be ready for an automated PPT generator to consume. Keep bullet text concise (max 10 words). Use full sentences only in presenter notes. Identify which future data (e.g., upcoming experiments) must be inserted later.
+The JSON should be ready for an automated PPT generator to consume. Keep bullet text concise (max 10
+words). Use full sentences only in presenter notes. Identify which future data (e.g., upcoming
+experiments) must be inserted later.
+
+```
 ```

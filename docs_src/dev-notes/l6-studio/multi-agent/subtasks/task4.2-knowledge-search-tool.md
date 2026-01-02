@@ -1,18 +1,21 @@
 # Task 4.2: KnowledgeSearchTool 实现
 
 ## 目标
+
 实现知识库检索工具，封装 KnowledgeManager 的检索功能。
 
 ## 依赖
+
 - Task 4.1 (BaseTool)
 - Task 2.4 (KnowledgeManager)
 
 ## 文件位置
+
 `packages/sage-studio/src/sage/studio/tools/knowledge_search.py`
 
 ## 提示词
 
-```
+````
 请实现 KnowledgeSearchTool，封装 KnowledgeManager 的检索功能。
 
 ## 背景
@@ -29,14 +32,16 @@ KnowledgeSearchTool 是 Multi-Agent 系统的核心工具，用于检索：
    class KnowledgeSearchTool(BaseTool):
        name = "knowledge_search"
        description = "搜索 SAGE 知识库，包括文档、示例和用户上传的资料"
-   ```
+````
 
 3. 支持参数:
+
    - query: 搜索查询
    - sources: 要搜索的来源列表 (可选)
    - top_k: 返回结果数量 (默认 5)
 
-4. 返回格式:
+1. 返回格式:
+
    ```python
    {
        "status": "success",
@@ -52,6 +57,7 @@ KnowledgeSearchTool 是 Multi-Agent 系统的核心工具，用于检索：
    ```
 
 ## 代码模板
+
 ```python
 from __future__ import annotations
 
@@ -132,9 +138,11 @@ class KnowledgeSearchTool(BaseTool):
 ```
 
 ## 注意
+
 - 依赖注入 KnowledgeManager
 - 默认搜索 sage_docs 和 examples
 - 返回统一的结果格式
+
 ```
 
 ## 验收标准
@@ -142,3 +150,4 @@ class KnowledgeSearchTool(BaseTool):
 - [ ] 参数定义完整
 - [ ] 调用 KnowledgeManager.search()
 - [ ] 错误处理完善
+```

@@ -280,15 +280,15 @@ ______________________________________________________________________
 
 **A**: 所有端口通过 `SagePorts` 统一管理：
 
-| 常量                | 端口 | 服务                           |
-| ------------------- | ---- | ------------------------------ |
+| 常量                | 端口 | 服务                               |
+| ------------------- | ---- | ---------------------------------- |
 | `GATEWAY_DEFAULT`   | 8000 | sage-llm-gateway (OpenAI 兼容 API) |
-| `LLM_DEFAULT`       | 8001 | vLLM 推理服务                  |
-| `LLM_WSL_FALLBACK`  | 8901 | WSL2 备用 LLM 端口             |
-| `STUDIO_BACKEND`    | 8080 | sage-studio 后端               |
-| `STUDIO_FRONTEND`   | 5173 | sage-studio 前端 (Vite)        |
-| `EMBEDDING_DEFAULT` | 8090 | Embedding 服务                 |
-| `BENCHMARK_LLM`     | 8901 | Benchmark 专用                 |
+| `LLM_DEFAULT`       | 8001 | vLLM 推理服务                      |
+| `LLM_WSL_FALLBACK`  | 8901 | WSL2 备用 LLM 端口                 |
+| `STUDIO_BACKEND`    | 8080 | sage-studio 后端                   |
+| `STUDIO_FRONTEND`   | 5173 | sage-studio 前端 (Vite)            |
+| `EMBEDDING_DEFAULT` | 8090 | Embedding 服务                     |
+| `BENCHMARK_LLM`     | 8901 | Benchmark 专用                     |
 
 ```python
 from sage.common.config.ports import SagePorts

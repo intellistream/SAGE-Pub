@@ -1,16 +1,17 @@
 # SAGE Studio Authentication Implementation Prompts
 
-This file contains the specific prompts for the 4 tasks required to implement user authentication in SAGE Studio.
-These prompts are designed to be used with an AI coding assistant.
+This file contains the specific prompts for the 4 tasks required to implement user authentication in
+SAGE Studio. These prompts are designed to be used with an AI coding assistant.
 
----
+______________________________________________________________________
 
 ## Task 1: Backend Authentication System
 
-**Role**: SAGE Framework Backend Developer
-**Goal**: Implement a secure user authentication system for the Studio backend.
+**Role**: SAGE Framework Backend Developer **Goal**: Implement a secure user authentication system
+for the Studio backend.
 
 **Prompt**:
+
 ```markdown
 You are an expert Python developer working on the SAGE framework.
 Your task is to implement a user authentication system for the SAGE Studio backend.
@@ -45,14 +46,15 @@ Your task is to implement a user authentication system for the SAGE Studio backe
 -   Create a test file `packages/sage-studio/tests/services/test_auth_service.py` to verify hashing, token generation, and user storage.
 ```
 
----
+______________________________________________________________________
 
 ## Task 2: Backend Data Isolation
 
-**Role**: SAGE Framework Backend Developer
-**Goal**: Isolate user data (pipelines, sessions) based on the authenticated user.
+**Role**: SAGE Framework Backend Developer **Goal**: Isolate user data (pipelines, sessions) based
+on the authenticated user.
 
 **Prompt**:
+
 ```markdown
 You are an expert Python developer working on the SAGE framework.
 Your task is to modify the SAGE Studio backend to support multi-user data isolation.
@@ -86,14 +88,15 @@ Your task is to modify the SAGE Studio backend to support multi-user data isolat
 -   (Optional) Create a migration script to move existing data to the "anonymous" user folder.
 ```
 
----
+______________________________________________________________________
 
 ## Task 3: Frontend Authentication UI
 
-**Role**: SAGE Frontend Developer (React/TypeScript)
-**Goal**: Create the login/register UI and manage authentication state.
+**Role**: SAGE Frontend Developer (React/TypeScript) **Goal**: Create the login/register UI and
+manage authentication state.
 
 **Prompt**:
+
 ```markdown
 You are an expert Frontend Developer using React, TypeScript, Ant Design, and Zustand.
 Your task is to implement the authentication UI for SAGE Studio.
@@ -132,14 +135,15 @@ Your task is to implement the authentication UI for SAGE Studio.
     -   Implement a `ProtectedRoute` component or logic to redirect unauthenticated users to `/login`.
 ```
 
----
+______________________________________________________________________
 
 ## Task 4: Frontend Integration & State
 
-**Role**: SAGE Frontend Developer (React/TypeScript)
-**Goal**: Integrate authentication into the existing Studio UI components.
+**Role**: SAGE Frontend Developer (React/TypeScript) **Goal**: Integrate authentication into the
+existing Studio UI components.
 
 **Prompt**:
+
 ```markdown
 You are an expert Frontend Developer working on SAGE Studio.
 Your task is to integrate the authentication system (Task 3) into the existing UI components.

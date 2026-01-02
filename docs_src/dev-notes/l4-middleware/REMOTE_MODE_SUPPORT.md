@@ -1,11 +1,10 @@
 # 远程模式支持情况总结
 
-**Date**: 2024-11-16  
-**Author**: SAGE Team  
+**Date**: 2024-11-16\
+**Author**: SAGE Team\
 **Summary**: AutoStop 远程模式支持说明
 
----
-
+______________________________________________________________________
 
 ## 🎯 简单回答：是的，远程也可以运行！
 
@@ -33,12 +32,14 @@ env.submit(autostop=True)
 ```
 
 **工作原理：**
+
 - Dispatcher 在本地运行，但管理远程 Ray 资源
 - 当任务完成时，自动调用 `_cleanup_ray_services()`
 - 使用 `ActorWrapper.cleanup_and_kill()` 终止所有 Ray Actors
 - **服务会被正确清理！**
 
 **典型场景：**
+
 - RAG 应用使用 Milvus/Chroma Ray Actor
 - 分布式计算任务
 - 大规模数据处理
@@ -64,27 +65,30 @@ env.stop()
 ```
 
 **原因：**
+
 - `RemoteEnvironment.submit()` 方法签名不包含 `autostop`
 - 需要扩展客户端协议来支持这个功能
 - 这是未来版本的改进方向
 
 ## 📊 支持矩阵
 
-| 场景 | 代码示例 | autostop | 服务清理 | 推荐 |
-|------|----------|----------|---------|------|
-| **本地开发** | `LocalEnvironment()` | ✅ | ✅ | ⭐⭐⭐ |
-| **Ray分布式** | `LocalEnvironment()` + `remote=True` | ✅ | ✅ Ray Actors | ⭐⭐⭐ |
-| **远程服务器** | `RemoteEnvironment()` | ❌ | 需手动 | ⚠️ |
+| 场景           | 代码示例                             | autostop | 服务清理      | 推荐   |
+| -------------- | ------------------------------------ | -------- | ------------- | ------ |
+| **本地开发**   | `LocalEnvironment()`                 | ✅       | ✅            | ⭐⭐⭐ |
+| **Ray分布式**  | `LocalEnvironment()` + `remote=True` | ✅       | ✅ Ray Actors | ⭐⭐⭐ |
+| **远程服务器** | `RemoteEnvironment()`                | ❌       | 需手动        | ⚠️     |
 
 ## 🎬 实际测试
 
 ### 测试1：本地模式 ✅
+
 ```bash
 $ python test_autostop_service_improved.py
 ✅ SUCCESS: Service was properly initialized, used, and cleaned up!
 ```
 
 ### 测试2：Ray模式（代码已就绪）✅
+
 ```python
 # 代码中已实现
 def _cleanup_services_after_batch_completion(self):
@@ -93,6 +97,7 @@ def _cleanup_services_after_batch_completion(self):
 ```
 
 ### 测试3：RemoteEnvironment ⚠️
+
 ```bash
 $ python test_autostop_service_remote.py
 ❌ TypeError: RemoteEnvironment.submit() got an unexpected keyword argument 'autostop'
@@ -140,12 +145,14 @@ env.stop()
 **你的问题"远程也可以运行吗？"**
 
 **回答：**
+
 1. ✅ **LocalEnvironment + Ray 模式**：完全支持，这是推荐的远程执行方式
-2. ⚠️ **RemoteEnvironment 模式**：不支持 autostop，需要手动管理
+1. ⚠️ **RemoteEnvironment 模式**：不支持 autostop，需要手动管理
 
 **99% 的远程使用场景都用第一种方式，所以你的远程应用应该没问题！**
 
 如果你的代码是这样的：
+
 ```python
 env = LocalEnvironment("app")
 env.register_service("svc", Svc, remote=True)  # 在 Ray 上
@@ -153,6 +160,7 @@ env.submit(autostop=True)  # ✅ 完全支持！
 ```
 
 如果你的代码是这样的：
+
 ```python
 env = RemoteEnvironment("app", host="server")  # 连接远程 JobManager
 env.submit(autostop=True)  # ❌ 不支持

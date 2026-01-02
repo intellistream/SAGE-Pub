@@ -3,12 +3,14 @@
 ## Overview
 
 SAGE's NeuroMem VDB system supports two backends:
+
 - **FAISS** (Python): Facebook AI Similarity Search (third-party library)
 - **SageDB** (C++): **Self-developed** high-performance vector database
 
 ## Key Differences
 
 ### SageDB (Self-Developed C++)
+
 - ✅ **Fully custom implementation** - NOT based on FAISS
 - ✅ C++20 codebase with pybind11 Python bindings
 - ✅ Optimized for write-heavy workloads
@@ -17,6 +19,7 @@ SAGE's NeuroMem VDB system supports two backends:
 - 🔄 **Future**: ANNS algorithms will migrate to sage-libs for modularity
 
 ### FAISS (Third-Party Python)
+
 - ✅ Mature library from Facebook AI Research
 - ✅ Optimized for read-heavy workloads
 - ✅ 2.8-3x faster similarity search
@@ -26,27 +29,29 @@ SAGE's NeuroMem VDB system supports two backends:
 
 Based on benchmarks with 5000 vectors (dimension=128):
 
-| Operation | FAISS | SageDB | Winner |
-|-----------|-------|--------|--------|
-| Single Insert (100 vectors) | 5.67 ms | 0.57 ms | 🚀 **SageDB (10x faster)** |
-| Batch Insert (5000 vectors) | 26.78 ms | 23.50 ms | 🚀 **SageDB (1.14x faster)** |
-| Search (k=1) | 26.98 ms | 78.36 ms | ⚡ **FAISS (2.9x faster)** |
-| Search (k=5) | 28.92 ms | 79.97 ms | ⚡ **FAISS (2.8x faster)** |
-| Search (k=10) | 28.16 ms | 86.20 ms | ⚡ **FAISS (3.1x faster)** |
-| Search (k=50) | 31.87 ms | 91.87 ms | ⚡ **FAISS (2.9x faster)** |
-| Memory Usage | 944.46 MB | 944.73 MB | ➡️ **Same** |
+| Operation                   | FAISS     | SageDB    | Winner                       |
+| --------------------------- | --------- | --------- | ---------------------------- |
+| Single Insert (100 vectors) | 5.67 ms   | 0.57 ms   | 🚀 **SageDB (10x faster)**   |
+| Batch Insert (5000 vectors) | 26.78 ms  | 23.50 ms  | 🚀 **SageDB (1.14x faster)** |
+| Search (k=1)                | 26.98 ms  | 78.36 ms  | ⚡ **FAISS (2.9x faster)**   |
+| Search (k=5)                | 28.92 ms  | 79.97 ms  | ⚡ **FAISS (2.8x faster)**   |
+| Search (k=10)               | 28.16 ms  | 86.20 ms  | ⚡ **FAISS (3.1x faster)**   |
+| Search (k=50)               | 31.87 ms  | 91.87 ms  | ⚡ **FAISS (2.9x faster)**   |
+| Memory Usage                | 944.46 MB | 944.73 MB | ➡️ **Same**                  |
 
 ## Decision Matrix
 
 ### Use SageDB for:
 
 **Write-Heavy Workloads**:
+
 - Chat applications with frequent message insertions
 - Session storage systems
 - Real-time data ingestion pipelines
 - Systems where insert latency is critical
 
 **Characteristics**:
+
 - 10x faster single insert
 - 1.14x faster batch insert
 - Self-developed C++ core (independent of FAISS)
@@ -55,6 +60,7 @@ Based on benchmarks with 5000 vectors (dimension=128):
 - Full control over implementation
 
 **Example Use Cases**:
+
 ```python
 # Gateway session storage (config.yaml)
 gateway:
@@ -69,18 +75,21 @@ gateway:
 ### Use FAISS for:
 
 **Read-Heavy Workloads**:
+
 - RAG retrieval systems
 - Semantic search engines
 - Large-scale similarity search
 - Systems where search latency is critical
 
 **Characteristics**:
+
 - 2.8-3x faster similarity search
 - Mature Python ecosystem
 - Excellent for high QPS scenarios
 - Same memory footprint as SageDB
 
 **Example Use Cases**:
+
 ```python
 # Production RAG system
 collection.create_index({
@@ -156,6 +165,7 @@ python benchmark_vdb_backends.py
 ```
 
 The script tests:
+
 - Single insert performance (100 vectors)
 - Batch insert performance (5000 vectors)
 - Search performance (k=1, 5, 10, 50)
@@ -181,7 +191,8 @@ The script tests:
 
 ### Memory Usage
 
-Both backends maintain similar memory footprints (~945 MB for 5000 vectors @ dim=128) as they use efficient C++ data structures.
+Both backends maintain similar memory footprints (~945 MB for 5000 vectors @ dim=128) as they use
+efficient C++ data structures.
 
 ## Summary
 
@@ -193,9 +204,9 @@ Both backends maintain similar memory footprints (~945 MB for 5000 vectors @ dim
 - **Configuration**: Easily switchable via `config.yaml` or Python API
 - **Future**: ANNS algorithms will migrate to sage-libs for better modularity
 
----
+______________________________________________________________________
 
-**Last Updated**: 2025-12-28  
-**Benchmark Environment**: 5000 vectors, dim=128, single-threaded  
-**Tested Versions**: SAGE v0.2.0  
+**Last Updated**: 2025-12-28\
+**Benchmark Environment**: 5000 vectors, dim=128, single-threaded\
+**Tested Versions**: SAGE v0.2.0\
 **Important Note**: SageDB is a self-developed C++ implementation, independent of FAISS

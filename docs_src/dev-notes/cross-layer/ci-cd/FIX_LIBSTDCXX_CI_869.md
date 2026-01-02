@@ -1,11 +1,10 @@
 # Fix: libstdc++ CI Check Bug #869
 
-**Date**: 2024-11-02  
-**Author**: SAGE Team  
+**Date**: 2024-11-02\
+**Author**: SAGE Team\
 **Summary**: libstdc++ CI 问题修复
 
----
-
+______________________________________________________________________
 
 ## 问题描述
 
@@ -24,8 +23,8 @@
 ## 根本原因
 
 1. **环境不匹配**: CI 使用 `--pip` 模式安装，依赖系统的 libstdc++，而不是 conda 管理的版本
-2. **检查逻辑缺陷**: `libstdcxx_fix.sh` 没有考虑安装环境类型，在 pip 环境中仍然尝试检查和升级 conda 的 libstdc++
-3. **误导性输出**: 即使在不需要检查的环境中，也会显示失败信息
+1. **检查逻辑缺陷**: `libstdcxx_fix.sh` 没有考虑安装环境类型，在 pip 环境中仍然尝试检查和升级 conda 的 libstdc++
+1. **误导性输出**: 即使在不需要检查的环境中，也会显示失败信息
 
 ## 解决方案
 
@@ -34,6 +33,7 @@
 **文件**: `tools/install/fixes/libstdcxx_fix.sh`
 
 **改动**:
+
 - 添加 `install_environment` 参数到 `ensure_libstdcxx_compatibility()` 函数
 - 在函数开始时检查环境类型
 - 如果使用 `pip` 或 `system` 环境，直接跳过检查并返回成功
@@ -61,6 +61,7 @@ ensure_libstdcxx_compatibility() {
 **文件**: `tools/install/installation_table/main_installer.sh`
 
 **改动**:
+
 - 在两处调用 `ensure_libstdcxx_compatibility` 时传递 `$environment` 参数
   - `standard` 模式 (line ~317)
   - `dev` 模式 (line ~335)
@@ -78,45 +79,54 @@ ensure_libstdcxx_compatibility "$log_file" "$environment" || ...
 ### 测试场景
 
 1. **CI 环境 (pip 模式)**:
+
    ```bash
    ./quickstart.sh --dev --pip --yes
    ```
+
    - 预期: 显示 "使用 pip 环境，跳过 libstdc++ 检查（依赖系统库）"
    - 不再显示误导性的 conda 安装和失败信息
 
-2. **Conda 环境**:
+1. **Conda 环境**:
+
    ```bash
    ./quickstart.sh --dev --conda --yes
    ```
+
    - 预期: 正常执行 libstdc++ 检查和升级（如果需要）
 
-3. **系统 Python 环境**:
+1. **系统 Python 环境**:
+
    ```bash
    ./quickstart.sh --dev --system --yes
    ```
+
    - 预期: 跳过检查（类似 pip 模式）
 
 ## 影响范围
 
 ### 受影响的文件
+
 - `tools/install/fixes/libstdcxx_fix.sh`
 - `tools/install/installation_table/main_installer.sh`
 
 ### 受影响的安装模式
+
 - `standard` 模式
 - `dev` 模式
 
 ### 不影响的部分
+
 - `minimal` 模式（不安装 C++ 扩展，不调用 libstdc++ 检查）
 - 已有的 conda 环境检查逻辑（保持不变）
 
 ## 优势
 
 1. **消除误导信息**: CI 日志不再显示失败的 libstdc++ 升级信息
-2. **提高性能**: pip 环境跳过不必要的检查，加快安装速度
-3. **更清晰的语义**: 明确区分不同环境的处理方式
-4. **向后兼容**: conda 环境的行为保持不变
-5. **易于维护**: 逻辑更加清晰，参数传递明确
+1. **提高性能**: pip 环境跳过不必要的检查，加快安装速度
+1. **更清晰的语义**: 明确区分不同环境的处理方式
+1. **向后兼容**: conda 环境的行为保持不变
+1. **易于维护**: 逻辑更加清晰，参数传递明确
 
 ## 相关 Issue
 

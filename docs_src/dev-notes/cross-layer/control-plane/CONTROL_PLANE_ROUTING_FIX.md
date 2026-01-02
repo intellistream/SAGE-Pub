@@ -1,7 +1,7 @@
 # Control Plane 路由修复
 
-**日期**: 2025-12-04  
-**分支**: main-dev  
+**日期**: 2025-12-04\
+**分支**: main-dev\
 **相关组件**: sage-llm-gateway, sage-common (sageLLM)
 
 ## 问题背景
@@ -9,14 +9,15 @@
 用户反馈 `sage studio start --prod` 启动时出现以下错误：
 
 1. **LLM 启动失败**: "Insufficient GPU memory" - GPU 被孤儿进程占用
-2. **Embedding 端口冲突**: "Requested port 8090 is reserved" - STOPPED 引擎未释放端口
-3. **端口配置问题**: `UnifiedInferenceClient.create()` 把 8001 端口的 Embedding 服务误认为 LLM
+1. **Embedding 端口冲突**: "Requested port 8090 is reserved" - STOPPED 引擎未释放端口
+1. **端口配置问题**: `UnifiedInferenceClient.create()` 把 8001 端口的 Embedding 服务误认为 LLM
 
 ## 根本原因分析
 
 ### 问题 1: 资源未释放
 
 `stop_engine_gracefully()` 和 `prune_stopped_engines()` 只更新了引擎状态为 STOPPED，但没有释放：
+
 - 端口 (`_reserved_ports`)
 - GPU 内存 (`gpu_manager`)
 - Executor 实例注册 (`unregister_instance`)
@@ -24,12 +25,13 @@
 ### 问题 2: Gateway 重启后丢失引擎信息
 
 1. `EngineLifecycleManager` 初始化时没有传入 `control_plane` 引用
-2. `discover_running_engines()` 虽然发现了引擎，但无法调用 `register_engine()` 注册
-3. `register_engine()` 只更新了 `_registered_engines` 字典，没有创建 `ExecutionInstance`
+1. `discover_running_engines()` 虽然发现了引擎，但无法调用 `register_engine()` 注册
+1. `register_engine()` 只更新了 `_registered_engines` 字典，没有创建 `ExecutionInstance`
 
 ### 问题 3: 端口扫描误判
 
 RAG Pipeline 使用端口扫描作为 fallback，但无法区分 LLM 和 Embedding 服务：
+
 - `/v1/models` 端点两者都会响应
 - 8001 端口可能是 Embedding 服务
 
@@ -92,7 +94,7 @@ def prune_stopped_engines(self) -> int:
 
 ### 2. 引擎注册修复 (manager.py)
 
-#### _init_engine_lifecycle_manager()
+#### \_init_engine_lifecycle_manager()
 
 ```python
 def _init_engine_lifecycle_manager(self) -> EngineLifecycleManager | None:
@@ -203,9 +205,9 @@ def _get_llm_backend_url(self) -> str | None:
 ## 关键改进
 
 1. **资源释放**: 引擎停止时立即释放端口、GPU、实例注册
-2. **引擎发现**: Gateway 重启后自动发现并注册运行中的引擎
-3. **统一路由**: 所有 LLM 请求通过 Control Plane 路由，支持多引擎、负载均衡
-4. **类型区分**: Control Plane 正确区分 LLM 和 Embedding 后端
+1. **引擎发现**: Gateway 重启后自动发现并注册运行中的引擎
+1. **统一路由**: 所有 LLM 请求通过 Control Plane 路由，支持多引擎、负载均衡
+1. **类型区分**: Control Plane 正确区分 LLM 和 Embedding 后端
 
 ## 测试验证
 
@@ -235,15 +237,17 @@ tail -20 ~/.sage/gateway/gateway.log | grep "LLM backend"
 - `packages/sage-llm-gateway/src/sage/gateway/routes/control_plane.py`
 - `packages/sage-llm-core/src/sage/llm/api_server.py`
 
----
+______________________________________________________________________
 
 ## 追加修复: GPU 自动选择 (2025-12-04)
 
 ### 问题描述
 
-当 `sage studio start --prod` 启动时，如果 Control Plane 还没运行，会通过 `LLMLauncher` → `LLMAPIServer` 路径启动 vLLM。这个路径没有 GPU 选择逻辑，vLLM 默认使用 GPU 0。
+当 `sage studio start --prod` 启动时，如果 Control Plane 还没运行，会通过 `LLMLauncher` → `LLMAPIServer` 路径启动
+vLLM。这个路径没有 GPU 选择逻辑，vLLM 默认使用 GPU 0。
 
 **错误现象**:
+
 ```
 ValueError: The model's max seq len (131072) is larger than the maximum number of
 tokens that can be stored in KV cache (42192). Try increasing `gpu_memory_utilization`
@@ -363,6 +367,7 @@ def start(self, background: bool = True, log_file: Path | None = None) -> bool:
 ### 修复效果
 
 修复后日志：
+
 ```
 Selected GPUs with sufficient memory: [1]
 Set CUDA_VISIBLE_DEVICES=1
@@ -371,6 +376,7 @@ LLM API server started in background (PID: 1856760)
 ```
 
 GPU 状态对比：
+
 ```
 修复前:
 GPU 0: 58169 MB used (被占用)  ← vLLM 尝试在这里启动，失败
@@ -385,9 +391,9 @@ GPU 1: 57881 MB used ← LLM 正确加载到 GPU 1
 
 现在两条启动路径都使用 `GPUResourceManager` 进行 GPU 选择：
 
-| 路径 | GPU 选择逻辑 | 环境变量设置 |
-|------|-------------|-------------|
+| 路径               | GPU 选择逻辑                                                    | 环境变量设置                      |
+| ------------------ | --------------------------------------------------------------- | --------------------------------- |
 | Control Plane 模式 | `request_engine_startup()` → `gpu_manager.allocate_resources()` | `engine_lifecycle.spawn_engine()` |
-| LLMLauncher 模式 | `LLMAPIServer.start()` → `_select_available_gpus()` | `subprocess.Popen(env=...)` |
+| LLMLauncher 模式   | `LLMAPIServer.start()` → `_select_available_gpus()`             | `subprocess.Popen(env=...)`       |
 
 两者都调用 `GPUResourceManager._filter_available()` 来过滤有足够内存的 GPU。

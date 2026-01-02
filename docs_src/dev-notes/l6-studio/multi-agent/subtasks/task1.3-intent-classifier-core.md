@@ -1,18 +1,21 @@
 # Task 1.3: IntentClassifier 核心实现
 
 ## 目标
+
 实现 IntentClassifier 类，复用 sage-libs 的 Selector 进行意图分类。
 
 ## 依赖
+
 - Task 1.1 (UserIntent, IntentResult)
 - Task 1.2 (INTENT_TOOLS)
 
 ## 文件位置
+
 `packages/sage-studio/src/sage/studio/services/intent_classifier.py` (追加)
 
 ## 提示词
 
-```
+````
 请实现 IntentClassifier 类，使用 sage-libs 的 Tool Selection 框架进行意图分类。
 
 ## 背景
@@ -29,9 +32,10 @@ sage-libs 提供了多种工具选择器:
        SelectorResources,
        ToolSelectionQuery,
    )
-   ```
+````
 
 2. 实现 IntentClassifier 类:
+
    ```python
    class IntentClassifier:
        def __init__(
@@ -55,16 +59,19 @@ sage-libs 提供了多种工具选择器:
            pass
    ```
 
-3. 转换逻辑:
+1. 转换逻辑:
+
    - ToolPrediction.tool_id → UserIntent 枚举
    - ToolPrediction.score → confidence
    - ToolPrediction.matched_keywords → matched_keywords
 
-4. 配置支持:
+1. 配置支持:
+
    - 通过 mode 参数选择 Selector 类型
    - 支持从配置文件加载参数
 
 ## 代码模板
+
 ```python
 class IntentClassifier:
     """意图分类器
@@ -121,9 +128,11 @@ class IntentClassifier:
 ```
 
 ## 注意
+
 - 处理 Selector 不可用的情况（graceful fallback）
 - 添加日志记录分类过程
 - 考虑异步兼容性（Selector 可能是同步的）
+
 ```
 
 ## 验收标准
@@ -131,3 +140,4 @@ class IntentClassifier:
 - [ ] classify() 方法返回正确的 IntentResult
 - [ ] 处理了边界情况（空消息、Selector 失败等）
 - [ ] 有适当的日志输出
+```

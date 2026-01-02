@@ -1,13 +1,14 @@
 # 🔍 PIP 安装监控工具
 
-**Date**: 2025-11-11  
-**Author**: SAGE Development Team  
-**Summary**: PIP installation monitoring tool to detect and prevent dependency pollution in SAGE installation process  
-**Type**: Tool Documentation  
-**Status**: Completed  
+**Date**: 2025-11-11\
+**Author**: SAGE Development Team\
+**Summary**: PIP installation monitoring tool to detect and prevent dependency pollution in SAGE
+installation process\
+**Type**: Tool Documentation\
+**Status**: Completed\
 **Related**: CI/CD Pipeline, Installation Process
 
----
+______________________________________________________________________
 
 ## 📖 概述
 
@@ -279,7 +280,7 @@ LOCAL_PACKAGES=(
 1. 提交 Pull Request
 1. 联系维护团队
 
-_____________________________________________________________________
+______________________________________________________________________
 
 **维护者**: SAGE Development Team\
 **最后更新**: 2025-11-11

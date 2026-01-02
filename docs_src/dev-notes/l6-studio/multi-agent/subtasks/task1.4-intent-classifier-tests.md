@@ -1,17 +1,20 @@
 # Task 1.4: IntentClassifier 单元测试
 
 ## 目标
+
 为 IntentClassifier 编写完整的单元测试。
 
 ## 依赖
+
 - Task 1.3 (IntentClassifier 实现)
 
 ## 文件位置
+
 `packages/sage-studio/tests/unit/test_intent_classifier.py`
 
 ## 提示词
 
-```
+````
 请为 IntentClassifier 编写单元测试。
 
 ## 要求
@@ -43,13 +46,14 @@
    ]
 
    # ... 其他意图的测试样本
-   ```
+````
 
 4. Mock 策略:
    - Mock SelectorResources 避免加载真实 Embedding 模型
    - 对于 keyword 模式，可以不 mock 直接测试
 
 ## 代码模板
+
 ```python
 import pytest
 from unittest.mock import Mock, patch
@@ -101,9 +105,11 @@ class TestIntentClassifierModes:
 ```
 
 ## 注意
+
 - 使用 pytest 和 pytest-asyncio
 - 测试应该快速执行（避免真实网络调用）
 - 覆盖率目标: > 80%
+
 ```
 
 ## 验收标准
@@ -111,3 +117,4 @@ class TestIntentClassifierModes:
 - [ ] 测试覆盖率 > 80%
 - [ ] 所有测试通过
 - [ ] 测试执行时间 < 5 秒
+```

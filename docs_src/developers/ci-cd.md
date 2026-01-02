@@ -2,19 +2,21 @@
 
 ## Overview
 
-SAGE uses GitHub Actions for continuous integration and deployment. This document provides a comprehensive guide to the CI/CD pipeline, including workflows, environment setup, and best practices.
+SAGE uses GitHub Actions for continuous integration and deployment. This document provides a
+comprehensive guide to the CI/CD pipeline, including workflows, environment setup, and best
+practices.
 
 ## GitHub Actions Workflows
 
 ### Main Workflows
 
-| Workflow | File | Duration | Trigger |
-|----------|------|----------|---------|
-| **Build & Test** | `build-test.yml` | ~45 min | PR, Push to main |
-| **Examples Test** | `examples-test.yml` | ~30 min | PR, Push to main |
-| **Code Quality** | `code-quality.yml` | ~10 min | PR, Push to main |
-| **Installation Test** | `installation-test.yml` | ~15 min | PR, Push to main |
-| **Publish PyPI** | `publish-pypi.yml` | ~10 min | Release tag |
+| Workflow              | File                    | Duration | Trigger          |
+| --------------------- | ----------------------- | -------- | ---------------- |
+| **Build & Test**      | `build-test.yml`        | ~45 min  | PR, Push to main |
+| **Examples Test**     | `examples-test.yml`     | ~30 min  | PR, Push to main |
+| **Code Quality**      | `code-quality.yml`      | ~10 min  | PR, Push to main |
+| **Installation Test** | `installation-test.yml` | ~15 min  | PR, Push to main |
+| **Publish PyPI**      | `publish-pypi.yml`      | ~10 min  | Release tag      |
 
 ### CI Environment
 
@@ -24,11 +26,11 @@ SAGE uses GitHub Actions for continuous integration and deployment. This documen
 
 ### CI 安装矩阵
 
-| 场景 | 建议命令 | 说明 |
-|------|----------|------|
-| GitHub Actions (ubuntu-latest) | `./tools/install/ci_install_wrapper.sh --dev --yes` | 包装脚本会自动安装构建依赖并缓存到 `~/.local`; 适合默认托管 Runner |
-| GitHub Actions + Conda | `unset CI GITHUB_ACTIONS && ./quickstart.sh --dev --yes --pip` | `quickstart.sh` 在检测到 `CI=true` 时会强制 `--user`，需先取消变量使其安装到当前 Conda env |
-| 自建 GPU Runner（境内） | `unset CI GITHUB_ACTIONS && SAGE_FORCE_CHINA_MIRROR=true ./quickstart.sh --dev --yes --pip` | `SAGE_FORCE_CHINA_MIRROR=true` 让脚本切换至清华 PyPI + hf-mirror，解决模型下载限速 |
+| 场景                           | 建议命令                                                                                    | 说明                                                                                       |
+| ------------------------------ | ------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------ |
+| GitHub Actions (ubuntu-latest) | `./tools/install/ci_install_wrapper.sh --dev --yes`                                         | 包装脚本会自动安装构建依赖并缓存到 `~/.local`; 适合默认托管 Runner                         |
+| GitHub Actions + Conda         | `unset CI GITHUB_ACTIONS && ./quickstart.sh --dev --yes --pip`                              | `quickstart.sh` 在检测到 `CI=true` 时会强制 `--user`，需先取消变量使其安装到当前 Conda env |
+| 自建 GPU Runner（境内）        | `unset CI GITHUB_ACTIONS && SAGE_FORCE_CHINA_MIRROR=true ./quickstart.sh --dev --yes --pip` | `SAGE_FORCE_CHINA_MIRROR=true` 让脚本切换至清华 PyPI + hf-mirror，解决模型下载限速         |
 
 **为什么需要 `unset CI GITHUB_ACTIONS`？**
 
@@ -37,14 +39,16 @@ SAGE uses GitHub Actions for continuous integration and deployment. This documen
 
 **为什么需要 `SAGE_FORCE_CHINA_MIRROR=true`？**
 
-- 执行脚本时会触发 `sage.common.config.network.ensure_hf_mirror_configured()`，该变量可强制切换为中国大陆镜像（清华 PyPI + `https://hf-mirror.com`）。
+- 执行脚本时会触发 `sage.common.config.network.ensure_hf_mirror_configured()`，该变量可强制切换为中国大陆镜像（清华 PyPI +
+  `https://hf-mirror.com`）。
 - 适用于自建 Runner/高校服务器，避免 HuggingFace / PyPI 下载失败。
 
 相关脚本：
 
 - `tools/install/ci_install_wrapper.sh`：统一入口（用于 GH Actions matrix jobs）。
 - `quickstart.sh`：安装核心逻辑，负责选择 `--core/--standard/--full/--dev` 模式。
-- `tools/install/check_tool_versions.sh`：CI 安装完成后运行 `sage-dev quality` 前确保 `ruff` 版本在 `tools/pre-commit-config.yaml` 与 `packages/sage-tools/pyproject.toml` 间保持一致。
+- `tools/install/check_tool_versions.sh`：CI 安装完成后运行 `sage-dev quality` 前确保 `ruff` 版本在
+  `tools/pre-commit-config.yaml` 与 `packages/sage-tools/pyproject.toml` 间保持一致。
 
 ### Required Secrets
 
@@ -101,13 +105,13 @@ pre-commit autoupdate
 
 ## Submodule Management
 
-SAGE uses git submodules for C++ extensions in `packages/sage-middleware/src/sage/middleware/components/`.
+SAGE uses git submodules for C++ extensions in
+`packages/sage-middleware/src/sage/middleware/components/`.
 
 ### Critical Rules
 
-!!! warning "重要"
-    **NEVER** use `git submodule update --init` directly.
-    Always use the provided tools.
+!!! warning "重要" **NEVER** use `git submodule update --init` directly. Always use the provided
+tools.
 
 ### Submodule Commands
 
@@ -159,12 +163,12 @@ open htmlcov/index.html
 
 ### Coverage Targets
 
-| Package | Target | Status |
-|---------|--------|--------|
-| sage-common | 80% | ✅ |
-| sage-kernel | 70% | ✅ |
-| sage-libs | 60% | 🔄 |
-| sage-middleware | 50% | 🔄 |
+| Package         | Target | Status |
+| --------------- | ------ | ------ |
+| sage-common     | 80%    | ✅     |
+| sage-kernel     | 70%    | ✅     |
+| sage-libs       | 60%    | 🔄     |
+| sage-middleware | 50%    | 🔄     |
 
 ## Testing Guidelines
 
@@ -245,33 +249,37 @@ sage-dev quality readme
 
 ### Configuration Files
 
-| Tool | Config File |
-|------|-------------|
-| Ruff | `tools/ruff.toml` |
-| Pytest | `tools/pytest.ini` |
+| Tool       | Config File                    |
+| ---------- | ------------------------------ |
+| Ruff       | `tools/ruff.toml`              |
+| Pytest     | `tools/pytest.ini`             |
 | Pre-commit | `tools/pre-commit-config.yaml` |
-| Mypy | `pyproject.toml` |
+| Mypy       | `pyproject.toml`               |
 
 ## CI Debugging
 
 ### Common Issues
 
 1. **Submodule build fails**
+
    ```bash
    ./tools/maintenance/sage-maintenance.sh submodule init
    ```
 
-2. **C++ compilation errors**
+1. **C++ compilation errors**
+
    ```bash
    # Ensure dependencies installed
    sudo apt install build-essential cmake pkg-config libopenblas-dev liblapack-dev
    ```
 
-3. **API key issues**
+1. **API key issues**
+
    - Check GitHub Secrets configuration
    - Verify `.env` file locally
 
-4. **Test timeout**
+1. **Test timeout**
+
    ```bash
    sage-dev project test --timeout 600
    ```
@@ -313,13 +321,13 @@ sage-dev package version sync
 ### Release Checklist
 
 1. [ ] All tests passing
-2. [ ] Coverage targets met
-3. [ ] CHANGELOG.md updated
-4. [ ] Version bumped
-5. [ ] Documentation updated
-6. [ ] PR approved and merged
-7. [ ] Git tag created
-8. [ ] PyPI release triggered
+1. [ ] Coverage targets met
+1. [ ] CHANGELOG.md updated
+1. [ ] Version bumped
+1. [ ] Documentation updated
+1. [ ] PR approved and merged
+1. [ ] Git tag created
+1. [ ] PyPI release triggered
 
 ### Publishing
 
@@ -339,7 +347,9 @@ sage-dev package pypi publish
 
 ## Related Documentation
 
-- [GitHub Workflows](https://github.com/intellistream/SAGE/tree/main/.github/workflows) - CI/CD workflow definitions
+- [GitHub Workflows](https://github.com/intellistream/SAGE/tree/main/.github/workflows) - CI/CD
+  workflow definitions
 - [Development Setup](./development-setup.md) - Local development environment
 - [CLI Commands](./commands.md) - Complete command reference
-- [Internal Dev Notes](https://github.com/intellistream/SAGE/tree/main/docs/dev-notes/cross-layer/ci-cd) - Detailed CI/CD notes
+- [Internal Dev Notes](https://github.com/intellistream/SAGE/tree/main/docs/dev-notes/cross-layer/ci-cd)
+  \- Detailed CI/CD notes

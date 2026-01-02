@@ -15,8 +15,8 @@ L6 (Studio): sage-studio/src/sage/studio/services/finetune_manager.py  ← Studi
 ### 为什么当前在 L6 (sage-tools)?
 
 1. **历史原因**: 最初设计为 CLI 工具，供开发者使用
-2. **依赖重**: 依赖 transformers, torch, peft 等外部库
-3. **开发工具定位**: 被视为开发辅助工具，不是核心 runtime 功能
+1. **依赖重**: 依赖 transformers, torch, peft 等外部库
+1. **开发工具定位**: 被视为开发辅助工具，不是核心 runtime 功能
 
 ### 是否应该下沉到 L1/L2?
 
@@ -25,16 +25,19 @@ L6 (Studio): sage-studio/src/sage/studio/services/finetune_manager.py  ← Studi
 #### 原因：
 
 1. **依赖隔离** ✅
+
    - Fine-tune 依赖大量外部训练库 (transformers, peft, torch)
    - 这些不应该成为 L1/L2 的核心依赖
    - L1/L2 应该保持轻量级
 
-2. **使用场景** ✅
+1. **使用场景** ✅
+
    - Fine-tune 是**开发时**工具，不是**运行时**核心
    - 用户在开发阶段微调模型，部署时使用推理
    - 符合 L6 (Tools) 的定位
 
-3. **架构清晰性** ✅
+1. **架构清晰性** ✅
+
    - L1 (Common): 通用组件、服务基类
    - L2 (Platform): 平台服务、资源管理
    - L3 (Kernel/Libs): 核心算法、Pipeline
@@ -66,15 +69,17 @@ sage-common/src/sage/common/
 ```
 
 **优点**:
+
 - ✅ 保持依赖隔离
 - ✅ 符合分层架构
 - ✅ L1 定义接口，L6 实现细节
 - ✅ 最小改动
 
 **实施步骤**:
+
 1. 在 L1 添加 `IFineTuneService` 接口定义
-2. L6 的 `LoRATrainer` 实现该接口
-3. Studio 通过接口调用 (依赖注入)
+1. L6 的 `LoRATrainer` 实现该接口
+1. Studio 通过接口调用 (依赖注入)
 
 ### 方案 B: 拆分功能 (复杂)
 
@@ -93,6 +98,7 @@ sage-tools/src/sage/tools/
 ```
 
 **缺点**:
+
 - ❌ 过度设计
 - ❌ 增加复杂度
 - ❌ 收益不明显
@@ -156,6 +162,7 @@ class FinetuneManager:
 基于测试和社区反馈：
 
 ### 🥇 最佳选择
+
 - **Qwen/Qwen2.5-Coder-1.5B-Instruct**
   - 参数: 1.5B
   - 显存: 6-8GB (8-bit 量化)
@@ -163,19 +170,23 @@ class FinetuneManager:
   - 优势: 代码能力强，微调效果好
 
 ### 🥈 备选方案
+
 - **Qwen/Qwen2.5-0.5B-Instruct**
+
   - 参数: 500M
   - 显存: 4-6GB
   - 训练时间: 1-2小时
   - 优势: 训练超快，适合快速实验
 
 - **Qwen/Qwen2.5-1.5B-Instruct**
+
   - 参数: 1.5B
   - 显存: 6-8GB
   - 训练时间: 2-4小时
   - 优势: 通用对话能力
 
 ### ⚠️ 谨慎使用
+
 - **Qwen/Qwen2.5-3B-Instruct**: 需要 10-12GB 显存（RTX 3060 勉强）
 - **Qwen/Qwen2.5-7B-Instruct**: 需要 16-20GB 显存（需要 RTX 4090）
 
@@ -199,6 +210,7 @@ config.gradient_checkpointing = True # 节省显存
 ### HuggingFace Hub 自动下载
 
 所有 Qwen 模型都托管在 HuggingFace:
+
 - 下载路径: `~/.cache/huggingface/hub/models--Qwen--Qwen2.5-Coder-1.5B-Instruct/`
 - 自动处理: VLLMService 的 `auto_download=True` 会自动下载
 - 代理设置: 可通过 `HF_ENDPOINT` 环境变量配置国内镜像
@@ -211,16 +223,19 @@ export HF_ENDPOINT=https://hf-mirror.com
 ## 总结
 
 **保持 fine-tune 在 L6 (sage-tools)**，理由：
+
 1. ✅ 符合架构分层原则（开发工具 vs 运行时核心）
-2. ✅ 避免 L1/L2 引入重度训练依赖
-3. ✅ 接口定义在 L1，实现在 L6，清晰分离
+1. ✅ 避免 L1/L2 引入重度训练依赖
+1. ✅ 接口定义在 L1，实现在 L6，清晰分离
 
 **小改进**:
+
 1. 在 L1 添加 `IFineTuneService` 接口定义
-2. Studio 通过接口调用，不直接依赖实现
-3. 保持现有代码位置不变
+1. Studio 通过接口调用，不直接依赖实现
+1. 保持现有代码位置不变
 
 **RTX 3060 用户建议**:
+
 - 使用 `Qwen/Qwen2.5-Coder-1.5B-Instruct`
 - 启用 8-bit 量化 + 梯度检查点
 - 训练时间 2-4 小时可接受

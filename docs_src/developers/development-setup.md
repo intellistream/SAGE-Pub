@@ -38,17 +38,18 @@ ______________________________________________________________________
 
 #### 安装模式速查
 
-| 标志 | 安装层级 | 适用场景 |
-|------|----------|-----------|
-| `--core` | L1-L3 核心包 | 轻量化部署、CI 快速验证 |
-| `--standard` | 全量运行时 (L1-L5) | 生产近似环境 |
-| `--full` | 运行时 + 示例/文档 | 需要 examples/tutorials |
-| `--dev` | `--full` + 开发工具 | 日常开发、贡献代码 |
+| 标志         | 安装层级            | 适用场景                |
+| ------------ | ------------------- | ----------------------- |
+| `--core`     | L1-L3 核心包        | 轻量化部署、CI 快速验证 |
+| `--standard` | 全量运行时 (L1-L5)  | 生产近似环境            |
+| `--full`     | 运行时 + 示例/文档  | 需要 examples/tutorials |
+| `--dev`      | `--full` + 开发工具 | 日常开发、贡献代码      |
 
 附加选项：
 
 - `--pip` / `--conda`：显式指定使用系统 Python 或自动创建 Conda env（默认 Conda）。
-- `--sync-submodules`：在安装前调用 `./manage.sh` + `./tools/maintenance/sage-maintenance.sh submodule init`，保证 C++ 依赖同步。
+- `--sync-submodules`：在安装前调用 `./manage.sh` +
+  `./tools/maintenance/sage-maintenance.sh submodule init`，保证 C++ 依赖同步。
 - `--yes`：跳过交互确认，适合 CI 或脚本。
 
 #### 交互式 vs 非交互式流程

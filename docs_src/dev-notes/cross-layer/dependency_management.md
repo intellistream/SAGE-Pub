@@ -1,13 +1,18 @@
 # SAGE Dependency Management Plan
 
 ## Current State
-The project currently has scattered dependency definitions for `vllm` and `transformers` across multiple `pyproject.toml` files. This leads to maintenance difficulties and potential version conflicts.
+
+The project currently has scattered dependency definitions for `vllm` and `transformers` across
+multiple `pyproject.toml` files. This leads to maintenance difficulties and potential version
+conflicts.
 
 ## Proposed Solution: Centralized Dependency Management
 
-We should centralize the version definitions in `packages/sage-common/pyproject.toml` and have other packages inherit or reference these versions.
+We should centralize the version definitions in `packages/sage-common/pyproject.toml` and have other
+packages inherit or reference these versions.
 
 ### 1. Central Definition (sage-common)
+
 Define the "source of truth" versions in `packages/sage-common/pyproject.toml`.
 
 ```toml
@@ -20,9 +25,12 @@ vllm = [
 ```
 
 ### 2. Downstream Usage
-Other packages should ideally depend on `sage-common[vllm]` instead of redefining the version constraints.
+
+Other packages should ideally depend on `sage-common[vllm]` instead of redefining the version
+constraints.
 
 **Example (sage-libs):**
+
 ```toml
 [project.optional-dependencies]
 llm = [
@@ -31,17 +39,21 @@ llm = [
 ```
 
 ### 3. Benefits
+
 - **Single Source of Truth**: Update vLLM version in one place.
 - **Consistency**: Ensures all packages use compatible versions of vLLM, Torch, and Transformers.
 - **Simplified Maintenance**: Easier upgrades in the future.
 
 ## Action Items
-1.  Refactor `sage-common` to export a robust `vllm` extra.
-2.  Update `sage-libs`, `sage-middleware`, `sage-apps` to depend on `isage-common[vllm]`.
-3.  Remove explicit version numbers from downstream packages.
+
+1. Refactor `sage-common` to export a robust `vllm` extra.
+1. Update `sage-libs`, `sage-middleware`, `sage-apps` to depend on `isage-common[vllm]`.
+1. Remove explicit version numbers from downstream packages.
 
 ## Future vLLM Upgrade Path
+
 When upgrading to vLLM >= 0.14.0 (for Speculative Decoding support):
-1.  Update `sage-common/pyproject.toml`: `vllm>=0.14.0`.
-2.  Verify `transformers` compatibility (likely need newer version).
-3.  Re-install dependencies.
+
+1. Update `sage-common/pyproject.toml`: `vllm>=0.14.0`.
+1. Verify `transformers` compatibility (likely need newer version).
+1. Re-install dependencies.

@@ -1,7 +1,7 @@
 # Document Storage Feature in SAGE
 
-**Status**: ✅ **Fully Implemented**  
-**Location**: `packages/sage-middleware/src/sage/middleware/components/sage_mem/neuromem/`  
+**Status**: ✅ **Fully Implemented**\
+**Location**: `packages/sage-middleware/src/sage/middleware/components/sage_mem/neuromem/`\
 **Related Issue**: #610 (Parent), Current issue (Document Storage Implementation)
 
 ## Executive Summary
@@ -15,15 +15,18 @@ SAGE已经完整实现了RAG系统的文档存储功能。该功能集成在`neu
 文档存储功能由以下核心组件构成：
 
 #### 1. TextStorage（文本存储引擎）
+
 **位置**: `storage_engine/text_storage.py`
 
 **功能**:
+
 - 存储原始文档文本
 - 支持基于ID的快速检索
 - 提供磁盘持久化（JSON格式）
 - 支持批量操作
 
 **API**:
+
 ```python
 class TextStorage:
     def store(self, item_id: str, text: str)          # 存储文本
@@ -37,15 +40,18 @@ class TextStorage:
 ```
 
 #### 2. MetadataStorage（元数据存储引擎）
+
 **位置**: `storage_engine/metadata_storage.py`
 
 **功能**:
+
 - 存储文档元数据（标题、来源、标签等）
 - 支持动态字段注册
 - 字段验证
 - 元数据过滤查询
 
 **API**:
+
 ```python
 class MetadataStorage:
     def add_field(self, field_name: str)              # 注册字段
@@ -57,23 +63,28 @@ class MetadataStorage:
 ```
 
 #### 3. VectorStorage（向量存储引擎）
+
 **位置**: `storage_engine/vector_storage.py`
 
 **功能**:
+
 - 存储文档的向量嵌入
 - 支持向量检索
 - 与TextStorage和MetadataStorage协同工作
 
 #### 4. BaseMemoryCollection（基础内存集合）
+
 **位置**: `memory_collection/base_collection.py`
 
 **功能**:
+
 - 统一的文档CRUD接口
 - 自动生成稳定ID（基于SHA256）
 - 元数据过滤检索
 - 组合TextStorage和MetadataStorage
 
 **API**:
+
 ```python
 class BaseMemoryCollection:
     def insert(self, raw_text: str, metadata: Optional[Dict] = None) -> str
@@ -85,9 +96,11 @@ class BaseMemoryCollection:
 ```
 
 #### 5. VDBMemoryCollection（向量数据库集合）
+
 **位置**: `memory_collection/vdb_collection.py`
 
 **功能**:
+
 - 完整的RAG支持
 - 文本存储 + 向量索引 + 元数据管理
 - 多索引支持
@@ -95,6 +108,7 @@ class BaseMemoryCollection:
 - 向量检索与元数据过滤结合
 
 **API**:
+
 ```python
 class VDBMemoryCollection(BaseMemoryCollection):
     def create_index(self, config: Dict)              # 创建索引
@@ -112,15 +126,18 @@ class VDBMemoryCollection(BaseMemoryCollection):
 ```
 
 #### 6. MemoryManager（内存管理器）
+
 **位置**: `memory_manager.py`
 
 **功能**:
+
 - 管理多个MemoryCollection
 - 集合的创建、加载、删除
 - 集合持久化和懒加载
 - 状态管理
 
 **API**:
+
 ```python
 class MemoryManager:
     def create_collection(self, config: Dict) -> BaseMemoryCollection
@@ -291,10 +308,12 @@ L1: sage-common                 # 基础组件
 ## Tests and Examples
 
 ### Unit Tests
+
 - `packages/sage-middleware/tests/components/sage_mem/test_vdb.py`
 - `packages/sage-middleware/tests/components/sage_mem/test_manager.py`
 
 ### Integration Examples
+
 - `examples/tutorials/L4-middleware/memory_service/rag_memory_manager.py`
 - `examples/tutorials/L3-libs/rag/usage_4_complete_rag.py`
 - `examples/tutorials/L3-libs/rag/usage_3_memory_service.py`
@@ -315,12 +334,16 @@ python examples/tutorials/L4-middleware/memory_service/rag_memory_manager.py
 ## Documentation
 
 ### Developer Documentation
-- **Architecture Analysis**: `docs/dev-notes/cross-layer/architecture/NEUROMEM_ARCHITECTURE_ANALYSIS.md`
+
+- **Architecture Analysis**:
+  `docs/dev-notes/cross-layer/architecture/NEUROMEM_ARCHITECTURE_ANALYSIS.md`
 - **This Document**: `docs/dev-notes/l4-middleware/DOCUMENT_STORAGE_FEATURE.md`
 
 ### Public Documentation
+
 - **Neuromem Guide**: `docs-public/docs_src/guides/packages/sage-middleware/components/neuromem.md`
-- **Memory Service**: `docs-public/docs_src/guides/packages/sage-middleware/service/memory/memory_service.md`
+- **Memory Service**:
+  `docs-public/docs_src/guides/packages/sage-middleware/service/memory/memory_service.md`
 - **API Reference**: `docs-public/docs_src/api-reference/`
 
 ## Performance Considerations
@@ -328,16 +351,19 @@ python examples/tutorials/L4-middleware/memory_service/rag_memory_manager.py
 ### Storage Backend Options
 
 1. **In-Memory (Default - DictKVBackend)**
+
    - Fast read/write
    - Limited by RAM
    - Best for: Small to medium datasets, development
 
-2. **Disk (JSON)**
+1. **Disk (JSON)**
+
    - Persistent storage
    - Slower than in-memory
    - Best for: Production use, long-term storage
 
-3. **HDFS (Optional)**
+1. **HDFS (Optional)**
+
    - Distributed storage
    - Requires pyarrow
    - Best for: Large-scale deployments
@@ -345,11 +371,13 @@ python examples/tutorials/L4-middleware/memory_service/rag_memory_manager.py
 ### Vector Index Options
 
 1. **FAISS**
+
    - Fast approximate nearest neighbor search
    - Multiple index types (Flat, IVF, HNSW)
    - Best for: Large-scale vector search
 
-2. **BM25s**
+1. **BM25s**
+
    - Keyword-based search
    - Sparse vectors
    - Best for: Text matching
@@ -359,22 +387,27 @@ python examples/tutorials/L4-middleware/memory_service/rag_memory_manager.py
 Potential improvements (from issue #610 parent):
 
 1. **Graph-based Document Relations**
+
    - Currently TODO in `graph_collection.py`
    - Would enable document dependency tracking
 
-2. **Advanced Metadata Indexing**
+1. **Advanced Metadata Indexing**
+
    - Secondary indexes on metadata fields
    - Range queries, full-text search on metadata
 
-3. **Version Control**
+1. **Version Control**
+
    - Document history tracking
    - Rollback capabilities
 
-4. **Compression**
+1. **Compression**
+
    - Text compression for storage efficiency
    - Vector quantization
 
-5. **Distributed Storage**
+1. **Distributed Storage**
+
    - Multi-node deployment
    - Sharding support
 
@@ -387,10 +420,10 @@ Potential improvements (from issue #610 parent):
 
 文档存储功能已经完整实现并集成到SAGE的neuromem组件中。该实现提供了：
 
-✅ **高效存储** - TextStorage提供原始文本的高效存储  
-✅ **灵活检索** - 支持向量检索、元数据过滤、混合检索  
-✅ **完整管理** - 支持增删改查、批量操作、持久化  
-✅ **关联机制** - MetadataStorage提供灵活的文档关联  
+✅ **高效存储** - TextStorage提供原始文本的高效存储\
+✅ **灵活检索** - 支持向量检索、元数据过滤、混合检索\
+✅ **完整管理** - 支持增删改查、批量操作、持久化\
+✅ **关联机制** - MetadataStorage提供灵活的文档关联\
 ✅ **生产就绪** - 已有测试覆盖和实际应用案例
 
 用户可以直接使用现有的API进行文档存储和检索操作。

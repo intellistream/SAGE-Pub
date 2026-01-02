@@ -1,9 +1,8 @@
 # autostop 功能在不同模式下的支持情况
 
-**Date**: 2024-11-10  
-**Author**: SAGE Team  
+**Date**: 2024-11-10\
+**Author**: SAGE Team\
 **Summary**: AutoStop 模式支持文档，包括自动停止机制的设计和实现
-
 
 ## 概述
 
@@ -26,6 +25,7 @@ env.submit(autostop=True)  # ✅ 会自动清理所有资源，包括服务
 ```
 
 **工作原理：**
+
 - 所有任务完成后，触发 `receive_node_stop_signal`
 - 调用 `_cleanup_services_after_batch_completion`
 - 停止并清理所有本地服务
@@ -46,12 +46,14 @@ env.submit(autostop=True)  # ✅ 会自动清理 Ray Actors
 ```
 
 **工作原理：**
+
 - Dispatcher 检测到 `self.remote = True`
 - 调用 `_cleanup_ray_services()` 方法
 - 使用 `ActorWrapper.cleanup_and_kill()` 清理 Ray Actors
 - 所有服务 Actors 被正确终止
 
 **清理逻辑：**
+
 ```python
 def _cleanup_ray_services(self):
     for service_name, service_task in self.services.items():
@@ -77,14 +79,16 @@ env.submit()  # ⚠️ RemoteEnvironment.submit() 不支持 autostop 参数
 ```
 
 **当前状态：**
+
 - `RemoteEnvironment.submit()` 方法签名不包含 `autostop` 参数
 - 需要手动调用 `env.stop()` 来停止作业
 - 或者等待远程 JobManager 支持 `autostop` 功能
 
 **未来改进：**
+
 1. 扩展 `RemoteEnvironment.submit(autostop=True)` 接口
-2. 通过客户端协议传递 `autostop` 参数到远程 JobManager
-3. 远程 Dispatcher 执行相同的清理逻辑
+1. 通过客户端协议传递 `autostop` 参数到远程 JobManager
+1. 远程 Dispatcher 执行相同的清理逻辑
 
 ## 代码结构
 
@@ -138,11 +142,13 @@ def _wait_for_completion(self):
 ## 测试用例
 
 ### 本地模式测试
+
 ```bash
 python test_autostop_service_improved.py
 ```
 
 **预期结果：**
+
 ```
 ✅ SUCCESS: Service was properly initialized, used, and cleaned up!
   ✓ Initialized:       True
@@ -196,29 +202,33 @@ env.stop()  # 手动调用停止
 ## 未来路线图
 
 ### Phase 1：✅ 完成
+
 - [x] 本地模式支持 autostop 清理服务
 - [x] Ray 模式清理逻辑实现
 - [x] 测试验证
 
 ### Phase 2：计划中
+
 - [ ] RemoteEnvironment 添加 autostop 参数
 - [ ] JobManager 客户端协议扩展
 - [ ] 远程模式端到端测试
 
 ### Phase 3：增强
+
 - [ ] 配置化清理策略
 - [ ] 优雅关闭超时配置
 - [ ] 清理状态监控和报告
 
 ## 总结
 
-| 模式 | 环境类 | autostop 支持 | 服务清理 | 状态 |
-|------|--------|--------------|---------|------|
-| **本地** | LocalEnvironment | ✅ | ✅ 本地服务 | 已验证 |
-| **Ray** | LocalEnvironment + remote=True | ✅ | ✅ Ray Actors | 代码就绪 |
-| **完全远程** | RemoteEnvironment | ⚠️ 不支持 | ⚠️ 需要手动 | 待增强 |
+| 模式         | 环境类                         | autostop 支持 | 服务清理      | 状态     |
+| ------------ | ------------------------------ | ------------- | ------------- | -------- |
+| **本地**     | LocalEnvironment               | ✅            | ✅ 本地服务   | 已验证   |
+| **Ray**      | LocalEnvironment + remote=True | ✅            | ✅ Ray Actors | 代码就绪 |
+| **完全远程** | RemoteEnvironment              | ⚠️ 不支持     | ⚠️ 需要手动   | 待增强   |
 
 **结论：**
+
 - ✅ 大多数使用场景（本地 + Ray）都已支持
 - ⚠️ RemoteEnvironment 需要在未来版本中添加支持
 - 🎯 当前修复已经覆盖了主要的生产用例

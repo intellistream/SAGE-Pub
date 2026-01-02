@@ -76,8 +76,7 @@ sink:
 ### LLM 服务自动配置 ✅
 
 **问题**: 用户需要手动修改配置文件来适配 Ollama/vLLM 服务\
-**解决方案**: 实现 `sage config llm auto` 命令，自动检测和配置本地 LLM
-服务\
+**解决方案**: 实现 `sage config llm auto` 命令，自动检测和配置本地 LLM 服务\
 **状态**: 已完成并集成到文档
 
 ### CI/CD 嵌入模型集成 ✅

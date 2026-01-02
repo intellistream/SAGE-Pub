@@ -4,7 +4,7 @@
 >
 > 本文档为 **memory-refactor-2024** 目录的“去开发化”汇总版：只保留架构设计、命名体系、配置结构、迁移原则与测试结论；移除任务拆解、排期、分工、实现细节与代码片段。
 
----
+______________________________________________________________________
 
 ## 1. 重构动机与结论
 
@@ -21,27 +21,30 @@
 - **Service 只做业务逻辑**：Service 通过组合 Collection 的索引能力实现记忆策略，不关心底层存储形态。
 - **命名体系语义化**：使用 `partitional.*` / `hierarchical.*` 等类别前缀，服务名反映“存储/索引结构 + 关键策略”。
 
----
+______________________________________________________________________
 
 ## 2. 分层与组件边界（推荐心智模型）
 
 ### 2.1 分层概览
 
 - **L2: neuromem（Data & Index Layer）**
+
   - `UnifiedCollection`：统一数据容器（raw data + 多索引容器）。
   - `Index`：独立的索引实现（FAISS/LSH/BM25/FIFO/Segment/Graph…）。
   - `MemoryManager`：Collection 生命周期管理（创建、加载、持久化、删除）。
 
 - **L5: MemoryService（Business Logic Layer）**
+
   - 每个 Service = “使用哪些索引 + 插入/检索时的业务策略”。
   - 典型策略：特征提取、摘要、过滤、排序、多索引融合、路由等。
 
 > 关键边界：
+>
 > - Collection 管“数据与索引容器”；
 > - Index 管“索引结构与检索算法”；
 > - Service 管“记忆策略（业务逻辑）”。
 
----
+______________________________________________________________________
 
 ## 3. neuromem 新模型：UnifiedCollection + 动态索引
 
@@ -66,7 +69,7 @@
 - Structural：Graph（图遍历/关联/扩散）
 - Organizational：Segment（分段/分组检索）
 
----
+______________________________________________________________________
 
 ## 4. Service 分类与命名体系（最重要的对外接口）
 
@@ -80,25 +83,25 @@
 
 ### 4.2 13 个 Locomo 配置 → 新服务命名映射（讨论后确认）
 
-| Locomo 配置 | 新服务名称 |
-|---|---|
-| locomo_short_term_memory_pipeline.yaml | `partitional.fifo_queue` |
-| locomo_scm_pipeline.yaml | `partitional.fifo_queue` |
-| locomo_tim_pipeline.yaml | `partitional.lsh_hash` |
-| locomo_hipporag_pipeline.yaml | `hierarchical.semantic_inverted_knowledge_graph` |
-| locomo_hipporag2_pipeline.yaml | `hierarchical.semantic_inverted_knowledge_graph` |
-| locomo_amem_pipeline.yaml | `hierarchical.linknote_graph` |
-| locomo_memorybank_pipeline.yaml | `partitional.feature_summary_vectorstore_combination` |
-| locomo_memoryos_pipeline.yaml | `partitional.feature_queue_segment_combination` |
-| locomo_ldagent_pipeline.yaml | `partitional.feature_queue_summary_combination` |
-| locomo_secom_pipeline.yaml | `partitional.segment` |
-| locomo_memgpt_pipeline.yaml | `partitional.feature_queue_vectorstore_combination` |
-| locomo_mem0_pipeline.yaml | `partitional.inverted_vectorstore_combination` |
-| locomo_mem0g_pipeline.yaml | `hierarchical.property_graph` |
+| Locomo 配置                            | 新服务名称                                            |
+| -------------------------------------- | ----------------------------------------------------- |
+| locomo_short_term_memory_pipeline.yaml | `partitional.fifo_queue`                              |
+| locomo_scm_pipeline.yaml               | `partitional.fifo_queue`                              |
+| locomo_tim_pipeline.yaml               | `partitional.lsh_hash`                                |
+| locomo_hipporag_pipeline.yaml          | `hierarchical.semantic_inverted_knowledge_graph`      |
+| locomo_hipporag2_pipeline.yaml         | `hierarchical.semantic_inverted_knowledge_graph`      |
+| locomo_amem_pipeline.yaml              | `hierarchical.linknote_graph`                         |
+| locomo_memorybank_pipeline.yaml        | `partitional.feature_summary_vectorstore_combination` |
+| locomo_memoryos_pipeline.yaml          | `partitional.feature_queue_segment_combination`       |
+| locomo_ldagent_pipeline.yaml           | `partitional.feature_queue_summary_combination`       |
+| locomo_secom_pipeline.yaml             | `partitional.segment`                                 |
+| locomo_memgpt_pipeline.yaml            | `partitional.feature_queue_vectorstore_combination`   |
+| locomo_mem0_pipeline.yaml              | `partitional.inverted_vectorstore_combination`        |
+| locomo_mem0g_pipeline.yaml             | `hierarchical.property_graph`                         |
 
 > 备注：文档中提到“13 configs / 11 services”，原因是部分配置在概念上共享同一个 Service（通过参数区分具体行为）。
 
----
+______________________________________________________________________
 
 ## 5. 配置体系（v2 方向）与迁移原则
 
@@ -123,7 +126,7 @@
 - **消除 backend_type 绑定**：不再让“Collection 类型”决定索引能力；改为“Collection + indexes”。
 - **把“索引声明”集中化**：避免散落在不同 service 私有字段/初始化代码中。
 
----
+______________________________________________________________________
 
 ## 6. Registry / Factory 的对外体验（配置驱动实例化）
 
@@ -135,7 +138,7 @@
 
 > 目标效果：像 PreInsert/PostInsert 等算子一样，通过配置选择实现，避免多余的中间薄层。
 
----
+______________________________________________________________________
 
 ## 7. 测试与质量保证（结论级）
 
@@ -146,7 +149,7 @@
 - **E2E 测试**：覆盖“配置加载 → 创建服务 → 插入/检索/删除”的完整路径。
 - **性能测试**：关注插入/检索速度、内存占用、并发能力（以基线±波动阈值评估）。
 
----
+______________________________________________________________________
 
 ## 8. 对使用者的落地建议（非开发视角）
 
@@ -156,14 +159,15 @@
 - **需要快速近似相似检索（大规模去重/近邻）**：`partitional.lsh_hash`
 - **长对话/长文按段组织**：`partitional.segment`
 - **稀疏+稠密混合检索**：`partitional.inverted_vectorstore_combination`
-- **知识图谱/多层路由/图推理**：`hierarchical.semantic_inverted_knowledge_graph` / `hierarchical.linknote_graph` / `hierarchical.property_graph`
+- **知识图谱/多层路由/图推理**：`hierarchical.semantic_inverted_knowledge_graph` / `hierarchical.linknote_graph`
+  / `hierarchical.property_graph`
 
 ### 8.2 配置上的共识
 
 - 让“索引列表”成为配置第一公民：明确写出你要哪些索引，以及每个索引的参数。
 - 把“业务策略参数”与“索引参数”分开：便于调参、也便于迁移。
 
----
+______________________________________________________________________
 
 ## 9. 代码与文档入口（快速定位）
 
@@ -174,7 +178,7 @@
   - 配置迁移：`03_CONFIGURATION_MIGRATION.md`
   - 测试策略：`04_TESTING_STRATEGY.md`
 
----
+______________________________________________________________________
 
 ## 10. 术语表
 
@@ -184,7 +188,7 @@
 - **Partitional**：数据/索引呈分区或桶化组织，通常无显式中心层级。
 - **Hierarchical**：显式层级或多层结构（或图结构的层/路由）。
 
----
+______________________________________________________________________
 
 ## 变更记录（面向读者的简版）
 

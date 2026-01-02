@@ -1,21 +1,22 @@
 # Git Submodule 克隆速度优化
 
-**Date**: 2025-11-11  
-**Author**: SAGE Development Team  
-**Summary**: Git submodule cloning speed optimization guide with parallel fetching and shallow cloning  
-**Type**: Performance Optimization  
-**Status**: Completed  
+**Date**: 2025-11-11\
+**Author**: SAGE Development Team\
+**Summary**: Git submodule cloning speed optimization guide with parallel fetching and shallow
+cloning\
+**Type**: Performance Optimization\
+**Status**: Completed\
 **Related**: CI/CD Pipeline, Installation Process
 
----
+______________________________________________________________________
 
 ## 🐌 问题
 
 在克隆 SAGE 项目时，submodule 克隆速度很慢，主要原因：
 
 1. **串行克隆**：默认一个接一个地克隆 8 个子仓库
-2. **完整历史**：克隆完整的 Git 历史记录，数据量大
-3. **网络延迟**：国内访问 GitHub 速度较慢
+1. **完整历史**：克隆完整的 Git 历史记录，数据量大
+1. **网络延迟**：国内访问 GitHub 速度较慢
 
 ## ⚡ 优化方案
 
@@ -41,11 +42,11 @@
 
 ## 📊 优化效果
 
-| 优化项 | 优化前 | 优化后 | 提升 |
-|--------|--------|--------|------|
-| 克隆方式 | 串行 | 4 线程并行 | ~4x |
-| 历史深度 | 完整历史 | 浅克隆 (depth=1) | ~10x |
-| **总体速度** | **10-15 分钟** | **2-5 分钟** | **~3-5x** |
+| 优化项       | 优化前         | 优化后           | 提升      |
+| ------------ | -------------- | ---------------- | --------- |
+| 克隆方式     | 串行           | 4 线程并行       | ~4x       |
+| 历史深度     | 完整历史       | 浅克隆 (depth=1) | ~10x      |
+| **总体速度** | **10-15 分钟** | **2-5 分钟**     | **~3-5x** |
 
 ## 🔧 技术细节
 
@@ -82,11 +83,13 @@ git config --local http.postBuffer 524288000   # 500MB 缓冲区
 使用 `--depth 1` 浅克隆后：
 
 ✅ **可以做**：
+
 - 查看最新代码
 - 进行开发和提交
 - 推送更改
 
 ❌ **不能做**：
+
 - 查看完整历史记录
 - 执行某些需要完整历史的 Git 操作
 
@@ -147,29 +150,33 @@ git submodule sync
 ### 克隆卡住不动
 
 1. **检查网络连接**：
+
    ```bash
    ping github.com
    curl -I https://github.com
    ```
 
-2. **增加 HTTP 超时**：
+1. **增加 HTTP 超时**：
+
    ```bash
    git config --local http.lowSpeedLimit 0
    git config --local http.lowSpeedTime 999999
    ```
 
-3. **使用代理或镜像**（见上文）
+1. **使用代理或镜像**（见上文）
 
 ### 克隆失败
 
 1. **清理并重试**：
+
    ```bash
    git submodule deinit -f --all
    rm -rf .git/modules/*
    ./manage.sh
    ```
 
-2. **手动克隆单个 submodule**：
+1. **手动克隆单个 submodule**：
+
    ```bash
    git submodule update --init packages/sage-middleware/src/sage/middleware/components/sage_db/sageDB
    ```
@@ -184,5 +191,5 @@ git submodule sync
 如果仍然遇到问题：
 
 1. 查看 [SAGE 安装文档](../docs/installation.md)
-2. 提交 [Issue](https://github.com/intellistream/SAGE/issues)
-3. 联系开发团队
+1. 提交 [Issue](https://github.com/intellistream/SAGE/issues)
+1. 联系开发团队

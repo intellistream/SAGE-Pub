@@ -1,17 +1,20 @@
 # Task 2.2: 文档加载器实现
 
 ## 目标
+
 实现不同类型文档的加载和分块逻辑。
 
 ## 依赖
+
 - Task 2.1 (SourceType, KnowledgeSource)
 
 ## 文件位置
+
 `packages/sage-studio/src/sage/studio/services/document_loader.py`
 
 ## 提示词
 
-```
+````
 请实现文档加载器，支持加载不同类型的文档并进行分块。
 
 ## 要求
@@ -63,21 +66,24 @@
        def _chunk_text(self, text: str, metadata: dict) -> list[DocumentChunk]:
            """将长文本切分为多个 chunk"""
            pass
-   ```
+````
 
 3. 分块策略:
+
    - Markdown: 按标题 (##) 分块，保留标题作为 metadata
    - Python: 按函数/类分块，提取 docstring
    - PDF: 按页分块，或按段落分块
    - 通用文本: 按字符数分块，保留重叠
 
-4. Metadata 包含:
+1. Metadata 包含:
+
    - source_file: 文件路径
    - source_type: 文件类型
    - title: 标题（如果有）
    - language: 语言（对于代码）
 
 ## 代码模板
+
 ```python
 import ast
 import re
@@ -142,9 +148,11 @@ class DocumentLoader:
 ```
 
 ## 注意
+
 - 处理文件编码问题 (UTF-8, GBK 等)
 - 处理大文件时使用生成器避免内存问题
 - PDF 加载需要 pypdf 或 pdfplumber 依赖
+
 ```
 
 ## 验收标准
@@ -152,3 +160,4 @@ class DocumentLoader:
 - [ ] 分块逻辑合理（不破坏句子）
 - [ ] 正确提取 metadata
 - [ ] 处理了编码和大文件问题
+```

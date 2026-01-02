@@ -1,16 +1,17 @@
 # Research Proposal: SLO-Aware KV Cache Management for Collocated LLM-Embedding Services
 
-> **Status**: Draft  
-> **Created**: 2025-12-02  
+> **Status**: Draft\
+> **Created**: 2025-12-02\
 > **Target Venues**: OSDI 2025 / SOSP 2025 / EuroSys 2026 / NSDI 2026
 
----
+______________________________________________________________________
 
 ## 1. 研究背景与动机
 
 ### 1.1 问题背景
 
-现代 AI 应用（RAG、Agent、多模态问答）通常需要同时部署 LLM 推理服务和 Embedding 服务。为了降低成本和提高资源利用率，业界趋向于将两者**共置 (Collocate)** 在同一 GPU 资源池中。
+现代 AI 应用（RAG、Agent、多模态问答）通常需要同时部署 LLM 推理服务和 Embedding 服务。为了降低成本和提高资源利用率，业界趋向于将两者**共置 (Collocate)**
+在同一 GPU 资源池中。
 
 然而，这种共置部署面临严峻挑战：
 
@@ -29,12 +30,12 @@
 
 ### 1.2 现有工作的局限
 
-| 现有工作 | 关注点 | 局限 |
-|---------|-------|------|
-| **vLLM (PagedAttention)** | LLM KV Cache 内存效率 | 未考虑与 Embedding 共置 |
-| **DistServe/Mooncake** | Prefill-Decode 分离 | 物理隔离，无法共享 GPU |
-| **ICLR 2026 在审** | 同架构 Batch 合并 | 架构约束强，未解决内存竞争 |
-| **S-LoRA** | 多 LoRA 适配器管理 | 未涉及 Embedding 工作负载 |
+| 现有工作                  | 关注点                | 局限                       |
+| ------------------------- | --------------------- | -------------------------- |
+| **vLLM (PagedAttention)** | LLM KV Cache 内存效率 | 未考虑与 Embedding 共置    |
+| **DistServe/Mooncake**    | Prefill-Decode 分离   | 物理隔离，无法共享 GPU     |
+| **ICLR 2026 在审**        | 同架构 Batch 合并     | 架构约束强，未解决内存竞争 |
+| **S-LoRA**                | 多 LoRA 适配器管理    | 未涉及 Embedding 工作负载  |
 
 **关键空白**：**没有工作研究 LLM KV Cache 与 Embedding 工作负载共置时的内存管理问题**。
 
@@ -42,59 +43,59 @@
 
 我们观察到以下关键特征差异：
 
-| 特征 | LLM KV Cache | Embedding 工作负载 |
-|-----|-------------|-------------------|
-| **内存模式** | 逐 token 增长，生命周期长 | 批量分配，生命周期短 |
-| **可预测性** | 输出长度难预测 | 批大小已知，完全可预测 |
-| **可驱逐性** | 驱逐代价高（需重计算） | 无状态，计算完即释放 |
-| **SLO 敏感度** | TTFT/TPOT 敏感 | 批处理延迟容忍度较高 |
+| 特征           | LLM KV Cache              | Embedding 工作负载     |
+| -------------- | ------------------------- | ---------------------- |
+| **内存模式**   | 逐 token 增长，生命周期长 | 批量分配，生命周期短   |
+| **可预测性**   | 输出长度难预测            | 批大小已知，完全可预测 |
+| **可驱逐性**   | 驱逐代价高（需重计算）    | 无状态，计算完即释放   |
+| **SLO 敏感度** | TTFT/TPOT 敏感            | 批处理延迟容忍度较高   |
 
 **核心洞察**：Embedding 的**完全可预测性**可以用来指导 LLM KV Cache 的管理决策，而不是简单地争抢资源。
 
----
+______________________________________________________________________
 
 ## 2. 问题形式化
 
 ### 2.1 系统模型
 
-考虑一个 GPU 资源池，总显存容量为 $M$，已被模型权重占用 $M_w$，可用显存为 $M_{avail} = M - M_w$。
+考虑一个 GPU 资源池，总显存容量为 $M$，已被模型权重占用 $M_w$，可用显存为 $M\_{avail} = M - M_w$。
 
 **请求模型**：
 
-- LLM 请求 $r_l = (t_{arr}, p_{len}, o_{len}, slo_l)$：到达时间、prompt 长度、输出长度（未知）、SLO
-- Embedding 请求 $r_e = (t_{arr}, n_{texts}, d_{dim}, slo_e)$：到达时间、文本数量、向量维度、SLO
+- LLM 请求 $r_l = (t\_{arr}, p\_{len}, o\_{len}, slo_l)$：到达时间、prompt 长度、输出长度（未知）、SLO
+- Embedding 请求 $r_e = (t\_{arr}, n\_{texts}, d\_{dim}, slo_e)$：到达时间、文本数量、向量维度、SLO
 
 **内存需求**：
 
-- LLM 请求 $r_l$ 的 KV Cache：$m_l(t) = 2 \cdot n_{layers} \cdot d_{head} \cdot (p_{len} + tokens\_generated(t))$
-- Embedding 批次 $B_e$：$m_e(B_e) = batch\_size \cdot max\_seq\_len \cdot d_{model}$
+- LLM 请求 $r_l$ 的 KV Cache：$m_l(t) = 2 \\cdot n\_{layers} \\cdot d\_{head} \\cdot (p\_{len} +
+  tokens_generated(t))$
+- Embedding 批次 $B_e$：$m_e(B_e) = batch_size \\cdot max_seq_len \\cdot d\_{model}$
 
 ### 2.2 优化目标
 
 **多目标优化问题**：
 
-$$
-\max \quad \alpha \cdot SLO\_Attainment_{LLM} + \beta \cdot SLO\_Attainment_{Emb} + \gamma \cdot Throughput
-$$
+$$ \\max \\quad \\alpha \\cdot SLO_Attainment\_{LLM} + \\beta \\cdot SLO_Attainment\_{Emb} + \\gamma
+\\cdot Throughput $$
 
 Subject to:
 
-$$
-\sum_{r_l \in Active} m_l(t) + \sum_{B_e \in Running} m_e(B_e) \leq M_{avail}, \quad \forall t
-$$
+$$ \\sum\_{r_l \\in Active} m_l(t) + \\sum\_{B_e \\in Running} m_e(B_e) \\leq M\_{avail}, \\quad
+\\forall t $$
 
 其中：
 
-- $SLO\_Attainment_{LLM} = \frac{|\{r_l : TTFT < slo_l.ttft \land TPOT < slo_l.tpot\}|}{|R_l|}$
-- $SLO\_Attainment_{Emb} = \frac{|\{r_e : Latency < slo_e.deadline\}|}{|R_e|}$
+- $SLO_Attainment\_{LLM} = \\frac{|{r_l : TTFT < slo_l.ttft \\land TPOT < slo_l.tpot}|}{|R_l|}$
+- $SLO_Attainment\_{Emb} = \\frac{|{r_e : Latency < slo_e.deadline}|}{|R_e|}$
 
 ### 2.3 问题复杂度
 
 **定理 1**：混合工作负载的 SLO 感知内存分配问题是 **NP-Hard**。
 
-**证明思路**：可从带期限的背包问题 (Knapsack with Deadlines) 规约。每个请求对应一个物品，内存需求对应重量，SLO 满足对应价值，显存容量对应背包容量。由于 LLM 输出长度未知，问题具有在线特性，进一步增加复杂度。
+**证明思路**：可从带期限的背包问题 (Knapsack with Deadlines) 规约。每个请求对应一个物品，内存需求对应重量，SLO 满足对应价值，显存容量对应背包容量。由于 LLM
+输出长度未知，问题具有在线特性，进一步增加复杂度。
 
----
+______________________________________________________________________
 
 ## 3. 核心方法
 
@@ -278,13 +279,15 @@ Output:
 
 ### 3.5 理论分析
 
-**定理 2 (Admission Control 的有效性)**：在 Embedding 负载可准确预测的情况下，Algorithm 1 可以将内存溢出导致的 SLO 违反率降低至 $O(\frac{1}{n})$，其中 $n$ 是预测窗口内的请求数。
+**定理 2 (Admission Control 的有效性)**：在 Embedding 负载可准确预测的情况下，Algorithm 1 可以将内存溢出导致的 SLO 违反率降低至
+$O(\\frac{1}{n})$，其中 $n$ 是预测窗口内的请求数。
 
 **定理 3 (Quota Adjustment 的稳定性)**：Algorithm 2 在 smooth_adjust 的约束下，内存配额变化满足 Lyapunov 稳定性条件，不会产生震荡。
 
-**定理 4 (Eviction Policy 的竞争比)**：在请求优先级均匀分布的情况下，Algorithm 3 相对于离线最优策略的竞争比为 $O(\log k)$，其中 $k$ 是优先级级别数。
+**定理 4 (Eviction Policy 的竞争比)**：在请求优先级均匀分布的情况下，Algorithm 3 相对于离线最优策略的竞争比为 $O(\\log k)$，其中 $k$
+是优先级级别数。
 
----
+______________________________________________________________________
 
 ## 4. 系统实现
 
@@ -371,29 +374,29 @@ class SLOAwareBlockManager:
         return self.base_manager.try_allocate(request.num_blocks_needed)
 ```
 
----
+______________________________________________________________________
 
 ## 5. 实验设计
 
 ### 5.1 实验环境
 
-| 配置项 | 规格 |
-|-------|------|
-| GPU | NVIDIA A100 80GB / H100 80GB |
-| 模型 | LLaMA-2-7B/13B/70B, Qwen2.5-7B/72B |
-| Embedding | BGE-M3, E5-Large, GTE-Large |
-| Baseline | vLLM, DistServe, Mooncake, ICLR 2026 在审工作 |
+| 配置项    | 规格                                          |
+| --------- | --------------------------------------------- |
+| GPU       | NVIDIA A100 80GB / H100 80GB                  |
+| 模型      | LLaMA-2-7B/13B/70B, Qwen2.5-7B/72B            |
+| Embedding | BGE-M3, E5-Large, GTE-Large                   |
+| Baseline  | vLLM, DistServe, Mooncake, ICLR 2026 在审工作 |
 
 ### 5.2 工作负载设计
 
 #### 5.2.1 合成工作负载
 
-| 参数 | 范围 |
-|-----|------|
-| LLM:Embedding 比例 | 1:9, 3:7, 5:5, 7:3, 9:1 |
-| 请求到达模式 | Poisson, Bursty, Periodic |
-| LLM 输出长度分布 | 短 (50-100), 中 (200-500), 长 (1000-2000) |
-| Embedding 批大小 | 16, 32, 64, 128 |
+| 参数               | 范围                                      |
+| ------------------ | ----------------------------------------- |
+| LLM:Embedding 比例 | 1:9, 3:7, 5:5, 7:3, 9:1                   |
+| 请求到达模式       | Poisson, Bursty, Periodic                 |
+| LLM 输出长度分布   | 短 (50-100), 中 (200-500), 长 (1000-2000) |
+| Embedding 批大小   | 16, 32, 64, 128                           |
 
 #### 5.2.2 真实工作负载
 
@@ -402,12 +405,12 @@ class SLOAwareBlockManager:
 
 ### 5.3 评估指标
 
-| 指标类别 | 具体指标 |
-|---------|---------|
+| 指标类别       | 具体指标                                  |
+| -------------- | ----------------------------------------- |
 | **SLO 达成率** | LLM TTFT P99, LLM TPOT P99, Embedding P99 |
-| **吞吐量** | Requests/sec, Tokens/sec |
-| **资源效率** | GPU 利用率, 显存利用率, KV Cache 命中率 |
-| **公平性** | 不同优先级请求的 SLO 达成率差异 |
+| **吞吐量**     | Requests/sec, Tokens/sec                  |
+| **资源效率**   | GPU 利用率, 显存利用率, KV Cache 命中率   |
+| **公平性**     | 不同优先级请求的 SLO 达成率差异           |
 
 ### 5.4 关键实验
 
@@ -436,67 +439,67 @@ class SLOAwareBlockManager:
 - 在其支持的场景（同架构模型）下进行公平对比
 - 在其不支持的场景（异构模型）下展示我们的优势
 
----
+______________________________________________________________________
 
 ## 6. 预期贡献
 
 ### 6.1 学术贡献
 
 1. **问题形式化**：首次形式化定义 LLM-Embedding 共置场景下的 SLO 感知内存管理问题
-2. **理论分析**：证明问题 NP-Hard，并给出近似算法及竞争比分析
-3. **新算法**：
+1. **理论分析**：证明问题 NP-Hard，并给出近似算法及竞争比分析
+1. **新算法**：
    - Embedding-Aware Admission Control
    - SLO-Driven Dynamic Memory Quota
    - SLO-Aware KV Cache Eviction Policy
-4. **系统洞察**：揭示 Embedding 可预测性如何指导 LLM 内存管理
+1. **系统洞察**：揭示 Embedding 可预测性如何指导 LLM 内存管理
 
 ### 6.2 系统贡献
 
 1. **SAGE 集成实现**：完整的系统原型
-2. **与 vLLM 的无缝集成**：可直接用于生产环境
-3. **开源代码和数据集**
+1. **与 vLLM 的无缝集成**：可直接用于生产环境
+1. **开源代码和数据集**
 
 ### 6.3 实验贡献
 
 1. **全面的基准测试**：对比所有 SOTA 系统
-2. **真实工作负载验证**：不仅限于合成测试
+1. **真实工作负载验证**：不仅限于合成测试
 
----
+______________________________________________________________________
 
 ## 7. 时间规划
 
-| 阶段 | 任务 | 时间 |
-|-----|------|------|
-| Phase 1 | 问题形式化 + 理论分析 | 4 周 |
-| Phase 2 | 核心算法设计与实现 | 6 周 |
-| Phase 3 | SAGE 系统集成 | 4 周 |
-| Phase 4 | 实验评估 | 6 周 |
-| Phase 5 | 论文撰写 | 4 周 |
-| **总计** | | **24 周 (~6 个月)** |
+| 阶段     | 任务                  | 时间                |
+| -------- | --------------------- | ------------------- |
+| Phase 1  | 问题形式化 + 理论分析 | 4 周                |
+| Phase 2  | 核心算法设计与实现    | 6 周                |
+| Phase 3  | SAGE 系统集成         | 4 周                |
+| Phase 4  | 实验评估              | 6 周                |
+| Phase 5  | 论文撰写              | 4 周                |
+| **总计** |                       | **24 周 (~6 个月)** |
 
----
+______________________________________________________________________
 
 ## 8. 目标会议
 
-| 优先级 | 会议 | 截止日期 (预估) |
-|-------|------|----------------|
-| 1 | **OSDI 2025** | 2025 年 5 月 |
-| 2 | **SOSP 2025** | 2025 年 4 月 |
-| 3 | **EuroSys 2026** | 2025 年 10 月 |
-| 4 | **NSDI 2026** | 2025 年 9 月 |
+| 优先级 | 会议             | 截止日期 (预估) |
+| ------ | ---------------- | --------------- |
+| 1      | **OSDI 2025**    | 2025 年 5 月    |
+| 2      | **SOSP 2025**    | 2025 年 4 月    |
+| 3      | **EuroSys 2026** | 2025 年 10 月   |
+| 4      | **NSDI 2026**    | 2025 年 9 月    |
 
----
+______________________________________________________________________
 
 ## 9. 风险与应对
 
-| 风险 | 应对策略 |
-|-----|---------|
-| 预测模型不准确 | 设计鲁棒的 fallback 机制 |
-| vLLM 版本更新导致不兼容 | 抽象接口层，降低耦合 |
-| 实验资源不足 | 优先使用云 GPU，考虑与业界合作 |
-| 与 ICLR 工作撞车 | 强调异构模型支持 + 理论贡献的差异化 |
+| 风险                    | 应对策略                            |
+| ----------------------- | ----------------------------------- |
+| 预测模型不准确          | 设计鲁棒的 fallback 机制            |
+| vLLM 版本更新导致不兼容 | 抽象接口层，降低耦合                |
+| 实验资源不足            | 优先使用云 GPU，考虑与业界合作      |
+| 与 ICLR 工作撞车        | 强调异构模型支持 + 理论贡献的差异化 |
 
----
+______________________________________________________________________
 
 ## 10. 相关工作
 
@@ -525,14 +528,20 @@ class SLOAwareBlockManager:
 - **Clipper** (NSDI 2017): Low-latency prediction serving
 - **INFaaS** (ATC 2021): Automated model-less inference serving
 
----
+______________________________________________________________________
 
 ## 11. 参考文献
 
-1. Kwon, W., et al. "Efficient Memory Management for Large Language Model Serving with PagedAttention." SOSP 2023.
-2. Zhong, Y., et al. "DistServe: Disaggregating Prefill and Decoding for Goodput-optimized Large Language Model Serving." OSDI 2024.
-3. Qin, R., et al. "Mooncake: A KVCache-centric Disaggregated Architecture for LLM Serving." arXiv 2024.
-4. Sheng, Y., et al. "S-LoRA: Serving Thousands of Concurrent LoRA Adapters." arXiv 2024.
-5. Agrawal, A., et al. "SARATHI: Efficient LLM Inference by Piggybacking Decodes with Chunked Prefills." arXiv 2023.
-6. Zheng, L., et al. "SGLang: Efficient Execution of Structured Language Model Programs." arXiv 2024.
-7. Wang, Y., et al. "BurstGPT: A Real-world Workload Dataset to Optimize LLM Serving Systems." arXiv 2024.
+1. Kwon, W., et al. "Efficient Memory Management for Large Language Model Serving with
+   PagedAttention." SOSP 2023.
+1. Zhong, Y., et al. "DistServe: Disaggregating Prefill and Decoding for Goodput-optimized Large
+   Language Model Serving." OSDI 2024.
+1. Qin, R., et al. "Mooncake: A KVCache-centric Disaggregated Architecture for LLM Serving." arXiv
+   2024\.
+1. Sheng, Y., et al. "S-LoRA: Serving Thousands of Concurrent LoRA Adapters." arXiv 2024.
+1. Agrawal, A., et al. "SARATHI: Efficient LLM Inference by Piggybacking Decodes with Chunked
+   Prefills." arXiv 2023.
+1. Zheng, L., et al. "SGLang: Efficient Execution of Structured Language Model Programs." arXiv
+   2024\.
+1. Wang, Y., et al. "BurstGPT: A Real-world Workload Dataset to Optimize LLM Serving Systems." arXiv
+   2024\.

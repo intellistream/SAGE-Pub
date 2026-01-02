@@ -1,17 +1,20 @@
 # Task 5.1: ReasoningAccordion 组件
 
 ## 目标
+
 实现前端 ReasoningAccordion 组件，展示 Agent 推理步骤。
 
 ## 依赖
+
 - Task 3.1 (AgentStep Schema - 对应前端类型)
 
 ## 文件位置
+
 `packages/sage-studio/src/sage/studio/frontend/src/components/ReasoningAccordion.tsx`
 
 ## 提示词
 
-```
+````
 请实现 ReasoningAccordion React 组件，用于展示 Agent 推理步骤。
 
 ## 背景
@@ -38,7 +41,7 @@ Multi-Agent 系统会流式返回执行步骤 (AgentStep)，前端需要:
      isExpanded?: boolean;
      onToggle?: () => void;
    }
-   ```
+````
 
 3. UI 设计:
    - 默认收起，显示 "思考中..." 或 "思考完成"
@@ -46,6 +49,7 @@ Multi-Agent 系统会流式返回执行步骤 (AgentStep)，前端需要:
    - 每个步骤有图标和状态指示
 
 ## 代码模板
+
 ```tsx
 import React, { useState } from "react";
 import {
@@ -145,10 +149,12 @@ export default ReasoningAccordion;
 ```
 
 ## 注意
+
 - 使用 shadcn/ui Accordion 组件
 - 步骤类型对应不同图标
 - 状态用颜色和动画区分
 - metadata 可选显示
+
 ```
 
 ## 验收标准
@@ -156,3 +162,4 @@ export default ReasoningAccordion;
 - [ ] 折叠/展开功能正常
 - [ ] 状态指示清晰
 - [ ] 响应式设计
+```

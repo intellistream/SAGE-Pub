@@ -1,17 +1,20 @@
 # Task 4.3: ArxivSearchTool 论文搜索工具
 
 ## 目标
+
 封装 Arxiv 论文搜索功能，支持研究论文辅导场景。
 
 ## 依赖
+
 - Task 4.1 (BaseTool)
 
 ## 文件位置
+
 `packages/sage-studio/src/sage/studio/tools/arxiv_search.py`
 
 ## 提示词
 
-```
+````
 请实现 Arxiv 论文搜索工具，复用 examples 中的现有实现。
 
 ## 背景
@@ -43,9 +46,10 @@ SAGE 项目在 examples/tutorials/L3-libs/agents/arxiv_search_tool.py 中已有�
        async def _run(self, query: str, max_results: int = 5, with_abstract: bool = True) -> list[dict]:
            """执行 Arxiv 搜索"""
            pass
-   ```
+````
 
 4. 返回格式:
+
    ```python
    [
        {
@@ -60,12 +64,14 @@ SAGE 项目在 examples/tutorials/L3-libs/agents/arxiv_search_tool.py 中已有�
    ]
    ```
 
-5. 错误处理:
+1. 错误处理:
+
    - 网络超时
    - Arxiv 服务不可用
    - 无搜索结果
 
 ## 代码模板
+
 ```python
 from __future__ import annotations
 
@@ -201,9 +207,11 @@ def register_arxiv_tool():
 ```
 
 ## 注意
+
 - 处理网络超时（设置合理的 timeout）
 - 缓存搜索结果（可选）
 - 遵守 Arxiv 的使用规范（不要频繁请求）
+
 ```
 
 ## 验收标准
@@ -211,3 +219,4 @@ def register_arxiv_tool():
 - [ ] 返回格式正确
 - [ ] 错误处理完善
 - [ ] 与 BaseTool 接口兼容
+```

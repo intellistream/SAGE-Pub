@@ -1,9 +1,7 @@
 # ICML Refiner 投稿任务分解
 
-> **位置**: `docs/dev-notes/l5-benchmark/ICML_REFINER_TASKS.md`
-> **创建日期**: 2025-12-01
-> **最后更新**: 2025-12-02
-> **状态**: Round 2 已完成
+> **位置**: `docs/dev-notes/l5-benchmark/ICML_REFINER_TASKS.md` **创建日期**: 2025-12-01 **最后更新**:
+> 2025-12-02 **状态**: Round 2 已完成
 
 ## 任务总览
 
@@ -23,20 +21,20 @@ Round 3 (依赖 Round 2):
   └── Task 3B: LaTeX 表格导出
 ```
 
----
+______________________________________________________________________
 
 ## 算法概览
 
 ### 当前支持的算法
 
-| 算法 | 类型 | 描述 | 状态 |
-|------|------|------|------|
-| **Baseline** | 截断 | 简单截断，无压缩 | ✅ |
-| **LongRefiner** | LLM-based | 基于 LLM 的上下文精炼 | ✅ |
-| **REFORM** | Attention-based | 注意力头驱动的 token 选择 | ✅ |
-| **Provence** | Provenance-aware | 出处感知压缩 | ✅ |
-| **LongLLMLingua** | LLM-PPL | 问题感知的长文档压缩 | ✅ 新增 |
-| **LLMLingua-2** | BERT-based | 快速 token 分类压缩 | ✅ 新增 |
+| 算法              | 类型             | 描述                      | 状态    |
+| ----------------- | ---------------- | ------------------------- | ------- |
+| **Baseline**      | 截断             | 简单截断，无压缩          | ✅      |
+| **LongRefiner**   | LLM-based        | 基于 LLM 的上下文精炼     | ✅      |
+| **REFORM**        | Attention-based  | 注意力头驱动的 token 选择 | ✅      |
+| **Provence**      | Provenance-aware | 出处感知压缩              | ✅      |
+| **LongLLMLingua** | LLM-PPL          | 问题感知的长文档压缩      | ✅ 新增 |
+| **LLMLingua-2**   | BERT-based       | 快速 token 分类压缩       | ✅ 新增 |
 
 ### 算法位置
 
@@ -56,7 +54,7 @@ packages/sage-middleware/src/sage/middleware/components/sage_refiner/sageRefiner
         └── operator.py       # LLMLingua2Operator
 ```
 
----
+______________________________________________________________________
 
 ## Round 1: 基础模块 ✅ 已完成
 
@@ -65,10 +63,12 @@ packages/sage-middleware/src/sage/middleware/components/sage_refiner/sageRefiner
 **状态**: 已完成 (21 tests passing)
 
 **输出文件**:
+
 - `packages/sage-benchmark/src/sage/benchmark/benchmark_refiner/experiments/results_collector.py`
 - 修改 `packages/sage-middleware/src/sage/middleware/operators/rag/evaluate.py`
 
 **实现功能**:
+
 - `ResultsCollector` 单例类，线程安全
 - `add_sample(sample_id, **metrics)` 添加单个样本结果
 - `get_results() -> list[dict]` 获取所有结果
@@ -77,25 +77,28 @@ packages/sage-middleware/src/sage/middleware/components/sage_refiner/sageRefiner
 - `export_json(path)` / `load_json(path)` 文件 I/O
 - 集成到 F1Evaluate, LatencyEvaluate, CompressionRateEvaluate
 
----
+______________________________________________________________________
 
 ### Task 1B: LongLLMLingua Pipeline 集成 ✅
 
 **状态**: 已完成
 
 **输出文件**:
+
 - `sage_refiner/algorithms/longllmlingua/compressor.py` - LongLLMLinguaCompressor
 - `sage_refiner/algorithms/longllmlingua/operator.py` - LongLLMLinguaOperator
 - `packages/sage-benchmark/src/sage/benchmark/benchmark_refiner/config/config_longllmlingua.yaml`
 - `packages/sage-benchmark/src/sage/benchmark/benchmark_refiner/implementations/pipelines/longllmlingua_rag.py`
 
 **算法特性**:
+
 - 问题感知的上下文排序 (`rank_method="longllmlingua"`)
 - 对比 perplexity 评估 (`condition_compare=True`)
 - 动态压缩比例 (`dynamic_context_compression_ratio=0.3`)
 - 上下文重排序 (`reorder_context="sort"`)
 
 **Paper Baseline 配置**:
+
 ```yaml
 longllmlingua:
   model_name: "NousResearch/Llama-2-7b-hf"
@@ -107,6 +110,7 @@ longllmlingua:
 ```
 
 **接口示例**:
+
 ```python
 from sage.middleware.components.sage_refiner import LongLLMLinguaCompressor
 
@@ -122,16 +126,18 @@ result = compressor.compress(
 # result["compressed_prompt"], result["compression_rate"], result["processing_time"]
 ```
 
----
+______________________________________________________________________
 
 ### Task 1C: 统计检验模块 ✅
 
 **状态**: 已完成 (38 tests passing)
 
 **输出文件**:
+
 - `packages/sage-benchmark/src/sage/benchmark/benchmark_refiner/analysis/statistical.py`
 
 **实现功能**:
+
 - `paired_t_test(baseline, method)` - 配对 t 检验
 - `bootstrap_confidence_interval(scores, n_bootstrap, confidence)` - Bootstrap 置信区间
 - `cohens_d(baseline, method)` - Cohen's d 效应量
@@ -141,25 +147,28 @@ result = compressor.compress(
 - `generate_significance_report(results, baseline_name)` - 生成 Markdown 报告
 - `compute_all_statistics(results, baseline_name)` - 计算所有统计量
 
----
+______________________________________________________________________
 
 ### Task 1D: LLMLingua-2 Pipeline 集成 ✅
 
 **状态**: 已完成 (14 tests passing)
 
 **输出文件**:
+
 - `sage_refiner/algorithms/llmlingua2/compressor.py` - LLMLingua2Compressor
 - `sage_refiner/algorithms/llmlingua2/operator.py` - LLMLingua2Operator
 - `packages/sage-benchmark/src/sage/benchmark/benchmark_refiner/config/config_llmlingua2.yaml`
 - `packages/sage-benchmark/src/sage/benchmark/benchmark_refiner/implementations/pipelines/llmlingua2_rag.py`
 
 **算法特性**:
+
 - 基于 BERT 的快速 token 分类压缩
 - 无需 LLM 推理，速度快
 - 多语言支持 (mBERT, XLM-RoBERTa)
 - 支持 context-level + token-level 双重过滤
 
 **配置**:
+
 ```yaml
 llmlingua2:
   model_name: "microsoft/llmlingua-2-bert-base-multilingual-cased-meetingbank"
@@ -171,6 +180,7 @@ llmlingua2:
 ```
 
 **接口示例**:
+
 ```python
 from sage.middleware.components.sage_refiner import LLMLingua2Compressor
 
@@ -185,7 +195,7 @@ result = compressor.compress(
 # result["compressed_prompt"], result["compression_rate"]
 ```
 
----
+______________________________________________________________________
 
 ## Round 2: 集成层 ✅ 已完成
 
@@ -198,9 +208,12 @@ result = compressor.compress(
 **目标**: 让 `ComparisonExperiment` 调用真实 Pipeline 并收集结果
 
 **输出文件**:
-- 修改 `packages/sage-benchmark/src/sage/benchmark/benchmark_refiner/experiments/comparison_experiment.py`
+
+- 修改
+  `packages/sage-benchmark/src/sage/benchmark/benchmark_refiner/experiments/comparison_experiment.py`
 
 **实现功能**:
+
 - `_execute_pipeline(algorithm)` - 执行真实 Pipeline 并收集结果
 - `_load_and_modify_config(algorithm, dataset)` - 加载并修改配置
 - `_run_pipeline_module(algorithm, config)` - 动态导入并运行 Pipeline
@@ -210,35 +223,39 @@ result = compressor.compress(
 - `DatasetResult` - 单数据集结果容器
 
 **Pipeline 映射**:
-| 算法 | Pipeline 模块 |
-|------|--------------|
-| baseline | `baseline_rag.py` |
-| longrefiner | `longrefiner_rag.py` |
-| reform | `reform_rag.py` |
-| provence | `provence_rag.py` |
+
+| 算法          | Pipeline 模块          |
+| ------------- | ---------------------- |
+| baseline      | `baseline_rag.py`      |
+| longrefiner   | `longrefiner_rag.py`   |
+| reform        | `reform_rag.py`        |
+| provence      | `provence_rag.py`      |
 | longllmlingua | `longllmlingua_rag.py` |
-| llmlingua2 | `llmlingua2_rag.py` |
+| llmlingua2    | `llmlingua2_rag.py`    |
 
 **参考 Prompt** (已完成，保留供参考):
-```
+
+````
 你是 SAGE 框架的开发者。请重构 ComparisonExperiment 以调用真实 Pipeline。
 
 ## 前置条件
 Task 1A 已完成，`ResultsCollector` 可用：
 ```python
 from sage.benchmark.benchmark_refiner.experiments.results_collector import ResultsCollector
-```
+````
 
 ## 背景
-当前 `ComparisonExperiment._process_sample_placeholder()` 生成模拟数据。
-需要修改为调用真实的 Pipeline 并收集评测结果。
+
+当前 `ComparisonExperiment._process_sample_placeholder()` 生成模拟数据。 需要修改为调用真实的 Pipeline 并收集评测结果。
 
 ## 任务
+
 重构 `comparison_experiment.py`：
 
 1. **删除** `_process_sample_placeholder()` 方法
 
-2. **重写** `_execute_pipeline()` 方法：
+1. **重写** `_execute_pipeline()` 方法：
+
 ```python
 def _execute_pipeline(self, algorithm: str) -> list[dict[str, Any]]:
     """
@@ -254,6 +271,7 @@ def _execute_pipeline(self, algorithm: str) -> list[dict[str, Any]]:
 ```
 
 3. **添加** Pipeline 运行逻辑：
+
 ```python
 def _run_pipeline_module(self, algorithm: str, config: dict) -> None:
     """
@@ -284,6 +302,7 @@ def _run_pipeline_module(self, algorithm: str, config: dict) -> None:
 ```
 
 4. **添加** 配置加载和修改：
+
 ```python
 def _load_and_modify_config(self, algorithm: str) -> dict:
     """
@@ -294,11 +313,13 @@ def _load_and_modify_config(self, algorithm: str) -> dict:
 ```
 
 ## 参考文件
+
 - 现有实现: `experiments/comparison_experiment.py`
 - Pipeline 示例: `implementations/pipelines/baseline_rag.py`
 - 配置文件: `config/config_baseline.yaml`
 
 ## 执行流程
+
 ```
 ComparisonExperiment.run()
   └── for algorithm in algorithms:
@@ -310,11 +331,13 @@ ComparisonExperiment.run()
 ```
 
 ## 注意事项
+
 - Pipeline 运行使用 `time.sleep()` 等待，需要改为检测完成
 - 处理 Pipeline 异常情况
 - 支持超时配置
 - 保持与现有 CLI 兼容
-```
+
+````
 
 ---
 
@@ -350,9 +373,10 @@ AVAILABLE_DATASETS = [
     "popqa",        # PopQA
     "webq",         # WebQuestions
 ]
-```
+````
 
 **CLI 使用示例**:
+
 ```bash
 # 单数据集
 sage-refiner-bench compare --algorithms baseline,longrefiner --datasets nq --samples 100
@@ -368,7 +392,7 @@ sage-refiner-bench compare \
 sage-refiner-bench compare --algorithms baseline,longrefiner --datasets all
 ```
 
----
+______________________________________________________________________
 
 ## Round 3: 呈现层 (依赖 Round 2)
 
@@ -379,10 +403,12 @@ sage-refiner-bench compare --algorithms baseline,longrefiner --datasets all
 **目标**: 添加算法对比可视化图表
 
 **输出文件**:
+
 - 修改 `packages/sage-benchmark/src/sage/benchmark/benchmark_refiner/analysis/visualization.py`
 
 **Prompt**:
-```
+
+````
 你是 SAGE 框架的开发者。请增强可视化模块。
 
 ## 前置条件
@@ -408,9 +434,10 @@ def plot_algorithm_comparison(
     - 包含误差棒 (std)
     - 标注最佳值
     """
-```
+````
 
 2. **Pareto 前沿图**:
+
 ```python
 def plot_pareto_frontier(
     results: dict[str, AlgorithmMetrics],
@@ -426,6 +453,7 @@ def plot_pareto_frontier(
 ```
 
 3. **延迟分解堆叠图**:
+
 ```python
 def plot_latency_breakdown(
     results: dict[str, AlgorithmMetrics],
@@ -438,6 +466,7 @@ def plot_latency_breakdown(
 ```
 
 4. **跨数据集热力图**:
+
 ```python
 def plot_dataset_heatmap(
     results: dict[str, dict[str, AlgorithmMetrics]],  # {dataset: {algo: metrics}}
@@ -453,6 +482,7 @@ def plot_dataset_heatmap(
 ```
 
 5. **雷达图**:
+
 ```python
 def plot_radar_chart(
     results: dict[str, AlgorithmMetrics],
@@ -466,20 +496,24 @@ def plot_radar_chart(
 ```
 
 ## 依赖
+
 - matplotlib
 - seaborn (热力图)
 - numpy
 
 ## 样式要求
+
 - 使用统一的颜色方案
 - 支持保存为 PDF (论文用) 和 PNG
 - 图表标题和轴标签使用英文
 - DPI >= 300
 
 ## 注意事项
+
 - 处理缺失数据
 - 添加图例
 - 支持自定义颜色映射
+
 ```
 
 ---
@@ -495,16 +529,20 @@ def plot_radar_chart(
 
 **Prompt**:
 ```
+
 你是 SAGE 框架的开发者。请实现 LaTeX 表格导出功能。
 
 ## 前置条件
+
 - Task 1C (统计检验) 已完成
 - Task 2A/2B (实验结果) 已完成
 
 ## 任务
+
 创建 `latex_export.py`，实现论文表格生成：
 
 1. **主结果表格**:
+
 ```python
 def generate_main_results_table(
     results: dict[str, dict[str, AlgorithmMetrics]],  # {dataset: {algo: metrics}}
@@ -534,6 +572,7 @@ def generate_main_results_table(
 ```
 
 2. **消融实验表格**:
+
 ```python
 def generate_ablation_table(
     results: dict[str, AlgorithmMetrics],
@@ -545,6 +584,7 @@ def generate_ablation_table(
 ```
 
 3. **统计显著性表格**:
+
 ```python
 def generate_significance_table(
     raw_results: dict[str, list[dict]],  # {algo: [sample_results]}
@@ -557,6 +597,7 @@ def generate_significance_table(
 ```
 
 4. **压缩案例展示**:
+
 ```python
 def generate_case_study_table(
     cases: list[dict],  # [{"query": ..., "original": ..., "compressed": ...}]
@@ -568,13 +609,15 @@ def generate_case_study_table(
 ```
 
 ## LaTeX 格式要求
-- 使用 booktabs 包 (\toprule, \midrule, \bottomrule)
-- 最佳值加粗 (\textbf)
-- 显著性标记: $^{*}$ (p<0.05), $^{**}$ (p<0.01), $^{***}$ (p<0.001)
+
+- 使用 booktabs 包 (\\toprule, \\midrule, \\bottomrule)
+- 最佳值加粗 (\\textbf)
+- 显著性标记: $^{*}$ (p\<0.05), $^{**}$ (p\<0.01), $^{***}$ (p\<0.001)
 - 数值保留适当小数位
 - 支持多行表头
 
 ## 输出示例
+
 ```latex
 \begin{table}[t]
 \centering
@@ -596,14 +639,17 @@ LLMLingua-2 & 0.355 & 2.8× & \textbf{1.50} \\
 ```
 
 ## CLI 集成
+
 ```bash
 sage-refiner-bench report results.json --format latex --output tables/
 ```
 
 ## 注意事项
+
 - 自动处理特殊字符转义
 - 支持表格拆分（过宽时）
 - 添加表格注释
+
 ```
 
 ---
@@ -611,36 +657,17 @@ sage-refiner-bench report results.json --format latex --output tables/
 ## 任务依赖图
 
 ```
-Round 1 (并行) ✅:
-┌─────────┐  ┌─────────────┐  ┌─────────┐  ┌────────────┐
-│ Task 1A │  │  Task 1B    │  │ Task 1C │  │  Task 1D   │
-│ Results │  │LongLLMLingua│  │  Stats  │  │ LLMLingua2 │
-│Collector│  │  Pipeline   │  │  Tests  │  │  Pipeline  │
-└────┬────┘  └──────┬──────┘  └────┬────┘  └─────┬──────┘
-     │              │              │             │
-     └──────────────┴──────┬───────┴─────────────┘
-                           │
-Round 2 (依赖 Round 1):    │
-┌──────────────────────────┴─────────────────────────┐
-│                                                    │
-▼                                                    ▼
-┌─────────┐                                  ┌─────────┐
-│ Task 2A │                                  │ Task 2B │
-│Comparison│                                 │  Multi  │
-│Experiment│                                 │ Dataset │
-└────┬────┘                                  └────┬────┘
-     │                                            │
-     └────────────────────┬───────────────────────┘
-                          │
-Round 3 (依赖 Round 2):   │
-┌─────────────────────────┴──────────────────────────┐
-│                                                    │
-▼                                                    ▼
-┌─────────┐                                  ┌─────────┐
-│ Task 3A │                                  │ Task 3B │
-│  Visual │                                  │  LaTeX  │
-│  Charts │                                  │ Tables  │
-└─────────┘                                  └─────────┘
+
+Round 1 (并行) ✅: ┌─────────┐ ┌─────────────┐ ┌─────────┐ ┌────────────┐ │ Task 1A │ │ Task 1B │ │
+Task 1C │ │ Task 1D │ │ Results │ │LongLLMLingua│ │ Stats │ │ LLMLingua2 │ │Collector│ │ Pipeline │
+│ Tests │ │ Pipeline │ └────┬────┘ └──────┬──────┘ └────┬────┘ └─────┬──────┘ │ │ │ │
+└──────────────┴──────┬───────┴─────────────┘ │ Round 2 (依赖 Round 1): │
+┌──────────────────────────┴─────────────────────────┐ │ │ ▼ ▼ ┌─────────┐ ┌─────────┐ │ Task 2A │ │
+Task 2B │ │Comparison│ │ Multi │ │Experiment│ │ Dataset │ └────┬────┘ └────┬────┘ │ │
+└────────────────────┬───────────────────────┘ │ Round 3 (依赖 Round 2): │
+┌─────────────────────────┴──────────────────────────┐ │ │ ▼ ▼ ┌─────────┐ ┌─────────┐ │ Task 3A │ │
+Task 3B │ │ Visual │ │ LaTeX │ │ Charts │ │ Tables │ └─────────┘ └─────────┘
+
 ```
 
 ---
@@ -668,3 +695,4 @@ Round 3 (依赖 Round 2):   │
 - **2025-12-02**: Round 2 完成 (Task 2A ComparisonExperiment 重构, Task 2B 多数据集批量运行支持)
 - **2025-12-02**: 更新算法列表，移除 Adaptive/LLMLingua，新增 LongLLMLingua/LLMLingua-2
 - **2025-12-01**: 初始版本，Round 1 任务完成
+```

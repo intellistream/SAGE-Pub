@@ -4,13 +4,14 @@
 
 本文档说明 SAGE Studio 微调功能的 GPU 资源管理策略，以及 Studio 队列机制与 SageLLM Control Plane 的职责边界。
 
----
+______________________________________________________________________
 
 ## 当前实现：Studio 本地队列
 
 ### 设计原则
 
 **单 GPU 任务串行化**：
+
 - 一次只运行一个微调任务
 - 新任务自动进入队列（`QUEUED` 状态）
 - 任务完成后自动启动下一个排队任务
@@ -41,6 +42,7 @@ PENDING（等待开始）
 #### 2. 队列管理代码
 
 **启动任务时检查队列**：
+
 ```python
 # finetune_manager.py
 def start_training(self, task_id: str) -> bool:
@@ -62,6 +64,7 @@ def start_training(self, task_id: str) -> bool:
 ```
 
 **任务完成时启动下一个**：
+
 ```python
 def _start_next_queued_task(self):
     """启动下一个排队任务"""
@@ -85,6 +88,7 @@ def update_task_status(self, task_id: str, status: FinetuneStatus, ...):
 **API 端点**：`GET /api/system/gpu-info`
 
 **返回信息**：
+
 ```json
 {
   "available": true,
@@ -101,6 +105,7 @@ def update_task_status(self, task_id: str, status: FinetuneStatus, ...):
 ```
 
 **前端动态显示**：
+
 ```tsx
 // FinetunePanel.tsx
 const [gpuInfo, setGpuInfo] = useState(null)
@@ -119,15 +124,15 @@ const loadGpuInfo = async () => {
 💡 {gpuInfo ? gpuInfo.recommendation : '正在检测 GPU...'}
 ```
 
----
+______________________________________________________________________
 
 ## Studio 队列 vs SageLLM Control Plane
 
 ### 职责边界
 
-| 组件 | 职责范围 | 当前实现 |
-|------|---------|---------|
-| **Studio 队列** | 管理 Studio 内的微调任务排队<br>防止单用户多任务挤压 GPU | ✅ 已实现 |
+| 组件                      | 职责范围                                                     | 当前实现  |
+| ------------------------- | ------------------------------------------------------------ | --------- |
+| **Studio 队列**           | 管理 Studio 内的微调任务排队<br>防止单用户多任务挤压 GPU     | ✅ 已实现 |
 | **SageLLM Control Plane** | 跨用户/跨服务的 GPU 资源调度<br>生产环境的资源隔离与配额管理 | ❌ 未集成 |
 
 ### 为什么当前使用 Studio 队列？
@@ -135,12 +140,14 @@ const loadGpuInfo = async () => {
 #### 1. **使用场景差异**
 
 **Studio 场景**（当前）：
+
 - 单用户本地开发环境
 - GPU 资源由 Studio 独占
 - 任务量少（一般同时 1-3 个）
 - 需要快速响应和简单逻辑
 
 **Control Plane 场景**（未来）：
+
 - 多用户生产环境
 - GPU 资源池需要跨服务共享
 - 大规模任务调度
@@ -149,11 +156,13 @@ const loadGpuInfo = async () => {
 #### 2. **架构复杂度权衡**
 
 **Studio 队列**（轻量）：
+
 ```
 User → Studio UI → FinetuneManager (本地队列) → GPU
 ```
 
 **Control Plane 集成**（重量）：
+
 ```
 User → Studio UI → API Gateway → Control Plane → Resource Manager
                                        ↓
@@ -167,16 +176,18 @@ User → Studio UI → API Gateway → Control Plane → Resource Manager
 #### 3. **开发优先级**
 
 **当前阶段**：
+
 - ✅ 快速验证微调功能
 - ✅ 支持单用户开发场景
 - ✅ 最小化依赖和复杂度
 
 **未来集成**：
+
 - ⏳ 生产环境部署需求明确后
 - ⏳ 多用户场景真正出现后
 - ⏳ SageLLM Control Plane 成熟后
 
----
+______________________________________________________________________
 
 ## 何时需要集成 SageLLM Control Plane？
 
@@ -185,24 +196,29 @@ User → Studio UI → API Gateway → Control Plane → Resource Manager
 满足以下**任一条件**时，应考虑集成 Control Plane：
 
 1. **多用户场景**：
+
    - Studio 部署为多用户服务器模式
    - 需要跨用户的资源配额管理
 
-2. **GPU 资源竞争**：
+1. **GPU 资源竞争**：
+
    - GPU 资源被多个服务共享（如 vLLM 推理 + 微调）
    - 需要动态资源分配和抢占机制
 
-3. **大规模任务调度**：
+1. **大规模任务调度**：
+
    - 单用户同时提交 10+ 个任务
    - 需要优先级队列和复杂调度策略
 
-4. **生产环境需求**：
+1. **生产环境需求**：
+
    - 需要任务持久化到外部存储（如 Redis）
    - 需要监控、告警、审计等企业级功能
 
 ### 集成方案
 
 **Phase 1：轻量集成**
+
 ```python
 # finetune_manager.py
 class FinetuneManager:
@@ -218,17 +234,19 @@ class FinetuneManager:
 ```
 
 **Phase 2：完全托管**
+
 - 所有微调任务通过 Control Plane API 提交
 - Studio 只负责 UI 和任务监控
 - GPU 资源由 Control Plane 统一管理
 
----
+______________________________________________________________________
 
 ## GPU 资源分配策略
 
 ### 当前策略（Studio 本地队列）
 
 **单任务独占 GPU**：
+
 ```python
 # api.py - use-as-backend 端点
 import torch
@@ -243,6 +261,7 @@ if num_gpus > 0:
 ```
 
 **为什么是 0.8？**
+
 - 预留 20% 显存给系统和其他进程
 - 防止 OOM（Out of Memory）
 - 支持模型加载时的临时显存峰值
@@ -250,23 +269,26 @@ if num_gpus > 0:
 ### 未来策略（Control Plane 集成）
 
 **GPU 分片（MIG）**：
+
 - NVIDIA A100/H100 支持 MIG（Multi-Instance GPU）
 - 单卡可划分为多个独立实例
 - 支持多任务并行
 
 **动态显存分配**：
+
 - 根据模型大小动态调整 `gpu_memory_utilization`
 - 小模型（0.5B）：0.3（30% 显存）
 - 中等模型（1.5B-3B）：0.5-0.6
 - 大模型（7B+）：0.8-0.9
 
----
+______________________________________________________________________
 
 ## 常见问题
 
 ### Q1: 为什么不直接使用 Kubernetes Job Queue？
 
 **A**: 当前 Studio 是单机应用，不依赖 Kubernetes。未来生产部署可以选择：
+
 - Option 1: Studio 队列 + K8s Job（每个训练任务单独提交到 K8s）
 - Option 2: 完全托管给 SageLLM Control Plane（Control Plane 内部使用 K8s）
 
@@ -287,10 +309,12 @@ Task 3: PENDING → QUEUED（等待 Task 1, 2）
 **A**: 当前实现不检测外部 GPU 占用。解决方案：
 
 **短期**（手动）：
+
 - 用户手动检查 `nvidia-smi`
 - 确保 GPU 空闲后再提交任务
 
 **中期**（检测）：
+
 ```python
 def check_gpu_available():
     import torch
@@ -305,6 +329,7 @@ def check_gpu_available():
 ```
 
 **长期**（Control Plane）：
+
 - Control Plane 统一管理所有 GPU 使用者
 - 动态资源分配和抢占
 
@@ -313,43 +338,50 @@ def check_gpu_available():
 **A**: 会！当前架构下，两者会竞争 GPU 显存。
 
 **临时方案**：
+
 1. 微调任务启动前，提示用户停止 vLLM 服务
-2. 或使用 CPU 推理模式（性能低）
+1. 或使用 CPU 推理模式（性能低）
 
 **正式方案**（需要 Control Plane）：
+
 - vLLM 和微调任务都向 Control Plane 申请资源
 - Control Plane 根据优先级分配 GPU
 - 支持动态卸载和重新加载模型
 
----
+______________________________________________________________________
 
 ## 最佳实践
 
 ### 对于用户
 
 1. **检查 GPU 状态**：
+
    ```bash
    nvidia-smi
    ```
 
-2. **合理选择模型大小**：
+1. **合理选择模型大小**：
+
    - 根据页面显示的 GPU 推荐配置选择模型
    - 不要超过显存限制
 
-3. **避免同时运行多个重型任务**：
+1. **避免同时运行多个重型任务**：
+
    - 微调任务会独占 GPU
    - 训练期间暂停推理服务可加快速度
 
 ### 对于开发者
 
 1. **监控任务队列长度**：
+
    ```python
    queued_count = sum(1 for t in tasks if t.status == FinetuneStatus.QUEUED)
    if queued_count > 5:
        print("警告：队列任务过多")
    ```
 
-2. **添加任务超时机制**：
+1. **添加任务超时机制**：
+
    ```python
    MAX_TRAINING_TIME = 3600 * 6  # 6 小时
 
@@ -362,23 +394,26 @@ def check_gpu_available():
                break
    ```
 
-3. **准备 Control Plane 集成接口**：
+1. **准备 Control Plane 集成接口**：
+
    - 保持 `FinetuneManager` 的接口稳定
    - 未来只需替换内部实现
 
----
+______________________________________________________________________
 
 ## 总结
 
 ### 当前架构（Studio 本地队列）
 
 **优势**：
+
 - ✅ 简单高效
 - ✅ 适合单用户开发场景
 - ✅ 无外部依赖
 - ✅ 快速迭代验证
 
 **限制**：
+
 - ❌ 不支持多用户
 - ❌ 不支持跨服务 GPU 共享
 - ❌ 缺少高级调度策略
@@ -386,21 +421,24 @@ def check_gpu_available():
 ### 未来演进（Control Plane 集成）
 
 **时机**：
+
 - 生产环境多用户部署
 - GPU 资源需要跨服务共享
 - 需要企业级调度和监控
 
 **迁移成本**：
+
 - 低（接口已预留）
 - 只需替换调度器实现
 - 前端 UI 无需变化
 
 **建议**：
+
 - 当前保持 Studio 队列实现
 - 密切关注 SageLLM Control Plane 进展
 - 在生产需求明确时再集成
 
----
+______________________________________________________________________
 
 ## 参考资料
 

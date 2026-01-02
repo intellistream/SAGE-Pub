@@ -7,19 +7,20 @@
 **总体目标**: 将测试覆盖率从 37% 提升至 70%+
 
 **拆分原则**:
+
 - 按架构层级(L1-L6)和功能域划分
 - 每个任务覆盖率独立计算，避免依赖冲突
 - 优先测试关键路径和低覆盖率模块（0%-30%）
 - 每个任务包含单元测试 + 集成测试
 
----
+______________________________________________________________________
 
 ## 任务1: L1-L2层基础设施测试 (sage-common)
 
-**负责人**: Developer A  
-**预计工时**: 3-4周  
-**当前覆盖率**: ~25%  
-**目标覆盖率**: 75%+  
+**负责人**: Developer A\
+**预计工时**: 3-4周\
+**当前覆盖率**: ~25%\
+**目标覆盖率**: 75%+\
 **预期提升**: 整体覆盖率 +15%
 
 ### 1.1 核心目标模块
@@ -27,7 +28,9 @@
 #### 🔴 **高优先级 (0%-30% 覆盖率)**
 
 1. **sage_embedding 嵌入服务组件** (当前 15%-40%)
+
    - 文件清单:
+
      ```
      packages/sage-common/src/sage/common/components/sage_embedding/
      ├── wrappers/
@@ -46,37 +49,44 @@
      ```
 
    - **测试策略**:
+
      - Mock API调用（使用 `unittest.mock`, `responses`, `pytest-httpx`）
      - 测试初始化、配置验证、错误处理
      - 测试嵌入生成、批处理、重试逻辑
      - 集成测试: 不同wrapper的互换性
 
-2. **sage_llm 推理服务** (当前 6%-35%)
-     - 文件清单:
-         ```
-         packages/sage-llm-core/src/sage/llm/
-         ├── control_plane/
-         │   ├── manager.py               (6% → 70%)
-         │   ├── router.py                (18% → 70%)
-         │   ├── executors/
-         │   │   ├── http_client.py       (14% → 70%)
-         │   │   ├── local_async.py       (27% → 75%)
-         │   ├── monitoring.py            (21% → 70%)
-         │   ├── parallelism.py           (35% → 75%)
-         │   ├── pd_routing.py            (19% → 70%)
-         ├── control_plane_service.py     (30% → 75%)
-         ├── service.py                   (20% → 75%)
-         ```
+1. **sage_llm 推理服务** (当前 6%-35%)
+
+   - 文件清单:
+
+     ```
+     packages/sage-llm-core/src/sage/llm/
+     ├── control_plane/
+     │   ├── manager.py               (6% → 70%)
+     │   ├── router.py                (18% → 70%)
+     │   ├── executors/
+     │   │   ├── http_client.py       (14% → 70%)
+     │   │   ├── local_async.py       (27% → 75%)
+     │   ├── monitoring.py            (21% → 70%)
+     │   ├── parallelism.py           (35% → 75%)
+     │   ├── pd_routing.py            (19% → 70%)
+     ├── control_plane_service.py     (30% → 75%)
+     ├── service.py                   (20% → 75%)
+     ```
 
    - **测试策略**:
+
      - Mock vLLM HTTP API
      - 测试请求路由、负载均衡、故障转移
      - 测试并行度控制、GPU分配
      - 集成测试: 完整推理流程模拟
-    - **参考**: `packages/sage-llm-core/src/sage/llm/control_plane/tests/conftest.py`
 
-3. **utils 工具模块** (当前 0%-61%)
+   - **参考**: `packages/sage-llm-core/src/sage/llm/control_plane/tests/conftest.py`
+
+1. **utils 工具模块** (当前 0%-61%)
+
    - 文件清单:
+
      ```
      packages/sage-common/src/sage/common/utils/
      ├── config/
@@ -97,6 +107,7 @@
      ```
 
    - **测试策略**:
+
      - Mock系统调用（socket, subprocess, os）
      - 测试配置加载、合并、验证
      - 测试序列化/反序列化边界情况
@@ -106,11 +117,13 @@
 #### 🟡 **中优先级 (30%-60% 覆盖率)**
 
 4. **service 服务基类** (42%)
+
    ```
    packages/sage-common/src/sage/common/service/base_service.py (42% → 80%)
    ```
 
-5. **model_registry 模型注册** (85%)
+1. **model_registry 模型注册** (85%)
+
    ```
    packages/sage-common/src/sage/common/model_registry/vllm_registry.py (85% → 95%)
    ```
@@ -152,6 +165,7 @@ packages/sage-common/tests/
 ### 1.3 关键测试用例示例
 
 #### Embedding Wrapper测试模板
+
 ```python
 # packages/sage-common/tests/unit/components/sage_embedding/test_wrappers.py
 import pytest
@@ -197,6 +211,7 @@ class TestOpenAIWrapper:
 ```
 
 #### vLLM Router测试模板
+
 ```python
 # packages/sage-llm-core/tests/unit/control_plane/test_router.py
 import pytest
@@ -239,14 +254,14 @@ class TestRouter:
 - [ ] 实现 system utils Mock测试
 - [ ] 运行覆盖率报告并验证达标
 
----
+______________________________________________________________________
 
 ## 任务2: L3-L4层核心引擎测试 (sage-kernel + sage-middleware部分)
 
-**负责人**: Developer B  
-**预计工时**: 4-5周  
-**当前覆盖率**: ~35%  
-**目标覆盖率**: 75%+  
+**负责人**: Developer B\
+**预计工时**: 4-5周\
+**当前覆盖率**: ~35%\
+**目标覆盖率**: 75%+\
 **预期提升**: 整体覆盖率 +18%
 
 ### 2.1 核心目标模块
@@ -254,7 +269,9 @@ class TestRouter:
 #### 🔴 **高优先级 (0%-40% 覆盖率)**
 
 1. **sage-kernel 运行时核心** (当前 10%-60%)
+
    - 文件清单:
+
      ```
      packages/sage-kernel/src/sage/kernel/
      ├── runtime/
@@ -277,14 +294,17 @@ class TestRouter:
      ```
 
    - **测试策略**:
+
      - Mock Ray Actor/分布式调用
      - 测试任务调度、执行、失败恢复
      - 测试心跳监控、超时处理
      - 测试RPC通信、消息队列
      - 集成测试: 端到端任务执行流程
 
-2. **sage-kernel API层** (当前 11%-60%)
+1. **sage-kernel API层** (当前 11%-60%)
+
    - 文件清单:
+
      ```
      packages/sage-kernel/src/sage/kernel/api/
      ├── base_environment.py                 (53% → 80%)
@@ -308,6 +328,7 @@ class TestRouter:
      ```
 
    - **测试策略**:
+
      - 测试 Environment 创建、配置
      - 测试 DataStream API 链式调用
      - 测试各类 Operator 的数据处理逻辑
@@ -315,8 +336,10 @@ class TestRouter:
      - 集成测试: 完整 Pipeline 执行
      - **参考**: `packages/sage-kernel/tests/unit/core/conftest.py` 中的 `IntegrationTestHelper`
 
-3. **sage-kernel 容错机制** (当前 17%-64%)
+1. **sage-kernel 容错机制** (当前 17%-64%)
+
    - 文件清单:
+
      ```
      packages/sage-kernel/src/sage/kernel/fault_tolerance/
      ├── impl/
@@ -329,13 +352,16 @@ class TestRouter:
      ```
 
    - **测试策略**:
+
      - Mock 检查点存储（文件系统/数据库）
      - 测试故障检测、重启策略
      - 测试状态恢复、数据一致性
      - 集成测试: 模拟故障场景
 
-4. **sage-middleware 中间件算法** (当前 20%-32%)
+1. **sage-middleware 中间件算法** (当前 20%-32%)
+
    - 文件清单:
+
      ```
      packages/sage-middleware/src/sage/middleware/components/
      ├── sage_tsdb/python/
@@ -350,6 +376,7 @@ class TestRouter:
      ```
 
    - **测试策略**:
+
      - 测试时序数据乱序Join算法
      - 测试窗口聚合逻辑
      - 测试流式处理边界条件
@@ -404,6 +431,7 @@ packages/sage-middleware/tests/
 ### 2.3 关键测试用例示例
 
 #### Dispatcher测试模板
+
 ```python
 # packages/sage-kernel/tests/unit/runtime/test_dispatcher.py
 import pytest
@@ -439,6 +467,7 @@ class TestDispatcher:
 ```
 
 #### Fault Tolerance测试模板
+
 ```python
 # packages/sage-kernel/tests/unit/fault_tolerance/test_checkpoint.py
 import pytest
@@ -496,14 +525,14 @@ class TestCheckpointImpl:
 - [ ] 实现端到端 Pipeline 集成测试
 - [ ] 运行覆盖率报告并验证达标
 
----
+______________________________________________________________________
 
 ## 任务3: L4-L6层应用与算法测试 (sage-middleware RAG + sage-libs)
 
-**负责人**: Developer C  
-**预计工时**: 3-4周  
-**当前覆盖率**: ~25%  
-**目标覆盖率**: 70%+  
+**负责人**: Developer C\
+**预计工时**: 3-4周\
+**当前覆盖率**: ~25%\
+**目标覆盖率**: 70%+\
 **预期提升**: 整体覆盖率 +12%
 
 ### 3.1 核心目标模块
@@ -511,7 +540,9 @@ class TestCheckpointImpl:
 #### 🔴 **高优先级 (0%-50% 覆盖率)**
 
 1. **sage-middleware RAG组件** (当前 11%-92%)
+
    - 文件清单:
+
      ```
      packages/sage-middleware/src/sage/middleware/operators/
      ├── rag/
@@ -537,6 +568,7 @@ class TestCheckpointImpl:
      ```
 
    - **测试策略**:
+
      - Mock 向量数据库（FAISS/Milvus/Chroma）
      - Mock LLM API调用
      - 测试检索、重排序、提示生成逻辑
@@ -544,8 +576,10 @@ class TestCheckpointImpl:
      - 集成测试: 完整RAG Pipeline
      - **参考**: `packages/sage-middleware/tests/operators/rag/` 现有测试
 
-2. **sage-middleware 内存管理 (NeuroMem)** (当前 9%-80%)
+1. **sage-middleware 内存管理 (NeuroMem)** (当前 9%-80%)
+
    - 文件清单:
+
      ```
      packages/sage-middleware/src/sage/middleware/components/sage_mem/
      ├── neuromem/
@@ -567,14 +601,17 @@ class TestCheckpointImpl:
      ```
 
    - **测试策略**:
+
      - Mock FAISS/BM25索引
      - 测试内存集合CRUD操作
      - 测试索引构建、搜索
      - 测试存储引擎持久化
      - 集成测试: 完整内存管理流程
 
-3. **sage-libs 算法库 (全0%覆盖率!)**
+1. **sage-libs 算法库 (全0%覆盖率!)**
+
    - 文件清单:
+
      ```
      packages/sage-libs/src/sage/libs/
      ├── agentic/                            # 全部 0% → 70%
@@ -605,13 +642,15 @@ class TestCheckpointImpl:
      ```
 
    - **测试策略**:
+
      - Mock 外部集成（OpenAI, HuggingFace, Chroma等）
      - 测试Agent工作流逻辑
      - 测试隐私卸载算法正确性
      - 测试数据加载、分块
      - **注意**: 这是覆盖率提升的最大增长点
 
-4. **sage-middleware Context管理** (当前 20%-83%)
+1. **sage-middleware Context管理** (当前 20%-83%)
+
    - 文件清单:
      ```
      packages/sage-middleware/src/sage/middleware/context/
@@ -687,6 +726,7 @@ packages/sage-libs/tests/
 ### 3.3 关键测试用例示例
 
 #### RAG Retriever测试模板
+
 ```python
 # packages/sage-middleware/tests/operators/rag/test_retriever.py
 import pytest
@@ -732,6 +772,7 @@ class TestVectorRetriever:
 ```
 
 #### Agent Workflow测试模板
+
 ```python
 # packages/sage-libs/tests/lib/agentic/workflow/test_workflow.py
 import pytest
@@ -776,6 +817,7 @@ class TestWorkflow:
 ```
 
 #### Privacy Unlearning测试模板
+
 ```python
 # packages/sage-libs/tests/lib/privacy/test_gaussian_unlearning.py
 import pytest
@@ -824,7 +866,7 @@ class TestGaussianUnlearning:
 - [ ] 实现 RAG 端到端集成测试
 - [ ] 运行覆盖率报告并验证达标
 
----
+______________________________________________________________________
 
 ## 通用测试规范
 
@@ -843,10 +885,10 @@ class TestGaussianUnlearning:
 ### Mock策略
 
 1. **API调用**: 使用 `responses`, `pytest-httpx`, `aioresponses`
-2. **文件系统**: 使用 `tmp_path` fixture
-3. **Ray/分布式**: 使用 `unittest.mock.AsyncMock`
-4. **LLM调用**: Mock返回预定义结果
-5. **数据库**: 使用内存数据库或Mock
+1. **文件系统**: 使用 `tmp_path` fixture
+1. **Ray/分布式**: 使用 `unittest.mock.AsyncMock`
+1. **LLM调用**: Mock返回预定义结果
+1. **数据库**: 使用内存数据库或Mock
 
 ### Fixtures管理
 
@@ -886,16 +928,18 @@ sage-dev project test --coverage --package sage-libs
 cat coverage.xml | grep 'line-rate'
 ```
 
----
+______________________________________________________________________
 
 ## 任务协调
 
 ### 依赖关系
+
 - 任务1、2、3 **相互独立**，可并行开发
 - 各任务覆盖不同文件，无代码冲突
 - 共用 `conftest.py` fixtures时需协调
 
 ### 代码审查清单
+
 - [ ] 所有测试通过 `pytest` 执行
 - [ ] 覆盖率达到目标（用 `pytest-cov` 验证）
 - [ ] Mock使用正确，无真实API调用
@@ -905,23 +949,24 @@ cat coverage.xml | grep 'line-rate'
 - [ ] 代码通过 `sage-dev quality --check-only`
 
 ### 提交规范
+
 - 提交信息格式: `test(<scope>): <description>`
 - 示例: `test(sage-common): add embedding wrappers unit tests`
 - PR标题: `[Test] <Task Name> - <Module Coverage Improvement>`
 
----
+______________________________________________________________________
 
 ## 预期成果
 
 ### 各任务覆盖率提升目标
 
-| 任务 | 包 | 当前覆盖率 | 目标覆盖率 | 提升幅度 |
-|------|------|-----------|-----------|---------|
-| 任务1 | sage-common | ~25% | 75%+ | +50% |
-| 任务2 | sage-kernel | ~35% | 75%+ | +40% |
-| 任务2 | sage-middleware(部分) | ~30% | 75%+ | +45% |
-| 任务3 | sage-libs | ~0% | 70%+ | +70% |
-| 任务3 | sage-middleware(RAG) | ~50% | 85%+ | +35% |
+| 任务  | 包                    | 当前覆盖率 | 目标覆盖率 | 提升幅度 |
+| ----- | --------------------- | ---------- | ---------- | -------- |
+| 任务1 | sage-common           | ~25%       | 75%+       | +50%     |
+| 任务2 | sage-kernel           | ~35%       | 75%+       | +40%     |
+| 任务2 | sage-middleware(部分) | ~30%       | 75%+       | +45%     |
+| 任务3 | sage-libs             | ~0%        | 70%+       | +70%     |
+| 任务3 | sage-middleware(RAG)  | ~50%       | 85%+       | +35%     |
 
 ### 整体系统覆盖率预期
 
@@ -930,23 +975,26 @@ cat coverage.xml | grep 'line-rate'
 - **任务2完成后**: ~70%
 - **任务3完成后**: **~82%** ✅
 
----
+______________________________________________________________________
 
 ## 参考资源
 
 ### 现有测试示例
+
 - `packages/sage-middleware/tests/operators/rag/test_evaluate.py` - RAG评估测试
 - `packages/sage-common/tests/unit/utils/config/test_loader.py` - 配置加载测试
 - `packages/sage-kernel/tests/unit/core/conftest.py` - Kernel测试fixtures
 - `packages/sage-libs/tests/lib/agents/test_agent.py` - Agent测试
 
 ### 开发文档
+
 - `DEVELOPER.md` - 开发者指南
 - `CONTRIBUTING.md` - 贡献指南
 - `docs/dev-notes/cross-layer/ci-cd/testing.md` - 测试文档
 - `tools/pytest.ini` - Pytest配置
 
 ### Mock工具
+
 - `unittest.mock` - Python标准库
 - `pytest-mock` - Pytest mock插件
 - `responses` - HTTP Mock
@@ -955,10 +1003,11 @@ cat coverage.xml | grep 'line-rate'
 - `pytest-asyncio` - 异步测试
 
 ### CI/CD参考
+
 - `.github/workflows/build-test.yml` - CI测试流程
 - `tools/pre-commit-config.yaml` - 预提交检查
 
----
+______________________________________________________________________
 
 ## 附录: 快速启动命令
 
@@ -985,8 +1034,8 @@ pytest packages/sage-libs/tests/ -v --cov=sage.libs
 sage-dev project test --coverage --package <package-name>
 ```
 
----
+______________________________________________________________________
 
-**最后更新**: 2025-11-20  
-**文档版本**: 1.0  
+**最后更新**: 2025-11-20\
+**文档版本**: 1.0\
 **维护者**: SAGE Team

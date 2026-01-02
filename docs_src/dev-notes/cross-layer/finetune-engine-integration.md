@@ -5,9 +5,9 @@
 当前 SAGE Studio 的微调功能存在以下问题：
 
 1. **GPU 资源竞争**: 微调任务和 vLLM/Embedding 推理服务共享 GPU，导致 OOM 或显存不足
-2. **没有统一调度**: 微调进程独立运行，与 Control Plane 的资源管理脱节
-3. **进度监控不完善**: 缺乏实时进度回传机制
-4. **状态检测不准确**: 僵尸进程导致任务状态停留在"准备中"
+1. **没有统一调度**: 微调进程独立运行，与 Control Plane 的资源管理脱节
+1. **进度监控不完善**: 缺乏实时进度回传机制
+1. **状态检测不准确**: 僵尸进程导致任务状态停留在"准备中"
 
 ## 设计目标
 
@@ -108,16 +108,19 @@ sage llm engine stop <finetune-engine-id>
 ## 实现步骤
 
 ### Phase 1: 基础集成
+
 - [ ] 创建 `FinetuneEngine` 类
 - [ ] 实现 GPU 资源申请/释放 API
 - [ ] 添加进度回调机制
 
 ### Phase 2: Control Plane 集成
+
 - [ ] 在 `EngineManager` 中注册 finetune 引擎类型
 - [ ] 实现 `FinetuneSchedulingPolicy`
 - [ ] 支持暂停/恢复推理引擎
 
 ### Phase 3: Studio UI 集成
+
 - [ ] 更新 Studio 使用 Control Plane API
 - [ ] 实时进度展示
 - [ ] GPU 资源使用可视化

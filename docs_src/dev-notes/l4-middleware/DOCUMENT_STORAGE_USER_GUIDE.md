@@ -200,14 +200,15 @@ docs_to_delete = collection.retrieve(
 for doc in docs_to_delete:
     collection.delete(doc['text'])
 ```
-```
+
+````
 
 ### 清空集合
 
 ```python
 # 清空所有文档
 collection.clear()
-```
+````
 
 ## 多集合管理
 
@@ -473,6 +474,7 @@ manager.delete_collection("old_collection")
 ### Q: 如何选择Embedding模型？
 
 A:
+
 - **小型模型**（推荐用于开发/测试）：`mockembedder`（测试用），`all-MiniLM-L6-v2`（384维）
 - **中型模型**（推荐用于生产）：`paraphrase-multilingual-MiniLM-L12-v2`（384维，支持多语言）
 - **大型模型**（高精度）：`text-embedding-ada-002`（OpenAI，1536维）
@@ -480,6 +482,7 @@ A:
 ### Q: 向量维度如何确定？
 
 A: 向量维度由Embedding模型决定：
+
 - `all-MiniLM-L6-v2`: 384
 - `text-embedding-ada-002`: 1536
 - `mockembedder`: 128（测试用）
@@ -487,13 +490,15 @@ A: 向量维度由Embedding模型决定：
 ### Q: 如何处理大量文档？
 
 A:
+
 1. 使用`batch_insert_data`批量导入
-2. 考虑分批处理（每批1000-10000条）
-3. 创建索引后再导入新数据需要重新`init_index`
+1. 考虑分批处理（每批1000-10000条）
+1. 创建索引后再导入新数据需要重新`init_index`
 
 ### Q: 元数据可以包含哪些类型？
 
 A: 支持JSON可序列化的类型：
+
 - 字符串、数字、布尔值
 - 列表、字典（嵌套）
 - None
@@ -501,6 +506,7 @@ A: 支持JSON可序列化的类型：
 ### Q: 如何备份数据？
 
 A:
+
 ```python
 # 保存到磁盘
 manager.store_collection()
@@ -522,5 +528,6 @@ manager.store_collection()
 ## 支持
 
 如有问题，请访问：
+
 - GitHub Issues: https://github.com/intellistream/SAGE/issues
 - 文档: https://sage.intellistream.com

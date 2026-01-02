@@ -1,12 +1,13 @@
 # LibAMM 内存优化指南
 
-**Date**: 2025-11-12  
-**Author**: GitHub Copilot  
+**Date**: 2025-11-12\
+**Author**: GitHub Copilot\
 **Summary**: LibAMM 编译内存优化策略，解决 WSL/容器环境中的 OOM 问题
 
 ## 问题背景
 
-LibAMM 是一个包含大量模板和 PyTorch C++ API 的库，在编译时会消耗大量内存。特别是在 WSL、容器或内存受限的环境中，可能会遇到 OOM (Out of Memory) 导致编译失败。
+LibAMM 是一个包含大量模板和 PyTorch C++ API 的库，在编译时会消耗大量内存。特别是在 WSL、容器或内存受限的环境中，可能会遇到 OOM (Out of Memory)
+导致编译失败。
 
 ### 典型症状
 
@@ -16,6 +17,7 @@ FAILED: [code=1] LibAMM.dir/src/CPPAlgos/SMPPCACPPAlgo.cpp.o
 ```
 
 查看系统日志 `dmesg` 会看到：
+
 ```
 oom-kill:constraint=CONSTRAINT_NONE,task=cc1plus,pid=12675
 Out of memory: Killed process 12675 (cc1plus)
@@ -43,6 +45,7 @@ set(CMAKE_CXX_FLAGS_RELEASE "-Wno-ignored-qualifiers -Wno-sign-compare ${MEMORY_
 ```
 
 **新增编译器标志说明**:
+
 - `-fno-var-tracking`: 禁用变量位置跟踪（减少内存）
 - `-ftemplate-depth=128`: 限制模板实例化深度（防止模板爆炸）
 - `--param ggc-min-expand=20`: 更激进的垃圾回收（默认 30）
@@ -94,6 +97,7 @@ target_precompile_headers(LibAMM PRIVATE include/pch.h)
 ```
 
 **效果**:
+
 - 首次编译预编译头需要额外 ~30 秒
 - 后续每个源文件编译速度提升 2-3 倍
 - 内存峰值降低 30-40%（编译器可复用预编译结果）
@@ -172,11 +176,11 @@ find packages/sage-libs -name "*.so" | grep -i amm
 
 ## 内存消耗对比
 
-| 编译选项 | 估计内存峰值 | 编译时间 |
-|---------|------------|---------|
-| `-O3 -g` (默认) | ~800MB/进程 | 快 |
-| `-O2 -g0` (优化后) | ~500MB/进程 | 中等 |
-| `-O1 -g0` (最低) | ~300MB/进程 | 慢 |
+| 编译选项           | 估计内存峰值 | 编译时间 |
+| ------------------ | ------------ | -------- |
+| `-O3 -g` (默认)    | ~800MB/进程  | 快       |
+| `-O2 -g0` (优化后) | ~500MB/进程  | 中等     |
+| `-O1 -g0` (最低)   | ~300MB/进程  | 慢       |
 
 在 8GB 内存的 WSL 环境中，单线程 `-O1 -g0` 编译可以避免 OOM。
 
@@ -191,6 +195,7 @@ dmesg | grep -i "out of memory\|killed process" | tail -20
 ### 2. 监控编译内存使用
 
 在另一个终端运行：
+
 ```bash
 watch -n 1 'ps aux | grep g++ | grep -v grep'
 ```

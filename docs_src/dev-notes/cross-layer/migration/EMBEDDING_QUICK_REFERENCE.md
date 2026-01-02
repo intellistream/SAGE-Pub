@@ -1,15 +1,14 @@
 # SAGE Embedding 系统快速参考 🚀
 
-**Date**: 2024-09-26  
-**Author**: SAGE Team  
+**Date**: 2024-09-26\
+**Author**: SAGE Team\
 **Summary**: Embedding 快速参考
 
----
-
+______________________________________________________________________
 
 一页纸速查表，包含最常用的命令和代码片段。
 
----
+______________________________________________________________________
 
 ## 📋 CLI 命令速查
 
@@ -54,7 +53,7 @@ sage pipeline analyze-embedding "如何构建 RAG pipeline"
 sage pipeline analyze-embedding "查询" -m hash -m openai -m hf
 ```
 
----
+______________________________________________________________________
 
 ## 💻 Python API 速查
 
@@ -122,7 +121,7 @@ for chunk in results:
     print(f"[{chunk.score:.4f}] {chunk.text[:100]}")
 ```
 
----
+______________________________________________________________________
 
 ## 🌍 环境变量
 
@@ -141,34 +140,34 @@ export JINA_API_KEY=jina_xxx
 export HF_HOME=/path/to/cache
 ```
 
----
+______________________________________________________________________
 
 ## 📊 方法选择指南
 
-| 场景 | 推荐方法 | 命令示例 |
-|------|----------|----------|
-| **快速原型** | hash | `--embedding-method hash` |
-| **离线高质量** | hf (bge-base) | `--embedding-method hf --embedding-model BAAI/bge-base-zh-v1.5` |
-| **云端最优** | openai | `--embedding-method openai --embedding-model text-embedding-3-small` |
-| **中文优化** | zhipu / hf | `--embedding-method zhipu --embedding-model embedding-2` |
-| **英文优化** | openai / cohere | `--embedding-method openai` |
-| **多语言** | cohere | `--embedding-method cohere` |
-| **本地 LLM** | ollama | `--embedding-method ollama --embedding-model nomic-embed-text` |
+| 场景           | 推荐方法        | 命令示例                                                             |
+| -------------- | --------------- | -------------------------------------------------------------------- |
+| **快速原型**   | hash            | `--embedding-method hash`                                            |
+| **离线高质量** | hf (bge-base)   | `--embedding-method hf --embedding-model BAAI/bge-base-zh-v1.5`      |
+| **云端最优**   | openai          | `--embedding-method openai --embedding-model text-embedding-3-small` |
+| **中文优化**   | zhipu / hf      | `--embedding-method zhipu --embedding-model embedding-2`             |
+| **英文优化**   | openai / cohere | `--embedding-method openai`                                          |
+| **多语言**     | cohere          | `--embedding-method cohere`                                          |
+| **本地 LLM**   | ollama          | `--embedding-method ollama --embedding-model nomic-embed-text`       |
 
----
+______________________________________________________________________
 
 ## ⚡ 性能参考
 
-| 方法 | 速度 | 质量 | 成本 | 离线 |
-|------|------|------|------|------|
-| hash | ⚡⚡⚡⚡⚡ | ⭐⭐ | 免费 | ✅ |
-| mockembedder | ⚡⚡⚡⚡⚡ | ⭐ | 免费 | ✅ |
-| hf (small) | ⚡⚡⚡ | ⭐⭐⭐⭐ | 免费 | ✅ |
-| hf (base) | ⚡⚡ | ⭐⭐⭐⭐⭐ | 免费 | ✅ |
-| openai | ⚡⚡ | ⭐⭐⭐⭐⭐ | $$ | ❌ |
-| zhipu | ⚡⚡ | ⭐⭐⭐⭐ | $ | ❌ |
+| 方法         | 速度       | 质量       | 成本 | 离线 |
+| ------------ | ---------- | ---------- | ---- | ---- |
+| hash         | ⚡⚡⚡⚡⚡ | ⭐⭐       | 免费 | ✅   |
+| mockembedder | ⚡⚡⚡⚡⚡ | ⭐         | 免费 | ✅   |
+| hf (small)   | ⚡⚡⚡     | ⭐⭐⭐⭐   | 免费 | ✅   |
+| hf (base)    | ⚡⚡       | ⭐⭐⭐⭐⭐ | 免费 | ✅   |
+| openai       | ⚡⚡       | ⭐⭐⭐⭐⭐ | $$   | ❌   |
+| zhipu        | ⚡⚡       | ⭐⭐⭐⭐   | $    | ❌   |
 
----
+______________________________________________________________________
 
 ## 🔧 常见问题
 
@@ -216,7 +215,7 @@ class CustomEmbedding(BaseEmbedding):
         return your_vector.tolist()
 ```
 
----
+______________________________________________________________________
 
 ## 📚 更多资源
 
@@ -225,7 +224,7 @@ class CustomEmbedding(BaseEmbedding):
 - **Pipeline 集成**: `docs/dev-notes/PIPELINE_BUILDER_EMBEDDING_INTEGRATION.md`
 - **示例代码**: `examples/tutorials/embedding_demo.py`
 
----
+______________________________________________________________________
 
 ## 🎯 一分钟快速开始
 
@@ -254,6 +253,6 @@ sage pipeline build \
   --name "优化后的 Pipeline"
 ```
 
----
+______________________________________________________________________
 
 **快速参考 v2.0** | 更新于 2024-10-06 | SAGE Embedding 系统

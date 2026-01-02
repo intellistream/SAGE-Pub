@@ -2,7 +2,8 @@
 
 ## Overview
 
-This document describes the architecture and usage of **ParallelVDBService** for high-performance parallel batch insertion into VDB, supporting 100K+ or 1M+ records.
+This document describes the architecture and usage of **ParallelVDBService** for high-performance
+parallel batch insertion into VDB, supporting 100K+ or 1M+ records.
 
 ## Architecture
 
@@ -29,9 +30,9 @@ This document describes the architecture and usage of **ParallelVDBService** for
 ### Design Principles
 
 1. **neuromem remains single-threaded**: No thread pools inside neuromem
-2. **Parallelization at SAGE layer**: ThreadPoolExecutor in middleware
-3. **Batch-level parallelism**: Multiple batches processed concurrently
-4. **Serial within batch**: Each batch embeds and inserts sequentially
+1. **Parallelization at SAGE layer**: ThreadPoolExecutor in middleware
+1. **Batch-level parallelism**: Multiple batches processed concurrently
+1. **Serial within batch**: Each batch embeds and inserts sequentially
 
 ## Quick Start
 
@@ -99,26 +100,26 @@ result = parallel_insert_to_vdb(
 
 ### Embedding Configuration
 
-| Parameter | Default | Description |
-|-----------|---------|-------------|
-| `method` | required | "hf", "openai", "jina", "vllm", "mockembedder" |
-| `model` | - | Model name/path (e.g., "BAAI/bge-small-zh-v1.5") |
-| `batch_size` | 32 | Texts per embedding batch (GPU batch) |
-| `normalize` | True | Normalize vectors to unit length |
-| `cache_enabled` | False | Enable LRU caching |
-| `cache_size` | 10000 | Maximum cache entries |
+| Parameter       | Default  | Description                                      |
+| --------------- | -------- | ------------------------------------------------ |
+| `method`        | required | "hf", "openai", "jina", "vllm", "mockembedder"   |
+| `model`         | -        | Model name/path (e.g., "BAAI/bge-small-zh-v1.5") |
+| `batch_size`    | 32       | Texts per embedding batch (GPU batch)            |
+| `normalize`     | True     | Normalize vectors to unit length                 |
+| `cache_enabled` | False    | Enable LRU caching                               |
+| `cache_size`    | 10000    | Maximum cache entries                            |
 
 ### ParallelVDBService Configuration
 
-| Parameter | Default | Description |
-|-----------|---------|-------------|
-| `max_workers` | 4 | Number of parallel worker threads |
-| `default_batch_size` | 500 | Texts per storage batch |
+| Parameter            | Default | Description                       |
+| -------------------- | ------- | --------------------------------- |
+| `max_workers`        | 4       | Number of parallel worker threads |
+| `default_batch_size` | 500     | Texts per storage batch           |
 
 ### Recommended Settings by Dataset Size
 
 | Dataset Size | Workers | Storage Batch | Embedding Batch | Est. Throughput |
-|--------------|---------|---------------|-----------------|-----------------|
+| ------------ | ------- | ------------- | --------------- | --------------- |
 | < 10K        | 2       | 500           | 32              | ~500 docs/sec   |
 | 10K - 100K   | 4       | 1000          | 64              | ~800 docs/sec   |
 | 100K - 1M    | 8       | 2000          | 128             | ~1000 docs/sec  |
@@ -198,25 +199,28 @@ vectors = result["vectors"]
 **Problem**: GPU/CPU runs out of memory
 
 **Solutions**:
+
 1. Reduce embedding `batch_size`: 64 → 32 → 16
-2. Reduce storage `batch_size`: 1000 → 500
-3. Reduce `max_workers`: 4 → 2
+1. Reduce storage `batch_size`: 1000 → 500
+1. Reduce `max_workers`: 4 → 2
 
 ### Slow Performance
 
 **Problem**: Throughput lower than expected
 
 **Solutions**:
+
 1. Increase `max_workers` (up to CPU cores)
-2. Increase `batch_size` for better GPU utilization
-3. Enable caching if texts repeat
-4. Use vLLM backend for production scale
+1. Increase `batch_size` for better GPU utilization
+1. Enable caching if texts repeat
+1. Use vLLM backend for production scale
 
 ### Partial Failures
 
 **Problem**: Some documents fail to insert
 
 **Solution**: Check `result.batch_results` for errors:
+
 ```python
 for batch in result.batch_results:
     if batch["failed"] > 0:

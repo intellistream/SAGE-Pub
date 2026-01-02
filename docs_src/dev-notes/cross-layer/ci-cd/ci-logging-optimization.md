@@ -33,14 +33,16 @@
 ## 影响的文件
 
 1. `tools/install/display_tools/logging.sh`
-    - `log_pip_install_with_progress()`: 主要的 pip 安装进度函数
-    - `start_spinner()`: 启动 spinner 动画
-    - `stop_spinner()`: 停止 spinner 动画
 
-2. `tools/install/display_tools/progress_bar.sh`
-    - `show_progress_bar()`: 显示进度条
-    - `show_spinner()`: 显示旋转动画
-    - `stop_spinner()`: 停止动画
+   - `log_pip_install_with_progress()`: 主要的 pip 安装进度函数
+   - `start_spinner()`: 启动 spinner 动画
+   - `stop_spinner()`: 停止 spinner 动画
+
+1. `tools/install/display_tools/progress_bar.sh`
+
+   - `show_progress_bar()`: 显示进度条
+   - `show_spinner()`: 显示旋转动画
+   - `stop_spinner()`: 停止动画
 
 ## 测试
 

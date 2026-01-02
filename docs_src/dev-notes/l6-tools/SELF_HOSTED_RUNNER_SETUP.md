@@ -1,8 +1,7 @@
 # Self-Hosted Runner 配置指南 - LibAMM 编译
 
-**Date**: 2025-11-14
-**Author**: SAGE Development Team
-**Summary**: 配置 GitHub Actions self-hosted runner 用于在高内存环境下编译 LibAMM wheel 包的完整指南
+**Date**: 2025-11-14 **Author**: SAGE Development Team **Summary**: 配置 GitHub Actions self-hosted
+runner 用于在高内存环境下编译 LibAMM wheel 包的完整指南
 
 ## 概述
 
@@ -12,12 +11,12 @@ LibAMM 需要在高内存环境下编译，因此我们使用 self-hosted GitHub
 
 ### 硬件要求
 
-| 资源 | 最低配置 | 推荐配置 |
-|------|----------|----------|
-| **CPU** | 4 核 | 8+ 核 |
-| **内存** | 16GB | 32GB+ |
-| **存储** | 50GB | 100GB+ SSD |
-| **网络** | 10Mbps | 100Mbps+ |
+| 资源     | 最低配置 | 推荐配置   |
+| -------- | -------- | ---------- |
+| **CPU**  | 4 核     | 8+ 核      |
+| **内存** | 16GB     | 32GB+      |
+| **存储** | 50GB     | 100GB+ SSD |
+| **网络** | 10Mbps   | 100Mbps+   |
 
 ### 软件要求
 
@@ -66,8 +65,8 @@ free -h
 #### 3.1 在 GitHub 仓库中添加 Runner
 
 1. 访问仓库设置：`https://github.com/intellistream/SAGE/settings/actions/runners/new`
-2. 选择 **Linux** 作为操作系统
-3. 复制提供的下载和配置命令
+1. 选择 **Linux** 作为操作系统
+1. 复制提供的下载和配置命令
 
 #### 3.2 在服务器上安装 Runner
 
@@ -97,10 +96,11 @@ sudo ./svc.sh start
 ### 4. 配置 Runner 标签
 
 确保 runner 有以下标签：
+
 - `self-hosted`
 - `linux`
 - `x64`
-- `high-memory`  ⬅️ 关键标签，用于 LibAMM 编译
+- `high-memory` ⬅️ 关键标签，用于 LibAMM 编译
 
 ### 5. 测试 Runner
 
@@ -126,15 +126,15 @@ git push origin main-dev
 Workflow 会在以下情况自动运行：
 
 1. **推送到 main/main-dev 且修改了 LibAMM 相关文件**
-2. **创建 GitHub Release**
+1. **创建 GitHub Release**
 
 ### 手动触发
 
 在 GitHub Actions 页面：
 
 1. 选择 **Build LibAMM Wheels** workflow
-2. 点击 **Run workflow**
-3. 配置参数：
+1. 点击 **Run workflow**
+1. 配置参数：
    - Python versions: 默认 `3.9,3.10,3.11,3.12`
    - Upload to release: 是否上传到 GitHub Release
 
@@ -143,10 +143,12 @@ Workflow 会在以下情况自动运行：
 编译完成后：
 
 1. **从 Actions artifacts 下载**（保留 30 天）
+
    - 访问 workflow run 页面
    - 在 "Artifacts" 部分下载对应 Python 版本的 wheel
 
-2. **从 GitHub Release 下载**（如果启用了上传）
+1. **从 GitHub Release 下载**（如果启用了上传）
+
    - 访问 Releases 页面
    - 下载对应的 `.whl` 文件
 
@@ -209,6 +211,7 @@ sudo journalctl -u actions.runner.* -f
 **症状**: 编译过程中进程被杀
 
 **解决**:
+
 ```bash
 # 增加 swap
 sudo swapoff -a
@@ -225,6 +228,7 @@ sudo swapon /swapfile
 **症状**: Runner 在 GitHub 显示为 offline
 
 **解决**:
+
 ```bash
 # 检查服务状态
 sudo ./svc.sh status
@@ -242,6 +246,7 @@ sudo journalctl -u actions.runner.* -n 50
 **症状**: 编译时找不到 torch 头文件
 
 **解决**:
+
 ```bash
 # 确保安装 CPU 版本的 PyTorch
 pip install torch==2.5.0 --index-url https://download.pytorch.org/whl/cpu
@@ -253,19 +258,19 @@ python -c "import torch; print(torch.__file__)"
 ## 安全建议
 
 1. **使用专用用户**运行 runner，不要用 root
-2. **限制 runner 权限**，只授予必要的仓库访问
-3. **定期更新** runner 软件
-4. **监控资源使用**，防止滥用
-5. **使用 secrets** 管理敏感信息
+1. **限制 runner 权限**，只授予必要的仓库访问
+1. **定期更新** runner 软件
+1. **监控资源使用**，防止滥用
+1. **使用 secrets** 管理敏感信息
 
 ## 成本估算
 
 假设使用云服务器（AWS/GCP/阿里云）：
 
-| 配置 | 实例类型 | 月费用（约） |
-|------|----------|--------------|
-| 16GB RAM, 4 CPU | t3.xlarge | $120 |
-| 32GB RAM, 8 CPU | t3.2xlarge | $240 |
+| 配置            | 实例类型   | 月费用（约） |
+| --------------- | ---------- | ------------ |
+| 16GB RAM, 4 CPU | t3.xlarge  | $120         |
+| 32GB RAM, 8 CPU | t3.2xlarge | $240         |
 
 **建议**: 使用按需实例，仅在需要编译时启动，可大幅降低成本。
 

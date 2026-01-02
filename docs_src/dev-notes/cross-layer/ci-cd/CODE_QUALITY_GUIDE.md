@@ -1,7 +1,7 @@
 # Pre-commit Hooks 配置指南
 
-**Date**: 2024-10-29  
-**Author**: SAGE Team  
+**Date**: 2024-10-29\
+**Author**: SAGE Team\
 **Summary**: SAGE 项目的代码质量检查配置说明，包括 Pre-commit hooks 的配置和故障排除
 
 ## 📋 概述
@@ -23,11 +23,13 @@ ruff.....................................................................Failed
 ### 根本原因
 
 1. **Pre-commit hooks 未触发**
+
    - 使用了 `git commit -n` 或 `--no-verify` 跳过检查
    - IDE 或 Git 客户端默认跳过 hooks
    - Pre-commit 环境未正确安装
 
-2. **配置冲突（已解决）**
+1. **配置冲突（已解决）**
+
    - ~~之前 isort 和 ruff 配置不一致，导致互相覆盖~~
    - **现已统一**：所有子包继承根目录 `ruff.toml` 配置
 
@@ -58,6 +60,7 @@ SAGE/
 ```
 
 **关键变更**：
+
 - ❌ 移除了 standalone `isort`（避免与 ruff 冲突）
 - ✅ 只使用 `ruff` 进行 import 排序（更快，配置统一）
 
@@ -93,12 +96,14 @@ pre-commit run --all-files --config tools/pre-commit-config.yaml
 ### ⚠️ 注意事项
 
 **❌ 永远不要使用：**
+
 ```bash
 git commit -n           # 跳过所有 hooks
 git commit --no-verify  # 跳过所有 hooks
 ```
 
 **✅ 正确做法：**
+
 ```bash
 git commit              # 让 hooks 正常运行
 ```
@@ -122,6 +127,7 @@ git commit              # 让 hooks 正常运行
 ```
 
 输出示例：
+
 ```
 ✅ pre-commit is installed
 ✅ pre-commit hook file exists
@@ -135,10 +141,11 @@ git commit              # 让 hooks 正常运行
 ### VS Code
 
 1. 安装扩展：
+
    - Black Formatter (`ms-python.black-formatter`)
    - Ruff (`charliermarsh.ruff`)
 
-2. 配置 `.vscode/settings.json`：
+1. 配置 `.vscode/settings.json`：
 
 ```json
 {
@@ -158,10 +165,12 @@ git commit              # 让 hooks 正常运行
 ### PyCharm
 
 1. File → Settings → Tools → Black
+
    - 启用 "Run Black on save"
    - Line length: 100
 
-2. File → Settings → Tools → External Tools
+1. File → Settings → Tools → External Tools
+
    - 添加 Ruff 作为外部工具
 
 ## 🔍 故障排除
@@ -186,10 +195,12 @@ pre-commit install --config tools/pre-commit-config.yaml -f
 ### Ruff 报错无法修复？
 
 某些错误需要手动修复，例如：
+
 - `B008`: typer.Option 在参数默认值中使用（需要重构代码）
 - 复杂的逻辑问题
 
 运行以查看详情：
+
 ```bash
 ruff check . --config tools/ruff.toml
 ```
@@ -199,6 +210,7 @@ ruff check . --config tools/ruff.toml
 ### `tools/ruff.toml`
 
 根级统一配置，包含：
+
 - 代码风格规则（E, W, F, I, B, C4, UP, C90）
 - Import 排序规则（替代 isort）
 - 忽略的错误类型
@@ -207,6 +219,7 @@ ruff check . --config tools/ruff.toml
 ### `tools/pytest.ini`
 
 根级测试配置，包含：
+
 - 测试路径
 - 测试标记（markers）
 - 过滤警告
@@ -214,6 +227,7 @@ ruff check . --config tools/ruff.toml
 ### `tools/pre-commit-config.yaml`
 
 Pre-commit hooks 配置，包含：
+
 - black (代码格式化)
 - ruff (lint + import sort)
 - mypy (类型检查，警告模式)
@@ -223,19 +237,21 @@ Pre-commit hooks 配置，包含：
 ## 🎓 最佳实践
 
 1. **开发前**：确保 pre-commit 已安装
-2. **提交前**：不要跳过 hooks（不用 `-n`）
-3. **推送前**：运行 `./tools/fix-code-quality.sh`
-4. **配置修改**：只修改 `tools/ruff.toml`，子包自动继承
-5. **编辑器**：配置自动格式化，减少手动修复
+1. **提交前**：不要跳过 hooks（不用 `-n`）
+1. **推送前**：运行 `./tools/fix-code-quality.sh`
+1. **配置修改**：只修改 `tools/ruff.toml`，子包自动继承
+1. **编辑器**：配置自动格式化，减少手动修复
 
 ## 📊 配置演进历史
 
 ### v1: 多工具独立配置（已废弃）
+
 - 每个包有自己的 ruff/isort 配置
 - isort 和 ruff 同时运行，配置冲突
 - **问题**：反复修复，配置不一致
 
 ### v2: 统一配置（当前）
+
 - 根目录 `tools/ruff.toml` 统一配置
 - 所有包通过 `extend` 继承
 - 只用 ruff 处理 import（移除 isort）

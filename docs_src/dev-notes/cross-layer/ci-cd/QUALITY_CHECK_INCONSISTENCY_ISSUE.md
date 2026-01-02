@@ -1,11 +1,6 @@
----
-标题: 本地 sage-dev quality fix 与 CI/CD 质量检查不一致问题
-分类: 问题分析
-状态: 已识别
-创建日期: 2025-11-22
-作者: GitHub Copilot
-相关: l6-tools, ci-cd
----
+______________________________________________________________________
+
+## 标题: 本地 sage-dev quality fix 与 CI/CD 质量检查不一致问题 分类: 问题分析 状态: 已识别 创建日期: 2025-11-22 作者: GitHub Copilot 相关: l6-tools, ci-cd
 
 # 本地 sage-dev quality fix 与 CI/CD 质量检查不一致问题
 
@@ -45,26 +40,26 @@ echo "$CHANGED_FILES" | xargs pre-commit run \
 
 ### 差异对比
 
-| 场景 | 本地 `sage-dev quality fix` | CI/CD |
-|------|---------------------------|-------|
-| 已修改但未 staged 的文件 | ❌ 不检查 | ✅ 检查 |
-| 已 staged 的文件 | ✅ 检查 | ✅ 检查 |
-| 已提交但在 PR 中的文件 | ❌ 不检查 | ✅ 检查 |
+| 场景                     | 本地 `sage-dev quality fix` | CI/CD   |
+| ------------------------ | --------------------------- | ------- |
+| 已修改但未 staged 的文件 | ❌ 不检查                   | ✅ 检查 |
+| 已 staged 的文件         | ✅ 检查                     | ✅ 检查 |
+| 已提交但在 PR 中的文件   | ❌ 不检查                   | ✅ 检查 |
 
 ## 🎯 问题场景重现
 
 1. 修改文件 `manager.py`（引入语法错误）
-2. **不** stage 文件
-3. 运行 `sage-dev quality fix`
-4. ✅ 本地显示通过（因为没有 staged 文件要检查）
-5. Push 到 GitHub
-6. ❌ CI/CD 失败（检查到所有变更文件的错误）
+1. **不** stage 文件
+1. 运行 `sage-dev quality fix`
+1. ✅ 本地显示通过（因为没有 staged 文件要检查）
+1. Push 到 GitHub
+1. ❌ CI/CD 失败（检查到所有变更文件的错误）
 
 ## 💡 解决方案
 
 ### 方案 A: 短期修复 - 更新文档和提示
 
-**优点**: 不需要改代码，立即可用  
+**优点**: 不需要改代码，立即可用\
 **缺点**: 需要开发者记住使用正确的命令
 
 ```bash
@@ -76,13 +71,14 @@ sage-dev quality check --all-files
 ```
 
 **实施**:
+
 1. 更新 `CONTRIBUTING.md` 添加最佳实践说明
-2. 在 `sage-dev quality fix` 的输出中添加提示
-3. Pre-commit hook 自动检查所有变更文件
+1. 在 `sage-dev quality fix` 的输出中添加提示
+1. Pre-commit hook 自动检查所有变更文件
 
 ### 方案 B: 中期修复 - 改变默认行为
 
-**优点**: 与 CI/CD 完全一致  
+**优点**: 与 CI/CD 完全一致\
 **缺点**: 可能破坏现有工作流
 
 ```python
@@ -104,7 +100,7 @@ def quality(
 
 ### 方案 C: 长期方案 - 智能检测
 
-**优点**: 最佳用户体验  
+**优点**: 最佳用户体验\
 **缺点**: 实现复杂
 
 ```python

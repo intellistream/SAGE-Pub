@@ -6,18 +6,18 @@
 
 **总工作量预估**: 5-7 天 (MVP 版本)
 
----
+______________________________________________________________________
 
 ## 并行任务分配
 
 以下 4 个任务可以**并行开发**，最后进行集成测试。
 
----
+______________________________________________________________________
 
 ## Task 1: 后端认证 API (Backend Auth)
 
-**负责人**: Copilot A  
-**预计时间**: 2-3 天  
+**负责人**: Copilot A\
+**预计时间**: 2-3 天\
 **依赖**: 无
 
 ### Prompt
@@ -58,12 +58,12 @@
 **测试**: 创建 `packages/sage-studio/tests/services/test_auth_service.py`
 ```
 
----
+______________________________________________________________________
 
 ## Task 2: 后端数据隔离 (Data Isolation)
 
-**负责人**: Copilot B  
-**预计时间**: 2 天  
+**负责人**: Copilot B\
+**预计时间**: 2 天\
 **依赖**: Task 1 的 `get_current_user` 函数接口定义
 
 ### Prompt
@@ -81,30 +81,27 @@
 **需要修改**:
 
 1. 修改数据存储路径结构:
-   ```
-   ~/.local/share/sage/
-   ├── studio.db          # 用户数据库 (Task 1 创建)
-   └── users/
-       └── {user_id}/
-           ├── pipelines/  # 用户的流程
-           ├── sessions/   # 用户的聊天会话
-           └── uploads/    # 用户上传的文件
-   ```
+```
+
+~/.local/share/sage/ ├── studio.db # 用户数据库 (Task 1 创建) └── users/ └── {user_id}/ ├── pipelines/ #
+用户的流程 ├── sessions/ # 用户的聊天会话 └── uploads/ # 用户上传的文件
+
+```
 
 2. 修改以下 API 端点，添加用户过滤:
-   - GET /api/jobs - 只返回当前用户的 jobs
-   - POST /api/submit - 保存到用户目录
-   - GET /api/flow/{flow_id}/export - 只能导出自己的流程
-   - POST /api/flow/import - 导入到用户目录
+- GET /api/jobs - 只返回当前用户的 jobs
+- POST /api/submit - 保存到用户目录
+- GET /api/flow/{flow_id}/export - 只能导出自己的流程
+- POST /api/flow/import - 导入到用户目录
 
 3. 修改 Chat 相关 API:
-   - GET /api/chat/sessions - 只返回当前用户的会话
-   - POST /api/chat/sessions - 创建会话时关联用户
-   - 所有 /api/chat/* 端点添加用户权限检查
+- GET /api/chat/sessions - 只返回当前用户的会话
+- POST /api/chat/sessions - 创建会话时关联用户
+- 所有 /api/chat/* 端点添加用户权限检查
 
 4. 创建辅助函数:
-   - `get_user_data_dir(user_id: str) -> Path`
-   - `get_user_pipelines_dir(user_id: str) -> Path`
+- `get_user_data_dir(user_id: str) -> Path`
+- `get_user_pipelines_dir(user_id: str) -> Path`
 
 **兼容性**:
 - 未登录用户使用 "anonymous" 作为 user_id (向后兼容)
@@ -115,17 +112,17 @@
 - 查看 `/api/jobs` 端点了解现有实现
 ```
 
----
+______________________________________________________________________
 
 ## Task 3: 前端认证 UI (Frontend Auth)
 
-**负责人**: Copilot C  
-**预计时间**: 2 天  
+**负责人**: Copilot C\
+**预计时间**: 2 天\
 **依赖**: Task 1 的 API 接口定义
 
 ### Prompt
 
-```
+````
 你是 SAGE 框架的前端开发者。请为 sage-studio 前端添加用户认证功能。
 
 **技术栈**: React + TypeScript + Ant Design + Zustand
@@ -145,40 +142,48 @@
      logout: () => void
      checkAuth: () => Promise<void>
    }
-   ```
-   - Token 存储在 localStorage
-   - 页面加载时自动检查认证状态
+````
+
+- Token 存储在 localStorage
+- 页面加载时自动检查认证状态
 
 2. `components/LoginPage.tsx`:
+
    - 登录/注册切换表单
    - 使用 Ant Design Form 组件
    - 显示错误信息
    - 登录成功后跳转到主页
 
-3. `components/UserMenu.tsx`:
+1. `components/UserMenu.tsx`:
+
    - 显示当前用户名
    - 下拉菜单: 个人设置、退出登录
    - 集成到 Toolbar.tsx 右侧
 
-4. 修改 `services/api.ts`:
+1. 修改 `services/api.ts`:
+
    - 添加 auth API 调用函数
    - 所有 API 请求自动添加 Authorization header
    - 401 响应时自动跳转登录页
 
-5. 修改 `App.tsx`:
+1. 修改 `App.tsx`:
+
    - 添加路由守卫
    - 未登录用户重定向到登录页
    - 或者: 未登录显示受限功能提示
 
 **UI 设计**:
+
 - 登录页面居中卡片式布局
 - 与现有 SAGE Studio 风格一致 (蓝色主题 #1890ff)
 - 支持按 Enter 提交表单
 
 **参考现有代码**:
+
 - 查看 `store/chatStore.ts` 了解 Zustand 用法
 - 查看 `components/Settings.tsx` 了解 Modal 用法
 - 查看 `services/api.ts` 了解 API 调用方式
+
 ```
 
 ---
@@ -192,6 +197,7 @@
 ### Prompt
 
 ```
+
 你是 SAGE 框架的前端开发者。请集成用户认证状态到现有组件。
 
 **目标**: 让现有组件感知用户登录状态，显示用户私有数据。
@@ -199,42 +205,51 @@
 **需要修改的文件**:
 
 1. `components/Toolbar.tsx`:
+
    - 右侧添加 UserMenu 组件
    - 未登录时显示 "登录" 按钮
    - 已登录时显示用户名和下拉菜单
 
-2. `components/ChatMode.tsx`:
+1. `components/ChatMode.tsx`:
+
    - 会话列表只显示当前用户的会话
    - 新建会话时自动关联当前用户
    - 未登录时提示需要登录才能保存会话
 
-3. `App.tsx`:
+1. `App.tsx`:
+
    - 启动时检查认证状态
    - 添加 /login 路由
    - 保护需要认证的路由
 
-4. `store/flowStore.ts`:
+1. `store/flowStore.ts`:
+
    - 添加 userId 字段
    - 保存/加载流程时使用用户上下文
 
-5. 修改所有 API 调用:
+1. 修改所有 API 调用:
+
    - 确保所有请求带上 Authorization header
    - 处理 401 未授权响应
 
 **用户体验**:
+
 - 页面刷新后保持登录状态
 - 登出后清除所有用户数据
 - 切换用户时刷新数据列表
 
 **测试场景**:
+
 1. 新用户注册 → 登录 → 创建流程 → 登出 → 重新登录 → 看到之前的流程
-2. 用户 A 的流程对用户 B 不可见
-3. 未登录用户可以使用基本功能，但数据不持久化
+1. 用户 A 的流程对用户 B 不可见
+1. 未登录用户可以使用基本功能，但数据不持久化
 
 **参考**:
+
 - 查看 `hooks/useKeyboardShortcuts.ts` 了解 hooks 写法
 - 查看现有组件的状态管理方式
-```
+
+````
 
 ---
 
@@ -266,24 +281,24 @@ npm run build
 # 集成测试
 sage studio start
 # 手动测试登录流程
-```
+````
 
----
+______________________________________________________________________
 
 ## 技术栈汇总
 
-| 组件 | 技术 |
-|------|------|
-| 后端框架 | FastAPI |
-| 认证 | JWT (python-jose) |
-| 密码 | bcrypt / passlib |
-| 数据库 | SQLite |
-| 前端框架 | React 18 |
-| 状态管理 | Zustand |
-| UI 组件 | Ant Design 5.x |
-| HTTP 客户端 | fetch API |
+| 组件        | 技术              |
+| ----------- | ----------------- |
+| 后端框架    | FastAPI           |
+| 认证        | JWT (python-jose) |
+| 密码        | bcrypt / passlib  |
+| 数据库      | SQLite            |
+| 前端框架    | React 18          |
+| 状态管理    | Zustand           |
+| UI 组件     | Ant Design 5.x    |
+| HTTP 客户端 | fetch API         |
 
----
+______________________________________________________________________
 
 ## 文件变更预览
 
