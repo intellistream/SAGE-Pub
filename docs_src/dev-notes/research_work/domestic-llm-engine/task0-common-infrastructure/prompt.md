@@ -44,13 +44,16 @@ ______________________________________________________________________
 - 路径：`tests` 或 `examples` 下提供最小
   demo：`ControlPlaneManager → scheduler_ir stub → engines.lmdeploy (patched) → generate/chat`；验证
   TTFT/TPOT 无回退（±3%）。
-- CLI：`sage llm serve --engine lmdeploy --model <id>` 走新入口；`sage gateway start` 正常代理。
+- CLI 与 Control Plane：使用 `sage gateway start` 统一承载 Control Plane，再通过
+  `sage llm engine start <model> --engine-kind llm`/`--engine-kind embedding` 启动推理引擎；客户端一律
+  通过 `UnifiedInferenceClient.create()` 访问，禁止直接启动或直连 vLLM/LMDeploy。
 
 5. **配置与 CLI**
 
 - CLI 入口：`sage infer` 命名空间，含 `backend list/test`, `schema dump`, `apply-patches`（可选）。
-- 配置：`config/sage_llm.yaml`（engine, patches, kv_schema, comm preset, accel preset），统一使用 `SagePorts`
-  取端口。
+- 配置：`config/sage_llm.yaml`（engine, patches, kv_schema, comm preset, accel preset），端口全部经
+  `SagePorts` 获取，严禁硬编码；Control Plane/Gateway 默认端口取自 `SagePorts.GATEWAY_DEFAULT`，LLM
+  引擎建议 `SagePorts.get_recommended_llm_port()` 以兼容 WSL2。
 
 ______________________________________________________________________
 

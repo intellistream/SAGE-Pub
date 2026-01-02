@@ -39,7 +39,7 @@ sageLLM/
 │   ├── collective_ops/            # 小方向 1.2：集合通信优化 (git submodule)
 │   ├── kv_transfer/               # 小方向 1.3：KV 跨节点传输 (git submodule)
 │   ├── overlap_pipeline/          # 小方向 1.4：计算通信重叠 (git submodule)
-│   └── domestic_interconnect/     # 小方向 1.5：国产互联适配 (git submodule, 可选)
+│   └── domestic_interconnect/     # 小方向 1.5：国产互联适配 (git submodule, 核心)
 │
 ├── direction_2_kv_scheduling/     # 【大方向 2】KV 管理与调度
 │   ├── prefix_cache/              # 小方向 2.1：前缀复用 (git submodule)
@@ -71,7 +71,7 @@ sageLLM/
 | **KV 管理与调度** | Task 2 | 5 个小方向（prefix_cache, kv_pool, eviction_policy, scheduler_ir, lifetime_predictor） | `task2-kv-cache-scheduling/` + `task2-pd-separation/` |
 | **模型压缩与加速** | Task 3 | 5 个小方向（quantization, sparsity, speculative_decoding, kernel_fusion, cot_acceleration） | `task3-model-compression/prompt.md` |
 
-**总计**：3 大方向 × 5 小方向 = **15 个独立 submodule**（其中 12 个核心 + 3 个可选）
+**总计**：3 大方向 × 5 小方向 = **15 个独立 submodule**（其中 14 个核心 + 1 个可选：2.5 生命周期预测）
 
 ______________________________________________________________________
 
@@ -107,12 +107,13 @@ ______________________________________________________________________
 - **性能指标**：重叠效率 ≥70%，idle time <10%
 - **Git Repo**：`sageLLM-overlap-pipeline`
 
-#### 1.5 domestic_interconnect/ - 国产互联适配（可选）
-- **职责**：昇腾 HCCS、寒武纪 MLU-Link、海光 xGMI 等国产互联协议适配
+#### 1.5 domestic_interconnect/ - 国产互联适配（核心）
+- **职责**：昇腾 HCCS/HCCL、寒武纪 MLU-Link/CNCL、海光 xGMI/RCCL、昆仑 BKCL 等国产互联协议适配
 - **Baseline**：各厂商 SDK 文档，参考 Megatron-LM custom backend
 - **独立接口**：`DomesticCommBackend` 实现 `CommBackendProtocol`
-- **性能指标**：达到厂商声称带宽的 ≥80%
+- **性能指标**：达到厂商声称带宽的 ≥85%
 - **Git Repo**：`sageLLM-domestic-interconnect`
+- **⚠️ 重要性说明**：作为"面向国产算力的推理引擎"核心定位，本模块为 P0 优先级，不可跳过
 
 ---
 
