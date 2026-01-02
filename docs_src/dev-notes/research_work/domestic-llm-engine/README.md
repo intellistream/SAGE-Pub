@@ -172,8 +172,9 @@ ______________________________________________________________________
 
 ## Prompt 导航（强调模块独立性）
 
-### 总览文档
+### 核心文档
 - **[Meta Prompt](./meta-prompt.md)**：全局约束、目录、模块化设计原则、15 个独立子模块详细规划
+- **[硬件采购清单](./HARDWARE_PROCUREMENT.md)**：国产算力硬件采购方案、预算评估、供应商信息
 
 ### 大方向 Prompts（原有）
 - [task0-common-infrastructure](./task0-common-infrastructure/prompt.md) — 基础设施：Protocol 定义 + LMDeploy 集成框架
