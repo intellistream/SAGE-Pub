@@ -281,7 +281,6 @@ git pull --ff-only origin main-dev
 git checkout -b fix/<short-topic>
 ./quickstart.sh --dev --yes          # ensure dev deps installed
 bash tools/tests/run_examples_tests.sh
-pytest -k issues_manager -vv
 git add <changed-files>
 git commit -m "fix(sage-kernel): correct dispatcher edge case"
 git push -u origin fix/<short-topic>
