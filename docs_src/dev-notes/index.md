@@ -41,6 +41,7 @@ ______________________________________________________________________
 ## 🔧 专题笔记
 
 - [交叉层设计 (Cross-Layer)](cross-layer/README.md)
+- [团队管理与孵化策略](cross-layer/team-management.md)
 - [测试策略 (Testing)](testing/README.md)
 - [研究工作 (Research)](research_work/README.md)
 - [归档 (Archive)](archive/README.md)
