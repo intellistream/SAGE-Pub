@@ -6,6 +6,17 @@ ______________________________________________________________________
 
 # SAGE CLI 命令速查表
 
+> **⚠️  DEPRECATED**: The `sage-dev package pypi` command has been removed.
+> Please use the standalone [sage-pypi-publisher](https://github.com/intellistream/sage-pypi-publisher) tool instead.
+>
+> **Migration**: 
+> ```bash
+> git clone https://github.com/intellistream/sage-pypi-publisher.git
+> cd sage-pypi-publisher
+> ./publish.sh <package-name> --auto-bump patch
+> ```
+
+
 ## 📋 命令入口概览
 
 SAGE 提供两个主要的 CLI 入口：
