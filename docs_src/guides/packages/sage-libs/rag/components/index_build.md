@@ -46,12 +46,12 @@ ______________________________________________________________________
 ```python
 from pathlib import Path
 from sage.middleware.operators.rag.index_builder import IndexBuilder
-from sage.middleware.components.sage_db.backend import SageDBBackend
+from sage.middleware.components.sage_db.backend import SageVDBBackend
 from sage.common.components.sage_embedding import get_embedding_model
 
 # 1. 准备后端工厂
 def backend_factory(path: Path, dim: int):
-    return SageDBBackend(path, dim)
+    return SageVDBBackend(path, dim)
 
 # 2. 准备 Embedding 模型
 embedder = get_embedding_model("openai", model="BAAI/bge-m3")
@@ -194,10 +194,10 @@ ______________________________________________________________________
 高性能 C++ 向量数据库，适用于生产环境：
 
 ```python
-from sage.middleware.components.sage_db.backend import SageDBBackend
+from sage.middleware.components.sage_db.backend import SageVDBBackend
 
 def factory(path, dim):
-    return SageDBBackend(path, dim)
+    return SageVDBBackend(path, dim)
 ```
 
 ### ChromaDB

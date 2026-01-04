@@ -209,7 +209,7 @@ nav:
       - 仪表化: guides/packages/sage-middleware/middleware_instrument.md
       - 组件:
         - NeuroMem: guides/packages/sage-middleware/components/neuromem.md
-        - SageDB: guides/packages/sage-middleware/components/sage_db.md
+        - SageVDB: guides/packages/sage-middleware/components/sage_db.md
       - 服务:
         - 服务介绍: guides/packages/sage-middleware/service/service_intro.md
         - Memory 服务:
@@ -218,7 +218,7 @@ nav:
         - Vector DB:
           - Vector DB: guides/packages/sage-middleware/service/neuromem/vdb/vdb.md
           - Faiss: guides/packages/sage-middleware/service/neuromem/vdb/faiss.md
-        - SageDB 服务: guides/packages/sage-middleware/service/sage-db/sage_db_service.md
+        - SageVDB 服务: guides/packages/sage-middleware/service/sage-db/sage_db_service.md
         - SageFlow 服务: guides/packages/sage-middleware/service/sage-flow/sage_flow_service.md
       - GPU 加速: guides/packages/sage-middleware/hardware/gpu_acceleration.md
   - L5 应用层:
