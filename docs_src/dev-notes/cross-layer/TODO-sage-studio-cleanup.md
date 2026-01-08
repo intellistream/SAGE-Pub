@@ -19,14 +19,12 @@
 ### 1. SAGE 主仓库清理
 
 **优先级**: 高  
-**负责人**: 待分配
+**负责人**: 已完成
 
-- [ ] **删除本地 sage-studio 目录**
-  ```bash
-  cd /home/shuhao/SAGE
-  git rm -rf packages/sage-studio
-  git commit -m "chore: remove sage-studio (moved to independent repository)"
-  ```
+- [x] **删除本地 sage-studio 目录**
+  - ✅ 完成于 2026-01-09 (commit 630476a9)
+  - 完全删除 packages/sage-studio/ 目录
+  - 移除了 131 个跟踪文件 + node_modules/
 
 - [ ] **更新 quickstart.sh**
   - 移除 sage-studio 的安装步骤（如果有）
@@ -34,6 +32,11 @@
 
 - [ ] **更新 manage.sh**
   - 移除 sage-studio 相关的子模块管理（如果有）
+
+- [x] **修复 CI 失败**
+  - ✅ 完成于 2026-01-09 (commit 773efb53)
+  - 创建缺失的 tools/scripts/verify_pep420_integration.py
+  - 修复 ci-pep420-compliance.yml 工作流
 
 ### 2. 元包依赖更新
 
