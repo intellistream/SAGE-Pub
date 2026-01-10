@@ -1,8 +1,15 @@
 # ANNS Architecture Refactor Plan
 
 **Date**: 2025-12-28\
-**Status**: 🚧 Planning\
-**Issue**: ANNS-related code scattered across 3 locations with unclear separation
+**Status**: ✅ **PARTIALLY COMPLETED** - `ann/` folder removed, using `anns/` as canonical location\
+**Issue**: ~~ANNS-related code scattered across 3 locations with unclear separation~~
+
+**Current Status (2026-01-10)**:
+- ✅ Removed duplicate `sage.libs.ann/` folder (kept `anns/`)
+- ✅ Canonical location: `sage.libs.anns` (plural)
+- ✅ Implementations externalized to `isage-anns` package
+- ⚠️ C++ implementations still in `benchmark_anns/algorithms_impl/` (not moved to sage-libs)
+- 📝 This document preserved for historical context and future refactoring reference
 
 ______________________________________________________________________
 
