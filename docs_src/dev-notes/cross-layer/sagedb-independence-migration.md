@@ -77,7 +77,7 @@ SageDB 是一个自研的高性能 C++ 向量数据库，拥有与 FAISS 完全�
 ```
 packages/sage-middleware/src/sage/middleware/components/sage_db/
 ├── __init__.py           # 版本信息
-├── backend.py            # SageDBBackend 适配器 (VectorStore 协议)
+├── backend.py            # SageVDBBackend 适配器 (VectorStore 协议)
 ├── service.py            # SageDB 服务封装
 ├── examples/             # 示例代码
 ├── python/               # Python 绑定
@@ -181,7 +181,7 @@ packages/sage-middleware/src/sage/middleware/components/sage_db/
    ```
 
 3. **保留 backend.py 适配器**
-   - `SageDBBackend` 类保留在 SAGE 中
+   - `SageVDBBackend` 类保留在 SAGE 中
    - 它是 SAGE 特定的 VectorStore 协议实现
    - 只需更新导入路径
 
@@ -224,7 +224,7 @@ packages/sage-middleware/src/sage/middleware/components/sage_db/
    ```
    packages/sage-middleware/src/sage/middleware/components/sage_db/
    ├── __init__.py             # 兼容层 (导入 isagedb)
-   ├── backend.py              # SageDBBackend (VectorStore 协议)
+   ├── backend.py              # SageVDBBackend (VectorStore 协议)
    └── service.py              # SageDB 服务封装 (如需要)
    ```
 
@@ -298,6 +298,8 @@ db.index_type
 | 文档不同步 | 低 | 统一更新时机 |
 
 ## 回滚计划
+
+> 当前仓库仅保留 `docs-public` 子模块。以下回滚步骤仅作为历史参考，若需临时恢复旧的子模块形态，请谨慎评估后再执行。
 
 如果迁移过程中出现问题:
 

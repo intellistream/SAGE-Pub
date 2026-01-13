@@ -11,7 +11,7 @@ ______________________________________________________________________
 ### 层级定位
 
 ```
-L6: sage-cli, sage-llm-gateway    # 使用 IndexBuilder
+L5: sage-cli                  # 使用 IndexBuilder (CLI 入口)
     │
     ▼
 L4: sage-middleware           # IndexBuilder 定义
@@ -24,6 +24,8 @@ L4: sage-middleware           # IndexBuilder 定义
 L3: sage-libs                 # 提供分块算法
     └── rag/chunk.py
 ```
+
+**独立仓库**: sageLLM (isagellm) 也使用 IndexBuilder 进行 Gateway RAG 索引构建。
 
 ### 设计模式
 
@@ -46,12 +48,12 @@ ______________________________________________________________________
 ```python
 from pathlib import Path
 from sage.middleware.operators.rag.index_builder import IndexBuilder
-from sage.middleware.components.sage_db.backend import SageDBBackend
+from sage.middleware.components.sage_db.backend import SageVDBBackend
 from sage.common.components.sage_embedding import get_embedding_model
 
 # 1. 准备后端工厂
 def backend_factory(path: Path, dim: int):
-    return SageDBBackend(path, dim)
+    return SageVDBBackend(path, dim)
 
 # 2. 准备 Embedding 模型
 embedder = get_embedding_model("openai", model="BAAI/bge-m3")
@@ -194,10 +196,10 @@ ______________________________________________________________________
 高性能 C++ 向量数据库，适用于生产环境：
 
 ```python
-from sage.middleware.components.sage_db.backend import SageDBBackend
+from sage.middleware.components.sage_db.backend import SageVDBBackend
 
 def factory(path, dim):
-    return SageDBBackend(path, dim)
+    return SageVDBBackend(path, dim)
 ```
 
 ### ChromaDB

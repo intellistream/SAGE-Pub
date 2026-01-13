@@ -23,7 +23,7 @@ hierarchy with UnifiedCollection pattern.
 1. **[00_REFACTOR_OVERVIEW.md](00_REFACTOR_OVERVIEW.md)** - Executive Summary
 
    - Architecture comparison (before/after)
-   - 4-layer design (L1 Config → L2 neuromem → L5 Service → L6 App)
+   - 4-layer design (L1 Config → L2 neuromem → L4 Service → L5 CLI)
    - Timeline: 12 days + 3 buffer
 
 1. **[01_NEUROMEM_REFACTOR_PLAN.md](01_NEUROMEM_REFACTOR_PLAN.md)** - Core Architecture

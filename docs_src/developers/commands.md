@@ -1,5 +1,16 @@
 # 🚀 SAGE 开发工具快捷命令
 
+> **⚠️  DEPRECATED**: The `sage-dev package pypi` command has been removed.
+> Please use the standalone [sage-pypi-publisher](https://github.com/intellistream/sage-pypi-publisher) tool instead.
+>
+> **Migration**: 
+> ```bash
+> git clone https://github.com/intellistream/sage-pypi-publisher.git
+> cd sage-pypi-publisher
+> ./publish.sh <package-name> --auto-bump patch
+> ```
+
+
 本文档介绍 SAGE 项目提供的便捷开发命令，帮助开发者提高工作效率。
 
 ## 快速开始

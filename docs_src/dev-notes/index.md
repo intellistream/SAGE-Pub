@@ -10,9 +10,9 @@
 
 完整的包架构文档，包含：
 
-- 📦 **10 个包的详细说明** - 每个包的职责、模块、测试状态
+- 📦 **8 个核心包的详细说明** - 每个包的职责、模块、测试状态
 - 🔗 **依赖关系管理** - 允许和禁止的依赖模式
-- 📋 **架构审查状态** - L1-L6 各层的审查成果
+- 📋 **架构审查状态** - L1-L5 各层的审查成果
 - 🔄 **重构历史** - 架构演进的重要里程碑
 - 💡 **最佳实践** - 包开发的指导原则
 
@@ -31,12 +31,19 @@ ______________________________________________________________________
 | L3   | [l3-kernel](l3-kernel/README.md)         | 核心引擎           |
 | L3   | [l3-libs](l3-libs/README.md)             | 算法库             |
 | L4   | [l4-middleware](l4-middleware/README.md) | 中间件、C++ 扩展   |
-| L5   | [l5-apps](l5-apps/README.md)             | 应用示例           |
-| L5   | [l5-benchmark](l5-benchmark/README.md)   | 评测框架           |
-| L6   | [l6-cli](l6-cli/README.md)               | 命令行工具         |
-| L6   | [l6-gateway](l6-gateway/README.md)       | API 网关           |
-| L6   | [l6-studio](l6-studio/README.md)         | 可视化工作室       |
-| L6   | [l6-tools](l6-tools/README.md)           | 开发者工具         |
+| L5   | [l5-cli](l5-cli/README.md)               | 命令行工具         |
+| L5   | [l5-tools](l5-tools/README.md)           | 开发者工具         |
+
+### 独立仓库（已迁移）
+
+以下组件已迁移到独立仓库，文档请参考对应仓库：
+
+| 组件 | 仓库地址 | PyPI 包 |
+| ---- | -------- | ------- |
+| sage-examples (原 sage-apps) | [intellistream/sage-examples](https://github.com/intellistream/sage-examples) | - |
+| sage-benchmark | [intellistream/sage-benchmark](https://github.com/intellistream/sage-benchmark) | `isage-benchmark` |
+| sage-studio | [intellistream/sage-studio](https://github.com/intellistream/sage-studio) | `isage-studio` |
+| isagellm (原 sage-llm-gateway) | [intellistream/isagellm](https://github.com/intellistream/isagellm) | `isagellm` |
 
 ## 🔧 专题笔记
 
@@ -104,7 +111,7 @@ A: 如果是通用算法 → sage-libs (L3)；如果是领域特定的 → sage-
 
 **Q: 如何避免循环依赖？**
 
-A: 遵循 L1-L6 单向依赖规则，参考 [包架构文档](package-architecture.md) 中的依赖关系图
+A: 遵循 L1-L5 单向依赖规则，参考 [包架构文档](package-architecture.md) 中的依赖关系图
 
 **Q: 我的代码应该放在哪个模块？**
 
@@ -122,7 +129,7 @@ ______________________________________________________________________
 
 ### 架构文档
 
-- [架构总览](../concepts/architecture/overview.md) - L1-L6 架构体系
+- [架构总览](../concepts/architecture/overview.md) - L1-L5 架构体系
 - [包结构](../concepts/architecture/package-structure.md) - 包组织和依赖
 
 ### API 和指南
@@ -161,10 +168,12 @@ ______________________________________________________________________
 
 ```
 docs/dev-notes/
+├── l1-common/          # Common 开发笔记
+├── l2-platform/        # Platform 开发笔记
 ├── l3-kernel/          # Kernel 开发笔记
 ├── l3-libs/            # Libs 开发笔记
 ├── l4-middleware/      # Middleware 开发笔记
-├── l5-apps/            # Apps 开发笔记
+├── l6-cli/             # CLI 开发笔记
 ├── l6-tools/           # Tools 开发笔记
 ├── cross-layer/        # 跨层主题
 │   ├── architecture/   # 架构相关

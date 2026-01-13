@@ -35,9 +35,57 @@ Domain-specific components and operators for RAG, LLM, memory, and database syst
     options:
       show_root_heading: true
       members:
+        - SageLLMGenerator
         - VLLMGenerator
         - VLLMEmbedding
         - OpenAIOperator
+
+##### SageLLMGenerator ✅ Recommended
+
+Unified LLM inference operator with multi-backend support.
+
+```python
+from sage.middleware.operators.llm import SageLLMGenerator
+
+# Auto-select best backend
+generator = SageLLMGenerator(
+    model_path="Qwen/Qwen2.5-7B-Instruct",
+    backend_type="auto",  # auto/cuda/ascend/mock
+    temperature=0.7,
+    max_tokens=2048,
+)
+
+result = generator.execute("Generate text")
+```
+
+**Parameters:**
+
+| Parameter | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `backend_type` | str | `"auto"` | Backend: `auto`, `cuda`, `ascend`, `mock` |
+| `model_path` | str | `""` | HuggingFace model ID or local path |
+| `device_map` | str | `"auto"` | Device mapping: `auto`, `cuda:0`, `cpu` |
+| `dtype` | str | `"auto"` | Data type: `auto`, `float16`, `bfloat16` |
+| `max_tokens` | int | `2048` | Maximum generation tokens |
+| `temperature` | float | `0.7` | Sampling temperature |
+| `top_p` | float | `0.95` | Nucleus sampling parameter |
+| `top_k` | int | `50` | Top-k sampling parameter |
+| `timeout` | float | `120.0` | Request timeout (seconds) |
+
+**`backend_type` Values:**
+
+- `"auto"` - Auto-detect best available (recommended)
+- `"cuda"` - NVIDIA CUDA backend
+- `"ascend"` - Huawei Ascend NPU backend
+- `"mock"` - Mock backend for testing
+
+##### VLLMGenerator ⚠️ Deprecated
+
+> **Deprecation Notice**: `VLLMGenerator` is deprecated since SAGE v0.3.0.
+> Use `SageLLMGenerator` with `backend_type="cuda"` instead.
+> Will be removed in SAGE v0.4.0.
+>
+> See [vLLM to sageLLM Migration Guide](../../dev-notes/migration/VLLM_TO_SAGELLM_MIGRATION.md)
 
 #### Tool Operators
 
@@ -192,21 +240,39 @@ stream = (env
 env.execute()
 ```
 
-### Using vLLM Service
+### Using LLM Service
+
+#### ✅ Recommended: SageLLMGenerator
 
 ```python
-from sage.middleware.operators.llm import VLLMGenerator
-from sage.common.config.ports import SagePorts
+from sage.middleware.operators.llm import SageLLMGenerator
 
-# Use local vLLM service with SagePorts
-generator = VLLMGenerator(
-    model_name="Qwen/Qwen2.5-7B-Instruct",
-    base_url=f"http://localhost:{SagePorts.BENCHMARK_LLM}/v1"
+# Use sageLLM with auto backend selection
+generator = SageLLMGenerator(
+    model_path="Qwen/Qwen2.5-7B-Instruct",
+    backend_type="auto",  # or "cuda", "ascend", "mock"
 )
 
 # In pipeline
 stream = env.from_source(prompts).map(generator).sink(output)
 ```
+
+#### ⚠️ Deprecated: VLLMGenerator
+
+> **Warning**: This approach is deprecated. Migrate to `SageLLMGenerator`.
+
+```python
+# ❌ DEPRECATED - will be removed in v0.4.0
+from sage.middleware.operators.llm import VLLMGenerator
+from sage.common.config.ports import SagePorts
+
+generator = VLLMGenerator(
+    model_name="Qwen/Qwen2.5-7B-Instruct",
+    base_url=f"http://localhost:{SagePorts.BENCHMARK_LLM}/v1"
+)
+```
+
+See [Migration Guide](../../dev-notes/migration/VLLM_TO_SAGELLM_MIGRATION.md) for details.
 
 ## C++ Extensions
 

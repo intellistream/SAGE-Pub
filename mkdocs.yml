@@ -209,7 +209,7 @@ nav:
       - 仪表化: guides/packages/sage-middleware/middleware_instrument.md
       - 组件:
         - NeuroMem: guides/packages/sage-middleware/components/neuromem.md
-        - SageDB: guides/packages/sage-middleware/components/sage_db.md
+        - SageVDB: guides/packages/sage-middleware/components/sage_db.md
       - 服务:
         - 服务介绍: guides/packages/sage-middleware/service/service_intro.md
         - Memory 服务:
@@ -218,23 +218,17 @@ nav:
         - Vector DB:
           - Vector DB: guides/packages/sage-middleware/service/neuromem/vdb/vdb.md
           - Faiss: guides/packages/sage-middleware/service/neuromem/vdb/faiss.md
-        - SageDB 服务: guides/packages/sage-middleware/service/sage-db/sage_db_service.md
+        - SageVDB 服务: guides/packages/sage-middleware/service/sage-db/sage_db_service.md
         - SageFlow 服务: guides/packages/sage-middleware/service/sage-flow/sage_flow_service.md
       - GPU 加速: guides/packages/sage-middleware/hardware/gpu_acceleration.md
-  - L5 应用层:
-    - Apps 应用:
-      - 概览: guides/packages/sage-apps/index.md
-    - Benchmark 性能测试:
-      - 概览: guides/packages/sage-benchmark/index.md
-    - 应用示例:
-      - 概览: guides/applications.md
-      - 文章监控系统: guides/article-monitoring.md
-      - 分布式智能家居系统: guides/smart-home.md
-      - 智能扩缩容聊天系统: guides/auto-scaling-chat.md
-  - L6 接口层:
-    - sage-studio 可视化: guides/packages/sage-studio/index.md
+  - L5 接口层:
     - CLI 工具: guides/packages/sage-tools/cli_reference.md
     - Pipeline Builder: guides/packages/sage-tools/pipeline_builder.md
+  - 独立仓库:
+    - sage-examples: https://github.com/intellistream/sage-examples
+    - sage-benchmark: https://github.com/intellistream/sage-benchmark
+    - sage-studio: https://github.com/intellistream/sage-studio
+    - sageLLM: https://github.com/intellistream/sageLLM
   - 部署运维:
     - 部署指南: guides/deployment/index.md
     - 安全指南:
@@ -279,12 +273,8 @@ nav:
     - L3 核心引擎: dev-notes/l3-kernel/README.md
     - L3 算法库: dev-notes/l3-libs/README.md
     - L4 中间件: dev-notes/l4-middleware/README.md
-    - L5 应用: dev-notes/l5-apps/README.md
-    - L5 评测: dev-notes/l5-benchmark/README.md
-    - L6 CLI: dev-notes/l6-cli/README.md
-    - L6 Gateway: dev-notes/l6-gateway/README.md
-    - L6 Studio: dev-notes/l6-studio/README.md
-    - L6 Tools: dev-notes/l6-tools/README.md
+    - L5 CLI: dev-notes/l5-cli/README.md
+    - L5 Tools: dev-notes/l5-tools/README.md
     - 交叉层设计: dev-notes/cross-layer/README.md
     - 测试策略: dev-notes/testing/README.md
 

@@ -1,5 +1,16 @@
 # CI/CD Configuration
 
+> **⚠️  DEPRECATED**: The `sage-dev package pypi` command has been removed.
+> Please use the standalone [sage-pypi-publisher](https://github.com/intellistream/sage-pypi-publisher) tool instead.
+>
+> **Migration**: 
+> ```bash
+> git clone https://github.com/intellistream/sage-pypi-publisher.git
+> cd sage-pypi-publisher
+> ./publish.sh <package-name> --auto-bump patch
+> ```
+
+
 ## Overview
 
 SAGE uses GitHub Actions for continuous integration and deployment. This document provides a

@@ -50,23 +50,23 @@ ______________________________________________________________________
 
 ## 🔧 技术细节
 
-### 并行克隆
+> ⚠️ 现状：SAGE 仅保留一个子模块 `docs-public`。下列优化命令仅适用于 `docs-public`，不要对其他路径运行 `git submodule update --init ...`。
+
+### 并行克隆（仅 docs-public）
 
 ```bash
-git submodule update --init --recursive --jobs 4
+git submodule update --init --recursive --jobs 4 docs-public
 ```
 
-- `--jobs 4`: 同时克隆 4 个仓库
-- 根据 CPU 核心数自动调整
+- `--jobs 4`: 并行克隆（对单个子模块影响有限，但命令向下兼容）
 
-### 浅克隆
+### 浅克隆（仅 docs-public）
 
 ```bash
-git submodule update --init --recursive --depth 1
+git submodule update --init --recursive --depth 1 docs-public
 ```
 
-- `--depth 1`: 只克隆最新的提交
-- 大幅减少下载数据量（约 90%）
+- `--depth 1`: 只克隆最新提交
 
 ### Git 配置优化
 
@@ -175,10 +175,10 @@ git submodule sync
    ./manage.sh
    ```
 
-1. **手动克隆单个 submodule**：
+1. **手动克隆单个 submodule（仅 docs-public）**：
 
    ```bash
-   git submodule update --init packages/sage-middleware/src/sage/middleware/components/sage_db/sageDB
+   git submodule update --init docs-public
    ```
 
 ## 📚 相关文档

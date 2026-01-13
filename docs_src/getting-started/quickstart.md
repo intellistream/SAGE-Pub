@@ -195,10 +195,10 @@ sage studio start
 
 ## 8. 探索示例
 
-SAGE 提供了按照 L1-L6 架构分层的教程与应用示例：
+SAGE 提供了按照 L1-L5 架构分层的教程与应用示例：
 
 ```bash
-# 查看分层目录（L1-L6）
+# 查看分层目录（L1-L5）
 ls examples/tutorials/
 
 # L3-libs: Agent 示例
@@ -207,8 +207,8 @@ python examples/tutorials/L3-libs/agents/basic_agent.py
 # L3-libs: RAG 示例
 python examples/tutorials/L3-libs/rag/simple_rag.py
 
-# L5 应用入口（调用 sage-apps 实现）
-python examples/apps/run_article_monitoring.py --help
+# 完整应用示例见独立仓库 sage-examples
+# https://github.com/intellistream/sage-examples
 ```
 
 ## 📚 下一步

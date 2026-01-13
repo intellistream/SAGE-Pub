@@ -1,5 +1,14 @@
 # ANN Migration Plan (benchmark_anns → sage-libs)
 
+**Status**: ⚠️ **OUTDATED** - This plan described migration to `sage.libs.ann` (singular). 
+The actual implementation used `sage.libs.anns` (plural), and implementations have been 
+externalized to the `isage-anns` package. This document is preserved for historical context.
+
+**Current Status**: 
+- ✅ Interface layer: `sage.libs.anns` (not `ann`)
+- ✅ Implementations: External package `isage-anns`
+- ✅ Documentation: See `sage.libs.anns.README.md`
+
 Last updated: 2025-12-28
 
 ## Goals

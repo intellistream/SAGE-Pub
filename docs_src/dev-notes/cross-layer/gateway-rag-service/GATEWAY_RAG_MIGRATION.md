@@ -64,7 +64,7 @@ ______________________________________________________________________
 ```
 sage chat ingest
   ├─> IndexBuilder.build_from_docs()
-  │     ├─> SageDBBackend (存储)
+  │     ├─> SageVDBBackend (存储)
   │     └─> HashEmbedder (默认)
   └─> 保存 manifest.json
 
@@ -140,11 +140,11 @@ async def _execute_sage_pipeline(self, request, session) -> str:
 async def _build_sage_chat_index(self, index_root: Path, index_name: str):
     """与 sage chat ingest 相同的构建逻辑"""
     from sage.middleware.operators.rag.index_builder import IndexBuilder
-    from sage.middleware.components.sage_db.backend import SageDBBackend
+    from sage.middleware.components.sage_db.backend import SageVDBBackend
 
     # Backend factory
     def backend_factory(persist_path, dim):
-        return SageDBBackend(persist_path, dim)
+        return SageVDBBackend(persist_path, dim)
 
     # Document processor
     def document_processor(source_dir):

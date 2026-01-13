@@ -103,6 +103,8 @@ ______________________________________________________________________
 | [MERGE_CONFLICT_RESOLUTION_GUIDE.md](MERGE_CONFLICT_RESOLUTION_GUIDE.md)     | 合并冲突解决指南                   | ✅ 有效 |
 | [FINETUNE_ARCHITECTURE.md](FINETUNE_ARCHITECTURE.md)                         | Fine-tune 功能架构说明             | ✅ 有效 |
 | [AGENT_TRAINING_PIPELINE.md](AGENT_TRAINING_PIPELINE.md)                     | Agent 训练流水线文档               | ✅ 有效 |
+| [MIDDLEWARE_COMPONENT_PROMOTION_POLICY.md](MIDDLEWARE_COMPONENT_PROMOTION_POLICY.md) | libs → middleware 升级规则（不保留兼容层） | ✅ 有效 |
+| [MIGRATION_PLAN_libs_to_middleware_promotions.md](MIGRATION_PLAN_libs_to_middleware_promotions.md) | libs → middleware 迁移总计划（多 Agent 提示词） | ✅ 有效 |
 
 ### 功能特定文档
 

@@ -582,9 +582,9 @@ sage.common/
 
 **Layer**: L1 (Foundation)
 
-**Can be imported by**: L2-L6 (all upper layers)
+**Can be imported by**: L2-L5 (all upper layers)
 
-**Must NOT import from**: sage.kernel, sage.middleware, sage.libs, sage.apps
+**Must NOT import from**: sage.kernel, sage.middleware, sage.libs
 
 **Dependencies**: Only standard library and external packages (e.g., openai, transformers)
 

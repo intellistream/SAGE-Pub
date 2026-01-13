@@ -26,7 +26,7 @@ packages/.../submodule/.github/     # Submodule-specific instructions
 **`.github/copilot-instructions.md`** (1149 lines) - Main authoritative document
 
 - Complete SAGE project rules and guidelines
-- Architecture constraints (L1-L6 layers, no upward dependencies)
+- Architecture constraints (L1-L5 layers, no upward dependencies)
 - Critical principles (Control Plane only, no fallback logic, readme-first)
 - Installation procedures, testing commands, common issues
 - Dependency management, port configuration, API patterns
@@ -58,7 +58,7 @@ packages/.../submodule/.github/     # Submodule-specific instructions
 **What's included in quick reference:**
 
 - 🎯 Core principles (Control Plane, no fallbacks, readme-first)
-- 🏗️ Architecture summary (L1-L6 layers)
+- 🏗️ Architecture summary (L1-L5 layers)
 - 📦 Dependency management essentials
 - 🚀 Quick start commands
 - 🔧 Common commands table

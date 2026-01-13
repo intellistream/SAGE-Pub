@@ -86,7 +86,7 @@ class IndexBuilder:
 
 ### 3. 创建 VectorStore 适配器
 
-#### SageDBBackend (L4)
+#### SageVDBBackend (L4)
 
 **位置**: `packages/sage-middleware/src/sage/middleware/components/sage_db/backend.py`
 
@@ -108,7 +108,7 @@ class IndexBuilder:
 - ✅ 导入 `sage.common.utils.document_processing`
 - ✅ 重构 `ingest_source()` 使用 `IndexBuilder`
 - ✅ 创建 `_create_markdown_processor()` 工厂函数
-- ✅ 使用 `SageDBBackend` 作为存储后端
+- ✅ 使用 `SageVDBBackend` 作为存储后端
 
 **代码简化**: ~120 行 → ~80 行（减少 33%）
 
@@ -159,7 +159,7 @@ L4: sage-middleware/operators/rag/index_builder/
     ├── VectorStore (Protocol)
     ├── IndexBuilder
     ├── IndexManifest
-    ├── SageDBBackend (adapter)
+    ├── SageVDBBackend (adapter)
     └── ChromaVectorStoreAdapter (adapter)
            ↑
            │ (import)
@@ -207,7 +207,7 @@ L6: sage-cli/chat.py + sage-llm-gateway/openai.py
 ```python
 # L6 注入 SageDB
 def backend_factory(path: Path, dim: int):
-    return SageDBBackend(path, dim)
+    return SageVDBBackend(path, dim)
 
 builder = IndexBuilder(backend_factory=backend_factory)
 ```
