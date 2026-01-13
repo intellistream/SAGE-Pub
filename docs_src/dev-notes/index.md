@@ -10,9 +10,9 @@
 
 完整的包架构文档，包含：
 
-- 📦 **10 个包的详细说明** - 每个包的职责、模块、测试状态
+- 📦 **8 个核心包的详细说明** - 每个包的职责、模块、测试状态
 - 🔗 **依赖关系管理** - 允许和禁止的依赖模式
-- 📋 **架构审查状态** - L1-L6 各层的审查成果
+- 📋 **架构审查状态** - L1-L5 各层的审查成果
 - 🔄 **重构历史** - 架构演进的重要里程碑
 - 💡 **最佳实践** - 包开发的指导原则
 
@@ -31,8 +31,8 @@ ______________________________________________________________________
 | L3   | [l3-kernel](l3-kernel/README.md)         | 核心引擎           |
 | L3   | [l3-libs](l3-libs/README.md)             | 算法库             |
 | L4   | [l4-middleware](l4-middleware/README.md) | 中间件、C++ 扩展   |
-| L6   | [l6-cli](l6-cli/README.md)               | 命令行工具         |
-| L6   | [l6-tools](l6-tools/README.md)           | 开发者工具         |
+| L5   | [l5-cli](l5-cli/README.md)               | 命令行工具         |
+| L5   | [l5-tools](l5-tools/README.md)           | 开发者工具         |
 
 ### 独立仓库（已迁移）
 
@@ -111,7 +111,7 @@ A: 如果是通用算法 → sage-libs (L3)；如果是领域特定的 → sage-
 
 **Q: 如何避免循环依赖？**
 
-A: 遵循 L1-L6 单向依赖规则，参考 [包架构文档](package-architecture.md) 中的依赖关系图
+A: 遵循 L1-L5 单向依赖规则，参考 [包架构文档](package-architecture.md) 中的依赖关系图
 
 **Q: 我的代码应该放在哪个模块？**
 
@@ -129,7 +129,7 @@ ______________________________________________________________________
 
 ### 架构文档
 
-- [架构总览](../concepts/architecture/overview.md) - L1-L6 架构体系
+- [架构总览](../concepts/architecture/overview.md) - L1-L5 架构体系
 - [包结构](../concepts/architecture/package-structure.md) - 包组织和依赖
 
 ### API 和指南

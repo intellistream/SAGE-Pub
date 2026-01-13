@@ -106,8 +106,8 @@ $ sage-dev quality dependencies
 
 ## Related Documentation
 
-- `docs/dev-notes/l6-tools/TOOLS_CLEANUP_SUMMARY.md` - Previous cleanup (2025-10-27)
-- `docs/dev-notes/l6-tools/TOOLS_MIGRATION_ANALYSIS.md` - Migration strategy
+- `docs/dev-notes/l5-tools/TOOLS_CLEANUP_SUMMARY.md` - Previous cleanup (2025-10-27)
+- `docs/dev-notes/l5-tools/TOOLS_MIGRATION_ANALYSIS.md` - Migration strategy
 - `DEVELOPER.md` - Developer guide (updated with new command usage)
 
 ## Follow-up Tasks

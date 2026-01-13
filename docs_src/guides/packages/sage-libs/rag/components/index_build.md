@@ -11,7 +11,7 @@ ______________________________________________________________________
 ### 层级定位
 
 ```
-L6: sage-cli, sage-llm-gateway    # 使用 IndexBuilder
+L5: sage-cli                  # 使用 IndexBuilder (CLI 入口)
     │
     ▼
 L4: sage-middleware           # IndexBuilder 定义
@@ -24,6 +24,8 @@ L4: sage-middleware           # IndexBuilder 定义
 L3: sage-libs                 # 提供分块算法
     └── rag/chunk.py
 ```
+
+**独立仓库**: sageLLM (isagellm) 也使用 IndexBuilder 进行 Gateway RAG 索引构建。
 
 ### 设计模式
 

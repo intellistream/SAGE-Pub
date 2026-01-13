@@ -1,7 +1,7 @@
 ````markdown
-# L6 Tools Dev Notes
+# L5 Tools Dev Notes
 
-该目录追踪 `packages/sage-tools` (L6) 和 `tools/` 目录的开发工具文档。
+该目录追踪 `packages/sage-tools` (L5) 和 `tools/` 目录的开发工具文档。
 
 ## 目录结构
 
@@ -31,7 +31,7 @@
 
 ### sage-dev 命令组
 
-详细命令参考见 [l6-cli/COMMAND_CHEATSHEET.md](../l6-cli/COMMAND_CHEATSHEET.md)
+详细命令参考见 [l5-cli/COMMAND_CHEATSHEET.md](../l5-cli/COMMAND_CHEATSHEET.md)
 
 ```
 sage-dev
@@ -78,6 +78,6 @@ sage-dev project clean --deep    # 清理所有缓存
 ## 相关文档
 
 - [sage-tools README](../../../../packages/sage-tools/README.md) - sage-tools 包文档
-- [l6-cli/](../l6-cli/) - CLI 命令文档
+- [l5-cli/](../l5-cli/) - CLI 命令文档
 - [tools/](../../../../tools/) - Shell 脚本工具
 ````

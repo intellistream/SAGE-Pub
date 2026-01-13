@@ -13,18 +13,23 @@ ______________________________________________________________________
 SAGE Libs 位于 L3 层，严格遵循依赖方向规则：
 
 ```
-L6: sage-cli, sage-studio, sage-tools, sage-llm-gateway  # 应用层
-L5: sage-apps, sage-benchmark                        # 应用与基准测试
-L4: sage-middleware                                  # 算子与编排
-L3: sage-kernel, sage-libs  ← 我们在这里           # 核心与算法
-L2: sage-platform                                    # 平台服务
-L1: sage-common                                      # 基础设施
+L5: sage-cli, sage-tools                            # 接口层 (CLI、开发工具)
+L4: sage-middleware                                  # 中间件层 (算子与编排)
+L3: sage-kernel, sage-libs  ← 我们在这里           # 核心层 (执行引擎与算法)
+L2: sage-platform                                    # 平台层 (队列、存储)
+L1: sage-common                                      # 基础层 (配置、日志)
 ```
+
+**独立仓库** (不在 SAGE 核心)：
+- sage-benchmark: 评估框架 (PyPI: isage-benchmark)
+- sage-examples: 教程和应用示例
+- sage-studio: 可视化工作流
+- sageLLM: LLM 推理引擎 (PyPI: isagellm)
 
 **关键规则**：
 
 - SAGE Libs 只能依赖 L1 (`sage-common`) 和 L2 (`sage-platform`)
-- 上层模块（L4-L6）可以导入 SAGE Libs，反之不行
+- 上层模块（L4-L5）可以导入 SAGE Libs，反之不行
 - 这确保了算法的独立性和可复用性
 
 ### 2. 纯算法分离 (Pure Algorithm Separation)
@@ -33,7 +38,7 @@ SAGE Libs 专注于**纯算法实现**，不包含：
 
 - Pipeline 编排逻辑（属于 L4）
 - 分布式调度（属于 L2/L4）
-- 用户界面（属于 L6）
+- 用户界面（属于独立仓库 sage-studio）
 - 外部服务依赖（通过接口抽象）
 
 ```python
