@@ -98,15 +98,6 @@ nav:
   - 概览: getting-started/index.md
   - 安装: getting-started/installation.md
   - 快速入门: getting-started/quickstart.md
-  - 基础教程:
-    - 流式处理 101: tutorials/basic/streaming-101.md
-    - 批处理示例: tutorials/basic/hello_batch.md
-    - 算子使用:
-      - Filter 过滤: tutorials/basic/operators/hello_filter_world.md
-      - FlatMap 映射: tutorials/basic/operators/hello_flatmap_world.md
-      - CoMap 联合映射: tutorials/basic/operators/hello_filter_world_comap.md
-      - Future 异步: tutorials/basic/operators/hello_future_world.md
-      - Join 连接: tutorials/basic/operators/hello_join_world.md
 
 - 核心概念:
   - 概览: concepts/index.md
@@ -117,14 +108,7 @@ nav:
     - RPC 队列重构: concepts/architecture/design-decisions/rpc-queue-refactoring.md
     - sage-libs 重构: concepts/architecture/design-decisions/sage-libs-restructuring.md
 
-- 高级教程:
-  - 概览: tutorials/advanced/index.md
-  - 分布式 Pipeline: tutorials/advanced/distributed-pipeline.md
-  - 自定义算子: tutorials/advanced/custom-operators.md
-  - 复杂工作流: tutorials/advanced/complex-workflows.md
-  - 高级 RAG 技术: tutorials/advanced/advanced-rag.md
-  - 性能调优: tutorials/advanced/performance-tuning.md
-  - 容错与可靠性: tutorials/advanced/fault-tolerance.md
+- 高级教程: tutorials/README.md
 
 - 用户指南:
   - 概览: guides/index.md
