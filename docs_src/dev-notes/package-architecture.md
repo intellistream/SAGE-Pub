@@ -12,8 +12,16 @@
 ## 🎉 架构审查状态
 
 **审查日期**: 2025-12-02\
-**审查范围**: 全部 11 个包（含 meta-package），700+ 个 Python 文件\
+**审查范围**: 全部核心包（L1-L4 + L6 工具层）\
 **状态**: ✅ **完成**
+
+!!! note "独立仓库迁移"
+    以下组件已迁移到独立仓库：
+    
+    - **sage-examples** (原 sage-apps): [intellistream/sage-examples](https://github.com/intellistream/sage-examples)
+    - **sage-benchmark**: [intellistream/sage-benchmark](https://github.com/intellistream/sage-benchmark) (PyPI: `isage-benchmark`)
+    - **sage-studio**: [intellistream/sage-studio](https://github.com/intellistream/sage-studio) (PyPI: `isage-studio`)
+    - **isagellm** (原 sage-llm-gateway): [intellistream/isagellm](https://github.com/intellistream/isagellm) (PyPI: `isagellm`)
 
 ### 审查成果
 
@@ -24,19 +32,14 @@
 | L3   | sage-kernel      | 268    | ✅ 753   | ✅         | ✅       | -                      | -                         |
 | L3   | sage-libs        | 65     | ✅ 169   | ✅         | ✅       | -                      | 200 skipped               |
 | L4   | sage-middleware  | 150    | ✅ 22    | ✅         | ✅       | ✅ sageFlow, NeuromMem | C++ via pybind11          |
-| L5   | sage-apps        | 24     | ✅ 21    | ✅         | ✅       | -                      | -                         |
-| L5   | sage-benchmark   | 42     | ✅ 17    | ✅         | ✅       | -                      | -                         |
-| L6   | sage-studio      | 8      | ✅ 51    | ✅         | ✅       | -                      | -                         |
 | L6   | sage-cli         | 45     | ✅ 32    | ✅         | ✅       | -                      | 统一 CLI 入口             |
 | L6   | sage-tools       | 106    | ✅ 78    | ✅         | ✅       | -                      | 开发工具集                |
-| L6   | sage-llm-gateway | 8      | ✅ 37    | ✅         | ✅       | -                      | PyPI: `isage-llm-gateway` |
 
 **核心指标**:
 
 - ✅ 架构违规: **0** (已全部修复)
-- ✅ Layer 标记覆盖: **100%** (11/11 包)
+- ✅ Layer 标记覆盖: **100%** (7/7 核心包)
 - ✅ 核心测试通过率: **100%** (1,093/1,093 for L1-L4)
-- ✅ 应用层测试: **1,300+/1,310+ (99.7%)**
 - ✅ 依赖关系: **单向向下，清晰可控**
 - ✅ C++ 扩展: **2 个组件** (sageFlow, NeuromMem in L4)
 
@@ -47,16 +50,11 @@ ______________________________________________________________________
 
 ## 📦 包概览
 
-SAGE 采用分层单体架构（Modular Monolith），由 **11 个独立包 + 1 个 meta-package** 组成：
+SAGE 采用分层单体架构（Modular Monolith），由 **7 个核心包 + 1 个 meta-package** 组成：
 
 ```
-L6: sage-studio          # Web UI 可视化接口
-    sage-cli            # CLI 统一入口（集群/作业/部署管理）
+L6: sage-cli            # CLI 统一入口（集群/作业/部署管理）
     sage-tools          # 开发工具和测试框架（sage-dev CLI）
-    sage-llm-gateway        # API Gateway (PyPI: isage-llm-gateway, OpenAI/Anthropic 兼容)
-    │
-L5: sage-apps           # 特定领域应用
-    sage-benchmark      # 性能基准测试
     │
 L4: sage-middleware     # 领域算子和组件 ⚡ 含 C++ 扩展 (sageFlow, NeuromMem)
     │                   # 位置: packages/sage-middleware/src/sage/middleware/components/
@@ -69,6 +67,12 @@ L2: sage-platform       # 平台服务层（队列、存储、服务抽象）
 L1: sage-common         # 基础设施（类型、配置、工具）
 
 Meta: packages/sage/    # Meta-package (isage)，聚合安装所有包
+
+# 独立仓库 (已迁移)
+sage-examples           # 应用示例 → github.com/intellistream/sage-examples
+sage-benchmark          # 性能评测 → github.com/intellistream/sage-benchmark (PyPI: isage-benchmark)
+sage-studio             # 可视化工作台 → github.com/intellistream/sage-studio (PyPI: isage-studio)
+isagellm                # LLM Gateway → github.com/intellistream/isagellm (PyPI: isagellm)
 ```
 
 ### 层级说明
@@ -77,8 +81,10 @@ Meta: packages/sage/    # Meta-package (isage)，聚合安装所有包
 - **L2 (Platform)**: 平台服务（队列、存储、服务抽象）
 - **L3 (Core)**: 核心功能，提供执行引擎和算法库
 - **L4 (Domain)**: 领域特定功能，基于 L1-L3 构建，**含 C++ 扩展**
-- **L5 (Applications)**: 应用层，组合使用下层功能
-- **L6 (Interface)**: 用户接口层（Web UI + CLI + API Gateway + 开发工具）
+- **L6 (Interface)**: 用户接口层（CLI + 开发工具）
+
+!!! info "L5 层已迁移"
+    原 L5 层的 sage-apps 和 sage-benchmark 已迁移到独立仓库。
 
 ### C++ 扩展位置
 
@@ -427,63 +433,14 @@ from sage.middleware.components import sage_mem, sage_db
 
 ______________________________________________________________________
 
-### sage-apps (L5)
+### sage-apps / sage-benchmark / sage-studio (已迁移)
 
-**职责**: 实际应用
-
-**提供**:
-
-- `video`: 视频智能分析应用
-- `medical_diagnosis`: 医疗诊断应用
-
-**依赖**: `sage-common`, `sage-kernel`, `sage-libs`, `sage-middleware`
-
-**公共 API**:
-
-```python
-from sage.apps import video, medical_diagnosis
-```
-
-______________________________________________________________________
-
-### sage-benchmark (L5)
-
-**职责**: 基准测试和示例
-
-**提供**:
-
-- `benchmark_rag`: RAG 基准测试
-- `benchmark_memory`: 内存性能测试
-
-**依赖**: `sage-common`, `sage-kernel`, `sage-libs`, `sage-middleware`
-
-**公共 API**:
-
-```python
-from sage.benchmark import benchmark_rag, benchmark_memory
-```
-
-______________________________________________________________________
-
-### sage-studio (L6)
-
-**职责**: Web UI 可视化接口
-
-**提供**:
-
-- `StudioManager`: 主管理器
-- `models`: 数据模型
-- `services`: 服务层
-- `adapters`: Pipeline 适配器
-- `frontend`: 前端资源
-
-**依赖**: `sage-common`, `sage-kernel`, `sage-libs`, `sage-middleware`
-
-**公共 API**:
-
-```python
-from sage.studio import StudioManager, models, services, adapters
-```
+!!! warning "已迁移到独立仓库"
+    这些包已迁移到独立仓库，不再包含在 SAGE 主仓库中：
+    
+    - **sage-examples** (原 sage-apps): https://github.com/intellistream/sage-examples
+    - **sage-benchmark**: https://github.com/intellistream/sage-benchmark (`pip install isage-benchmark`)
+    - **sage-studio**: https://github.com/intellistream/sage-studio (`pip install isage-studio`)
 
 ______________________________________________________________________
 

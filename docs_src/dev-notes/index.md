@@ -31,12 +31,19 @@ ______________________________________________________________________
 | L3   | [l3-kernel](l3-kernel/README.md)         | 核心引擎           |
 | L3   | [l3-libs](l3-libs/README.md)             | 算法库             |
 | L4   | [l4-middleware](l4-middleware/README.md) | 中间件、C++ 扩展   |
-| L5   | [l5-apps](l5-apps/README.md)             | 应用示例           |
-| L5   | [l5-benchmark](l5-benchmark/README.md)   | 评测框架           |
 | L6   | [l6-cli](l6-cli/README.md)               | 命令行工具         |
-| L6   | [l6-gateway](l6-gateway/README.md)       | API 网关           |
-| L6   | [l6-studio](l6-studio/README.md)         | 可视化工作室       |
 | L6   | [l6-tools](l6-tools/README.md)           | 开发者工具         |
+
+### 独立仓库（已迁移）
+
+以下组件已迁移到独立仓库，文档请参考对应仓库：
+
+| 组件 | 仓库地址 | PyPI 包 |
+| ---- | -------- | ------- |
+| sage-examples (原 sage-apps) | [intellistream/sage-examples](https://github.com/intellistream/sage-examples) | - |
+| sage-benchmark | [intellistream/sage-benchmark](https://github.com/intellistream/sage-benchmark) | `isage-benchmark` |
+| sage-studio | [intellistream/sage-studio](https://github.com/intellistream/sage-studio) | `isage-studio` |
+| isagellm (原 sage-llm-gateway) | [intellistream/isagellm](https://github.com/intellistream/isagellm) | `isagellm` |
 
 ## 🔧 专题笔记
 
@@ -161,10 +168,12 @@ ______________________________________________________________________
 
 ```
 docs/dev-notes/
+├── l1-common/          # Common 开发笔记
+├── l2-platform/        # Platform 开发笔记
 ├── l3-kernel/          # Kernel 开发笔记
 ├── l3-libs/            # Libs 开发笔记
 ├── l4-middleware/      # Middleware 开发笔记
-├── l5-apps/            # Apps 开发笔记
+├── l6-cli/             # CLI 开发笔记
 ├── l6-tools/           # Tools 开发笔记
 ├── cross-layer/        # 跨层主题
 │   ├── architecture/   # 架构相关

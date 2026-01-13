@@ -1,15 +1,19 @@
 # SAGE 包结构与依赖
 
-> **最后更新**: 2025-12-02
+> **最后更新**: 2026-01-13
 >
 > **变更日志**:
 >
+> - 2026-01-13: 移除已迁移到独立仓库的包 (sage-apps, sage-benchmark, sage-studio, sage-llm-gateway)
 > - 2025-12-02: 添加 sage-llm-gateway，更新统计数据，补充 C++ 扩展位置
 > - 2025-10-23: 初始版本
 
 本文档详细描述 SAGE 各包的职责边界和依赖关系。
 
-## 📦 完整包列表
+!!! note "独立仓库"
+    以下组件已迁移到独立仓库：sage-examples, sage-benchmark, sage-studio, isagellm
+
+## 📦 核心包列表
 
 | 包名             | 层级 | 职责        | 模块数 | 测试数 | C++ 扩展               |
 | ---------------- | ---- | ----------- | ------ | ------ | ---------------------- |
@@ -18,12 +22,8 @@
 | sage-kernel      | L3   | 流式引擎    | 268    | 753    | -                      |
 | sage-libs        | L3   | 算法库      | 65     | 169    | -                      |
 | sage-middleware  | L4   | 中间件      | 150    | 22     | ✅ sageFlow, NeuromMem |
-| sage-apps        | L5   | 应用        | 24     | 21     | -                      |
-| sage-benchmark   | L5   | 基准测试    | 42     | 17     | -                      |
-| sage-studio      | L6   | Web UI      | 8      | 51     | -                      |
 | sage-cli         | L6   | 生产 CLI    | 45     | 32     | -                      |
 | sage-tools       | L6   | 开发工具    | 106    | 78     | -                      |
-| sage-llm-gateway | L6   | API Gateway | 8      | 37     | -                      |
 
 ## 🔗 依赖关系图
 
@@ -38,13 +38,8 @@ graph TD
 
     middleware[sage-middleware<br/>L4: 领域算子<br/>⚡ C++ 扩展]
 
-    apps[sage-apps<br/>L5: 应用]
-    benchmark[sage-benchmark<br/>L5: 基准测试]
-
-    studio[sage-studio<br/>L6: Web UI]
     cli[sage-cli<br/>L6: 生产 CLI]
     tools[sage-tools<br/>L6: 开发工具]
-    gateway[sage-llm-gateway<br/>L6: API Gateway]
 
     platform --> common
 
@@ -58,21 +53,6 @@ graph TD
     middleware --> kernel
     middleware --> libs
 
-    apps --> common
-    apps --> kernel
-    apps --> libs
-    apps --> middleware
-
-    benchmark --> common
-    benchmark --> kernel
-    benchmark --> libs
-    benchmark --> middleware
-
-    studio --> common
-    studio --> kernel
-    studio --> libs
-    studio --> middleware
-
     cli --> common
     cli --> kernel
     cli --> libs
@@ -82,15 +62,8 @@ graph TD
     tools --> kernel
     tools --> libs
     tools --> middleware
-    tools --> studio
-
-    gateway --> common
-    gateway --> kernel
-    gateway --> libs
-    gateway --> middleware
 
     style middleware fill:#fff3cd
-    style gateway fill:#e1f5ff
 ```
 
 ## 📋 包详细说明
@@ -231,56 +204,22 @@ from sage.middleware.components import sage_mem, sage_db, sage_flow
 
 ______________________________________________________________________
 
-### L5: sage-apps
+### L5: sage-apps / sage-benchmark (已迁移)
 
-**位置**: `packages/sage-apps/`
-
-**应用列表**（与 `examples/apps/run_*.py` 启动脚本一一对应）:
-
-- `article_monitoring`: arXiv 监控与推荐（入口：`run_article_monitoring.py`）
-- `auto_scaling_chat`: 弹性扩缩容聊天演示（入口：`run_auto_scaling_chat.py`）
-- `smart_home`: IoT 智能家居工作流（入口：`run_smart_home.py`）
-- `video`: 视频智能分析（入口：`run_video_intelligence.py`）
-- `medical_diagnosis`: 医疗诊断系统（入口：`run_medical_diagnosis.py`）
-
-**公共 API**:
-
-```python
-from sage.apps import article_monitoring, auto_scaling_chat, smart_home, video, medical_diagnosis
-```
-
-> 详见 `docs/dev-notes/l5-apps/README.md` 获取最新的 L5 示例与测试策略。教程示例按照 L1-L6 存放于
-> `examples/tutorials/`，而完整应用通过 `examples/apps/` 调用本层实现。
-
-**依赖**: sage-common, sage-kernel, sage-libs, sage-middleware
+!!! warning "已迁移到独立仓库"
+    L5 层的应用和评测套件已迁移到独立仓库：
+    
+    - **sage-examples** (原 sage-apps): https://github.com/intellistream/sage-examples
+    - **sage-benchmark**: https://github.com/intellistream/sage-benchmark (`pip install isage-benchmark`)
 
 ______________________________________________________________________
 
-### L5: sage-benchmark
+### L6: sage-studio (已迁移)
 
-**位置**: `packages/sage-benchmark/`
-
-**基准测试**:
-
-- `benchmark_rag`: RAG 性能测试
-- `benchmark_memory`: 内存性能测试
-
-**依赖**: sage-common, sage-kernel, sage-libs, sage-middleware
-
-______________________________________________________________________
-
-### L6: sage-studio
-
-**位置**: `packages/sage-studio/`
-
-**核心组件**:
-
-- `StudioManager`: 主管理器
-- `models`: 数据模型
-- `services`: 服务层
-- `adapters`: Pipeline 适配器
-
-**依赖**: sage-common, sage-kernel, sage-libs, sage-middleware
+!!! warning "已迁移到独立仓库"
+    sage-studio 已迁移到独立仓库：https://github.com/intellistream/sage-studio
+    
+    安装: `pip install isage-studio`
 
 ______________________________________________________________________
 
@@ -325,34 +264,16 @@ ______________________________________________________________________
 | `sage` (sage-cli)       | 生产运维 | `sage cluster start`, `sage job submit`     |
 | `sage-dev` (sage-tools) | 开发调试 | `sage-dev quality`, `sage-dev project test` |
 
-**依赖**: sage-common, sage-kernel, sage-libs, sage-middleware, sage-studio
+**依赖**: sage-common, sage-kernel, sage-libs, sage-middleware
 
 ______________________________________________________________________
 
-### L6: sage-llm-gateway
+### L6: sage-llm-gateway (已迁移)
 
-**位置**: `packages/sage-llm-gateway/`
-
-**PyPI 发布名**: `isage-llm-gateway`
-
-**职责**: OpenAI 兼容 API Gateway，将请求转换为 SAGE DataStream/RAG 流水线执行
-
-**核心功能**:
-
-- `/v1/chat/completions`: OpenAI Chat 接口（流式 + 非流式）
-- `/sessions/**`: 聊天会话管理
-- `/memory/**`: 记忆后端配置
-- `/admin/index/**`: RAG 索引管理
-
-**启动方式**:
-
-```bash
-sage-llm-gateway --host 0.0.0.0 --port 8000
-# 或
-python -m sage.llm.gateway.server
-```
-
-**依赖**: sage-common, sage-kernel, sage-libs, sage-middleware
+!!! warning "已迁移到独立仓库"
+    sage-llm-gateway 已迁移到独立仓库并更名为 isagellm：https://github.com/intellistream/isagellm
+    
+    安装: `pip install isagellm`
 
 ## 🎯 依赖规则
 
