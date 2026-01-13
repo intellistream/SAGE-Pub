@@ -1,0 +1,2339 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="高性能分布式推理框架 - 数据流原生的模块化、透明、可控的LLM工作流推理框架">
+      
+      
+        <meta name="author" content="IntelliStream Lab">
+      
+      
+        <link rel="canonical" href="https://sage.org.ai/dev-notes/l4-middleware/memory-refactor-2024/MEMORY_SERVICE_NAMING_DISCUSSION/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../../assets/img/isage_light.svg">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+    
+    
+  
+    <title>MemoryService 命名讨论文档</title>
+  
+
+    
+      <link rel="stylesheet" href="../../../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+<!-- Google Tag Manager -->
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-T35S4S46');</script>
+<!-- End Google Tag Manager -->
+
+    
+  <!-- pragma: allowlist secret -->
+  <meta name="algolia-site-verification" content="165B7E7C89E49946" />
+  <style>
+    @import url("https://fonts.googleapis.com/css2?family=Public+Sans&display=swap");
+    :root {
+      --md-primary-fg-color: #333333;
+      --md-accent-fg-color: #1E88E5;
+      --md-default-bg-color: #FFFFFF;
+      --md-default-fg-color: #333333;
+      --md-text-font-family: "Public Sans", sans-serif;
+    }
+
+    body {
+      font-family: var(--md-text-font-family);
+      background-color: var(--md-default-bg-color);
+      color: var(--md-default-fg-color);
+    }
+
+    .md-main {
+      background-color: #FFFFFF;
+    }
+
+    .md-footer {
+      background-color: #F5F5F5;
+      color: #666666;
+    }
+
+    .md-footer-meta {
+      background-color: #4d4d4d;
+    }
+
+    .md-typeset a {
+      color: #1E88E5;
+    }
+
+    .md-typeset a:hover {
+      color: #1565C0;
+    }
+
+    .md-nav__link--active,
+    .md-nav__link:active {
+      color: #1E88E5;
+    }
+
+    .md-search__input {
+      background-color: #F5F5F5;
+      color: #333333;
+    }
+
+    .md-search__input:hover,
+    .md-search__input:focus {
+      background-color: #EEEEEE;
+    }
+    /* Table of contents styles */
+    .md-nav--secondary .md-nav__item--active > .md-nav__link {
+      font-weight: bold;
+      color: var(--md-primary-fg-color);
+    }
+
+    .md-nav--secondary .md-nav__item--nested > .md-nav__link {
+      font-weight: normal;
+      color: var(--md-default-fg-color);
+    }
+
+    .md-header__button.md-logo img {
+      height: 30px;
+      max-height: 30px;
+      width: auto;
+      vertical-align: middle;
+    }
+
+    .md-nav--secondary .md-nav__item--nested > .md-nav__link::before {
+      content: "";
+      display: inline-block;
+      width: 6px;
+      height: 6px;
+      background-color: var(--md-default-fg-color);
+      border-radius: 50%;
+      margin-right: 0.5rem;
+    }
+
+    [data-md-color-scheme="slate"] {
+      --md-default-bg-color: #1E1E1E;
+      --md-default-fg-color: #FFFFFF;
+      --md-accent-fg-color: #64B5F6;
+    }
+
+    [data-md-color-scheme="slate"] .md-main {
+      background-color: #1E1E1E;
+    }
+
+    [data-md-color-scheme="slate"] .navbar {
+      background-color: #1E1E1E;
+      color: #FFFFFF;
+      box-shadow: none;
+    }
+
+    [data-md-color-scheme="slate"] .md-footer {
+      background-color: #1E1E1E;
+      color: #BDBDBD;
+    }
+
+    [data-md-color-scheme="slate"] .md-header {
+      background-color: #1E1E1E;
+      color: #BDBDBD;
+    }
+
+    [data-md-color-scheme="slate"] .md-tabs {
+      background-color: #1E1E1E;
+      color: #BDBDBD;
+    }
+
+    [data-md-color-scheme="slate"] .md-search__input {
+      background-color: #F5F5F5;
+      color: #333333;
+    }
+
+    [data-md-color-scheme="slate"] .md-search__icon {
+      color: #333333;
+    }
+
+    [data-md-color-scheme="slate"] .md-search__input::placeholder {
+      color: #333333;
+    }
+
+    [data-md-color-scheme="slate"] .md-footer-meta {
+      background-color: #4d4d4d;
+    }
+
+    [data-md-color-scheme="slate"] .md-typeset a {
+      color: #64B5F6;
+    }
+
+    [data-md-color-scheme="slate"] .md-typeset a:hover {
+      color: #90CAF9;
+    }
+
+    .notebook-links {
+      display: flex;
+      justify-content: flex-end;
+      margin-bottom: 1rem;
+    }
+    .notebook-links .md-content__button {
+      margin-left: 0.5rem;
+    }
+
+    [data-md-color-scheme=default] .logo-dark {
+      display: none !important;
+    }
+
+    [data-md-color-scheme=slate] .logo-light {
+      display: none !important;
+    }
+
+    .jupyter-wrapper .jp-CodeCell .jp-Cell-inputWrapper .jp-InputPrompt.jp-InputArea-prompt {
+      display: none !important;
+    }
+
+    .jupyter-wrapper .jp-Notebook .jp-Cell .jp-OutputPrompt {
+      display: none !important;
+    }
+
+    .md-banner {
+      background-color: #CFC9FA;
+      color: #000000;
+    }
+
+    .md-banner a {
+      color: #000000;
+      text-decoration: underline;
+    }
+
+    .md-banner a:hover {
+      color: #000000;
+    }
+
+    .md-header__title {
+      visibility: hidden;
+    }
+
+    /* Dark mode banner styling */
+    [data-md-color-scheme="slate"] .md-banner {
+      background-color: #CFC9FA; /* Same light purple for both modes */
+      color: #000000;
+    }
+
+    [data-md-color-scheme="slate"] .md-banner a {
+      color: #000000;
+    }
+
+    [data-md-color-scheme="slate"] .md-banner a:hover {
+      color: #000000;
+    }
+
+  </style>
+
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="blue" data-md-color-accent="blue">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#memoryservice" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../../../.." title="SAGE Documentation" class="md-header__button md-logo" aria-label="SAGE Documentation" data-md-component="logo">
+      
+  <img src="../../../../assets/logo/sage.svg" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            SAGE Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              MemoryService 命名讨论文档
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="blue" data-md-color-accent="blue"  aria-label="切换到深色模式"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="切换到深色模式" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="blue" data-md-color-accent="blue"  aria-label="切换到浅色模式"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="切换到浅色模式" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+          <a href="javascript:void(0)" class="md-search__icon md-icon" title="分享" aria-label="分享" data-clipboard data-clipboard-text="" data-md-component="search-share" tabindex="-1">
+            
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.15c-.05.21-.08.43-.08.66 0 1.61 1.31 2.91 2.92 2.91s2.92-1.3 2.92-2.91A2.92 2.92 0 0 0 18 16.08"/></svg>
+          </a>
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/intellistream/SAGE" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    intellistream/SAGE
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+    
+      
+<nav class="md-tabs" aria-label="标签" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  首页
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../../about/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  关于
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../getting-started/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  入门指南
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../concepts/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  核心概念
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../../tutorials/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  高级教程
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../guides/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  用户指南
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../api-reference/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  API 参考
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../developers/commands/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  开发者
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../community/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  社区
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+    
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../../.." title="SAGE Documentation" class="md-nav__button md-logo" aria-label="SAGE Documentation" data-md-component="logo">
+      
+  <img src="../../../../assets/logo/sage.svg" alt="logo">
+
+    </a>
+    SAGE Documentation
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/intellistream/SAGE" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    intellistream/SAGE
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    首页
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../about/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    关于
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../../../getting-started/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    入门指南
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../../../concepts/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    核心概念
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../tutorials/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    高级教程
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../../../guides/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    用户指南
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../../../api-reference/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API 参考
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../../../developers/commands/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    开发者
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../../../community/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    社区
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+                
+
+
+
+  
+
+
+              
+              <article class="md-content__inner md-typeset">
+                
+<div class="notebook-links">
+  
+</div>
+
+
+                  
+
+
+  
+  
+
+
+<h1 id="memoryservice">MemoryService 命名讨论文档<a class="headerlink" href="#memoryservice" title="Permanent link">&para;</a></h1>
+<blockquote>
+<p><strong>目标</strong>：逐个讨论13个配置文件中的记忆体实现，确定其最终命名</p>
+<p><strong>命名原则</strong>：<code>类别.修饰前缀_索引结构</code></p>
+<ul>
+<li><strong>索引结构</strong>：核心部分（queue, hash, inverted, graph, tier等）</li>
+<li><strong>修饰前缀</strong>：可选，说明具体实现（fifo, lsh, bm25, ppr等）</li>
+</ul>
+<p><strong>更新时间</strong>：2025-12-25</p>
+</blockquote>
+<hr />
+<h2 id="_1">一、配置文件清单<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h2>
+<h3 id="1">表格1：原有配置文件映射关系（现状）<a class="headerlink" href="#1" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>序号</th>
+<th>配置文件</th>
+<th>当前服务</th>
+<th>论文/系统</th>
+<th>Collection类型</th>
+<th>索引后端</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>locomo_short_term_memory_pipeline.yaml</td>
+<td>short_term_memory</td>
+<td>-</td>
+<td>VDBMemoryCollection</td>
+<td>FAISS单索引 + FIFO</td>
+</tr>
+<tr>
+<td>2</td>
+<td>locomo_scm_pipeline.yaml</td>
+<td>short_term_memory</td>
+<td>SCM</td>
+<td>VDBMemoryCollection</td>
+<td>FAISS单索引 + FIFO</td>
+</tr>
+<tr>
+<td>3</td>
+<td>locomo_tim_pipeline.yaml</td>
+<td>vector_memory</td>
+<td>TiM</td>
+<td>VDBMemoryCollection</td>
+<td>FAISS LSH索引</td>
+</tr>
+<tr>
+<td>4</td>
+<td>locomo_hipporag_pipeline.yaml</td>
+<td>graph_memory</td>
+<td>HippoRAG</td>
+<td>GraphMemoryCollection</td>
+<td>图索引 + PPR</td>
+</tr>
+<tr>
+<td>5</td>
+<td>locomo_hipporag2_pipeline.yaml</td>
+<td>graph_memory</td>
+<td>HippoRAG2</td>
+<td>GraphMemoryCollection</td>
+<td>图索引 + PPR增强</td>
+</tr>
+<tr>
+<td>6</td>
+<td>locomo_amem_pipeline.yaml</td>
+<td>graph_memory</td>
+<td>A-Mem</td>
+<td>GraphMemoryCollection</td>
+<td>图索引 + 链接演化</td>
+</tr>
+<tr>
+<td>7</td>
+<td>locomo_memorybank_pipeline.yaml</td>
+<td>hierarchical_memory</td>
+<td>MemoryBank</td>
+<td>HybridCollection</td>
+<td>3个VDB索引 + 遗忘曲线</td>
+</tr>
+<tr>
+<td>8</td>
+<td>locomo_memoryos_pipeline.yaml</td>
+<td>hierarchical_memory</td>
+<td>MemoryOS</td>
+<td>HybridCollection</td>
+<td>3个VDB索引 + Heat Score</td>
+</tr>
+<tr>
+<td>9</td>
+<td>locomo_ldagent_pipeline.yaml</td>
+<td>hierarchical_memory</td>
+<td>LDAgent</td>
+<td>HybridCollection</td>
+<td>3个VDB索引</td>
+</tr>
+<tr>
+<td>10</td>
+<td>locomo_secom_pipeline.yaml</td>
+<td>hierarchical_memory</td>
+<td>SECOM</td>
+<td>HybridCollection</td>
+<td>3个VDB索引 + 语义分类</td>
+</tr>
+<tr>
+<td>11</td>
+<td>locomo_memgpt_pipeline.yaml</td>
+<td>hierarchical_memory</td>
+<td>MemGPT</td>
+<td>HybridCollection</td>
+<td>3个VDB索引 + Core/Recall</td>
+</tr>
+<tr>
+<td>12</td>
+<td>locomo_mem0_pipeline.yaml</td>
+<td>hybrid_memory</td>
+<td>Mem0</td>
+<td>HybridCollection</td>
+<td>VDB + KV混合</td>
+</tr>
+<tr>
+<td>13</td>
+<td>locomo_mem0g_pipeline.yaml</td>
+<td>hybrid_memory</td>
+<td>Mem0ᵍ</td>
+<td>HybridCollection</td>
+<td>VDB + KV + Graph</td>
+</tr>
+</tbody>
+</table>
+<h3 id="2">表格2：讨论后的命名方案（目标）<a class="headerlink" href="#2" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>序号</th>
+<th>配置文件</th>
+<th>新服务名称</th>
+<th>命名规则拆解</th>
+<th>状态</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>locomo_short_term_memory</td>
+<td><code>partitional.fifo_queue</code></td>
+<td>partitional + fifo (修饰) + queue (索引)</td>
+<td>✅ 已确认</td>
+</tr>
+<tr>
+<td>2</td>
+<td>locomo_scm</td>
+<td><code>partitional.fifo_queue</code></td>
+<td>partitional + fifo (修饰) + queue (索引)</td>
+<td>✅ 已确认</td>
+</tr>
+<tr>
+<td>3</td>
+<td>locomo_tim</td>
+<td><code>partitional.lsh_hash</code></td>
+<td>partitional + lsh (修饰) + hash (索引)</td>
+<td>✅ 已确认</td>
+</tr>
+<tr>
+<td>4</td>
+<td>locomo_hipporag</td>
+<td><code>hierarchical.semantic_inverted_knowledge_graph</code></td>
+<td>hierarchical + semantic_inverted (修饰) + knowledge_graph (索引)</td>
+<td>✅ 已确认</td>
+</tr>
+<tr>
+<td>5</td>
+<td>locomo_hipporag2</td>
+<td><code>hierarchical.semantic_inverted_knowledge_graph</code></td>
+<td>hierarchical + semantic_inverted (修饰) + knowledge_graph (索引)</td>
+<td>✅ 已确认</td>
+</tr>
+<tr>
+<td>6</td>
+<td>locomo_amem</td>
+<td><code>hierarchical.linknote_graph</code></td>
+<td>hierarchical + linknote (修饰) + graph (索引)</td>
+<td>✅ 已确认</td>
+</tr>
+<tr>
+<td>7</td>
+<td>locomo_memorybank</td>
+<td><code>partitional.feature_summary_vectorstore_combination</code></td>
+<td>partitional + feature_summary_vectorstore (修饰) + combination (索引)</td>
+<td>✅ 已确认</td>
+</tr>
+<tr>
+<td>8</td>
+<td>locomo_memoryos</td>
+<td><code>partitional.feature_queue_segment_combination</code></td>
+<td>partitional + feature_queue_segment (修饰) + combination (索引)</td>
+<td>✅ 已确认</td>
+</tr>
+<tr>
+<td>9</td>
+<td>locomo_ldagent</td>
+<td><code>partitional.feature_queue_summary_combination</code></td>
+<td>partitional + feature_queue_summary (修饰) + combination (索引)</td>
+<td>✅ 已确认</td>
+</tr>
+<tr>
+<td>10</td>
+<td>locomo_secom</td>
+<td><code>partitional.segment</code></td>
+<td>partitional + segment (索引)</td>
+<td>✅ 已确认</td>
+</tr>
+<tr>
+<td>11</td>
+<td>locomo_memgpt</td>
+<td><code>partitional.feature_queue_vectorstore_combination</code></td>
+<td>partitional + feature_queue_vectorstore (修饰) + combination (索引)</td>
+<td>✅ 已确认</td>
+</tr>
+<tr>
+<td>12</td>
+<td>locomo_mem0</td>
+<td><code>partitional.inverted_vectorstore_combination</code></td>
+<td>partitional + inverted_vectorstore (修饰) + combination (索引)</td>
+<td>✅ 已确认</td>
+</tr>
+<tr>
+<td>13</td>
+<td>locomo_mem0g</td>
+<td><code>hierarchical.property_graph</code></td>
+<td>hierarchical + property (修饰) + graph (索引)</td>
+<td>✅ 已确认</td>
+</tr>
+<tr>
+<td>13</td>
+<td>locomo_mem0g</td>
+<td><code>hierarchical.property_graph</code></td>
+<td>hierarchical + property (修饰) + graph (索引)</td>
+<td>✅ 已确认</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="_2">二、逐个记忆体讨论<a class="headerlink" href="#_2" title="Permanent link">&para;</a></h2>
+<h3 id="1-2-stm-scm">📌 记忆体 #1-2: STM &amp; SCM<a class="headerlink" href="#1-2-stm-scm" title="Permanent link">&para;</a></h3>
+<p><strong>配置文件</strong>：</p>
+<ul>
+<li>locomo_short_term_memory_pipeline.yaml</li>
+<li>locomo_scm_pipeline.yaml</li>
+</ul>
+<p><strong>当前实现</strong>：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="c1"># Collection: VDBMemoryCollection</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="c1"># 索引: FAISS单索引（IndexFlatL2）</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="c1"># 特征: FIFO滑动窗口，max_dialog容量限制</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="c1"># 淘汰策略: 最旧的记忆被挤出</span>
+</code></pre></div>
+<p><strong>核心特征分析</strong>：</p>
+<ul>
+<li><strong>索引结构</strong>：队列（queue）</li>
+<li><strong>组织方式</strong>：FIFO（First-In-First-Out）</li>
+<li><strong>差异点</strong>：容量大小和是否使用 embedding</li>
+</ul>
+<hr />
+<p><strong>✅ 已确认命名</strong>：<code>partitional.fifo_queue</code></p>
+<p><strong>决策理由</strong>：</p>
+<ol>
+<li>✅ <strong><code>queue</code> 作为索引结构</strong>：队列是一种分区索引方式（按时间顺序分区）</li>
+<li>✅ <strong><code>fifo</code> 作为修饰</strong>：明确淘汰策略（先进先出）</li>
+<li>✅ <strong>统一实现 STM 和 SCM</strong>：两者本质相同，都是 FIFO 队列，通过配置参数区分行为</li>
+</ol>
+<p><strong>实现特点</strong>：</p>
+<ul>
+<li><strong>类名</strong>：<code>FifoQueueMemoryService</code></li>
+<li><strong>实现文件</strong>：<code>partitional/fifo_queue.py</code></li>
+<li><strong>统一实现 STM 和 SCM</strong>：通过参数区分</li>
+</ul>
+<p><strong>关键差异分析</strong>：</p>
+<ul>
+<li><strong>STM (Short-Term Memory)</strong>：max_capacity=5，不使用 embedding</li>
+<li><strong>SCM (Semantic Cache Memory)</strong>：max_capacity=1000，使用 embedding</li>
+</ul>
+<p><strong>统一实现方案</strong>：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">FifoQueueMemoryService</span><span class="p">(</span><span class="n">BaseMemoryService</span><span class="p">):</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;FIFO queue-based partitional memory service.</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="sd">    Supports both STM (short-term, no embedding) and SCM (semantic cache, with embedding).</span>
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="sd">    &quot;&quot;&quot;</span>
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>    <span class="nd">@classmethod</span>
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>    <span class="k">def</span><span class="w"> </span><span class="nf">from_config</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">RuntimeConfig</span><span class="p">,</span> <span class="n">config_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;FifoQueueMemoryService&quot;</span><span class="p">:</span>
+<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>        <span class="n">max_capacity</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">config_path</span><span class="si">}</span><span class="s2">.max_capacity&quot;</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>  <span class="c1"># -1 = unlimited</span>
+<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>        <span class="n">use_embedding</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">config_path</span><span class="si">}</span><span class="s2">.use_embedding&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>  <span class="c1"># false for STM</span>
+<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>
+<a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a>        <span class="k">if</span> <span class="n">use_embedding</span><span class="p">:</span>
+<a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a>            <span class="c1"># SCM mode: Create embedding-enabled VDBMemoryCollection</span>
+<a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a>            <span class="n">collection</span> <span class="o">=</span> <span class="n">VDBMemoryCollection</span><span class="p">(</span>
+<a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a>                <span class="n">embedding_dim</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">config_path</span><span class="si">}</span><span class="s2">.embedding_dim&quot;</span><span class="p">,</span> <span class="mi">1024</span><span class="p">),</span>
+<a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a>                <span class="n">index_type</span><span class="o">=</span><span class="s2">&quot;IndexFlatL2&quot;</span><span class="p">,</span>
+<a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a>                <span class="n">max_capacity</span><span class="o">=</span><span class="n">max_capacity</span>
+<a id="__codelineno-1-18" name="__codelineno-1-18" href="#__codelineno-1-18"></a>            <span class="p">)</span>
+<a id="__codelineno-1-19" name="__codelineno-1-19" href="#__codelineno-1-19"></a>        <span class="k">else</span><span class="p">:</span>
+<a id="__codelineno-1-20" name="__codelineno-1-20" href="#__codelineno-1-20"></a>            <span class="c1"># STM mode: Create simple VDBMemoryCollection without embedding pipeline</span>
+<a id="__codelineno-1-21" name="__codelineno-1-21" href="#__codelineno-1-21"></a>            <span class="n">collection</span> <span class="o">=</span> <span class="n">VDBMemoryCollection</span><span class="p">(</span>
+<a id="__codelineno-1-22" name="__codelineno-1-22" href="#__codelineno-1-22"></a>                <span class="n">embedding_dim</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>  <span class="c1"># No embedding</span>
+<a id="__codelineno-1-23" name="__codelineno-1-23" href="#__codelineno-1-23"></a>                <span class="n">index_type</span><span class="o">=</span><span class="s2">&quot;IndexFlatL2&quot;</span><span class="p">,</span>
+<a id="__codelineno-1-24" name="__codelineno-1-24" href="#__codelineno-1-24"></a>                <span class="n">max_capacity</span><span class="o">=</span><span class="n">max_capacity</span>
+<a id="__codelineno-1-25" name="__codelineno-1-25" href="#__codelineno-1-25"></a>            <span class="p">)</span>
+<a id="__codelineno-1-26" name="__codelineno-1-26" href="#__codelineno-1-26"></a>
+<a id="__codelineno-1-27" name="__codelineno-1-27" href="#__codelineno-1-27"></a>        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">collection</span><span class="o">=</span><span class="n">collection</span><span class="p">,</span> <span class="n">max_capacity</span><span class="o">=</span><span class="n">max_capacity</span><span class="p">,</span> <span class="n">use_embedding</span><span class="o">=</span><span class="n">use_embedding</span><span class="p">)</span>
+</code></pre></div>
+<p><strong>配置示例</strong>：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="c1"># STM 配置（5条容量，无 embedding）</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="nt">services</span><span class="p">:</span>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">  </span><span class="nt">memory</span><span class="p">:</span>
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="w">    </span><span class="nt">service_name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;partitional.fifo_queue&quot;</span>
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="w">    </span><span class="nt">max_capacity</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">5</span>
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="w">    </span><span class="nt">use_embedding</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>
+<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="c1"># SCM 配置（1000条容量，有 embedding）</span>
+<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a><span class="nt">services</span><span class="p">:</span>
+<a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a><span class="w">  </span><span class="nt">memory</span><span class="p">:</span>
+<a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a><span class="w">    </span><span class="nt">service_name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;partitional.fifo_queue&quot;</span>
+<a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a><span class="w">    </span><span class="nt">max_capacity</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1000</span>
+<a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a><span class="w">    </span><span class="nt">use_embedding</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a><span class="w">    </span><span class="nt">embedding_dim</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1024</span>
+</code></pre></div>
+<hr />
+<h3 id="3-tim">📌 记忆体 #3: TiM<a class="headerlink" href="#3-tim" title="Permanent link">&para;</a></h3>
+<p><strong>配置文件</strong>：</p>
+<ul>
+<li>locomo_tim_pipeline.yaml</li>
+</ul>
+<p><strong>当前实现</strong>：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="c1"># Collection: VDBMemoryCollection</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="c1"># 索引: FAISS IndexLSH（局部敏感哈希）</span>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="c1"># 特征: LSH哈希桶，快速近似检索</span>
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="c1"># 配置: nbits=128, rotate_data=True</span>
+</code></pre></div>
+<p><strong>核心特征分析</strong>：</p>
+<ul>
+<li><strong>索引结构</strong>：哈希桶（hash bucket）</li>
+<li><strong>哈希算法</strong>：LSH（Locality-Sensitive Hashing）</li>
+<li><strong>用途</strong>：TiM论文的快速检索</li>
+</ul>
+<hr />
+<p><strong>✅ 已确认命名</strong>：<code>partitional.lsh_hash</code></p>
+<p><strong>决策理由</strong>：</p>
+<ol>
+<li>✅ <strong><code>hash</code> 作为索引结构</strong>：哈希桶是一种分区索引方式</li>
+<li>✅ <strong><code>lsh</code> 作为修饰</strong>：明确使用 LSH（Locality-Sensitive Hashing）算法</li>
+<li>✅ <strong>TiM 论文专用</strong>：该实现专门用于 TiM 系统的快速近似检索</li>
+</ol>
+<p><strong>实现特点</strong>：</p>
+<ul>
+<li><strong>类名</strong>：<code>LshHashMemoryService</code></li>
+<li><strong>实现文件</strong>：<code>partitional/lsh_hash.py</code></li>
+<li><strong>FAISS 索引类型</strong>：IndexLSH</li>
+<li><strong>关键参数</strong>：nbits=128, rotate_data=True</li>
+</ul>
+<p><strong>配置示例</strong>：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="c1"># TiM 配置</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="nt">services</span><span class="p">:</span>
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="w">  </span><span class="nt">memory</span><span class="p">:</span>
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="w">    </span><span class="nt">service_name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;partitional.lsh_hash&quot;</span>
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="w">    </span><span class="nt">index_type</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;IndexLSH&quot;</span>
+<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="w">    </span><span class="nt">nbits</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">128</span>
+<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="w">    </span><span class="nt">rotate_data</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a><span class="w">    </span><span class="nt">embedding_dim</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1024</span>
+</code></pre></div>
+<hr />
+<h3 id="4-5-hipporag-hipporag2">📌 记忆体 #4-5: HippoRAG &amp; HippoRAG2<a class="headerlink" href="#4-5-hipporag-hipporag2" title="Permanent link">&para;</a></h3>
+<p><strong>配置文件</strong>：</p>
+<ul>
+<li>locomo_hipporag_pipeline.yaml (HippoRAG)</li>
+<li>locomo_hipporag2_pipeline.yaml (HippoRAG2)</li>
+</ul>
+<p><strong>当前实现</strong>：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="c1"># Collection: GraphMemoryCollection</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="c1"># 索引: 知识图谱（节点=实体 + 边=关系/同义边）</span>
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="c1"># 检索算法: PPR (Personalized PageRank)</span>
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="c1"># 特征:</span>
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="c1">#   - HippoRAG: 知识图谱 + 同义词边 (ppr_depth=2)</span>
+<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="c1">#   - HippoRAG2: 增强PPR (ppr_depth=3, enhanced_rerank=True)</span>
+</code></pre></div>
+<p><strong>核心特征分析</strong>：</p>
+<ul>
+<li><strong>索引结构</strong>：知识图谱（knowledge graph）</li>
+<li><strong>节点</strong>: 实体（entities）</li>
+<li><strong>边</strong>: 关系（relations）或同义边（synonym edges）</li>
+<li><strong>特性</strong>: 语义倒排索引（semantic inverted index）</li>
+</ul>
+<hr />
+<p><strong>✅ 已确认命名</strong>：<code>hierarchical.semantic_inverted_knowledge_graph</code></p>
+<p><strong>决策理由</strong>：</p>
+<ol>
+<li>✅ <strong><code>knowledge_graph</code> 作为索引结构</strong>：知识图谱是核心数据结构</li>
+<li>✅ <strong><code>semantic_inverted</code> 作为修饰</strong>：</li>
+<li><code>semantic</code>：通过同义词边建立语义连接</li>
+<li><code>inverted</code>：实体到记忆的倒排索引</li>
+<li>✅ <strong>准确反映图的本质</strong>：区别于 A-Mem 的链接图</li>
+</ol>
+<p><strong>实现特点</strong>：</p>
+<ul>
+<li><strong>类名</strong>：<code>SemanticInvertedKnowledgeGraphMemoryService</code></li>
+<li><strong>实现文件</strong>：<code>hierarchical/semantic_inverted_knowledge_graph.py</code></li>
+<li><strong>统一实现 HippoRAG 和 HippoRAG2</strong>：通过参数区分</li>
+</ul>
+<p><strong>配置示例</strong>：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="c1"># HippoRAG 配置</span>
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="nt">services</span><span class="p">:</span>
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="w">  </span><span class="nt">memory</span><span class="p">:</span>
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="w">    </span><span class="nt">service_name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;hierarchical.semantic_inverted_knowledge_graph&quot;</span>
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="w">    </span><span class="nt">ppr_depth</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2</span>
+<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a><span class="w">    </span><span class="nt">use_synonym_edges</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a>
+<a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a><span class="c1"># HippoRAG2 配置（增强版）</span>
+<a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a><span class="nt">services</span><span class="p">:</span>
+<a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a><span class="w">  </span><span class="nt">memory</span><span class="p">:</span>
+<a id="__codelineno-6-11" name="__codelineno-6-11" href="#__codelineno-6-11"></a><span class="w">    </span><span class="nt">service_name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;hierarchical.semantic_inverted_knowledge_graph&quot;</span>
+<a id="__codelineno-6-12" name="__codelineno-6-12" href="#__codelineno-6-12"></a><span class="w">    </span><span class="nt">ppr_depth</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3</span>
+<a id="__codelineno-6-13" name="__codelineno-6-13" href="#__codelineno-6-13"></a><span class="w">    </span><span class="nt">enhanced_rerank</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<a id="__codelineno-6-14" name="__codelineno-6-14" href="#__codelineno-6-14"></a><span class="w">    </span><span class="nt">use_synonym_edges</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+</code></pre></div>
+<hr />
+<h3 id="6-a-mem">📌 记忆体 #6: A-Mem<a class="headerlink" href="#6-a-mem" title="Permanent link">&para;</a></h3>
+<p><strong>配置文件</strong>：</p>
+<ul>
+<li>locomo_amem_pipeline.yaml (A-Mem)</li>
+</ul>
+<p><strong>当前实现</strong>：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="c1"># Collection: GraphMemoryCollection</span>
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="c1"># 索引: 链接图（节点=记忆条目 + 边=链接演化）</span>
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="c1"># 检索算法: PPR (Personalized PageRank)</span>
+<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="c1"># 特征: 链接笔记图 + 记忆演化</span>
+</code></pre></div>
+<p><strong>核心特征分析</strong>：</p>
+<ul>
+<li><strong>索引结构</strong>：链接笔记图（link note graph）</li>
+<li><strong>节点</strong>: 记忆条目/笔记（memory entries/notes）</li>
+<li><strong>边</strong>: 链接关系（link evolution）</li>
+<li><strong>特性</strong>: 记忆演化（evolutionary memory）</li>
+</ul>
+<hr />
+<p><strong>✅ 已确认命名</strong>：<code>hierarchical.linknote_graph</code></p>
+<p><strong>决策理由</strong>：</p>
+<ol>
+<li>✅ <strong><code>graph</code> 作为索引结构</strong>：图索引是核心数据结构</li>
+<li>✅ <strong><code>linknote</code> 作为修饰</strong>：强调链接笔记（linked notes）的概念</li>
+<li>✅ <strong>区别于知识图谱</strong>：A-Mem 是链接笔记图，不是实体关系图</li>
+</ol>
+<p><strong>实现特点</strong>：</p>
+<ul>
+<li><strong>类名</strong>：<code>LinknoteGraphMemoryService</code></li>
+<li><strong>实现文件</strong>：<code>hierarchical/linknote_graph.py</code></li>
+<li><strong>检索算法</strong>：PPR (Personalized PageRank)</li>
+<li><strong>特性</strong>：链接演化、记忆条目间的动态连接</li>
+</ul>
+<p><strong>配置示例</strong>：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="c1"># A-Mem 配置</span>
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="nt">services</span><span class="p">:</span>
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="w">  </span><span class="nt">memory</span><span class="p">:</span>
+<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a><span class="w">    </span><span class="nt">service_name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;hierarchical.linknote_graph&quot;</span>
+<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a><span class="w">    </span><span class="nt">ppr_depth</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2</span>
+<a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a><span class="w">    </span><span class="nt">graph_type</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;link_graph&quot;</span>
+<a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a><span class="w">    </span><span class="nt">enable_link_evolution</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+</code></pre></div>
+<hr />
+<hr />
+<h3 id="7-memorybank">📌 记忆体 #7: MemoryBank<a class="headerlink" href="#7-memorybank" title="Permanent link">&para;</a></h3>
+<p><strong>配置文件</strong>：</p>
+<ul>
+<li>locomo_memorybank_pipeline.yaml (MemoryBank - 遗忘曲线)</li>
+</ul>
+<p><strong>当前实现</strong>：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="c1"># Collection: 多个 Partitional 组件组合</span>
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="c1"># 索引结构: 三层 partitional 组织</span>
+<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="c1">#   1. 摘要层（Summary Layer）：全局摘要 + 每日事件摘要</span>
+<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a><span class="c1">#   2. 全局画像层（Global Profile）：用户特征画像</span>
+<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a><span class="c1">#   3. 历史向量层（History Vector）：KNN 向量索引</span>
+<a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a><span class="c1"># 特征: 特征-摘要-历史三层组合</span>
+</code></pre></div>
+<p><strong>核心特征分析</strong>：</p>
+<ul>
+<li><strong>类别</strong>：partitional（三层都是分区索引）</li>
+<li><strong>索引结构</strong>：combination（组合索引）</li>
+<li><strong>三层组织</strong>：</li>
+<li><strong>Feature Layer</strong>: 全局画像特征</li>
+<li><strong>Summary Layer</strong>: 摘要（全局摘要 + 每日事件摘要）</li>
+<li><strong>History Layer</strong>: KNN 向量索引</li>
+<li><strong>特性</strong>：三层独立分区，组合查询</li>
+</ul>
+<hr />
+<p><strong>✅ 已确认命名</strong>：<code>partitional.feature_summary_history_combination</code></p>
+<p><strong>决策理由</strong>：</p>
+<ol>
+<li>✅ <strong><code>combination</code> 作为索引结构</strong>：多个分区索引的组合</li>
+<li>✅ <strong><code>feature_summary_history</code> 作为修饰</strong>：准确描述三层结构</li>
+<li><code>feature</code>: 全局画像层</li>
+<li><code>summary</code>: 摘要层（全局+每日）</li>
+<li><code>history</code>: 历史向量层（KNN）</li>
+<li>✅ <strong>partitional 类别</strong>：每一层都是独立分区，不是真正的层级关系</li>
+</ol>
+<p><strong>实现特点</strong>：</p>
+<ul>
+<li><strong>类名</strong>：<code>FeatureSummaryHistoryCombinationMemoryService</code></li>
+<li><strong>实现文件</strong>：<code>partitional/feature_summary_history_combination.py</code></li>
+<li><strong>关键技术</strong>：</li>
+<li>遗忘曲线：R = e^(-t/S)</li>
+<li>多分区组合查询</li>
+<li>特征、摘要、历史三维检索</li>
+</ul>
+<p><strong>配置示例</strong>：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="c1"># MemoryBank 配置</span>
+<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="nt">services</span><span class="p">:</span>
+<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a><span class="w">  </span><span class="nt">memory</span><span class="p">:</span>
+<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a><span class="w">    </span><span class="nt">service_name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;partitional.feature_summary_vectorstore_combination&quot;</span>
+<a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a><span class="w">    </span><span class="nt">enable_global_summary</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a><span class="w">    </span><span class="nt">enable_daily_summary</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a><span class="w">    </span><span class="nt">enable_profile</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<a id="__codelineno-10-8" name="__codelineno-10-8" href="#__codelineno-10-8"></a><span class="w">    </span><span class="nt">knn_index_type</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;IndexFlatL2&quot;</span>
+<a id="__codelineno-10-9" name="__codelineno-10-9" href="#__codelineno-10-9"></a><span class="w">    </span><span class="nt">forgetting_curve_enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+</code></pre></div>
+<hr />
+<h3 id="8-memoryos">📌 记忆体 #8: MemoryOS<a class="headerlink" href="#8-memoryos" title="Permanent link">&para;</a></h3>
+<p><strong>配置文件</strong>：</p>
+<ul>
+<li>locomo_memoryos_pipeline.yaml (MemoryOS - Heat Score)</li>
+</ul>
+<p><strong>当前实现</strong>：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="c1"># Collection: 多个 Partitional 组件组合</span>
+<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a><span class="c1"># 索引结构: 三层 partitional 组织</span>
+<a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a><span class="c1">#   1. 用户特征层（Feature Layer）：用户画像特征</span>
+<a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a><span class="c1">#   2. FIFO队列层（Queue Layer）：短期对话队列</span>
+<a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a><span class="c1">#   3. 分段-原始对话层（Segment Layer）：对话分段 + 原始记录</span>
+<a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a><span class="c1"># 特征: Heat Score 热度评分（访问次数+交互深度+时间衰减）</span>
+</code></pre></div>
+<p><strong>核心特征分析</strong>：</p>
+<ul>
+<li><strong>类别</strong>：partitional（三层都是分区索引）</li>
+<li><strong>索引结构</strong>：combination（组合索引）</li>
+<li><strong>三层组织</strong>：</li>
+<li><strong>Feature Layer</strong>: 用户特征画像</li>
+<li><strong>Queue Layer</strong>: FIFO 队列</li>
+<li><strong>Segment Layer</strong>: 分段-原始对话层</li>
+<li><strong>特性</strong>：Heat Score 热度管理</li>
+</ul>
+<hr />
+<p><strong>✅ 已确认命名</strong>：<code>partitional.feature_queue_segment_combination</code></p>
+<p><strong>决策理由</strong>：</p>
+<ol>
+<li>✅ <strong><code>combination</code> 作为索引结构</strong>：多个分区索引的组合</li>
+<li>✅ <strong><code>feature_queue_segment</code> 作为修饰</strong>：准确描述三层结构</li>
+<li><code>feature</code>: 用户特征层</li>
+<li><code>queue</code>: FIFO 队列层</li>
+<li><code>segment</code>: 分段-原始对话层</li>
+<li>✅ <strong>partitional 类别</strong>：每一层都是独立分区，不是真正的层级关系</li>
+</ol>
+<p><strong>实现特点</strong>：</p>
+<ul>
+<li><strong>类名</strong>：<code>FeatureQueueSegmentCombinationMemoryService</code></li>
+<li><strong>实现文件</strong>：<code>partitional/feature_queue_segment_combination.py</code></li>
+<li><strong>关键技术</strong>：</li>
+<li>Heat Score 热度评分</li>
+<li>访问次数 + 交互深度 + 时间衰减</li>
+<li>多分区组合查询</li>
+</ul>
+<p><strong>配置示例</strong>：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="c1"># MemoryOS 配置</span>
+<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a><span class="nt">services</span><span class="p">:</span>
+<a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a><span class="w">  </span><span class="nt">memory</span><span class="p">:</span>
+<a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a><span class="w">    </span><span class="nt">service_name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;partitional.feature_queue_segment_combination&quot;</span>
+<a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a><span class="w">    </span><span class="nt">enable_feature_layer</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a><span class="w">    </span><span class="nt">queue_max_capacity</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">100</span>
+<a id="__codelineno-12-7" name="__codelineno-12-7" href="#__codelineno-12-7"></a><span class="w">    </span><span class="nt">enable_segment_layer</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<a id="__codelineno-12-8" name="__codelineno-12-8" href="#__codelineno-12-8"></a><span class="w">    </span><span class="nt">heat_score_enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+</code></pre></div>
+<hr />
+<h3 id="9-ldagent">✅ 记忆体 #9: LDAgent<a class="headerlink" href="#9-ldagent" title="Permanent link">&para;</a></h3>
+<p><strong>配置文件</strong>: <code>locomo_ldagent_pipeline.yaml</code></p>
+<p><strong>原始实现</strong>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="c1"># Service: HierarchicalMemoryService</span>
+<a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a><span class="c1"># Collection: HybridCollection（三层）</span>
+<a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a><span class="c1"># 特点: 用户特征 + FIFO队列 + 信息摘要</span>
+<a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a><span class="c1"># 所有信息都会进行摘要</span>
+</code></pre></div>
+<p><strong>✅ 确认命名</strong>: <code>partitional.feature_queue_summary_combination</code></p>
+<p><strong>新实现方案</strong>:</p>
+<ul>
+<li><strong>文件</strong>:
+  <code>packages/sage-benchmark/src/sage/benchmark/benchmark_memory/experiment/memory_services/partitional/feature_queue_summary_combination.py</code></li>
+<li><strong>类名</strong>: <code>FeatureQueueSummaryCombinationMemoryService</code></li>
+<li><strong>继承</strong>: <code>BaseMemoryService</code></li>
+<li><strong>核心特性</strong>:</li>
+<li>3个独立分区: feature layer + FIFO queue + summary layer</li>
+<li>所有记忆信息都会进行摘要处理</li>
+<li>Partitional combination 模式</li>
+</ul>
+<p><strong>注册示例</strong>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="n">registry</span><span class="o">.</span><span class="n">register</span><span class="p">(</span>
+<a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a>    <span class="s2">&quot;partitional.feature_queue_summary_combination&quot;</span><span class="p">,</span>
+<a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a>    <span class="n">FeatureQueueSummaryCombinationMemoryService</span>
+<a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a><span class="p">)</span>
+</code></pre></div>
+<p><strong>配置示例</strong>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a><span class="c1"># LDAgent 配置</span>
+<a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a><span class="nt">services</span><span class="p">:</span>
+<a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a><span class="w">  </span><span class="nt">memory</span><span class="p">:</span>
+<a id="__codelineno-15-4" name="__codelineno-15-4" href="#__codelineno-15-4"></a><span class="w">    </span><span class="nt">service_name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;partitional.feature_queue_summary_combination&quot;</span>
+<a id="__codelineno-15-5" name="__codelineno-15-5" href="#__codelineno-15-5"></a><span class="w">    </span><span class="nt">enable_feature_layer</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<a id="__codelineno-15-6" name="__codelineno-15-6" href="#__codelineno-15-6"></a><span class="w">    </span><span class="nt">queue_max_capacity</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">100</span>
+<a id="__codelineno-15-7" name="__codelineno-15-7" href="#__codelineno-15-7"></a><span class="w">    </span><span class="nt">enable_summary_layer</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<a id="__codelineno-15-8" name="__codelineno-15-8" href="#__codelineno-15-8"></a><span class="w">    </span><span class="nt">auto_summarize</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+</code></pre></div>
+<hr />
+<h3 id="10-secom">✅ 记忆体 #10: SeCom<a class="headerlink" href="#10-secom" title="Permanent link">&para;</a></h3>
+<p><strong>配置文件</strong>: <code>locomo_secom_pipeline.yaml</code></p>
+<p><strong>原始实现</strong>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a><span class="c1"># Service: HierarchicalMemoryService</span>
+<a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a><span class="c1"># Collection: HybridCollection（三层）</span>
+<a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a><span class="c1"># 特点: 语义段（segment）为基本单元的集合式记忆库</span>
+<a id="__codelineno-16-4" name="__codelineno-16-4" href="#__codelineno-16-4"></a><span class="c1"># 每个记忆单元是一个经过压缩去噪、语义连贯、主题一致的对话片段</span>
+</code></pre></div>
+<p><strong>✅ 确认命名</strong>: <code>partitional.segment</code></p>
+<p><strong>新实现方案</strong>:</p>
+<ul>
+<li><strong>文件</strong>:
+  <code>packages/sage-benchmark/src/sage/benchmark/benchmark_memory/experiment/memory_services/partitional/segment.py</code></li>
+<li><strong>类名</strong>: <code>SegmentMemoryService</code></li>
+<li><strong>继承</strong>: <code>BaseMemoryService</code></li>
+<li><strong>核心特性</strong>:</li>
+<li>以语义段（segment）为基本单元</li>
+<li>每个 segment 是语义连贯、主题一致的对话片段</li>
+<li>压缩去噪处理</li>
+<li>集合式记忆库（partitional 模式）</li>
+</ul>
+<p><strong>注册示例</strong>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a><span class="n">registry</span><span class="o">.</span><span class="n">register</span><span class="p">(</span>
+<a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a>    <span class="s2">&quot;partitional.segment&quot;</span><span class="p">,</span>
+<a id="__codelineno-17-3" name="__codelineno-17-3" href="#__codelineno-17-3"></a>    <span class="n">SegmentMemoryService</span>
+<a id="__codelineno-17-4" name="__codelineno-17-4" href="#__codelineno-17-4"></a><span class="p">)</span>
+</code></pre></div>
+<p><strong>配置示例</strong>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a><span class="c1"># SeCom 配置</span>
+<a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a><span class="nt">services</span><span class="p">:</span>
+<a id="__codelineno-18-3" name="__codelineno-18-3" href="#__codelineno-18-3"></a><span class="w">  </span><span class="nt">memory</span><span class="p">:</span>
+<a id="__codelineno-18-4" name="__codelineno-18-4" href="#__codelineno-18-4"></a><span class="w">    </span><span class="nt">service_name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;partitional.segment&quot;</span>
+<a id="__codelineno-18-5" name="__codelineno-18-5" href="#__codelineno-18-5"></a><span class="w">    </span><span class="nt">enable_compression</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<a id="__codelineno-18-6" name="__codelineno-18-6" href="#__codelineno-18-6"></a><span class="w">    </span><span class="nt">enable_denoising</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<a id="__codelineno-18-7" name="__codelineno-18-7" href="#__codelineno-18-7"></a><span class="w">    </span><span class="nt">semantic_coherence_threshold</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.8</span>
+<a id="__codelineno-18-8" name="__codelineno-18-8" href="#__codelineno-18-8"></a><span class="w">    </span><span class="nt">topic_consistency_check</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+</code></pre></div>
+<hr />
+<h3 id="11-memgpt">📌 记忆体 #11: MemGPT<a class="headerlink" href="#11-memgpt" title="Permanent link">&para;</a></h3>
+<p><strong>配置文件</strong>: <code>locomo_memgpt_pipeline.yaml</code></p>
+<p><strong>当前实现</strong>：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a><span class="c1"># Collection: HybridCollection（单一Collection）</span>
+<a id="__codelineno-19-2" name="__codelineno-19-2" href="#__codelineno-19-2"></a><span class="c1"># 索引: 3个VDB索引（stm_index, mtm_index, ltm_index）</span>
+<a id="__codelineno-19-3" name="__codelineno-19-3" href="#__codelineno-19-3"></a><span class="c1"># 特征:</span>
+<a id="__codelineno-19-4" name="__codelineno-19-4" href="#__codelineno-19-4"></a><span class="c1">#   - Core Memory固定 + Recall Memory淘汰</span>
+<a id="__codelineno-19-5" name="__codelineno-19-5" href="#__codelineno-19-5"></a><span class="c1">#   - 层间迁移（remove_from_index + insert_to_index）</span>
+</code></pre></div>
+<p><strong>核心特征分析</strong>：</p>
+<ul>
+<li><strong>索引结构</strong>：三层分层（tier）</li>
+<li><strong>底层技术</strong>：3个VDB索引</li>
+<li><strong>组织方式</strong>：Core Memory (固定) + Recall Memory (可淘汰)</li>
+<li><strong>特点</strong>：Core Memory 不会被淘汰，Recall Memory 根据策略淘汰</li>
+</ul>
+<hr />
+<h3 id="11-memgpt_1">✅ 记忆体 #11: MemGPT<a class="headerlink" href="#11-memgpt_1" title="Permanent link">&para;</a></h3>
+<p><strong>配置文件</strong>: <code>locomo_memgpt_pipeline.yaml</code></p>
+<p><strong>原始实现</strong>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a><span class="c1"># Service: HierarchicalMemoryService</span>
+<a id="__codelineno-20-2" name="__codelineno-20-2" href="#__codelineno-20-2"></a><span class="c1"># Collection: HybridCollection（三层）</span>
+<a id="__codelineno-20-3" name="__codelineno-20-3" href="#__codelineno-20-3"></a><span class="c1"># 特点: Core Memory (用户长期事实) + 短期记忆队列 + KNN向量索引</span>
+<a id="__codelineno-20-4" name="__codelineno-20-4" href="#__codelineno-20-4"></a><span class="c1"># Core Memory 固定不淘汰，Recall Memory 根据策略淘汰</span>
+</code></pre></div>
+<p><strong>✅ 确认命名</strong>: <code>partitional.feature_summary_vectorstore_combination</code></p>
+<p><strong>新实现方案</strong>:</p>
+<ul>
+<li><strong>文件</strong>:
+  <code>packages/sage-benchmark/src/sage/benchmark/benchmark_memory/experiment/memory_services/partitional/feature_summary_vectorstore_combination.py</code></li>
+<li><strong>类名</strong>: <code>FeatureSummaryVectorstoreCombinationMemoryService</code></li>
+<li><strong>继承</strong>: <code>BaseMemoryService</code></li>
+<li><strong>核心特性</strong>:</li>
+<li>3个独立分区: feature layer (用户长期事实) + queue (短期记忆) + vectorstore layer (KNN向量索引,原文+embedding)</li>
+<li>Core Memory 固定不淘汰</li>
+<li>Recall Memory 可淘汰</li>
+<li>Partitional combination 模式</li>
+</ul>
+<p><strong>注册示例</strong>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a><span class="n">registry</span><span class="o">.</span><span class="n">register</span><span class="p">(</span>
+<a id="__codelineno-21-2" name="__codelineno-21-2" href="#__codelineno-21-2"></a>    <span class="s2">&quot;partitional.feature_queue_vectorstore_combination&quot;</span><span class="p">,</span>
+<a id="__codelineno-21-3" name="__codelineno-21-3" href="#__codelineno-21-3"></a>    <span class="n">FeatureQueueVectorstoreCombinationMemoryService</span>
+<a id="__codelineno-21-4" name="__codelineno-21-4" href="#__codelineno-21-4"></a><span class="p">)</span>
+</code></pre></div>
+<p><strong>配置示例</strong>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a><span class="c1"># MemGPT 配置</span>
+<a id="__codelineno-22-2" name="__codelineno-22-2" href="#__codelineno-22-2"></a><span class="nt">services</span><span class="p">:</span>
+<a id="__codelineno-22-3" name="__codelineno-22-3" href="#__codelineno-22-3"></a><span class="w">  </span><span class="nt">memory</span><span class="p">:</span>
+<a id="__codelineno-22-4" name="__codelineno-22-4" href="#__codelineno-22-4"></a><span class="w">    </span><span class="nt">service_name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;partitional.feature_queue_vectorstore_combination&quot;</span>
+<a id="__codelineno-22-5" name="__codelineno-22-5" href="#__codelineno-22-5"></a><span class="w">    </span><span class="nt">enable_feature_layer</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span><span class="w">  </span><span class="c1"># Core Memory (用户长期事实)</span>
+<a id="__codelineno-22-6" name="__codelineno-22-6" href="#__codelineno-22-6"></a><span class="w">    </span><span class="nt">queue_max_capacity</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">100</span><span class="w">     </span><span class="c1"># 短期记忆队列</span>
+<a id="__codelineno-22-7" name="__codelineno-22-7" href="#__codelineno-22-7"></a><span class="w">    </span><span class="nt">enable_vectorstore_layer</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span><span class="w">  </span><span class="c1"># KNN向量索引(原文+embedding)</span>
+<a id="__codelineno-22-8" name="__codelineno-22-8" href="#__codelineno-22-8"></a><span class="w">    </span><span class="nt">core_memory_fixed</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span><span class="w">     </span><span class="c1"># Core Memory 不淘汰</span>
+</code></pre></div>
+<hr />
+<h3 id="12-mem0">✅ 记忆体 #12: Mem0<a class="headerlink" href="#12-mem0" title="Permanent link">&para;</a></h3>
+<p><strong>配置文件</strong>: <code>locomo_mem0_pipeline.yaml</code></p>
+<p><strong>原始实现</strong>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-23-1" name="__codelineno-23-1" href="#__codelineno-23-1"></a><span class="c1"># Service: HybridMemoryService</span>
+<a id="__codelineno-23-2" name="__codelineno-23-2" href="#__codelineno-23-2"></a><span class="c1"># Collection: HybridCollection</span>
+<a id="__codelineno-23-3" name="__codelineno-23-3" href="#__codelineno-23-3"></a><span class="c1"># 特点: 双路索引 - 向量索引 + 倒排索引</span>
+<a id="__codelineno-23-4" name="__codelineno-23-4" href="#__codelineno-23-4"></a><span class="c1"># 索引: VDB索引 + KV索引（BM25倒排）</span>
+<a id="__codelineno-23-5" name="__codelineno-23-5" href="#__codelineno-23-5"></a><span class="c1"># 融合策略: RRF (Reciprocal Rank Fusion)</span>
+</code></pre></div>
+<p><strong>✅ 确认命名</strong>: <code>partitional.inverted_vectorstore_combination</code></p>
+<p><strong>新实现方案</strong>:</p>
+<ul>
+<li><strong>文件</strong>:
+  <code>packages/sage-benchmark/src/sage/benchmark/benchmark_memory/experiment/memory_services/partitional/inverted_vectorstore_combination.py</code></li>
+<li><strong>类名</strong>: <code>InvertedVectorstoreCombinationMemoryService</code></li>
+<li><strong>继承</strong>: <code>BaseMemoryService</code></li>
+<li><strong>核心特性</strong>:</li>
+<li>2个独立分区: inverted index (倒排索引,BM25) + vectorstore layer (向量索引,原文+embedding)</li>
+<li>双路索引结构</li>
+<li>Partitional combination 模式</li>
+</ul>
+<p><strong>注册示例</strong>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-24-1" name="__codelineno-24-1" href="#__codelineno-24-1"></a><span class="n">registry</span><span class="o">.</span><span class="n">register</span><span class="p">(</span>
+<a id="__codelineno-24-2" name="__codelineno-24-2" href="#__codelineno-24-2"></a>    <span class="s2">&quot;partitional.inverted_vectorstore_combination&quot;</span><span class="p">,</span>
+<a id="__codelineno-24-3" name="__codelineno-24-3" href="#__codelineno-24-3"></a>    <span class="n">InvertedVectorstoreCombinationMemoryService</span>
+<a id="__codelineno-24-4" name="__codelineno-24-4" href="#__codelineno-24-4"></a><span class="p">)</span>
+</code></pre></div>
+<p><strong>配置示例</strong>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-25-1" name="__codelineno-25-1" href="#__codelineno-25-1"></a><span class="c1"># Mem0 配置</span>
+<a id="__codelineno-25-2" name="__codelineno-25-2" href="#__codelineno-25-2"></a><span class="nt">services</span><span class="p">:</span>
+<a id="__codelineno-25-3" name="__codelineno-25-3" href="#__codelineno-25-3"></a><span class="w">  </span><span class="nt">memory</span><span class="p">:</span>
+<a id="__codelineno-25-4" name="__codelineno-25-4" href="#__codelineno-25-4"></a><span class="w">    </span><span class="nt">service_name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;partitional.inverted_vectorstore_combination&quot;</span>
+<a id="__codelineno-25-5" name="__codelineno-25-5" href="#__codelineno-25-5"></a><span class="w">    </span><span class="nt">enable_inverted_index</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span><span class="w">  </span><span class="c1"># BM25倒排索引</span>
+<a id="__codelineno-25-6" name="__codelineno-25-6" href="#__codelineno-25-6"></a><span class="w">    </span><span class="nt">enable_vectorstore_layer</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span><span class="w">   </span><span class="c1"># 向量索引(原文+embedding)</span>
+<a id="__codelineno-25-7" name="__codelineno-25-7" href="#__codelineno-25-7"></a><span class="w">    </span><span class="nt">fusion_strategy</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;rrf&quot;</span><span class="w">       </span><span class="c1"># Reciprocal Rank Fusion</span>
+</code></pre></div>
+<hr />
+<h3 id="13-mem0g">✅ 记忆体 #13: Mem0ᵍ<a class="headerlink" href="#13-mem0g" title="Permanent link">&para;</a></h3>
+<p><strong>配置文件</strong>: <code>locomo_mem0_graph_pipeline.yaml</code></p>
+<p><strong>原始实现</strong>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-26-1" name="__codelineno-26-1" href="#__codelineno-26-1"></a><span class="c1"># Service: HybridMemoryService</span>
+<a id="__codelineno-26-2" name="__codelineno-26-2" href="#__codelineno-26-2"></a><span class="c1"># Collection: HybridCollection</span>
+<a id="__codelineno-26-3" name="__codelineno-26-3" href="#__codelineno-26-3"></a><span class="c1"># 特点: 属性图（Property Graph）</span>
+<a id="__codelineno-26-4" name="__codelineno-26-4" href="#__codelineno-26-4"></a><span class="c1"># 索引: VDB索引 + KV索引 + Graph索引</span>
+<a id="__codelineno-26-5" name="__codelineno-26-5" href="#__codelineno-26-5"></a><span class="c1"># 融合策略: RRF (Reciprocal Rank Fusion)</span>
+</code></pre></div>
+<p><strong>✅ 确认命名</strong>: <code>hierarchical.property_graph</code></p>
+<p><strong>新实现方案</strong>:</p>
+<ul>
+<li><strong>文件</strong>:
+  <code>packages/sage-benchmark/src/sage/benchmark/benchmark_memory/experiment/memory_services/hierarchical/property_graph.py</code></li>
+<li><strong>类名</strong>: <code>PropertyGraphMemoryService</code></li>
+<li><strong>继承</strong>: <code>BaseMemoryService</code></li>
+<li><strong>核心特性</strong>:</li>
+<li>属性图（Property Graph）结构</li>
+<li>节点（Nodes）和边（Edges）都可以携带属性（key-value metadata）</li>
+<li>边是有向的（A → B ≠ B → A）</li>
+<li>边带有标签（关系类型，如 lives_in, prefers）</li>
+<li>Schema-free 或 weak-schema</li>
+<li>Hierarchical 模式</li>
+</ul>
+<p><strong>注册示例</strong>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-27-1" name="__codelineno-27-1" href="#__codelineno-27-1"></a><span class="n">registry</span><span class="o">.</span><span class="n">register</span><span class="p">(</span>
+<a id="__codelineno-27-2" name="__codelineno-27-2" href="#__codelineno-27-2"></a>    <span class="s2">&quot;hierarchical.property_graph&quot;</span><span class="p">,</span>
+<a id="__codelineno-27-3" name="__codelineno-27-3" href="#__codelineno-27-3"></a>    <span class="n">PropertyGraphMemoryService</span>
+<a id="__codelineno-27-4" name="__codelineno-27-4" href="#__codelineno-27-4"></a><span class="p">)</span>
+</code></pre></div>
+<p><strong>配置示例</strong>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-28-1" name="__codelineno-28-1" href="#__codelineno-28-1"></a><span class="c1"># Mem0ᵍ 配置</span>
+<a id="__codelineno-28-2" name="__codelineno-28-2" href="#__codelineno-28-2"></a><span class="nt">services</span><span class="p">:</span>
+<a id="__codelineno-28-3" name="__codelineno-28-3" href="#__codelineno-28-3"></a><span class="w">  </span><span class="nt">memory</span><span class="p">:</span>
+<a id="__codelineno-28-4" name="__codelineno-28-4" href="#__codelineno-28-4"></a><span class="w">    </span><span class="nt">service_name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;hierarchical.property_graph&quot;</span>
+<a id="__codelineno-28-5" name="__codelineno-28-5" href="#__codelineno-28-5"></a><span class="w">    </span><span class="nt">enable_node_properties</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<a id="__codelineno-28-6" name="__codelineno-28-6" href="#__codelineno-28-6"></a><span class="w">    </span><span class="nt">enable_edge_properties</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<a id="__codelineno-28-7" name="__codelineno-28-7" href="#__codelineno-28-7"></a><span class="w">    </span><span class="nt">directed_edges</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<a id="__codelineno-28-8" name="__codelineno-28-8" href="#__codelineno-28-8"></a><span class="w">    </span><span class="nt">schema_mode</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;weak&quot;</span><span class="w">  </span><span class="c1"># weak-schema or schema-free</span>
+</code></pre></div>
+<hr />
+<h2 id="1313">三、命名汇总（全部确认完成 ✅ 13/13）<a class="headerlink" href="#1313" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>记忆体</th>
+<th>当前服务</th>
+<th>确认命名</th>
+<th>状态</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>#1-2 短期记忆</td>
+<td>short_term_memory</td>
+<td>✅ 确认：<code>partitional.fifo_queue</code></td>
+<td>✅ 已确认</td>
+</tr>
+<tr>
+<td>#3 TiM</td>
+<td>vector_memory</td>
+<td>✅ 确认：<code>partitional.lsh_hash</code></td>
+<td>✅ 已确认</td>
+</tr>
+<tr>
+<td>#4-5 HippoRAG</td>
+<td>graph_memory</td>
+<td>✅ 确认：<code>hierarchical.semantic_inverted_knowledge_graph</code></td>
+<td>✅ 已确认</td>
+</tr>
+<tr>
+<td>#6 A-Mem</td>
+<td>graph_memory</td>
+<td>✅ 确认：<code>hierarchical.linknote_graph</code></td>
+<td>✅ 已确认</td>
+</tr>
+<tr>
+<td>#7 MemoryBank</td>
+<td>hierarchical_memory</td>
+<td>✅ 确认：<code>partitional.feature_summary_vectorstore_combination</code></td>
+<td>✅ 已确认</td>
+</tr>
+<tr>
+<td>#8 MemoryOS</td>
+<td>hierarchical_memory</td>
+<td>✅ 确认：<code>partitional.feature_queue_segment_combination</code></td>
+<td>✅ 已确认</td>
+</tr>
+<tr>
+<td>#9 LDAgent</td>
+<td>hierarchical_memory</td>
+<td>✅ 确认：<code>partitional.feature_queue_summary_combination</code></td>
+<td>✅ 已确认</td>
+</tr>
+<tr>
+<td>#10 SeCom</td>
+<td>hierarchical_memory</td>
+<td>✅ 确认：<code>partitional.segment</code></td>
+<td>✅ 已确认</td>
+</tr>
+<tr>
+<td>#11 MemGPT</td>
+<td>hierarchical_memory</td>
+<td>✅ 确认：<code>partitional.feature_queue_vectorstore_combination</code></td>
+<td>✅ 已确认</td>
+</tr>
+<tr>
+<td>#12 Mem0</td>
+<td>hybrid_memory</td>
+<td>✅ 确认：<code>partitional.inverted_vectorstore_combination</code></td>
+<td>✅ 已确认</td>
+</tr>
+<tr>
+<td>#13 Mem0ᵍ</td>
+<td>hybrid_memory</td>
+<td>✅ 确认：<code>hierarchical.property_graph</code></td>
+<td>✅ 已确认</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="_3">四、讨论记录<a class="headerlink" href="#_3" title="Permanent link">&para;</a></h2>
+<h3 id="1_1">讨论轮次 #1<a class="headerlink" href="#1_1" title="Permanent link">&para;</a></h3>
+<p><strong>时间</strong>：2025-12-25</p>
+<p><strong>讨论内容</strong>：</p>
+<ul>
+<li>确认命名规则：<code>类别.修饰前缀_索引结构</code></li>
+<li>修饰前缀可选（如果索引结构本身就足够明确）</li>
+<li>索引结构是核心，必须有</li>
+</ul>
+<p><strong>已确认</strong>：</p>
+<ol>
+<li>
+<p>✅ <strong>记忆体 #1-2 (ShortTermMemory)</strong>: <code>partitional.fifo_queue</code></p>
+</li>
+<li>
+<p><strong>决策</strong>：统一 STM 和 SCM 为一个服务，通过配置参数区分</p>
+</li>
+<li><strong>关键参数</strong>：<ul>
+<li><code>max_capacity</code>: 5 (STM) vs 1000 (SCM)</li>
+<li><code>use_embedding</code>: false (STM) vs true (SCM)</li>
+</ul>
+</li>
+<li><strong>实现文件</strong>：<code>partitional/fifo_queue.py</code></li>
+<li>
+<p><strong>类名</strong>：<code>FifoQueueMemoryService</code></p>
+</li>
+<li>
+<p>✅ <strong>记忆体 #3 (TiM)</strong>: <code>partitional.lsh_hash</code></p>
+</li>
+<li>
+<p><strong>决策</strong>：使用 LSH 哈希作为索引结构</p>
+</li>
+<li><strong>关键参数</strong>：<ul>
+<li><code>index_type</code>: IndexLSH</li>
+<li><code>nbits</code>: 128</li>
+<li><code>rotate_data</code>: true</li>
+</ul>
+</li>
+<li><strong>实现文件</strong>：<code>partitional/lsh_hash.py</code></li>
+<li>
+<p><strong>类名</strong>：<code>LshHashMemoryService</code></p>
+</li>
+<li>
+<p>✅ <strong>记忆体 #4-5 (HippoRAG &amp; HippoRAG2)</strong>: <code>hierarchical.semantic_inverted_knowledge_graph</code></p>
+</li>
+<li>
+<p><strong>决策</strong>：分离出 A-Mem，HippoRAG系列共享一个服务</p>
+</li>
+<li><strong>关键参数</strong>：<ul>
+<li><code>ppr_depth</code>: 2 (HippoRAG) vs 3 (HippoRAG2)</li>
+<li><code>enhanced_rerank</code>: false (HippoRAG) vs true (HippoRAG2)</li>
+<li><code>use_synonym_edges</code>: true</li>
+</ul>
+</li>
+<li><strong>实现文件</strong>：<code>hierarchical/semantic_inverted_knowledge_graph.py</code></li>
+<li>
+<p><strong>类名</strong>：<code>SemanticInvertedKnowledgeGraphMemoryService</code></p>
+</li>
+<li>
+<p>✅ <strong>记忆体 #6 (A-Mem)</strong>: <code>hierarchical.linknote_graph</code></p>
+</li>
+<li>
+<p><strong>决策</strong>：链接笔记图，区别于知识图谱</p>
+</li>
+<li><strong>关键参数</strong>：<ul>
+<li><code>ppr_depth</code>: 2</li>
+<li><code>graph_type</code>: link_graph</li>
+<li><code>enable_link_evolution</code>: true</li>
+</ul>
+</li>
+<li><strong>实现文件</strong>：<code>hierarchical/linknote_graph.py</code></li>
+<li>
+<p><strong>类名</strong>：<code>LinknoteGraphMemoryService</code></p>
+</li>
+<li>
+<p>✅ <strong>记忆体 #7 (MemoryBank)</strong>: <code>partitional.feature_summary_vectorstore_combination</code></p>
+</li>
+<li>
+<p><strong>决策</strong>：三层 partitional 组合（特征-摘要-向量存储）</p>
+</li>
+<li><strong>关键参数</strong>：<ul>
+<li><code>enable_global_summary</code>: true</li>
+<li><code>enable_daily_summary</code>: true</li>
+<li><code>enable_profile</code>: true</li>
+<li><code>forgetting_curve_enabled</code>: true</li>
+</ul>
+</li>
+<li><strong>实现文件</strong>：<code>partitional/feature_summary_vectorstore_combination.py</code></li>
+<li>
+<p><strong>类名</strong>：<code>FeatureSummaryVectorstoreCombinationMemoryService</code></p>
+</li>
+<li>
+<p>✅ <strong>记忆体 #8 (MemoryOS)</strong>: <code>partitional.feature_queue_segment_combination</code></p>
+</li>
+<li>
+<p><strong>决策</strong>：三层 partitional 组合（特征-队列-分段）</p>
+</li>
+<li><strong>关键参数</strong>：<ul>
+<li><code>enable_feature_layer</code>: true</li>
+<li><code>queue_max_capacity</code>: 100</li>
+<li><code>enable_segment_layer</code>: true</li>
+<li><code>heat_score_enabled</code>: true</li>
+</ul>
+</li>
+<li><strong>实现文件</strong>：<code>partitional/feature_queue_segment_combination.py</code></li>
+<li>
+<p><strong>类名</strong>：<code>FeatureQueueSegmentCombinationMemoryService</code></p>
+</li>
+<li>
+<p>✅ <strong>记忆体 #9 (LDAgent)</strong>: <code>partitional.feature_queue_summary_combination</code></p>
+</li>
+<li>
+<p><strong>决策</strong>：三层 partitional 组合（用户特征 + FIFO队列 + 信息摘要）</p>
+</li>
+<li><strong>关键参数</strong>：<ul>
+<li><code>enable_feature_layer</code>: true</li>
+<li><code>queue_max_capacity</code>: 100</li>
+<li><code>enable_summary_layer</code>: true</li>
+<li><code>auto_summarize</code>: true</li>
+</ul>
+</li>
+<li><strong>实现文件</strong>：<code>partitional/feature_queue_summary_combination.py</code></li>
+<li>
+<p><strong>类名</strong>：<code>FeatureQueueSummaryCombinationMemoryService</code></p>
+</li>
+<li>
+<p>✅ <strong>记忆体 #10 (SeCom)</strong>: <code>partitional.segment</code></p>
+</li>
+<li>
+<p><strong>决策</strong>：语义段（segment）为基本单元的集合式记忆库</p>
+</li>
+<li><strong>关键参数</strong>：<ul>
+<li><code>enable_compression</code>: true</li>
+<li><code>enable_denoising</code>: true</li>
+<li><code>semantic_coherence_threshold</code>: 0.8</li>
+<li><code>topic_consistency_check</code>: true</li>
+</ul>
+</li>
+<li><strong>实现文件</strong>：<code>partitional/segment.py</code></li>
+<li>
+<p><strong>类名</strong>：<code>SegmentMemoryService</code></p>
+</li>
+<li>
+<p>✅ <strong>记忆体 #11 (MemGPT)</strong>: <code>partitional.feature_queue_vectorstore_combination</code></p>
+</li>
+<li>
+<p><strong>决策</strong>：三层 partitional 组合（用户长期事实 + 短期记忆队列 + KNN向量存储）</p>
+</li>
+<li><strong>关键参数</strong>：<ul>
+<li><code>enable_feature_layer</code>: true # Core Memory (用户长期事实)</li>
+<li><code>queue_max_capacity</code>: 100 # 短期记忆队列</li>
+<li><code>enable_vectorstore_layer</code>: true # KNN向量存储(原文+embedding)</li>
+<li><code>core_memory_fixed</code>: true # Core Memory 不淘汰</li>
+</ul>
+</li>
+<li><strong>实现文件</strong>：<code>partitional/feature_queue_vectorstore_combination.py</code></li>
+<li>
+<p><strong>类名</strong>：<code>FeatureQueueVectorstoreCombinationMemoryService</code></p>
+</li>
+<li>
+<p>✅ <strong>记忆体 #12 (Mem0)</strong>: <code>partitional.inverted_vectorstore_combination</code></p>
+</li>
+<li>
+<p><strong>决策</strong>：双路索引组合（倒排索引 + 向量存储）</p>
+</li>
+<li><strong>关键参数</strong>：</li>
+<li><code>enable_inverted_index</code>: true # 倒排索引（BM25）</li>
+<li><code>enable_vectorstore_layer</code>: true # 向量存储(原文+embedding)</li>
+<li><code>fusion_strategy</code>: "rrf" # RRF 融合</li>
+<li><strong>实现文件</strong>：<code>partitional/inverted_vectorstore_combination.py</code></li>
+<li>
+<p><strong>类名</strong>：<code>InvertedVectorstoreCombinationMemoryService</code></p>
+</li>
+<li>
+<p>✅ <strong>记忆体 #13 (Mem0ᵍ)</strong>: <code>hierarchical.property_graph</code></p>
+</li>
+<li>
+<p><strong>决策</strong>：属性图（Property Graph）结构</p>
+</li>
+<li><strong>关键参数</strong>：</li>
+<li><code>enable_node_properties</code>: true</li>
+<li><code>enable_edge_properties</code>: true</li>
+<li><code>directed_edges</code>: true</li>
+<li><code>schema_validation</code>: "weak" # weak-schema</li>
+<li><code>relation_types</code>: ["lives_in", "prefers", "knows"]</li>
+<li><strong>实现文件</strong>：<code>hierarchical/property_graph.py</code></li>
+<li><strong>类名</strong>：<code>PropertyGraphMemoryService</code></li>
+</ol>
+<p><strong>✅ 全部完成</strong>：13/13 记忆体服务命名已确认</p>
+<p><strong>下一步</strong>： 开始实现 Task 5 - Pipeline 适配和配置迁移</p>
+<hr />
+<h2 id="_4">五、备注<a class="headerlink" href="#_4" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>vector_memory</strong> 的其他用法（非LSH）暂不考虑，因为配置文件中只有TiM在用</li>
+<li><strong>key_value_memory</strong> 目前没有配置文件在用，可能在后续补充</li>
+<li>新增类别（如 <code>temporal</code>）需要慎重考虑</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  回到页面顶部
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Copyright &copy; 2023-2025 IntelliStream Lab
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+        
+<div class="md-social">
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://github.com/intellistream/SAGE" target="_blank" rel="noopener" title="github.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+    </a>
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://pypi.org/project/sage-framework/" target="_blank" rel="noopener" title="pypi.org" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.8 200.5c-7.7-30.9-22.3-54.2-53.4-54.2h-40.1v47.4c0 36.8-31.2 67.8-66.8 67.8H172.7c-29.2 0-53.4 25-53.4 54.3v101.8c0 29 25.2 46 53.4 54.3 33.8 9.9 66.3 11.7 106.8 0 26.9-7.8 53.4-23.5 53.4-54.3v-40.7H226.2v-13.6h160.2c31.1 0 42.6-21.7 53.4-54.2 11.2-33.5 10.7-65.7 0-108.6M286.2 444.7a20.4 20.4 0 1 1 0-40.7 20.4 20.4 0 1 1 0 40.7M167.8 248.1h106.8c29.7 0 53.4-24.5 53.4-54.3V91.9c0-29-24.4-50.7-53.4-55.6-35.8-5.9-74.7-5.6-106.8.1-45.2 8-53.4 24.7-53.4 55.6v40.7h106.9v13.6h-147c-31.1 0-58.3 18.7-66.8 54.2-9.8 40.7-10.2 66.1 0 108.6 7.6 31.6 25.7 54.2 56.8 54.2H101v-48.8c0-35.3 30.5-66.4 66.8-66.4m-6.6-183.4a20.4 20.4 0 1 1 0 40.8 20.4 20.4 0 1 1 0-40.8"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+      <div class="md-progress" data-md-component="progress" role="progressbar"></div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../../..", "features": ["navigation.instant", "navigation.instant.progress", "navigation.tracking", "navigation.tabs", "navigation.tabs.sticky", "navigation.sections", "navigation.path", "navigation.indexes", "navigation.top", "navigation.footer", "navigation.prune", "search.suggest", "search.highlight", "search.share", "content.code.copy", "content.code.annotate", "content.tabs.link", "toc.follow", "toc.integrate"], "search": "../../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

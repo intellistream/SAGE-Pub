@@ -1,0 +1,2303 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="高性能分布式推理框架 - 数据流原生的模块化、透明、可控的LLM工作流推理框架">
+      
+      
+        <meta name="author" content="IntelliStream Lab">
+      
+      
+        <link rel="canonical" href="https://sage.org.ai/dev-notes/testing/TEST_IMPROVEMENT_TASKS/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/img/isage_light.svg">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+    
+    
+  
+    <title>SAGE 测试覆盖率改进任务拆分</title>
+  
+
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+<!-- Google Tag Manager -->
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-T35S4S46');</script>
+<!-- End Google Tag Manager -->
+
+    
+  <!-- pragma: allowlist secret -->
+  <meta name="algolia-site-verification" content="165B7E7C89E49946" />
+  <style>
+    @import url("https://fonts.googleapis.com/css2?family=Public+Sans&display=swap");
+    :root {
+      --md-primary-fg-color: #333333;
+      --md-accent-fg-color: #1E88E5;
+      --md-default-bg-color: #FFFFFF;
+      --md-default-fg-color: #333333;
+      --md-text-font-family: "Public Sans", sans-serif;
+    }
+
+    body {
+      font-family: var(--md-text-font-family);
+      background-color: var(--md-default-bg-color);
+      color: var(--md-default-fg-color);
+    }
+
+    .md-main {
+      background-color: #FFFFFF;
+    }
+
+    .md-footer {
+      background-color: #F5F5F5;
+      color: #666666;
+    }
+
+    .md-footer-meta {
+      background-color: #4d4d4d;
+    }
+
+    .md-typeset a {
+      color: #1E88E5;
+    }
+
+    .md-typeset a:hover {
+      color: #1565C0;
+    }
+
+    .md-nav__link--active,
+    .md-nav__link:active {
+      color: #1E88E5;
+    }
+
+    .md-search__input {
+      background-color: #F5F5F5;
+      color: #333333;
+    }
+
+    .md-search__input:hover,
+    .md-search__input:focus {
+      background-color: #EEEEEE;
+    }
+    /* Table of contents styles */
+    .md-nav--secondary .md-nav__item--active > .md-nav__link {
+      font-weight: bold;
+      color: var(--md-primary-fg-color);
+    }
+
+    .md-nav--secondary .md-nav__item--nested > .md-nav__link {
+      font-weight: normal;
+      color: var(--md-default-fg-color);
+    }
+
+    .md-header__button.md-logo img {
+      height: 30px;
+      max-height: 30px;
+      width: auto;
+      vertical-align: middle;
+    }
+
+    .md-nav--secondary .md-nav__item--nested > .md-nav__link::before {
+      content: "";
+      display: inline-block;
+      width: 6px;
+      height: 6px;
+      background-color: var(--md-default-fg-color);
+      border-radius: 50%;
+      margin-right: 0.5rem;
+    }
+
+    [data-md-color-scheme="slate"] {
+      --md-default-bg-color: #1E1E1E;
+      --md-default-fg-color: #FFFFFF;
+      --md-accent-fg-color: #64B5F6;
+    }
+
+    [data-md-color-scheme="slate"] .md-main {
+      background-color: #1E1E1E;
+    }
+
+    [data-md-color-scheme="slate"] .navbar {
+      background-color: #1E1E1E;
+      color: #FFFFFF;
+      box-shadow: none;
+    }
+
+    [data-md-color-scheme="slate"] .md-footer {
+      background-color: #1E1E1E;
+      color: #BDBDBD;
+    }
+
+    [data-md-color-scheme="slate"] .md-header {
+      background-color: #1E1E1E;
+      color: #BDBDBD;
+    }
+
+    [data-md-color-scheme="slate"] .md-tabs {
+      background-color: #1E1E1E;
+      color: #BDBDBD;
+    }
+
+    [data-md-color-scheme="slate"] .md-search__input {
+      background-color: #F5F5F5;
+      color: #333333;
+    }
+
+    [data-md-color-scheme="slate"] .md-search__icon {
+      color: #333333;
+    }
+
+    [data-md-color-scheme="slate"] .md-search__input::placeholder {
+      color: #333333;
+    }
+
+    [data-md-color-scheme="slate"] .md-footer-meta {
+      background-color: #4d4d4d;
+    }
+
+    [data-md-color-scheme="slate"] .md-typeset a {
+      color: #64B5F6;
+    }
+
+    [data-md-color-scheme="slate"] .md-typeset a:hover {
+      color: #90CAF9;
+    }
+
+    .notebook-links {
+      display: flex;
+      justify-content: flex-end;
+      margin-bottom: 1rem;
+    }
+    .notebook-links .md-content__button {
+      margin-left: 0.5rem;
+    }
+
+    [data-md-color-scheme=default] .logo-dark {
+      display: none !important;
+    }
+
+    [data-md-color-scheme=slate] .logo-light {
+      display: none !important;
+    }
+
+    .jupyter-wrapper .jp-CodeCell .jp-Cell-inputWrapper .jp-InputPrompt.jp-InputArea-prompt {
+      display: none !important;
+    }
+
+    .jupyter-wrapper .jp-Notebook .jp-Cell .jp-OutputPrompt {
+      display: none !important;
+    }
+
+    .md-banner {
+      background-color: #CFC9FA;
+      color: #000000;
+    }
+
+    .md-banner a {
+      color: #000000;
+      text-decoration: underline;
+    }
+
+    .md-banner a:hover {
+      color: #000000;
+    }
+
+    .md-header__title {
+      visibility: hidden;
+    }
+
+    /* Dark mode banner styling */
+    [data-md-color-scheme="slate"] .md-banner {
+      background-color: #CFC9FA; /* Same light purple for both modes */
+      color: #000000;
+    }
+
+    [data-md-color-scheme="slate"] .md-banner a {
+      color: #000000;
+    }
+
+    [data-md-color-scheme="slate"] .md-banner a:hover {
+      color: #000000;
+    }
+
+  </style>
+
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="blue" data-md-color-accent="blue">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#sage" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../../.." title="SAGE Documentation" class="md-header__button md-logo" aria-label="SAGE Documentation" data-md-component="logo">
+      
+  <img src="../../../assets/logo/sage.svg" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            SAGE Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              SAGE 测试覆盖率改进任务拆分
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="blue" data-md-color-accent="blue"  aria-label="切换到深色模式"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="切换到深色模式" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="blue" data-md-color-accent="blue"  aria-label="切换到浅色模式"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="切换到浅色模式" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+          <a href="javascript:void(0)" class="md-search__icon md-icon" title="分享" aria-label="分享" data-clipboard data-clipboard-text="" data-md-component="search-share" tabindex="-1">
+            
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.15c-.05.21-.08.43-.08.66 0 1.61 1.31 2.91 2.92 2.91s2.92-1.3 2.92-2.91A2.92 2.92 0 0 0 18 16.08"/></svg>
+          </a>
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/intellistream/SAGE" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    intellistream/SAGE
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+    
+      
+<nav class="md-tabs" aria-label="标签" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  首页
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../about/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  关于
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../getting-started/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  入门指南
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../concepts/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  核心概念
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../tutorials/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  高级教程
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../guides/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  用户指南
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../api-reference/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  API 参考
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../developers/commands/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  开发者
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../community/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  社区
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+    
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="SAGE Documentation" class="md-nav__button md-logo" aria-label="SAGE Documentation" data-md-component="logo">
+      
+  <img src="../../../assets/logo/sage.svg" alt="logo">
+
+    </a>
+    SAGE Documentation
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/intellistream/SAGE" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    intellistream/SAGE
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    首页
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../about/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    关于
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../../getting-started/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    入门指南
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../../concepts/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    核心概念
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../tutorials/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    高级教程
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../../guides/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    用户指南
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../../api-reference/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API 参考
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../../developers/commands/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    开发者
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../../community/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    社区
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+                
+
+
+
+  
+
+
+              
+              <article class="md-content__inner md-typeset">
+                
+<div class="notebook-links">
+  
+</div>
+
+
+                  
+
+
+  
+  
+
+
+<h1 id="sage">SAGE 测试覆盖率改进任务拆分<a class="headerlink" href="#sage" title="Permanent link">&para;</a></h1>
+<h2 id="_1">概述<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h2>
+<p>当前系统测试覆盖率仅为 <strong>37%</strong>，需要大幅提升。本文档将测试改进工作拆分为3个相对独立的任务，可以并行分配给3个开发者同时进行。</p>
+<p><strong>总体目标</strong>: 将测试覆盖率从 37% 提升至 70%+</p>
+<p><strong>拆分原则</strong>:</p>
+<ul>
+<li>按架构层级(L1-L6)和功能域划分</li>
+<li>每个任务覆盖率独立计算，避免依赖冲突</li>
+<li>优先测试关键路径和低覆盖率模块（0%-30%）</li>
+<li>每个任务包含单元测试 + 集成测试</li>
+</ul>
+<hr />
+<h2 id="1-l1-l2-sage-common">任务1: L1-L2层基础设施测试 (sage-common)<a class="headerlink" href="#1-l1-l2-sage-common" title="Permanent link">&para;</a></h2>
+<p><strong>负责人</strong>: Developer A\
+<strong>预计工时</strong>: 3-4周\
+<strong>当前覆盖率</strong>: ~25%\
+<strong>目标覆盖率</strong>: 75%+\
+<strong>预期提升</strong>: 整体覆盖率 +15%</p>
+<h3 id="11">1.1 核心目标模块<a class="headerlink" href="#11" title="Permanent link">&para;</a></h3>
+<h4 id="0-30">🔴 <strong>高优先级 (0%-30% 覆盖率)</strong><a class="headerlink" href="#0-30" title="Permanent link">&para;</a></h4>
+<ol>
+<li>
+<p><strong>sage_embedding 嵌入服务组件</strong> (当前 15%-40%)</p>
+</li>
+<li>
+<p>文件清单:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>packages/sage-common/src/sage/common/components/sage_embedding/
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>├── wrappers/
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>│   ├── bedrock_wrapper.py      (40% → 80%)
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>│   ├── cohere_wrapper.py        (53% → 85%)
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>│   ├── hf_wrapper.py            (35% → 80%)
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>│   ├── jina_wrapper.py          (41% → 80%)
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>│   ├── nvidia_openai_wrapper.py (44% → 80%)
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>│   ├── ollama_wrapper.py        (30% → 80%)
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>│   ├── openai_wrapper.py        (38% → 80%)
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>│   ├── siliconcloud_wrapper.py  (40% → 80%)
+<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>│   ├── zhipu_wrapper.py         (51% → 85%)
+<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>├── service.py                   (19% → 75%)
+<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>├── embedding_model.py           (28% → 75%)
+<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>├── factory.py                   (72% → 90%)
+</code></pre></div>
+</li>
+<li>
+<p><strong>测试策略</strong>:</p>
+<ul>
+<li>Mock API调用（使用 <code>unittest.mock</code>, <code>responses</code>, <code>pytest-httpx</code>）</li>
+<li>测试初始化、配置验证、错误处理</li>
+<li>测试嵌入生成、批处理、重试逻辑</li>
+<li>集成测试: 不同wrapper的互换性</li>
+</ul>
+</li>
+<li>
+<p><strong>sage_llm 推理服务</strong> (当前 6%-35%)</p>
+</li>
+<li>
+<p>文件清单:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>packages/sage-llm-core/src/sage/llm/
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>├── control_plane/
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>│   ├── manager.py               (6% → 70%)
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>│   ├── router.py                (18% → 70%)
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>│   ├── executors/
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>│   │   ├── http_client.py       (14% → 70%)
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>│   │   ├── local_async.py       (27% → 75%)
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>│   ├── monitoring.py            (21% → 70%)
+<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>│   ├── parallelism.py           (35% → 75%)
+<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>│   ├── pd_routing.py            (19% → 70%)
+<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>├── control_plane_service.py     (30% → 75%)
+<a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a>├── service.py                   (20% → 75%)
+</code></pre></div>
+</li>
+<li>
+<p><strong>测试策略</strong>:</p>
+<ul>
+<li>Mock vLLM HTTP API</li>
+<li>测试请求路由、负载均衡、故障转移</li>
+<li>测试并行度控制、GPU分配</li>
+<li>集成测试: 完整推理流程模拟</li>
+</ul>
+</li>
+<li>
+<p><strong>参考</strong>: <code>packages/sage-llm-core/src/sage/llm/control_plane/tests/conftest.py</code></p>
+</li>
+<li>
+<p><strong>utils 工具模块</strong> (当前 0%-61%)</p>
+</li>
+<li>
+<p>文件清单:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>packages/sage-common/src/sage/common/utils/
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>├── config/
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>│   ├── manager.py               (0% → 80%)
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>├── network/
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>│   ├── base_tcp_client.py       (18% → 75%)
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>│   ├── local_tcp_server.py      (0% → 70%)
+<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>├── serialization/
+<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>│   ├── preprocessor.py          (0% → 75%)
+<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a>│   ├── ray_trimmer.py           (0% → 70%)
+<a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a>│   ├── config.py                (0% → 75%)
+<a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a>├── system/
+<a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a>│   ├── environment.py           (0% → 75%)
+<a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a>│   ├── network.py               (10% → 75%)
+<a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a>│   ├── process.py               (13% → 75%)
+<a id="__codelineno-2-15" name="__codelineno-2-15" href="#__codelineno-2-15"></a>├── logging/
+<a id="__codelineno-2-16" name="__codelineno-2-16" href="#__codelineno-2-16"></a>│   ├── custom_logger.py         (55% → 85%)
+</code></pre></div>
+</li>
+<li>
+<p><strong>测试策略</strong>:</p>
+<ul>
+<li>Mock系统调用（socket, subprocess, os）</li>
+<li>测试配置加载、合并、验证</li>
+<li>测试序列化/反序列化边界情况</li>
+<li>测试日志格式化、输出</li>
+<li><strong>参考</strong>: <code>packages/sage-common/tests/unit/utils/config/test_loader.py</code></li>
+</ul>
+</li>
+</ol>
+<h4 id="30-60">🟡 <strong>中优先级 (30%-60% 覆盖率)</strong><a class="headerlink" href="#30-60" title="Permanent link">&para;</a></h4>
+<ol>
+<li><strong>service 服务基类</strong> (42%)</li>
+</ol>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>packages/sage-common/src/sage/common/service/base_service.py (42% → 80%)
+</code></pre></div>
+<ol>
+<li><strong>model_registry 模型注册</strong> (85%)</li>
+</ol>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>packages/sage-common/src/sage/common/model_registry/vllm_registry.py (85% → 95%)
+</code></pre></div>
+<h3 id="12">1.2 测试结构<a class="headerlink" href="#12" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>packages/sage-common/tests/
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>├── unit/
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>│   ├── components/
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>│   │   ├── sage_embedding/
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>│   │   │   ├── test_wrappers.py           # 新增
+<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>│   │   │   ├── test_service.py            # 新增
+<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a>│   │   │   ├── test_factory.py            # 扩展
+<a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a>│   │   │   └── conftest.py                # 新增fixtures
+<a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a>│   │   ├── sage_llm/
+<a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a>│   │   │   ├── test_control_plane.py      # 新增
+<a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a>│   │   │   ├── test_router.py             # 新增
+<a id="__codelineno-5-12" name="__codelineno-5-12" href="#__codelineno-5-12"></a>│   │   │   ├── test_executors.py          # 新增
+<a id="__codelineno-5-13" name="__codelineno-5-13" href="#__codelineno-5-13"></a>│   │   │   └── conftest.py                # 新增
+<a id="__codelineno-5-14" name="__codelineno-5-14" href="#__codelineno-5-14"></a>│   ├── utils/
+<a id="__codelineno-5-15" name="__codelineno-5-15" href="#__codelineno-5-15"></a>│   │   ├── config/
+<a id="__codelineno-5-16" name="__codelineno-5-16" href="#__codelineno-5-16"></a>│   │   │   ├── test_manager.py            # 新增
+<a id="__codelineno-5-17" name="__codelineno-5-17" href="#__codelineno-5-17"></a>│   │   ├── network/
+<a id="__codelineno-5-18" name="__codelineno-5-18" href="#__codelineno-5-18"></a>│   │   │   ├── test_tcp_client.py         # 新增
+<a id="__codelineno-5-19" name="__codelineno-5-19" href="#__codelineno-5-19"></a>│   │   │   ├── test_tcp_server.py         # 新增
+<a id="__codelineno-5-20" name="__codelineno-5-20" href="#__codelineno-5-20"></a>│   │   ├── serialization/
+<a id="__codelineno-5-21" name="__codelineno-5-21" href="#__codelineno-5-21"></a>│   │   │   ├── test_preprocessor.py       # 新增
+<a id="__codelineno-5-22" name="__codelineno-5-22" href="#__codelineno-5-22"></a>│   │   │   ├── test_ray_trimmer.py        # 新增
+<a id="__codelineno-5-23" name="__codelineno-5-23" href="#__codelineno-5-23"></a>│   │   ├── system/
+<a id="__codelineno-5-24" name="__codelineno-5-24" href="#__codelineno-5-24"></a>│   │   │   ├── test_environment.py        # 新增
+<a id="__codelineno-5-25" name="__codelineno-5-25" href="#__codelineno-5-25"></a>│   │   │   ├── test_process.py            # 新增
+<a id="__codelineno-5-26" name="__codelineno-5-26" href="#__codelineno-5-26"></a>├── integration/
+<a id="__codelineno-5-27" name="__codelineno-5-27" href="#__codelineno-5-27"></a>│   ├── test_embedding_service_integration.py  # 新增
+<a id="__codelineno-5-28" name="__codelineno-5-28" href="#__codelineno-5-28"></a>│   ├── test_vllm_service_integration.py       # 新增
+<a id="__codelineno-5-29" name="__codelineno-5-29" href="#__codelineno-5-29"></a>│   └── test_config_network_integration.py     # 新增
+</code></pre></div>
+<h3 id="13">1.3 关键测试用例示例<a class="headerlink" href="#13" title="Permanent link">&para;</a></h3>
+<h4 id="embedding-wrapper">Embedding Wrapper测试模板<a class="headerlink" href="#embedding-wrapper" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="c1"># packages/sage-common/tests/unit/components/sage_embedding/test_wrappers.py</span>
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="kn">import</span><span class="w"> </span><span class="nn">pytest</span>
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="kn">from</span><span class="w"> </span><span class="nn">unittest.mock</span><span class="w"> </span><span class="kn">import</span> <span class="n">Mock</span><span class="p">,</span> <span class="n">patch</span>
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="kn">from</span><span class="w"> </span><span class="nn">sage.common.components.sage_embedding.wrappers.openai_wrapper</span><span class="w"> </span><span class="kn">import</span> <span class="n">OpenAIWrapper</span>
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>
+<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a><span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">unit</span>
+<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a><span class="k">class</span><span class="w"> </span><span class="nc">TestOpenAIWrapper</span><span class="p">:</span>
+<a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a>    <span class="k">def</span><span class="w"> </span><span class="nf">test_initialization_with_valid_config</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;测试正确配置下的初始化&quot;&quot;&quot;</span>
+<a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a>        <span class="n">wrapper</span> <span class="o">=</span> <span class="n">OpenAIWrapper</span><span class="p">(</span>
+<a id="__codelineno-6-11" name="__codelineno-6-11" href="#__codelineno-6-11"></a>            <span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;test-key&quot;</span><span class="p">,</span>
+<a id="__codelineno-6-12" name="__codelineno-6-12" href="#__codelineno-6-12"></a>            <span class="n">model_name</span><span class="o">=</span><span class="s2">&quot;text-embedding-ada-002&quot;</span>
+<a id="__codelineno-6-13" name="__codelineno-6-13" href="#__codelineno-6-13"></a>        <span class="p">)</span>
+<a id="__codelineno-6-14" name="__codelineno-6-14" href="#__codelineno-6-14"></a>        <span class="k">assert</span> <span class="n">wrapper</span><span class="o">.</span><span class="n">model_name</span> <span class="o">==</span> <span class="s2">&quot;text-embedding-ada-002&quot;</span>
+<a id="__codelineno-6-15" name="__codelineno-6-15" href="#__codelineno-6-15"></a>
+<a id="__codelineno-6-16" name="__codelineno-6-16" href="#__codelineno-6-16"></a>    <span class="nd">@patch</span><span class="p">(</span><span class="s1">&#39;openai.Embedding.create&#39;</span><span class="p">)</span>
+<a id="__codelineno-6-17" name="__codelineno-6-17" href="#__codelineno-6-17"></a>    <span class="k">def</span><span class="w"> </span><span class="nf">test_embed_documents_success</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mock_create</span><span class="p">):</span>
+<a id="__codelineno-6-18" name="__codelineno-6-18" href="#__codelineno-6-18"></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;测试文档嵌入成功场景&quot;&quot;&quot;</span>
+<a id="__codelineno-6-19" name="__codelineno-6-19" href="#__codelineno-6-19"></a>        <span class="n">mock_create</span><span class="o">.</span><span class="n">return_value</span> <span class="o">=</span> <span class="n">Mock</span><span class="p">(</span>
+<a id="__codelineno-6-20" name="__codelineno-6-20" href="#__codelineno-6-20"></a>            <span class="n">data</span><span class="o">=</span><span class="p">[</span><span class="n">Mock</span><span class="p">(</span><span class="n">embedding</span><span class="o">=</span><span class="p">[</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">])]</span>
+<a id="__codelineno-6-21" name="__codelineno-6-21" href="#__codelineno-6-21"></a>        <span class="p">)</span>
+<a id="__codelineno-6-22" name="__codelineno-6-22" href="#__codelineno-6-22"></a>
+<a id="__codelineno-6-23" name="__codelineno-6-23" href="#__codelineno-6-23"></a>        <span class="n">wrapper</span> <span class="o">=</span> <span class="n">OpenAIWrapper</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;test-key&quot;</span><span class="p">)</span>
+<a id="__codelineno-6-24" name="__codelineno-6-24" href="#__codelineno-6-24"></a>        <span class="n">result</span> <span class="o">=</span> <span class="n">wrapper</span><span class="o">.</span><span class="n">embed_documents</span><span class="p">([</span><span class="s2">&quot;test doc&quot;</span><span class="p">])</span>
+<a id="__codelineno-6-25" name="__codelineno-6-25" href="#__codelineno-6-25"></a>
+<a id="__codelineno-6-26" name="__codelineno-6-26" href="#__codelineno-6-26"></a>        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">result</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span>
+<a id="__codelineno-6-27" name="__codelineno-6-27" href="#__codelineno-6-27"></a>        <span class="k">assert</span> <span class="n">result</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="p">[</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">]</span>
+<a id="__codelineno-6-28" name="__codelineno-6-28" href="#__codelineno-6-28"></a>
+<a id="__codelineno-6-29" name="__codelineno-6-29" href="#__codelineno-6-29"></a>    <span class="nd">@patch</span><span class="p">(</span><span class="s1">&#39;openai.Embedding.create&#39;</span><span class="p">)</span>
+<a id="__codelineno-6-30" name="__codelineno-6-30" href="#__codelineno-6-30"></a>    <span class="k">def</span><span class="w"> </span><span class="nf">test_embed_documents_with_retry</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mock_create</span><span class="p">):</span>
+<a id="__codelineno-6-31" name="__codelineno-6-31" href="#__codelineno-6-31"></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;测试重试逻辑&quot;&quot;&quot;</span>
+<a id="__codelineno-6-32" name="__codelineno-6-32" href="#__codelineno-6-32"></a>        <span class="n">mock_create</span><span class="o">.</span><span class="n">side_effect</span> <span class="o">=</span> <span class="p">[</span>
+<a id="__codelineno-6-33" name="__codelineno-6-33" href="#__codelineno-6-33"></a>            <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Rate limit&quot;</span><span class="p">),</span>
+<a id="__codelineno-6-34" name="__codelineno-6-34" href="#__codelineno-6-34"></a>            <span class="n">Mock</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="p">[</span><span class="n">Mock</span><span class="p">(</span><span class="n">embedding</span><span class="o">=</span><span class="p">[</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">])])</span>
+<a id="__codelineno-6-35" name="__codelineno-6-35" href="#__codelineno-6-35"></a>        <span class="p">]</span>
+<a id="__codelineno-6-36" name="__codelineno-6-36" href="#__codelineno-6-36"></a>
+<a id="__codelineno-6-37" name="__codelineno-6-37" href="#__codelineno-6-37"></a>        <span class="n">wrapper</span> <span class="o">=</span> <span class="n">OpenAIWrapper</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;test-key&quot;</span><span class="p">,</span> <span class="n">max_retries</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<a id="__codelineno-6-38" name="__codelineno-6-38" href="#__codelineno-6-38"></a>        <span class="n">result</span> <span class="o">=</span> <span class="n">wrapper</span><span class="o">.</span><span class="n">embed_documents</span><span class="p">([</span><span class="s2">&quot;test&quot;</span><span class="p">])</span>
+<a id="__codelineno-6-39" name="__codelineno-6-39" href="#__codelineno-6-39"></a>
+<a id="__codelineno-6-40" name="__codelineno-6-40" href="#__codelineno-6-40"></a>        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">result</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span>
+<a id="__codelineno-6-41" name="__codelineno-6-41" href="#__codelineno-6-41"></a>        <span class="k">assert</span> <span class="n">mock_create</span><span class="o">.</span><span class="n">call_count</span> <span class="o">==</span> <span class="mi">2</span>
+</code></pre></div>
+<h4 id="vllm-router">vLLM Router测试模板<a class="headerlink" href="#vllm-router" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="c1"># packages/sage-llm-core/tests/unit/control_plane/test_router.py</span>
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="kn">import</span><span class="w"> </span><span class="nn">pytest</span>
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="kn">from</span><span class="w"> </span><span class="nn">unittest.mock</span><span class="w"> </span><span class="kn">import</span> <span class="n">AsyncMock</span><span class="p">,</span> <span class="n">patch</span>
+<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="kn">from</span><span class="w"> </span><span class="nn">sage.llm.control_plane.router</span><span class="w"> </span><span class="kn">import</span> <span class="n">Router</span>
+<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a>
+<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a><span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">unit</span>
+<a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a><span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">asyncio</span>
+<a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a><span class="k">class</span><span class="w"> </span><span class="nc">TestRouter</span><span class="p">:</span>
+<a id="__codelineno-7-9" name="__codelineno-7-9" href="#__codelineno-7-9"></a>    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">test_route_request_to_available_instance</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<a id="__codelineno-7-10" name="__codelineno-7-10" href="#__codelineno-7-10"></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;测试请求路由到可用实例&quot;&quot;&quot;</span>
+<a id="__codelineno-7-11" name="__codelineno-7-11" href="#__codelineno-7-11"></a>        <span class="n">router</span> <span class="o">=</span> <span class="n">Router</span><span class="p">(</span><span class="n">policy</span><span class="o">=</span><span class="s2">&quot;round_robin&quot;</span><span class="p">)</span>
+<a id="__codelineno-7-12" name="__codelineno-7-12" href="#__codelineno-7-12"></a>
+<a id="__codelineno-7-13" name="__codelineno-7-13" href="#__codelineno-7-13"></a>        <span class="c1"># Mock instances</span>
+<a id="__codelineno-7-14" name="__codelineno-7-14" href="#__codelineno-7-14"></a>        <span class="n">instance1</span> <span class="o">=</span> <span class="n">Mock</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="s2">&quot;inst-1&quot;</span><span class="p">,</span> <span class="n">is_available</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<a id="__codelineno-7-15" name="__codelineno-7-15" href="#__codelineno-7-15"></a>        <span class="n">instance2</span> <span class="o">=</span> <span class="n">Mock</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="s2">&quot;inst-2&quot;</span><span class="p">,</span> <span class="n">is_available</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<a id="__codelineno-7-16" name="__codelineno-7-16" href="#__codelineno-7-16"></a>        <span class="n">router</span><span class="o">.</span><span class="n">_instances</span> <span class="o">=</span> <span class="p">[</span><span class="n">instance1</span><span class="p">,</span> <span class="n">instance2</span><span class="p">]</span>
+<a id="__codelineno-7-17" name="__codelineno-7-17" href="#__codelineno-7-17"></a>
+<a id="__codelineno-7-18" name="__codelineno-7-18" href="#__codelineno-7-18"></a>        <span class="n">selected</span> <span class="o">=</span> <span class="k">await</span> <span class="n">router</span><span class="o">.</span><span class="n">route_request</span><span class="p">({</span><span class="s2">&quot;prompt&quot;</span><span class="p">:</span> <span class="s2">&quot;test&quot;</span><span class="p">})</span>
+<a id="__codelineno-7-19" name="__codelineno-7-19" href="#__codelineno-7-19"></a>        <span class="k">assert</span> <span class="n">selected</span><span class="o">.</span><span class="n">id</span> <span class="o">==</span> <span class="s2">&quot;inst-1&quot;</span>
+<a id="__codelineno-7-20" name="__codelineno-7-20" href="#__codelineno-7-20"></a>
+<a id="__codelineno-7-21" name="__codelineno-7-21" href="#__codelineno-7-21"></a>    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">test_route_request_no_available_instance</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<a id="__codelineno-7-22" name="__codelineno-7-22" href="#__codelineno-7-22"></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;测试无可用实例时的处理&quot;&quot;&quot;</span>
+<a id="__codelineno-7-23" name="__codelineno-7-23" href="#__codelineno-7-23"></a>        <span class="n">router</span> <span class="o">=</span> <span class="n">Router</span><span class="p">()</span>
+<a id="__codelineno-7-24" name="__codelineno-7-24" href="#__codelineno-7-24"></a>        <span class="n">router</span><span class="o">.</span><span class="n">_instances</span> <span class="o">=</span> <span class="p">[]</span>
+<a id="__codelineno-7-25" name="__codelineno-7-25" href="#__codelineno-7-25"></a>
+<a id="__codelineno-7-26" name="__codelineno-7-26" href="#__codelineno-7-26"></a>        <span class="k">with</span> <span class="n">pytest</span><span class="o">.</span><span class="n">raises</span><span class="p">(</span><span class="ne">RuntimeError</span><span class="p">,</span> <span class="n">match</span><span class="o">=</span><span class="s2">&quot;No available instances&quot;</span><span class="p">):</span>
+<a id="__codelineno-7-27" name="__codelineno-7-27" href="#__codelineno-7-27"></a>            <span class="k">await</span> <span class="n">router</span><span class="o">.</span><span class="n">route_request</span><span class="p">({</span><span class="s2">&quot;prompt&quot;</span><span class="p">:</span> <span class="s2">&quot;test&quot;</span><span class="p">})</span>
+</code></pre></div>
+<h3 id="14">1.4 工作检查清单<a class="headerlink" href="#14" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] 为所有 wrapper 创建 Mock 测试（9个wrapper）</li>
+<li>[ ] 实现 embedding service 集成测试</li>
+<li>[ ] 完成 vLLM control plane 单元测试</li>
+<li>[ ] 实现 vLLM 异步执行器测试</li>
+<li>[ ] 完成 config manager 测试</li>
+<li>[ ] 实现 TCP client/server Mock测试</li>
+<li>[ ] 完成 serialization 边界测试</li>
+<li>[ ] 实现 system utils Mock测试</li>
+<li>[ ] 运行覆盖率报告并验证达标</li>
+</ul>
+<hr />
+<h2 id="2-l3-l4-sage-kernel-sage-middleware">任务2: L3-L4层核心引擎测试 (sage-kernel + sage-middleware部分)<a class="headerlink" href="#2-l3-l4-sage-kernel-sage-middleware" title="Permanent link">&para;</a></h2>
+<p><strong>负责人</strong>: Developer B\
+<strong>预计工时</strong>: 4-5周\
+<strong>当前覆盖率</strong>: ~35%\
+<strong>目标覆盖率</strong>: 75%+\
+<strong>预期提升</strong>: 整体覆盖率 +18%</p>
+<h3 id="21">2.1 核心目标模块<a class="headerlink" href="#21" title="Permanent link">&para;</a></h3>
+<h4 id="0-40">🔴 <strong>高优先级 (0%-40% 覆盖率)</strong><a class="headerlink" href="#0-40" title="Permanent link">&para;</a></h4>
+<ol>
+<li>
+<p><strong>sage-kernel 运行时核心</strong> (当前 10%-60%)</p>
+</li>
+<li>
+<p>文件清单:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>packages/sage-kernel/src/sage/kernel/
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>├── runtime/
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>│   ├── dispatcher.py                   (51% → 85%)
+<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>│   ├── job_manager.py                  (47% → 80%)
+<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a>│   ├── job_manager_server.py           (22% → 75%)
+<a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a>│   ├── jobmanager_client.py            (36% → 75%)
+<a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a>│   ├── heartbeat_monitor.py            (10% → 70%)
+<a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a>│   ├── service/
+<a id="__codelineno-8-9" name="__codelineno-8-9" href="#__codelineno-8-9"></a>│   │   ├── base_service_task.py        (49% → 80%)
+<a id="__codelineno-8-10" name="__codelineno-8-10" href="#__codelineno-8-10"></a>│   │   ├── ray_service_task.py         (0% → 70%)
+<a id="__codelineno-8-11" name="__codelineno-8-11" href="#__codelineno-8-11"></a>│   │   ├── service_caller.py           (60% → 85%)
+<a id="__codelineno-8-12" name="__codelineno-8-12" href="#__codelineno-8-12"></a>│   ├── task/
+<a id="__codelineno-8-13" name="__codelineno-8-13" href="#__codelineno-8-13"></a>│   │   ├── base_task.py                (49% → 80%)
+<a id="__codelineno-8-14" name="__codelineno-8-14" href="#__codelineno-8-14"></a>│   │   ├── ray_task.py                 (56% → 80%)
+<a id="__codelineno-8-15" name="__codelineno-8-15" href="#__codelineno-8-15"></a>│   ├── communication/
+<a id="__codelineno-8-16" name="__codelineno-8-16" href="#__codelineno-8-16"></a>│   │   ├── rpc/rpc_queue.py            (27% → 75%)
+<a id="__codelineno-8-17" name="__codelineno-8-17" href="#__codelineno-8-17"></a>│   ├── monitoring/
+<a id="__codelineno-8-18" name="__codelineno-8-18" href="#__codelineno-8-18"></a>│   │   ├── metrics_reporter.py         (14% → 70%)
+</code></pre></div>
+</li>
+<li>
+<p><strong>测试策略</strong>:</p>
+<ul>
+<li>Mock Ray Actor/分布式调用</li>
+<li>测试任务调度、执行、失败恢复</li>
+<li>测试心跳监控、超时处理</li>
+<li>测试RPC通信、消息队列</li>
+<li>集成测试: 端到端任务执行流程</li>
+</ul>
+</li>
+<li>
+<p><strong>sage-kernel API层</strong> (当前 11%-60%)</p>
+</li>
+<li>
+<p>文件清单:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>packages/sage-kernel/src/sage/kernel/api/
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>├── base_environment.py                 (53% → 80%)
+<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>├── local_environment.py                (47% → 80%)
+<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a>├── remote_environment.py               (11% → 70%)
+<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a>├── connected_streams.py                (37% → 75%)
+<a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a>├── datastream.py                       (60% → 85%)
+<a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a>├── operator/
+<a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a>│   ├── base_operator.py                (37% → 75%)
+<a id="__codelineno-9-9" name="__codelineno-9-9" href="#__codelineno-9-9"></a>│   ├── comap_operator.py               (26% → 75%)
+<a id="__codelineno-9-10" name="__codelineno-9-10" href="#__codelineno-9-10"></a>│   ├── filter_operator.py              (26% → 75%)
+<a id="__codelineno-9-11" name="__codelineno-9-11" href="#__codelineno-9-11"></a>│   ├── flatmap_operator.py             (17% → 75%)
+<a id="__codelineno-9-12" name="__codelineno-9-12" href="#__codelineno-9-12"></a>│   ├── join_operator.py                (11% → 70%)
+<a id="__codelineno-9-13" name="__codelineno-9-13" href="#__codelineno-9-13"></a>│   ├── keyby_operator.py               (25% → 75%)
+<a id="__codelineno-9-14" name="__codelineno-9-14" href="#__codelineno-9-14"></a>│   ├── source_operator.py              (17% → 70%)
+<a id="__codelineno-9-15" name="__codelineno-9-15" href="#__codelineno-9-15"></a>├── function/
+<a id="__codelineno-9-16" name="__codelineno-9-16" href="#__codelineno-9-16"></a>│   ├── simple_batch_function.py        (26% → 75%)
+<a id="__codelineno-9-17" name="__codelineno-9-17" href="#__codelineno-9-17"></a>├── service/
+<a id="__codelineno-9-18" name="__codelineno-9-18" href="#__codelineno-9-18"></a>│   ├── base_service.py                 (0% → 75%)
+<a id="__codelineno-9-19" name="__codelineno-9-19" href="#__codelineno-9-19"></a>│   ├── pipeline_service/               (0% → 70%)
+</code></pre></div>
+</li>
+<li>
+<p><strong>测试策略</strong>:</p>
+<ul>
+<li>测试 Environment 创建、配置</li>
+<li>测试 DataStream API 链式调用</li>
+<li>测试各类 Operator 的数据处理逻辑</li>
+<li>测试本地/远程执行切换</li>
+<li>集成测试: 完整 Pipeline 执行</li>
+<li><strong>参考</strong>: <code>packages/sage-kernel/tests/unit/core/conftest.py</code> 中的 <code>IntegrationTestHelper</code></li>
+</ul>
+</li>
+<li>
+<p><strong>sage-kernel 容错机制</strong> (当前 17%-64%)</p>
+</li>
+<li>
+<p>文件清单:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>packages/sage-kernel/src/sage/kernel/fault_tolerance/
+<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>├── impl/
+<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>│   ├── checkpoint_impl.py              (19% → 75%)
+<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a>│   ├── checkpoint_recovery.py          (17% → 70%)
+<a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a>│   ├── restart_recovery.py             (31% → 75%)
+<a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a>│   ├── restart_strategy.py             (54% → 80%)
+<a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a>│   ├── lifecycle_impl.py               (55% → 80%)
+<a id="__codelineno-10-8" name="__codelineno-10-8" href="#__codelineno-10-8"></a>├── factory.py                          (33% → 75%)
+</code></pre></div>
+</li>
+<li>
+<p><strong>测试策略</strong>:</p>
+<ul>
+<li>Mock 检查点存储（文件系统/数据库）</li>
+<li>测试故障检测、重启策略</li>
+<li>测试状态恢复、数据一致性</li>
+<li>集成测试: 模拟故障场景</li>
+</ul>
+</li>
+<li>
+<p><strong>sage-middleware 中间件算法</strong> (当前 20%-32%)</p>
+</li>
+<li>
+<p>文件清单:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>packages/sage-middleware/src/sage/middleware/components/
+<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>├── sage_tsdb/python/
+<a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>│   ├── algorithms/
+<a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a>│   │   ├── out_of_order_join.py        (32% → 75%)
+<a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a>│   │   ├── window_aggregator.py        (20% → 75%)
+<a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a>│   ├── sage_tsdb.py                    (29% → 75%)
+<a id="__codelineno-11-7" name="__codelineno-11-7" href="#__codelineno-11-7"></a>│   ├── micro_service/sage_tsdb_service.py (32% → 75%)
+<a id="__codelineno-11-8" name="__codelineno-11-8" href="#__codelineno-11-8"></a>├── sage_flow/python/
+<a id="__codelineno-11-9" name="__codelineno-11-9" href="#__codelineno-11-9"></a>│   ├── sage_flow.py                    (58% → 85%)
+<a id="__codelineno-11-10" name="__codelineno-11-10" href="#__codelineno-11-10"></a>│   ├── micro_service/sage_flow_service.py (0% → 70%)
+</code></pre></div>
+</li>
+<li>
+<p><strong>测试策略</strong>:</p>
+<ul>
+<li>测试时序数据乱序Join算法</li>
+<li>测试窗口聚合逻辑</li>
+<li>测试流式处理边界条件</li>
+<li>集成测试: 完整TSDB流程</li>
+</ul>
+</li>
+</ol>
+<h4 id="_2">🟡 <strong>中优先级</strong><a class="headerlink" href="#_2" title="Permanent link">&para;</a></h4>
+<ol>
+<li><strong>sage-kernel 调度器</strong> (当前 72%-95%)
+   <div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>packages/sage-kernel/src/sage/kernel/scheduler/
+<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>├── node_selector.py                    (72% → 85%)
+<a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a>├── impl/resource_aware_scheduler.py    (90% → 95%)
+</code></pre></div></li>
+</ol>
+<h3 id="22">2.2 测试结构<a class="headerlink" href="#22" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>packages/sage-kernel/tests/
+<a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a>├── unit/
+<a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a>│   ├── runtime/
+<a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a>│   │   ├── test_dispatcher.py              # 扩展
+<a id="__codelineno-13-5" name="__codelineno-13-5" href="#__codelineno-13-5"></a>│   │   ├── test_job_manager.py             # 新增
+<a id="__codelineno-13-6" name="__codelineno-13-6" href="#__codelineno-13-6"></a>│   │   ├── test_heartbeat_monitor.py       # 新增
+<a id="__codelineno-13-7" name="__codelineno-13-7" href="#__codelineno-13-7"></a>│   │   ├── service/
+<a id="__codelineno-13-8" name="__codelineno-13-8" href="#__codelineno-13-8"></a>│   │   │   ├── test_service_task.py        # 新增
+<a id="__codelineno-13-9" name="__codelineno-13-9" href="#__codelineno-13-9"></a>│   │   │   ├── test_ray_service_task.py    # 新增
+<a id="__codelineno-13-10" name="__codelineno-13-10" href="#__codelineno-13-10"></a>│   │   ├── task/
+<a id="__codelineno-13-11" name="__codelineno-13-11" href="#__codelineno-13-11"></a>│   │   │   ├── test_base_task.py           # 扩展
+<a id="__codelineno-13-12" name="__codelineno-13-12" href="#__codelineno-13-12"></a>│   │   │   ├── test_ray_task.py            # 扩展
+<a id="__codelineno-13-13" name="__codelineno-13-13" href="#__codelineno-13-13"></a>│   ├── api/
+<a id="__codelineno-13-14" name="__codelineno-13-14" href="#__codelineno-13-14"></a>│   │   ├── test_environments.py            # 扩展
+<a id="__codelineno-13-15" name="__codelineno-13-15" href="#__codelineno-13-15"></a>│   │   ├── test_operators.py               # 新增
+<a id="__codelineno-13-16" name="__codelineno-13-16" href="#__codelineno-13-16"></a>│   │   ├── test_service.py                 # 新增
+<a id="__codelineno-13-17" name="__codelineno-13-17" href="#__codelineno-13-17"></a>│   ├── fault_tolerance/
+<a id="__codelineno-13-18" name="__codelineno-13-18" href="#__codelineno-13-18"></a>│   │   ├── test_checkpoint.py              # 新增
+<a id="__codelineno-13-19" name="__codelineno-13-19" href="#__codelineno-13-19"></a>│   │   ├── test_recovery.py                # 新增
+<a id="__codelineno-13-20" name="__codelineno-13-20" href="#__codelineno-13-20"></a>│   │   └── conftest.py                     # 新增fixtures
+<a id="__codelineno-13-21" name="__codelineno-13-21" href="#__codelineno-13-21"></a>├── integration/
+<a id="__codelineno-13-22" name="__codelineno-13-22" href="#__codelineno-13-22"></a>│   ├── test_pipeline_execution.py          # 扩展
+<a id="__codelineno-13-23" name="__codelineno-13-23" href="#__codelineno-13-23"></a>│   ├── test_fault_tolerance_e2e.py         # 新增
+<a id="__codelineno-13-24" name="__codelineno-13-24" href="#__codelineno-13-24"></a>│   ├── test_distributed_task.py            # 新增
+<a id="__codelineno-13-25" name="__codelineno-13-25" href="#__codelineno-13-25"></a>
+<a id="__codelineno-13-26" name="__codelineno-13-26" href="#__codelineno-13-26"></a>packages/sage-middleware/tests/
+<a id="__codelineno-13-27" name="__codelineno-13-27" href="#__codelineno-13-27"></a>├── components/
+<a id="__codelineno-13-28" name="__codelineno-13-28" href="#__codelineno-13-28"></a>│   ├── sage_tsdb/
+<a id="__codelineno-13-29" name="__codelineno-13-29" href="#__codelineno-13-29"></a>│   │   ├── test_algorithms.py              # 新增
+<a id="__codelineno-13-30" name="__codelineno-13-30" href="#__codelineno-13-30"></a>│   │   ├── test_service.py                 # 新增
+<a id="__codelineno-13-31" name="__codelineno-13-31" href="#__codelineno-13-31"></a>│   ├── sage_flow/
+<a id="__codelineno-13-32" name="__codelineno-13-32" href="#__codelineno-13-32"></a>│   │   ├── test_flow_service.py            # 新增
+</code></pre></div>
+<h3 id="23">2.3 关键测试用例示例<a class="headerlink" href="#23" title="Permanent link">&para;</a></h3>
+<h4 id="dispatcher">Dispatcher测试模板<a class="headerlink" href="#dispatcher" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="c1"># packages/sage-kernel/tests/unit/runtime/test_dispatcher.py</span>
+<a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a><span class="kn">import</span><span class="w"> </span><span class="nn">pytest</span>
+<a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a><span class="kn">from</span><span class="w"> </span><span class="nn">unittest.mock</span><span class="w"> </span><span class="kn">import</span> <span class="n">Mock</span><span class="p">,</span> <span class="n">AsyncMock</span>
+<a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a><span class="kn">from</span><span class="w"> </span><span class="nn">sage.kernel.runtime.dispatcher</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dispatcher</span>
+<a id="__codelineno-14-5" name="__codelineno-14-5" href="#__codelineno-14-5"></a>
+<a id="__codelineno-14-6" name="__codelineno-14-6" href="#__codelineno-14-6"></a><span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">unit</span>
+<a id="__codelineno-14-7" name="__codelineno-14-7" href="#__codelineno-14-7"></a><span class="k">class</span><span class="w"> </span><span class="nc">TestDispatcher</span><span class="p">:</span>
+<a id="__codelineno-14-8" name="__codelineno-14-8" href="#__codelineno-14-8"></a>    <span class="k">def</span><span class="w"> </span><span class="nf">test_dispatch_task_to_local</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<a id="__codelineno-14-9" name="__codelineno-14-9" href="#__codelineno-14-9"></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;测试本地任务分发&quot;&quot;&quot;</span>
+<a id="__codelineno-14-10" name="__codelineno-14-10" href="#__codelineno-14-10"></a>        <span class="n">dispatcher</span> <span class="o">=</span> <span class="n">Dispatcher</span><span class="p">()</span>
+<a id="__codelineno-14-11" name="__codelineno-14-11" href="#__codelineno-14-11"></a>        <span class="n">task</span> <span class="o">=</span> <span class="n">Mock</span><span class="p">(</span><span class="n">spec</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;execute&#39;</span><span class="p">],</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;test_task&quot;</span><span class="p">)</span>
+<a id="__codelineno-14-12" name="__codelineno-14-12" href="#__codelineno-14-12"></a>        <span class="n">task</span><span class="o">.</span><span class="n">execute</span> <span class="o">=</span> <span class="n">Mock</span><span class="p">(</span><span class="n">return_value</span><span class="o">=</span><span class="s2">&quot;result&quot;</span><span class="p">)</span>
+<a id="__codelineno-14-13" name="__codelineno-14-13" href="#__codelineno-14-13"></a>
+<a id="__codelineno-14-14" name="__codelineno-14-14" href="#__codelineno-14-14"></a>        <span class="n">result</span> <span class="o">=</span> <span class="n">dispatcher</span><span class="o">.</span><span class="n">dispatch</span><span class="p">(</span><span class="n">task</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;local&quot;</span><span class="p">)</span>
+<a id="__codelineno-14-15" name="__codelineno-14-15" href="#__codelineno-14-15"></a>        <span class="k">assert</span> <span class="n">result</span> <span class="o">==</span> <span class="s2">&quot;result&quot;</span>
+<a id="__codelineno-14-16" name="__codelineno-14-16" href="#__codelineno-14-16"></a>        <span class="n">task</span><span class="o">.</span><span class="n">execute</span><span class="o">.</span><span class="n">assert_called_once</span><span class="p">()</span>
+<a id="__codelineno-14-17" name="__codelineno-14-17" href="#__codelineno-14-17"></a>
+<a id="__codelineno-14-18" name="__codelineno-14-18" href="#__codelineno-14-18"></a>    <span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">asyncio</span>
+<a id="__codelineno-14-19" name="__codelineno-14-19" href="#__codelineno-14-19"></a>    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">test_dispatch_task_to_remote_ray</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<a id="__codelineno-14-20" name="__codelineno-14-20" href="#__codelineno-14-20"></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;测试Ray远程任务分发&quot;&quot;&quot;</span>
+<a id="__codelineno-14-21" name="__codelineno-14-21" href="#__codelineno-14-21"></a>        <span class="n">dispatcher</span> <span class="o">=</span> <span class="n">Dispatcher</span><span class="p">()</span>
+<a id="__codelineno-14-22" name="__codelineno-14-22" href="#__codelineno-14-22"></a>
+<a id="__codelineno-14-23" name="__codelineno-14-23" href="#__codelineno-14-23"></a>        <span class="k">with</span> <span class="n">patch</span><span class="p">(</span><span class="s1">&#39;ray.remote&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">mock_ray</span><span class="p">:</span>
+<a id="__codelineno-14-24" name="__codelineno-14-24" href="#__codelineno-14-24"></a>            <span class="n">mock_remote_fn</span> <span class="o">=</span> <span class="n">AsyncMock</span><span class="p">(</span><span class="n">return_value</span><span class="o">=</span><span class="s2">&quot;remote_result&quot;</span><span class="p">)</span>
+<a id="__codelineno-14-25" name="__codelineno-14-25" href="#__codelineno-14-25"></a>            <span class="n">mock_ray</span><span class="o">.</span><span class="n">return_value</span><span class="o">.</span><span class="n">remote</span> <span class="o">=</span> <span class="n">mock_remote_fn</span>
+<a id="__codelineno-14-26" name="__codelineno-14-26" href="#__codelineno-14-26"></a>
+<a id="__codelineno-14-27" name="__codelineno-14-27" href="#__codelineno-14-27"></a>            <span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="n">dispatcher</span><span class="o">.</span><span class="n">dispatch_async</span><span class="p">(</span>
+<a id="__codelineno-14-28" name="__codelineno-14-28" href="#__codelineno-14-28"></a>                <span class="n">task</span><span class="o">=</span><span class="n">Mock</span><span class="p">(),</span>
+<a id="__codelineno-14-29" name="__codelineno-14-29" href="#__codelineno-14-29"></a>                <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;ray&quot;</span>
+<a id="__codelineno-14-30" name="__codelineno-14-30" href="#__codelineno-14-30"></a>            <span class="p">)</span>
+<a id="__codelineno-14-31" name="__codelineno-14-31" href="#__codelineno-14-31"></a>            <span class="k">assert</span> <span class="n">result</span> <span class="o">==</span> <span class="s2">&quot;remote_result&quot;</span>
+</code></pre></div>
+<h4 id="fault-tolerance">Fault Tolerance测试模板<a class="headerlink" href="#fault-tolerance" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a><span class="c1"># packages/sage-kernel/tests/unit/fault_tolerance/test_checkpoint.py</span>
+<a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a><span class="kn">import</span><span class="w"> </span><span class="nn">pytest</span>
+<a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a><span class="kn">from</span><span class="w"> </span><span class="nn">unittest.mock</span><span class="w"> </span><span class="kn">import</span> <span class="n">Mock</span><span class="p">,</span> <span class="n">patch</span>
+<a id="__codelineno-15-4" name="__codelineno-15-4" href="#__codelineno-15-4"></a><span class="kn">from</span><span class="w"> </span><span class="nn">sage.kernel.fault_tolerance.impl.checkpoint_impl</span><span class="w"> </span><span class="kn">import</span> <span class="n">CheckpointImpl</span>
+<a id="__codelineno-15-5" name="__codelineno-15-5" href="#__codelineno-15-5"></a>
+<a id="__codelineno-15-6" name="__codelineno-15-6" href="#__codelineno-15-6"></a><span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">unit</span>
+<a id="__codelineno-15-7" name="__codelineno-15-7" href="#__codelineno-15-7"></a><span class="k">class</span><span class="w"> </span><span class="nc">TestCheckpointImpl</span><span class="p">:</span>
+<a id="__codelineno-15-8" name="__codelineno-15-8" href="#__codelineno-15-8"></a>    <span class="k">def</span><span class="w"> </span><span class="nf">test_save_checkpoint_success</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">):</span>
+<a id="__codelineno-15-9" name="__codelineno-15-9" href="#__codelineno-15-9"></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;测试检查点保存成功&quot;&quot;&quot;</span>
+<a id="__codelineno-15-10" name="__codelineno-15-10" href="#__codelineno-15-10"></a>        <span class="n">checkpoint</span> <span class="o">=</span> <span class="n">CheckpointImpl</span><span class="p">(</span><span class="n">storage_path</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">))</span>
+<a id="__codelineno-15-11" name="__codelineno-15-11" href="#__codelineno-15-11"></a>
+<a id="__codelineno-15-12" name="__codelineno-15-12" href="#__codelineno-15-12"></a>        <span class="n">state</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;counter&quot;</span><span class="p">:</span> <span class="mi">42</span><span class="p">,</span> <span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]}</span>
+<a id="__codelineno-15-13" name="__codelineno-15-13" href="#__codelineno-15-13"></a>        <span class="n">checkpoint_id</span> <span class="o">=</span> <span class="n">checkpoint</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">state</span><span class="p">)</span>
+<a id="__codelineno-15-14" name="__codelineno-15-14" href="#__codelineno-15-14"></a>
+<a id="__codelineno-15-15" name="__codelineno-15-15" href="#__codelineno-15-15"></a>        <span class="k">assert</span> <span class="n">checkpoint_id</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+<a id="__codelineno-15-16" name="__codelineno-15-16" href="#__codelineno-15-16"></a>        <span class="k">assert</span> <span class="p">(</span><span class="n">tmp_path</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">checkpoint_id</span><span class="si">}</span><span class="s2">.ckpt&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span>
+<a id="__codelineno-15-17" name="__codelineno-15-17" href="#__codelineno-15-17"></a>
+<a id="__codelineno-15-18" name="__codelineno-15-18" href="#__codelineno-15-18"></a>    <span class="k">def</span><span class="w"> </span><span class="nf">test_restore_checkpoint_success</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">):</span>
+<a id="__codelineno-15-19" name="__codelineno-15-19" href="#__codelineno-15-19"></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;测试检查点恢复&quot;&quot;&quot;</span>
+<a id="__codelineno-15-20" name="__codelineno-15-20" href="#__codelineno-15-20"></a>        <span class="n">checkpoint</span> <span class="o">=</span> <span class="n">CheckpointImpl</span><span class="p">(</span><span class="n">storage_path</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">))</span>
+<a id="__codelineno-15-21" name="__codelineno-15-21" href="#__codelineno-15-21"></a>
+<a id="__codelineno-15-22" name="__codelineno-15-22" href="#__codelineno-15-22"></a>        <span class="n">original_state</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;key&quot;</span><span class="p">:</span> <span class="s2">&quot;value&quot;</span><span class="p">}</span>
+<a id="__codelineno-15-23" name="__codelineno-15-23" href="#__codelineno-15-23"></a>        <span class="n">ckpt_id</span> <span class="o">=</span> <span class="n">checkpoint</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">original_state</span><span class="p">)</span>
+<a id="__codelineno-15-24" name="__codelineno-15-24" href="#__codelineno-15-24"></a>
+<a id="__codelineno-15-25" name="__codelineno-15-25" href="#__codelineno-15-25"></a>        <span class="n">restored_state</span> <span class="o">=</span> <span class="n">checkpoint</span><span class="o">.</span><span class="n">restore</span><span class="p">(</span><span class="n">ckpt_id</span><span class="p">)</span>
+<a id="__codelineno-15-26" name="__codelineno-15-26" href="#__codelineno-15-26"></a>        <span class="k">assert</span> <span class="n">restored_state</span> <span class="o">==</span> <span class="n">original_state</span>
+<a id="__codelineno-15-27" name="__codelineno-15-27" href="#__codelineno-15-27"></a>
+<a id="__codelineno-15-28" name="__codelineno-15-28" href="#__codelineno-15-28"></a>    <span class="k">def</span><span class="w"> </span><span class="nf">test_checkpoint_cleanup_old_checkpoints</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">):</span>
+<a id="__codelineno-15-29" name="__codelineno-15-29" href="#__codelineno-15-29"></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;测试旧检查点清理&quot;&quot;&quot;</span>
+<a id="__codelineno-15-30" name="__codelineno-15-30" href="#__codelineno-15-30"></a>        <span class="n">checkpoint</span> <span class="o">=</span> <span class="n">CheckpointImpl</span><span class="p">(</span>
+<a id="__codelineno-15-31" name="__codelineno-15-31" href="#__codelineno-15-31"></a>            <span class="n">storage_path</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">),</span>
+<a id="__codelineno-15-32" name="__codelineno-15-32" href="#__codelineno-15-32"></a>            <span class="n">max_checkpoints</span><span class="o">=</span><span class="mi">2</span>
+<a id="__codelineno-15-33" name="__codelineno-15-33" href="#__codelineno-15-33"></a>        <span class="p">)</span>
+<a id="__codelineno-15-34" name="__codelineno-15-34" href="#__codelineno-15-34"></a>
+<a id="__codelineno-15-35" name="__codelineno-15-35" href="#__codelineno-15-35"></a>        <span class="c1"># 创建3个检查点</span>
+<a id="__codelineno-15-36" name="__codelineno-15-36" href="#__codelineno-15-36"></a>        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">):</span>
+<a id="__codelineno-15-37" name="__codelineno-15-37" href="#__codelineno-15-37"></a>            <span class="n">checkpoint</span><span class="o">.</span><span class="n">save</span><span class="p">({</span><span class="s2">&quot;version&quot;</span><span class="p">:</span> <span class="n">i</span><span class="p">})</span>
+<a id="__codelineno-15-38" name="__codelineno-15-38" href="#__codelineno-15-38"></a>
+<a id="__codelineno-15-39" name="__codelineno-15-39" href="#__codelineno-15-39"></a>        <span class="c1"># 验证只保留最新的2个</span>
+<a id="__codelineno-15-40" name="__codelineno-15-40" href="#__codelineno-15-40"></a>        <span class="n">checkpoints</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">tmp_path</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="s2">&quot;*.ckpt&quot;</span><span class="p">))</span>
+<a id="__codelineno-15-41" name="__codelineno-15-41" href="#__codelineno-15-41"></a>        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">checkpoints</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span>
+</code></pre></div>
+<h3 id="24">2.4 工作检查清单<a class="headerlink" href="#24" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] 实现 Dispatcher 完整单元测试</li>
+<li>[ ] 完成 JobManager 测试（含Ray Mock）</li>
+<li>[ ] 实现心跳监控测试</li>
+<li>[ ] 完成 RPC Queue 测试</li>
+<li>[ ] 实现所有 Operator 测试（9个operator）</li>
+<li>[ ] 完成 Environment API 测试</li>
+<li>[ ] 实现 checkpoint/recovery 完整测试</li>
+<li>[ ] 完成 TSDB 算法测试</li>
+<li>[ ] 实现端到端 Pipeline 集成测试</li>
+<li>[ ] 运行覆盖率报告并验证达标</li>
+</ul>
+<hr />
+<h2 id="3-l4-l6-sage-middleware-rag-sage-libs">任务3: L4-L6层应用与算法测试 (sage-middleware RAG + sage-libs)<a class="headerlink" href="#3-l4-l6-sage-middleware-rag-sage-libs" title="Permanent link">&para;</a></h2>
+<p><strong>负责人</strong>: Developer C\
+<strong>预计工时</strong>: 3-4周\
+<strong>当前覆盖率</strong>: ~25%\
+<strong>目标覆盖率</strong>: 70%+\
+<strong>预期提升</strong>: 整体覆盖率 +12%</p>
+<h3 id="31">3.1 核心目标模块<a class="headerlink" href="#31" title="Permanent link">&para;</a></h3>
+<h4 id="0-50">🔴 <strong>高优先级 (0%-50% 覆盖率)</strong><a class="headerlink" href="#0-50" title="Permanent link">&para;</a></h4>
+<ol>
+<li>
+<p><strong>sage-middleware RAG组件</strong> (当前 11%-92%)</p>
+</li>
+<li>
+<p>文件清单:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a>packages/sage-middleware/src/sage/middleware/operators/
+<a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a>├── rag/
+<a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a>│   ├── retriever.py                    (50% → 85%)
+<a id="__codelineno-16-4" name="__codelineno-16-4" href="#__codelineno-16-4"></a>│   ├── reranker.py                     (47% → 80%)
+<a id="__codelineno-16-5" name="__codelineno-16-5" href="#__codelineno-16-5"></a>│   ├── promptor.py                     (61% → 85%)
+<a id="__codelineno-16-6" name="__codelineno-16-6" href="#__codelineno-16-6"></a>│   ├── refiner.py                      (88% → 95%)
+<a id="__codelineno-16-7" name="__codelineno-16-7" href="#__codelineno-16-7"></a>│   ├── generator.py                    (92% → 98%)
+<a id="__codelineno-16-8" name="__codelineno-16-8" href="#__codelineno-16-8"></a>│   ├── evaluate.py                     (92% → 98%)
+<a id="__codelineno-16-9" name="__codelineno-16-9" href="#__codelineno-16-9"></a>│   ├── arxiv.py                        (57% → 85%)
+<a id="__codelineno-16-10" name="__codelineno-16-10" href="#__codelineno-16-10"></a>├── filters/
+<a id="__codelineno-16-11" name="__codelineno-16-11" href="#__codelineno-16-11"></a>│   ├── context_source.py               (15% → 75%)
+<a id="__codelineno-16-12" name="__codelineno-16-12" href="#__codelineno-16-12"></a>│   ├── evaluate_filter.py              (21% → 75%)
+<a id="__codelineno-16-13" name="__codelineno-16-13" href="#__codelineno-16-13"></a>│   ├── tool_filter.py                  (19% → 75%)
+<a id="__codelineno-16-14" name="__codelineno-16-14" href="#__codelineno-16-14"></a>├── llm/
+<a id="__codelineno-16-15" name="__codelineno-16-15" href="#__codelineno-16-15"></a>│   ├── vllm_generator.py               (36% → 75%)
+<a id="__codelineno-16-16" name="__codelineno-16-16" href="#__codelineno-16-16"></a>├── tools/
+<a id="__codelineno-16-17" name="__codelineno-16-17" href="#__codelineno-16-17"></a>│   ├── searcher_tool.py                (11% → 70%)
+<a id="__codelineno-16-18" name="__codelineno-16-18" href="#__codelineno-16-18"></a>│   ├── arxiv_paper_searcher.py         (22% → 75%)
+<a id="__codelineno-16-19" name="__codelineno-16-19" href="#__codelineno-16-19"></a>│   ├── nature_news_fetcher.py          (43% → 75%)
+<a id="__codelineno-16-20" name="__codelineno-16-20" href="#__codelineno-16-20"></a>│   ├── text_detector.py                (39% → 75%)
+<a id="__codelineno-16-21" name="__codelineno-16-21" href="#__codelineno-16-21"></a>│   ├── url_text_extractor.py           (50% → 80%)
+</code></pre></div>
+</li>
+<li>
+<p><strong>测试策略</strong>:</p>
+<ul>
+<li>Mock 向量数据库（FAISS/Milvus/Chroma）</li>
+<li>Mock LLM API调用</li>
+<li>测试检索、重排序、提示生成逻辑</li>
+<li>测试评估指标计算</li>
+<li>集成测试: 完整RAG Pipeline</li>
+<li><strong>参考</strong>: <code>packages/sage-middleware/tests/operators/rag/</code> 现有测试</li>
+</ul>
+</li>
+<li>
+<p><strong>sage-middleware 内存管理 (NeuroMem)</strong> (当前 9%-80%)</p>
+</li>
+<li>
+<p>文件清单:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a>packages/sage-middleware/src/sage/middleware/components/sage_mem/
+<a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a>├── neuromem/
+<a id="__codelineno-17-3" name="__codelineno-17-3" href="#__codelineno-17-3"></a>│   ├── memory_manager.py               (39% → 75%)
+<a id="__codelineno-17-4" name="__codelineno-17-4" href="#__codelineno-17-4"></a>│   ├── memory_collection/
+<a id="__codelineno-17-5" name="__codelineno-17-5" href="#__codelineno-17-5"></a>│   │   ├── kv_collection.py            (9% → 70%)
+<a id="__codelineno-17-6" name="__codelineno-17-6" href="#__codelineno-17-6"></a>│   │   ├── vdb_collection.py           (44% → 80%)
+<a id="__codelineno-17-7" name="__codelineno-17-7" href="#__codelineno-17-7"></a>│   │   ├── base_collection.py          (32% → 75%)
+<a id="__codelineno-17-8" name="__codelineno-17-8" href="#__codelineno-17-8"></a>│   ├── search_engine/
+<a id="__codelineno-17-9" name="__codelineno-17-9" href="#__codelineno-17-9"></a>│   │   ├── vdb_index/faiss_index.py    (35% → 75%)
+<a id="__codelineno-17-10" name="__codelineno-17-10" href="#__codelineno-17-10"></a>│   │   ├── kv_index/bm25s_index.py     (14% → 70%)
+<a id="__codelineno-17-11" name="__codelineno-17-11" href="#__codelineno-17-11"></a>│   ├── storage_engine/
+<a id="__codelineno-17-12" name="__codelineno-17-12" href="#__codelineno-17-12"></a>│   │   ├── metadata_storage.py         (46% → 75%)
+<a id="__codelineno-17-13" name="__codelineno-17-13" href="#__codelineno-17-13"></a>│   │   ├── text_storage.py             (47% → 75%)
+<a id="__codelineno-17-14" name="__codelineno-17-14" href="#__codelineno-17-14"></a>│   │   ├── vector_storage.py           (0% → 70%)
+<a id="__codelineno-17-15" name="__codelineno-17-15" href="#__codelineno-17-15"></a>├── services/
+<a id="__codelineno-17-16" name="__codelineno-17-16" href="#__codelineno-17-16"></a>│   ├── neuromem_vdb.py                 (11% → 70%)
+<a id="__codelineno-17-17" name="__codelineno-17-17" href="#__codelineno-17-17"></a>│   ├── short_term_memory_service.py    (0% → 70%)
+</code></pre></div>
+</li>
+<li>
+<p><strong>测试策略</strong>:</p>
+<ul>
+<li>Mock FAISS/BM25索引</li>
+<li>测试内存集合CRUD操作</li>
+<li>测试索引构建、搜索</li>
+<li>测试存储引擎持久化</li>
+<li>集成测试: 完整内存管理流程</li>
+</ul>
+</li>
+<li>
+<p><strong>sage-libs 算法库 (全0%覆盖率!)</strong></p>
+</li>
+<li>
+<p>文件清单:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a>packages/sage-libs/src/sage/libs/
+<a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a>├── agentic/                            # 全部 0% → 70%
+<a id="__codelineno-18-3" name="__codelineno-18-3" href="#__codelineno-18-3"></a>│   ├── agents/agent.py
+<a id="__codelineno-18-4" name="__codelineno-18-4" href="#__codelineno-18-4"></a>│   ├── agents/bots/
+<a id="__codelineno-18-5" name="__codelineno-18-5" href="#__codelineno-18-5"></a>│   ├── workflow/base.py
+<a id="__codelineno-18-6" name="__codelineno-18-6" href="#__codelineno-18-6"></a>│   ├── workflow/evaluator.py
+<a id="__codelineno-18-7" name="__codelineno-18-7" href="#__codelineno-18-7"></a>│   ├── workflow/constraints.py
+<a id="__codelineno-18-8" name="__codelineno-18-8" href="#__codelineno-18-8"></a>├── foundation/                         # 全部 0% → 70%
+<a id="__codelineno-18-9" name="__codelineno-18-9" href="#__codelineno-18-9"></a>│   ├── context/compression/
+<a id="__codelineno-18-10" name="__codelineno-18-10" href="#__codelineno-18-10"></a>│   ├── io/source.py
+<a id="__codelineno-18-11" name="__codelineno-18-11" href="#__codelineno-18-11"></a>│   ├── io/sink.py
+<a id="__codelineno-18-12" name="__codelineno-18-12" href="#__codelineno-18-12"></a>│   ├── io/batch.py
+<a id="__codelineno-18-13" name="__codelineno-18-13" href="#__codelineno-18-13"></a>│   ├── tools/tool.py
+<a id="__codelineno-18-14" name="__codelineno-18-14" href="#__codelineno-18-14"></a>├── privacy/unlearning/                 # 全部 0% → 70%
+<a id="__codelineno-18-15" name="__codelineno-18-15" href="#__codelineno-18-15"></a>│   ├── algorithms/
+<a id="__codelineno-18-16" name="__codelineno-18-16" href="#__codelineno-18-16"></a>│   ├── dp_unlearning/
+<a id="__codelineno-18-17" name="__codelineno-18-17" href="#__codelineno-18-17"></a>│   ├── evaluation/metrics.py
+<a id="__codelineno-18-18" name="__codelineno-18-18" href="#__codelineno-18-18"></a>├── integrations/                       # 全部 0% → 60%
+<a id="__codelineno-18-19" name="__codelineno-18-19" href="#__codelineno-18-19"></a>│   ├── chroma.py
+<a id="__codelineno-18-20" name="__codelineno-18-20" href="#__codelineno-18-20"></a>│   ├── milvus.py
+<a id="__codelineno-18-21" name="__codelineno-18-21" href="#__codelineno-18-21"></a>│   ├── huggingface.py
+<a id="__codelineno-18-22" name="__codelineno-18-22" href="#__codelineno-18-22"></a>│   ├── openai.py
+<a id="__codelineno-18-23" name="__codelineno-18-23" href="#__codelineno-18-23"></a>├── rag/                                # 全部 0% → 60%
+<a id="__codelineno-18-24" name="__codelineno-18-24" href="#__codelineno-18-24"></a>│   ├── chunk.py
+<a id="__codelineno-18-25" name="__codelineno-18-25" href="#__codelineno-18-25"></a>│   ├── document_loaders.py
+<a id="__codelineno-18-26" name="__codelineno-18-26" href="#__codelineno-18-26"></a>│   ├── types.py
+</code></pre></div>
+</li>
+<li>
+<p><strong>测试策略</strong>:</p>
+<ul>
+<li>Mock 外部集成（OpenAI, HuggingFace, Chroma等）</li>
+<li>测试Agent工作流逻辑</li>
+<li>测试隐私卸载算法正确性</li>
+<li>测试数据加载、分块</li>
+<li><strong>注意</strong>: 这是覆盖率提升的最大增长点</li>
+</ul>
+</li>
+<li>
+<p><strong>sage-middleware Context管理</strong> (当前 20%-83%)</p>
+</li>
+<li>
+<p>文件清单:
+     <div class="highlight"><pre><span></span><code><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a>packages/sage-middleware/src/sage/middleware/context/
+<a id="__codelineno-19-2" name="__codelineno-19-2" href="#__codelineno-19-2"></a>├── model_context.py                    (20% → 75%)
+<a id="__codelineno-19-3" name="__codelineno-19-3" href="#__codelineno-19-3"></a>├── search_session.py                   (49% → 80%)
+<a id="__codelineno-19-4" name="__codelineno-19-4" href="#__codelineno-19-4"></a>├── search_query_results.py             (74% → 90%)
+</code></pre></div></p>
+</li>
+</ol>
+<h3 id="32">3.2 测试结构<a class="headerlink" href="#32" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a>packages/sage-middleware/tests/
+<a id="__codelineno-20-2" name="__codelineno-20-2" href="#__codelineno-20-2"></a>├── operators/
+<a id="__codelineno-20-3" name="__codelineno-20-3" href="#__codelineno-20-3"></a>│   ├── rag/
+<a id="__codelineno-20-4" name="__codelineno-20-4" href="#__codelineno-20-4"></a>│   │   ├── test_retriever.py               # 扩展
+<a id="__codelineno-20-5" name="__codelineno-20-5" href="#__codelineno-20-5"></a>│   │   ├── test_reranker.py                # 扩展
+<a id="__codelineno-20-6" name="__codelineno-20-6" href="#__codelineno-20-6"></a>│   │   ├── test_promptor.py                # 扩展
+<a id="__codelineno-20-7" name="__codelineno-20-7" href="#__codelineno-20-7"></a>│   │   ├── test_arxiv.py                   # 新增
+<a id="__codelineno-20-8" name="__codelineno-20-8" href="#__codelineno-20-8"></a>│   ├── filters/
+<a id="__codelineno-20-9" name="__codelineno-20-9" href="#__codelineno-20-9"></a>│   │   ├── test_context_source.py          # 新增
+<a id="__codelineno-20-10" name="__codelineno-20-10" href="#__codelineno-20-10"></a>│   │   ├── test_filters.py                 # 新增
+<a id="__codelineno-20-11" name="__codelineno-20-11" href="#__codelineno-20-11"></a>│   ├── llm/
+<a id="__codelineno-20-12" name="__codelineno-20-12" href="#__codelineno-20-12"></a>│   │   ├── test_vllm_generator.py          # 新增
+<a id="__codelineno-20-13" name="__codelineno-20-13" href="#__codelineno-20-13"></a>│   ├── tools/
+<a id="__codelineno-20-14" name="__codelineno-20-14" href="#__codelineno-20-14"></a>│   │   ├── test_searcher_tool.py           # 新增
+<a id="__codelineno-20-15" name="__codelineno-20-15" href="#__codelineno-20-15"></a>│   │   ├── test_arxiv_searcher.py          # 新增
+<a id="__codelineno-20-16" name="__codelineno-20-16" href="#__codelineno-20-16"></a>├── components/
+<a id="__codelineno-20-17" name="__codelineno-20-17" href="#__codelineno-20-17"></a>│   ├── sage_mem/
+<a id="__codelineno-20-18" name="__codelineno-20-18" href="#__codelineno-20-18"></a>│   │   ├── test_memory_manager.py          # 新增
+<a id="__codelineno-20-19" name="__codelineno-20-19" href="#__codelineno-20-19"></a>│   │   ├── test_collections.py             # 新增
+<a id="__codelineno-20-20" name="__codelineno-20-20" href="#__codelineno-20-20"></a>│   │   ├── test_search_engine.py           # 新增
+<a id="__codelineno-20-21" name="__codelineno-20-21" href="#__codelineno-20-21"></a>│   │   ├── test_storage_engine.py          # 新增
+<a id="__codelineno-20-22" name="__codelineno-20-22" href="#__codelineno-20-22"></a>│   ├── sage_refiner/
+<a id="__codelineno-20-23" name="__codelineno-20-23" href="#__codelineno-20-23"></a>│   │   ├── test_adapter.py                 # 新增
+<a id="__codelineno-20-24" name="__codelineno-20-24" href="#__codelineno-20-24"></a>│   │   ├── test_service.py                 # 扩展
+<a id="__codelineno-20-25" name="__codelineno-20-25" href="#__codelineno-20-25"></a>├── context/
+<a id="__codelineno-20-26" name="__codelineno-20-26" href="#__codelineno-20-26"></a>│   ├── test_model_context.py               # 新增
+<a id="__codelineno-20-27" name="__codelineno-20-27" href="#__codelineno-20-27"></a>│   ├── test_search_session.py              # 新增
+<a id="__codelineno-20-28" name="__codelineno-20-28" href="#__codelineno-20-28"></a>├── integration/
+<a id="__codelineno-20-29" name="__codelineno-20-29" href="#__codelineno-20-29"></a>│   ├── test_rag_pipeline_e2e.py            # 扩展
+<a id="__codelineno-20-30" name="__codelineno-20-30" href="#__codelineno-20-30"></a>│   ├── test_memory_integration.py          # 新增
+<a id="__codelineno-20-31" name="__codelineno-20-31" href="#__codelineno-20-31"></a>
+<a id="__codelineno-20-32" name="__codelineno-20-32" href="#__codelineno-20-32"></a>packages/sage-libs/tests/
+<a id="__codelineno-20-33" name="__codelineno-20-33" href="#__codelineno-20-33"></a>├── lib/
+<a id="__codelineno-20-34" name="__codelineno-20-34" href="#__codelineno-20-34"></a>│   ├── agentic/
+<a id="__codelineno-20-35" name="__codelineno-20-35" href="#__codelineno-20-35"></a>│   │   ├── agents/
+<a id="__codelineno-20-36" name="__codelineno-20-36" href="#__codelineno-20-36"></a>│   │   │   ├── test_agent.py               # 扩展
+<a id="__codelineno-20-37" name="__codelineno-20-37" href="#__codelineno-20-37"></a>│   │   │   ├── test_bots.py                # 新增
+<a id="__codelineno-20-38" name="__codelineno-20-38" href="#__codelineno-20-38"></a>│   │   ├── workflow/
+<a id="__codelineno-20-39" name="__codelineno-20-39" href="#__codelineno-20-39"></a>│   │   │   ├── test_workflow.py            # 新增
+<a id="__codelineno-20-40" name="__codelineno-20-40" href="#__codelineno-20-40"></a>│   │   │   ├── test_evaluator.py           # 新增
+<a id="__codelineno-20-41" name="__codelineno-20-41" href="#__codelineno-20-41"></a>│   ├── foundation/
+<a id="__codelineno-20-42" name="__codelineno-20-42" href="#__codelineno-20-42"></a>│   │   ├── context/
+<a id="__codelineno-20-43" name="__codelineno-20-43" href="#__codelineno-20-43"></a>│   │   │   ├── test_compression.py         # 新增
+<a id="__codelineno-20-44" name="__codelineno-20-44" href="#__codelineno-20-44"></a>│   │   ├── io/
+<a id="__codelineno-20-45" name="__codelineno-20-45" href="#__codelineno-20-45"></a>│   │   │   ├── test_source.py              # 新增
+<a id="__codelineno-20-46" name="__codelineno-20-46" href="#__codelineno-20-46"></a>│   │   │   ├── test_sink.py                # 新增
+<a id="__codelineno-20-47" name="__codelineno-20-47" href="#__codelineno-20-47"></a>│   │   ├── tools/
+<a id="__codelineno-20-48" name="__codelineno-20-48" href="#__codelineno-20-48"></a>│   │   │   ├── test_tool.py                # 新增
+<a id="__codelineno-20-49" name="__codelineno-20-49" href="#__codelineno-20-49"></a>│   ├── privacy/
+<a id="__codelineno-20-50" name="__codelineno-20-50" href="#__codelineno-20-50"></a>│   │   ├── test_gaussian_unlearning.py     # 新增
+<a id="__codelineno-20-51" name="__codelineno-20-51" href="#__codelineno-20-51"></a>│   │   ├── test_dp_unlearning.py           # 新增
+<a id="__codelineno-20-52" name="__codelineno-20-52" href="#__codelineno-20-52"></a>│   │   ├── test_metrics.py                 # 新增
+<a id="__codelineno-20-53" name="__codelineno-20-53" href="#__codelineno-20-53"></a>│   ├── integrations/
+<a id="__codelineno-20-54" name="__codelineno-20-54" href="#__codelineno-20-54"></a>│   │   ├── test_chroma.py                  # 新增
+<a id="__codelineno-20-55" name="__codelineno-20-55" href="#__codelineno-20-55"></a>│   │   ├── test_milvus.py                  # 新增
+<a id="__codelineno-20-56" name="__codelineno-20-56" href="#__codelineno-20-56"></a>│   │   ├── test_openai.py                  # 新增
+<a id="__codelineno-20-57" name="__codelineno-20-57" href="#__codelineno-20-57"></a>│   ├── rag/
+<a id="__codelineno-20-58" name="__codelineno-20-58" href="#__codelineno-20-58"></a>│   │   ├── test_chunk.py                   # 新增
+<a id="__codelineno-20-59" name="__codelineno-20-59" href="#__codelineno-20-59"></a>│   │   ├── test_document_loaders.py        # 新增
+</code></pre></div>
+<h3 id="33">3.3 关键测试用例示例<a class="headerlink" href="#33" title="Permanent link">&para;</a></h3>
+<h4 id="rag-retriever">RAG Retriever测试模板<a class="headerlink" href="#rag-retriever" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a><span class="c1"># packages/sage-middleware/tests/operators/rag/test_retriever.py</span>
+<a id="__codelineno-21-2" name="__codelineno-21-2" href="#__codelineno-21-2"></a><span class="kn">import</span><span class="w"> </span><span class="nn">pytest</span>
+<a id="__codelineno-21-3" name="__codelineno-21-3" href="#__codelineno-21-3"></a><span class="kn">from</span><span class="w"> </span><span class="nn">unittest.mock</span><span class="w"> </span><span class="kn">import</span> <span class="n">Mock</span><span class="p">,</span> <span class="n">patch</span>
+<a id="__codelineno-21-4" name="__codelineno-21-4" href="#__codelineno-21-4"></a><span class="kn">from</span><span class="w"> </span><span class="nn">sage.middleware.operators.rag.retriever</span><span class="w"> </span><span class="kn">import</span> <span class="n">VectorRetriever</span>
+<a id="__codelineno-21-5" name="__codelineno-21-5" href="#__codelineno-21-5"></a>
+<a id="__codelineno-21-6" name="__codelineno-21-6" href="#__codelineno-21-6"></a><span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">unit</span>
+<a id="__codelineno-21-7" name="__codelineno-21-7" href="#__codelineno-21-7"></a><span class="k">class</span><span class="w"> </span><span class="nc">TestVectorRetriever</span><span class="p">:</span>
+<a id="__codelineno-21-8" name="__codelineno-21-8" href="#__codelineno-21-8"></a>    <span class="k">def</span><span class="w"> </span><span class="nf">test_initialization_with_faiss_backend</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<a id="__codelineno-21-9" name="__codelineno-21-9" href="#__codelineno-21-9"></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;测试FAISS后端初始化&quot;&quot;&quot;</span>
+<a id="__codelineno-21-10" name="__codelineno-21-10" href="#__codelineno-21-10"></a>        <span class="n">retriever</span> <span class="o">=</span> <span class="n">VectorRetriever</span><span class="p">(</span>
+<a id="__codelineno-21-11" name="__codelineno-21-11" href="#__codelineno-21-11"></a>            <span class="n">backend</span><span class="o">=</span><span class="s2">&quot;faiss&quot;</span><span class="p">,</span>
+<a id="__codelineno-21-12" name="__codelineno-21-12" href="#__codelineno-21-12"></a>            <span class="n">embedding_model</span><span class="o">=</span><span class="s2">&quot;mock-model&quot;</span>
+<a id="__codelineno-21-13" name="__codelineno-21-13" href="#__codelineno-21-13"></a>        <span class="p">)</span>
+<a id="__codelineno-21-14" name="__codelineno-21-14" href="#__codelineno-21-14"></a>        <span class="k">assert</span> <span class="n">retriever</span><span class="o">.</span><span class="n">backend</span> <span class="o">==</span> <span class="s2">&quot;faiss&quot;</span>
+<a id="__codelineno-21-15" name="__codelineno-21-15" href="#__codelineno-21-15"></a>
+<a id="__codelineno-21-16" name="__codelineno-21-16" href="#__codelineno-21-16"></a>    <span class="nd">@patch</span><span class="p">(</span><span class="s1">&#39;sage.middleware.components.sage_mem.neuromem.search_engine.vdb_index.faiss_index.FaissIndex&#39;</span><span class="p">)</span>
+<a id="__codelineno-21-17" name="__codelineno-21-17" href="#__codelineno-21-17"></a>    <span class="k">def</span><span class="w"> </span><span class="nf">test_retrieve_documents_top_k</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mock_faiss</span><span class="p">):</span>
+<a id="__codelineno-21-18" name="__codelineno-21-18" href="#__codelineno-21-18"></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;测试Top-K文档检索&quot;&quot;&quot;</span>
+<a id="__codelineno-21-19" name="__codelineno-21-19" href="#__codelineno-21-19"></a>        <span class="c1"># Mock search results</span>
+<a id="__codelineno-21-20" name="__codelineno-21-20" href="#__codelineno-21-20"></a>        <span class="n">mock_faiss</span><span class="o">.</span><span class="n">return_value</span><span class="o">.</span><span class="n">search</span><span class="o">.</span><span class="n">return_value</span> <span class="o">=</span> <span class="p">[</span>
+<a id="__codelineno-21-21" name="__codelineno-21-21" href="#__codelineno-21-21"></a>            <span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;doc1&quot;</span><span class="p">,</span> <span class="s2">&quot;score&quot;</span><span class="p">:</span> <span class="mf">0.95</span><span class="p">,</span> <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="s2">&quot;text1&quot;</span><span class="p">},</span>
+<a id="__codelineno-21-22" name="__codelineno-21-22" href="#__codelineno-21-22"></a>            <span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;doc2&quot;</span><span class="p">,</span> <span class="s2">&quot;score&quot;</span><span class="p">:</span> <span class="mf">0.85</span><span class="p">,</span> <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="s2">&quot;text2&quot;</span><span class="p">}</span>
+<a id="__codelineno-21-23" name="__codelineno-21-23" href="#__codelineno-21-23"></a>        <span class="p">]</span>
+<a id="__codelineno-21-24" name="__codelineno-21-24" href="#__codelineno-21-24"></a>
+<a id="__codelineno-21-25" name="__codelineno-21-25" href="#__codelineno-21-25"></a>        <span class="n">retriever</span> <span class="o">=</span> <span class="n">VectorRetriever</span><span class="p">(</span><span class="n">backend</span><span class="o">=</span><span class="s2">&quot;faiss&quot;</span><span class="p">)</span>
+<a id="__codelineno-21-26" name="__codelineno-21-26" href="#__codelineno-21-26"></a>        <span class="n">results</span> <span class="o">=</span> <span class="n">retriever</span><span class="o">.</span><span class="n">retrieve</span><span class="p">(</span><span class="s2">&quot;query text&quot;</span><span class="p">,</span> <span class="n">top_k</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<a id="__codelineno-21-27" name="__codelineno-21-27" href="#__codelineno-21-27"></a>
+<a id="__codelineno-21-28" name="__codelineno-21-28" href="#__codelineno-21-28"></a>        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">results</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span>
+<a id="__codelineno-21-29" name="__codelineno-21-29" href="#__codelineno-21-29"></a>        <span class="k">assert</span> <span class="n">results</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;score&quot;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">results</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="s2">&quot;score&quot;</span><span class="p">]</span>
+<a id="__codelineno-21-30" name="__codelineno-21-30" href="#__codelineno-21-30"></a>
+<a id="__codelineno-21-31" name="__codelineno-21-31" href="#__codelineno-21-31"></a>    <span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">asyncio</span>
+<a id="__codelineno-21-32" name="__codelineno-21-32" href="#__codelineno-21-32"></a>    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">test_retrieve_with_filter</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<a id="__codelineno-21-33" name="__codelineno-21-33" href="#__codelineno-21-33"></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;测试带过滤条件的检索&quot;&quot;&quot;</span>
+<a id="__codelineno-21-34" name="__codelineno-21-34" href="#__codelineno-21-34"></a>        <span class="n">retriever</span> <span class="o">=</span> <span class="n">VectorRetriever</span><span class="p">(</span><span class="n">backend</span><span class="o">=</span><span class="s2">&quot;faiss&quot;</span><span class="p">)</span>
+<a id="__codelineno-21-35" name="__codelineno-21-35" href="#__codelineno-21-35"></a>
+<a id="__codelineno-21-36" name="__codelineno-21-36" href="#__codelineno-21-36"></a>        <span class="n">results</span> <span class="o">=</span> <span class="k">await</span> <span class="n">retriever</span><span class="o">.</span><span class="n">retrieve_async</span><span class="p">(</span>
+<a id="__codelineno-21-37" name="__codelineno-21-37" href="#__codelineno-21-37"></a>            <span class="n">query</span><span class="o">=</span><span class="s2">&quot;test&quot;</span><span class="p">,</span>
+<a id="__codelineno-21-38" name="__codelineno-21-38" href="#__codelineno-21-38"></a>            <span class="n">filters</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;category&quot;</span><span class="p">:</span> <span class="s2">&quot;tech&quot;</span><span class="p">},</span>
+<a id="__codelineno-21-39" name="__codelineno-21-39" href="#__codelineno-21-39"></a>            <span class="n">top_k</span><span class="o">=</span><span class="mi">5</span>
+<a id="__codelineno-21-40" name="__codelineno-21-40" href="#__codelineno-21-40"></a>        <span class="p">)</span>
+<a id="__codelineno-21-41" name="__codelineno-21-41" href="#__codelineno-21-41"></a>        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">results</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span>
+</code></pre></div>
+<h4 id="agent-workflow">Agent Workflow测试模板<a class="headerlink" href="#agent-workflow" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a><span class="c1"># packages/sage-libs/tests/lib/agentic/workflow/test_workflow.py</span>
+<a id="__codelineno-22-2" name="__codelineno-22-2" href="#__codelineno-22-2"></a><span class="kn">import</span><span class="w"> </span><span class="nn">pytest</span>
+<a id="__codelineno-22-3" name="__codelineno-22-3" href="#__codelineno-22-3"></a><span class="kn">from</span><span class="w"> </span><span class="nn">unittest.mock</span><span class="w"> </span><span class="kn">import</span> <span class="n">Mock</span><span class="p">,</span> <span class="n">patch</span>
+<a id="__codelineno-22-4" name="__codelineno-22-4" href="#__codelineno-22-4"></a><span class="kn">from</span><span class="w"> </span><span class="nn">sage.libs.agentic.workflow.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">Workflow</span>
+<a id="__codelineno-22-5" name="__codelineno-22-5" href="#__codelineno-22-5"></a>
+<a id="__codelineno-22-6" name="__codelineno-22-6" href="#__codelineno-22-6"></a><span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">unit</span>
+<a id="__codelineno-22-7" name="__codelineno-22-7" href="#__codelineno-22-7"></a><span class="k">class</span><span class="w"> </span><span class="nc">TestWorkflow</span><span class="p">:</span>
+<a id="__codelineno-22-8" name="__codelineno-22-8" href="#__codelineno-22-8"></a>    <span class="k">def</span><span class="w"> </span><span class="nf">test_workflow_initialization</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<a id="__codelineno-22-9" name="__codelineno-22-9" href="#__codelineno-22-9"></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;测试工作流初始化&quot;&quot;&quot;</span>
+<a id="__codelineno-22-10" name="__codelineno-22-10" href="#__codelineno-22-10"></a>        <span class="n">workflow</span> <span class="o">=</span> <span class="n">Workflow</span><span class="p">(</span>
+<a id="__codelineno-22-11" name="__codelineno-22-11" href="#__codelineno-22-11"></a>            <span class="n">name</span><span class="o">=</span><span class="s2">&quot;test_workflow&quot;</span><span class="p">,</span>
+<a id="__codelineno-22-12" name="__codelineno-22-12" href="#__codelineno-22-12"></a>            <span class="n">steps</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;step1&quot;</span><span class="p">,</span> <span class="s2">&quot;step2&quot;</span><span class="p">]</span>
+<a id="__codelineno-22-13" name="__codelineno-22-13" href="#__codelineno-22-13"></a>        <span class="p">)</span>
+<a id="__codelineno-22-14" name="__codelineno-22-14" href="#__codelineno-22-14"></a>        <span class="k">assert</span> <span class="n">workflow</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;test_workflow&quot;</span>
+<a id="__codelineno-22-15" name="__codelineno-22-15" href="#__codelineno-22-15"></a>        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">workflow</span><span class="o">.</span><span class="n">steps</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span>
+<a id="__codelineno-22-16" name="__codelineno-22-16" href="#__codelineno-22-16"></a>
+<a id="__codelineno-22-17" name="__codelineno-22-17" href="#__codelineno-22-17"></a>    <span class="nd">@patch</span><span class="p">(</span><span class="s1">&#39;sage.libs.agentic.agents.agent.Agent&#39;</span><span class="p">)</span>
+<a id="__codelineno-22-18" name="__codelineno-22-18" href="#__codelineno-22-18"></a>    <span class="k">def</span><span class="w"> </span><span class="nf">test_workflow_execution</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mock_agent</span><span class="p">):</span>
+<a id="__codelineno-22-19" name="__codelineno-22-19" href="#__codelineno-22-19"></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;测试工作流执行&quot;&quot;&quot;</span>
+<a id="__codelineno-22-20" name="__codelineno-22-20" href="#__codelineno-22-20"></a>        <span class="n">mock_agent_instance</span> <span class="o">=</span> <span class="n">Mock</span><span class="p">()</span>
+<a id="__codelineno-22-21" name="__codelineno-22-21" href="#__codelineno-22-21"></a>        <span class="n">mock_agent_instance</span><span class="o">.</span><span class="n">execute</span><span class="o">.</span><span class="n">return_value</span> <span class="o">=</span> <span class="s2">&quot;result&quot;</span>
+<a id="__codelineno-22-22" name="__codelineno-22-22" href="#__codelineno-22-22"></a>        <span class="n">mock_agent</span><span class="o">.</span><span class="n">return_value</span> <span class="o">=</span> <span class="n">mock_agent_instance</span>
+<a id="__codelineno-22-23" name="__codelineno-22-23" href="#__codelineno-22-23"></a>
+<a id="__codelineno-22-24" name="__codelineno-22-24" href="#__codelineno-22-24"></a>        <span class="n">workflow</span> <span class="o">=</span> <span class="n">Workflow</span><span class="p">(</span><span class="n">steps</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;step1&quot;</span><span class="p">])</span>
+<a id="__codelineno-22-25" name="__codelineno-22-25" href="#__codelineno-22-25"></a>        <span class="n">result</span> <span class="o">=</span> <span class="n">workflow</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">input_data</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;query&quot;</span><span class="p">:</span> <span class="s2">&quot;test&quot;</span><span class="p">})</span>
+<a id="__codelineno-22-26" name="__codelineno-22-26" href="#__codelineno-22-26"></a>
+<a id="__codelineno-22-27" name="__codelineno-22-27" href="#__codelineno-22-27"></a>        <span class="k">assert</span> <span class="n">result</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+<a id="__codelineno-22-28" name="__codelineno-22-28" href="#__codelineno-22-28"></a>        <span class="n">mock_agent_instance</span><span class="o">.</span><span class="n">execute</span><span class="o">.</span><span class="n">assert_called</span><span class="p">()</span>
+<a id="__codelineno-22-29" name="__codelineno-22-29" href="#__codelineno-22-29"></a>
+<a id="__codelineno-22-30" name="__codelineno-22-30" href="#__codelineno-22-30"></a>    <span class="k">def</span><span class="w"> </span><span class="nf">test_workflow_with_constraints</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<a id="__codelineno-22-31" name="__codelineno-22-31" href="#__codelineno-22-31"></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;测试带约束条件的工作流&quot;&quot;&quot;</span>
+<a id="__codelineno-22-32" name="__codelineno-22-32" href="#__codelineno-22-32"></a>        <span class="kn">from</span><span class="w"> </span><span class="nn">sage.libs.agentic.workflow.constraints</span><span class="w"> </span><span class="kn">import</span> <span class="n">TimeConstraint</span>
+<a id="__codelineno-22-33" name="__codelineno-22-33" href="#__codelineno-22-33"></a>
+<a id="__codelineno-22-34" name="__codelineno-22-34" href="#__codelineno-22-34"></a>        <span class="n">constraint</span> <span class="o">=</span> <span class="n">TimeConstraint</span><span class="p">(</span><span class="n">max_seconds</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+<a id="__codelineno-22-35" name="__codelineno-22-35" href="#__codelineno-22-35"></a>        <span class="n">workflow</span> <span class="o">=</span> <span class="n">Workflow</span><span class="p">(</span>
+<a id="__codelineno-22-36" name="__codelineno-22-36" href="#__codelineno-22-36"></a>            <span class="n">steps</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;step1&quot;</span><span class="p">],</span>
+<a id="__codelineno-22-37" name="__codelineno-22-37" href="#__codelineno-22-37"></a>            <span class="n">constraints</span><span class="o">=</span><span class="p">[</span><span class="n">constraint</span><span class="p">]</span>
+<a id="__codelineno-22-38" name="__codelineno-22-38" href="#__codelineno-22-38"></a>        <span class="p">)</span>
+<a id="__codelineno-22-39" name="__codelineno-22-39" href="#__codelineno-22-39"></a>
+<a id="__codelineno-22-40" name="__codelineno-22-40" href="#__codelineno-22-40"></a>        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">workflow</span><span class="o">.</span><span class="n">constraints</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span>
+</code></pre></div>
+<h4 id="privacy-unlearning">Privacy Unlearning测试模板<a class="headerlink" href="#privacy-unlearning" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-23-1" name="__codelineno-23-1" href="#__codelineno-23-1"></a><span class="c1"># packages/sage-libs/tests/lib/privacy/test_gaussian_unlearning.py</span>
+<a id="__codelineno-23-2" name="__codelineno-23-2" href="#__codelineno-23-2"></a><span class="kn">import</span><span class="w"> </span><span class="nn">pytest</span>
+<a id="__codelineno-23-3" name="__codelineno-23-3" href="#__codelineno-23-3"></a><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<a id="__codelineno-23-4" name="__codelineno-23-4" href="#__codelineno-23-4"></a><span class="kn">from</span><span class="w"> </span><span class="nn">sage.libs.privacy.unlearning.algorithms.gaussian_unlearning</span><span class="w"> </span><span class="kn">import</span> <span class="n">GaussianUnlearning</span>
+<a id="__codelineno-23-5" name="__codelineno-23-5" href="#__codelineno-23-5"></a>
+<a id="__codelineno-23-6" name="__codelineno-23-6" href="#__codelineno-23-6"></a><span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">unit</span>
+<a id="__codelineno-23-7" name="__codelineno-23-7" href="#__codelineno-23-7"></a><span class="k">class</span><span class="w"> </span><span class="nc">TestGaussianUnlearning</span><span class="p">:</span>
+<a id="__codelineno-23-8" name="__codelineno-23-8" href="#__codelineno-23-8"></a>    <span class="k">def</span><span class="w"> </span><span class="nf">test_gaussian_mechanism_adds_noise</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<a id="__codelineno-23-9" name="__codelineno-23-9" href="#__codelineno-23-9"></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;测试高斯机制添加噪声&quot;&quot;&quot;</span>
+<a id="__codelineno-23-10" name="__codelineno-23-10" href="#__codelineno-23-10"></a>        <span class="n">unlearning</span> <span class="o">=</span> <span class="n">GaussianUnlearning</span><span class="p">(</span><span class="n">epsilon</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">delta</span><span class="o">=</span><span class="mf">1e-5</span><span class="p">)</span>
+<a id="__codelineno-23-11" name="__codelineno-23-11" href="#__codelineno-23-11"></a>
+<a id="__codelineno-23-12" name="__codelineno-23-12" href="#__codelineno-23-12"></a>        <span class="n">original_data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">,</span> <span class="mf">3.0</span><span class="p">])</span>
+<a id="__codelineno-23-13" name="__codelineno-23-13" href="#__codelineno-23-13"></a>        <span class="n">noisy_data</span> <span class="o">=</span> <span class="n">unlearning</span><span class="o">.</span><span class="n">add_noise</span><span class="p">(</span><span class="n">original_data</span><span class="p">)</span>
+<a id="__codelineno-23-14" name="__codelineno-23-14" href="#__codelineno-23-14"></a>
+<a id="__codelineno-23-15" name="__codelineno-23-15" href="#__codelineno-23-15"></a>        <span class="c1"># 验证添加了噪声</span>
+<a id="__codelineno-23-16" name="__codelineno-23-16" href="#__codelineno-23-16"></a>        <span class="k">assert</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">array_equal</span><span class="p">(</span><span class="n">original_data</span><span class="p">,</span> <span class="n">noisy_data</span><span class="p">)</span>
+<a id="__codelineno-23-17" name="__codelineno-23-17" href="#__codelineno-23-17"></a>        <span class="c1"># 验证维度不变</span>
+<a id="__codelineno-23-18" name="__codelineno-23-18" href="#__codelineno-23-18"></a>        <span class="k">assert</span> <span class="n">noisy_data</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="n">original_data</span><span class="o">.</span><span class="n">shape</span>
+<a id="__codelineno-23-19" name="__codelineno-23-19" href="#__codelineno-23-19"></a>
+<a id="__codelineno-23-20" name="__codelineno-23-20" href="#__codelineno-23-20"></a>    <span class="k">def</span><span class="w"> </span><span class="nf">test_unlearning_preserves_privacy_budget</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<a id="__codelineno-23-21" name="__codelineno-23-21" href="#__codelineno-23-21"></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;测试卸载操作保持隐私预算&quot;&quot;&quot;</span>
+<a id="__codelineno-23-22" name="__codelineno-23-22" href="#__codelineno-23-22"></a>        <span class="n">unlearning</span> <span class="o">=</span> <span class="n">GaussianUnlearning</span><span class="p">(</span><span class="n">epsilon</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span>
+<a id="__codelineno-23-23" name="__codelineno-23-23" href="#__codelineno-23-23"></a>
+<a id="__codelineno-23-24" name="__codelineno-23-24" href="#__codelineno-23-24"></a>        <span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
+<a id="__codelineno-23-25" name="__codelineno-23-25" href="#__codelineno-23-25"></a>        <span class="n">unlearn_indices</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span>
+<a id="__codelineno-23-26" name="__codelineno-23-26" href="#__codelineno-23-26"></a>
+<a id="__codelineno-23-27" name="__codelineno-23-27" href="#__codelineno-23-27"></a>        <span class="n">result</span> <span class="o">=</span> <span class="n">unlearning</span><span class="o">.</span><span class="n">unlearn</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">unlearn_indices</span><span class="p">)</span>
+<a id="__codelineno-23-28" name="__codelineno-23-28" href="#__codelineno-23-28"></a>
+<a id="__codelineno-23-29" name="__codelineno-23-29" href="#__codelineno-23-29"></a>        <span class="k">assert</span> <span class="n">result</span><span class="o">.</span><span class="n">privacy_budget_used</span> <span class="o">&lt;=</span> <span class="mf">1.0</span>
+<a id="__codelineno-23-30" name="__codelineno-23-30" href="#__codelineno-23-30"></a>        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">remaining_data</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="n">unlearn_indices</span><span class="p">)</span>
+</code></pre></div>
+<h3 id="34">3.4 工作检查清单<a class="headerlink" href="#34" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] 实现 Retriever 完整测试（含多后端）</li>
+<li>[ ] 完成 Reranker 测试</li>
+<li>[ ] 实现 RAG Promptor 测试</li>
+<li>[ ] 完成 RAG工具（Arxiv等）测试</li>
+<li>[ ] 实现 NeuroMem 内存管理测试</li>
+<li>[ ] 完成搜索引擎索引测试</li>
+<li>[ ] 实现存储引擎测试</li>
+<li>[ ] 完成 Agent 工作流测试</li>
+<li>[ ] 实现隐私卸载算法测试</li>
+<li>[ ] 完成所有 integrations 测试</li>
+<li>[ ] 实现 RAG 端到端集成测试</li>
+<li>[ ] 运行覆盖率报告并验证达标</li>
+</ul>
+<hr />
+<h2 id="_3">通用测试规范<a class="headerlink" href="#_3" title="Permanent link">&para;</a></h2>
+<h3 id="pytest-marks">测试标记 (Pytest Marks)<a class="headerlink" href="#pytest-marks" title="Permanent link">&para;</a></h3>
+<p>所有测试必须使用以下标记之一：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-24-1" name="__codelineno-24-1" href="#__codelineno-24-1"></a><span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">unit</span>           <span class="c1"># 单元测试（快速，无外部依赖）</span>
+<a id="__codelineno-24-2" name="__codelineno-24-2" href="#__codelineno-24-2"></a><span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">integration</span>    <span class="c1"># 集成测试（可能涉及多模块）</span>
+<a id="__codelineno-24-3" name="__codelineno-24-3" href="#__codelineno-24-3"></a><span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">external</span>       <span class="c1"># 外部API测试（需要真实API key）</span>
+<a id="__codelineno-24-4" name="__codelineno-24-4" href="#__codelineno-24-4"></a><span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">slow</span>           <span class="c1"># 慢速测试</span>
+<a id="__codelineno-24-5" name="__codelineno-24-5" href="#__codelineno-24-5"></a><span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">asyncio</span>        <span class="c1"># 异步测试</span>
+</code></pre></div>
+<h3 id="mock">Mock策略<a class="headerlink" href="#mock" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>API调用</strong>: 使用 <code>responses</code>, <code>pytest-httpx</code>, <code>aioresponses</code></li>
+<li><strong>文件系统</strong>: 使用 <code>tmp_path</code> fixture</li>
+<li><strong>Ray/分布式</strong>: 使用 <code>unittest.mock.AsyncMock</code></li>
+<li><strong>LLM调用</strong>: Mock返回预定义结果</li>
+<li><strong>数据库</strong>: 使用内存数据库或Mock</li>
+</ol>
+<h3 id="fixtures">Fixtures管理<a class="headerlink" href="#fixtures" title="Permanent link">&para;</a></h3>
+<p>在各包的 <code>conftest.py</code> 中定义共享fixtures：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-25-1" name="__codelineno-25-1" href="#__codelineno-25-1"></a><span class="c1"># packages/*/tests/conftest.py</span>
+<a id="__codelineno-25-2" name="__codelineno-25-2" href="#__codelineno-25-2"></a><span class="kn">import</span><span class="w"> </span><span class="nn">pytest</span>
+<a id="__codelineno-25-3" name="__codelineno-25-3" href="#__codelineno-25-3"></a>
+<a id="__codelineno-25-4" name="__codelineno-25-4" href="#__codelineno-25-4"></a><span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span>
+<a id="__codelineno-25-5" name="__codelineno-25-5" href="#__codelineno-25-5"></a><span class="k">def</span><span class="w"> </span><span class="nf">mock_embedding_model</span><span class="p">():</span>
+<a id="__codelineno-25-6" name="__codelineno-25-6" href="#__codelineno-25-6"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Mock embedding model fixture&quot;&quot;&quot;</span>
+<a id="__codelineno-25-7" name="__codelineno-25-7" href="#__codelineno-25-7"></a>    <span class="n">model</span> <span class="o">=</span> <span class="n">Mock</span><span class="p">()</span>
+<a id="__codelineno-25-8" name="__codelineno-25-8" href="#__codelineno-25-8"></a>    <span class="n">model</span><span class="o">.</span><span class="n">embed</span><span class="o">.</span><span class="n">return_value</span> <span class="o">=</span> <span class="p">[[</span><span class="mf">0.1</span><span class="p">]</span> <span class="o">*</span> <span class="mi">768</span><span class="p">]</span>
+<a id="__codelineno-25-9" name="__codelineno-25-9" href="#__codelineno-25-9"></a>    <span class="k">return</span> <span class="n">model</span>
+<a id="__codelineno-25-10" name="__codelineno-25-10" href="#__codelineno-25-10"></a>
+<a id="__codelineno-25-11" name="__codelineno-25-11" href="#__codelineno-25-11"></a><span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span>
+<a id="__codelineno-25-12" name="__codelineno-25-12" href="#__codelineno-25-12"></a><span class="k">def</span><span class="w"> </span><span class="nf">temp_vector_db</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">):</span>
+<a id="__codelineno-25-13" name="__codelineno-25-13" href="#__codelineno-25-13"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Temporary vector database fixture&quot;&quot;&quot;</span>
+<a id="__codelineno-25-14" name="__codelineno-25-14" href="#__codelineno-25-14"></a>    <span class="n">db_path</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;test_db&quot;</span>
+<a id="__codelineno-25-15" name="__codelineno-25-15" href="#__codelineno-25-15"></a>    <span class="n">db_path</span><span class="o">.</span><span class="n">mkdir</span><span class="p">()</span>
+<a id="__codelineno-25-16" name="__codelineno-25-16" href="#__codelineno-25-16"></a>    <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">db_path</span><span class="p">)</span>
+</code></pre></div>
+<h3 id="_4">覆盖率验证<a class="headerlink" href="#_4" title="Permanent link">&para;</a></h3>
+<p>每个任务完成后，运行：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-26-1" name="__codelineno-26-1" href="#__codelineno-26-1"></a><span class="c1"># 针对特定包</span>
+<a id="__codelineno-26-2" name="__codelineno-26-2" href="#__codelineno-26-2"></a>sage-dev<span class="w"> </span>project<span class="w"> </span><span class="nb">test</span><span class="w"> </span>--coverage<span class="w"> </span>--package<span class="w"> </span>sage-common
+<a id="__codelineno-26-3" name="__codelineno-26-3" href="#__codelineno-26-3"></a>sage-dev<span class="w"> </span>project<span class="w"> </span><span class="nb">test</span><span class="w"> </span>--coverage<span class="w"> </span>--package<span class="w"> </span>sage-kernel
+<a id="__codelineno-26-4" name="__codelineno-26-4" href="#__codelineno-26-4"></a>sage-dev<span class="w"> </span>project<span class="w"> </span><span class="nb">test</span><span class="w"> </span>--coverage<span class="w"> </span>--package<span class="w"> </span>sage-middleware
+<a id="__codelineno-26-5" name="__codelineno-26-5" href="#__codelineno-26-5"></a>sage-dev<span class="w"> </span>project<span class="w"> </span><span class="nb">test</span><span class="w"> </span>--coverage<span class="w"> </span>--package<span class="w"> </span>sage-libs
+<a id="__codelineno-26-6" name="__codelineno-26-6" href="#__codelineno-26-6"></a>
+<a id="__codelineno-26-7" name="__codelineno-26-7" href="#__codelineno-26-7"></a><span class="c1"># 验证覆盖率报告</span>
+<a id="__codelineno-26-8" name="__codelineno-26-8" href="#__codelineno-26-8"></a>cat<span class="w"> </span>coverage.xml<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span><span class="s1">&#39;line-rate&#39;</span>
+</code></pre></div>
+<hr />
+<h2 id="_5">任务协调<a class="headerlink" href="#_5" title="Permanent link">&para;</a></h2>
+<h3 id="_6">依赖关系<a class="headerlink" href="#_6" title="Permanent link">&para;</a></h3>
+<ul>
+<li>任务1、2、3 <strong>相互独立</strong>，可并行开发</li>
+<li>各任务覆盖不同文件，无代码冲突</li>
+<li>共用 <code>conftest.py</code> fixtures时需协调</li>
+</ul>
+<h3 id="_7">代码审查清单<a class="headerlink" href="#_7" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] 所有测试通过 <code>pytest</code> 执行</li>
+<li>[ ] 覆盖率达到目标（用 <code>pytest-cov</code> 验证）</li>
+<li>[ ] Mock使用正确，无真实API调用</li>
+<li>[ ] 测试命名清晰，遵循 <code>test_&lt;function&gt;_&lt;scenario&gt;_&lt;expected&gt;</code></li>
+<li>[ ] 集成测试有清晰的场景描述</li>
+<li>[ ] 异步测试使用 <code>@pytest.mark.asyncio</code></li>
+<li>[ ] 代码通过 <code>sage-dev quality --check-only</code></li>
+</ul>
+<h3 id="_8">提交规范<a class="headerlink" href="#_8" title="Permanent link">&para;</a></h3>
+<ul>
+<li>提交信息格式: <code>test(&lt;scope&gt;): &lt;description&gt;</code></li>
+<li>示例: <code>test(sage-common): add embedding wrappers unit tests</code></li>
+<li>PR标题: <code>[Test] &lt;Task Name&gt; - &lt;Module Coverage Improvement&gt;</code></li>
+</ul>
+<hr />
+<h2 id="_9">预期成果<a class="headerlink" href="#_9" title="Permanent link">&para;</a></h2>
+<h3 id="_10">各任务覆盖率提升目标<a class="headerlink" href="#_10" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>任务</th>
+<th>包</th>
+<th>当前覆盖率</th>
+<th>目标覆盖率</th>
+<th>提升幅度</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>任务1</td>
+<td>sage-common</td>
+<td>~25%</td>
+<td>75%+</td>
+<td>+50%</td>
+</tr>
+<tr>
+<td>任务2</td>
+<td>sage-kernel</td>
+<td>~35%</td>
+<td>75%+</td>
+<td>+40%</td>
+</tr>
+<tr>
+<td>任务2</td>
+<td>sage-middleware(部分)</td>
+<td>~30%</td>
+<td>75%+</td>
+<td>+45%</td>
+</tr>
+<tr>
+<td>任务3</td>
+<td>sage-libs</td>
+<td>~0%</td>
+<td>70%+</td>
+<td>+70%</td>
+</tr>
+<tr>
+<td>任务3</td>
+<td>sage-middleware(RAG)</td>
+<td>~50%</td>
+<td>85%+</td>
+<td>+35%</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_11">整体系统覆盖率预期<a class="headerlink" href="#_11" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>当前</strong>: 37%</li>
+<li><strong>任务1完成后</strong>: ~52%</li>
+<li><strong>任务2完成后</strong>: ~70%</li>
+<li><strong>任务3完成后</strong>: <strong>~82%</strong> ✅</li>
+</ul>
+<hr />
+<h2 id="_12">参考资源<a class="headerlink" href="#_12" title="Permanent link">&para;</a></h2>
+<h3 id="_13">现有测试示例<a class="headerlink" href="#_13" title="Permanent link">&para;</a></h3>
+<ul>
+<li><code>packages/sage-middleware/tests/operators/rag/test_evaluate.py</code> - RAG评估测试</li>
+<li><code>packages/sage-common/tests/unit/utils/config/test_loader.py</code> - 配置加载测试</li>
+<li><code>packages/sage-kernel/tests/unit/core/conftest.py</code> - Kernel测试fixtures</li>
+<li><code>packages/sage-libs/tests/lib/agents/test_agent.py</code> - Agent测试</li>
+</ul>
+<h3 id="_14">开发文档<a class="headerlink" href="#_14" title="Permanent link">&para;</a></h3>
+<ul>
+<li><code>DEVELOPER.md</code> - 开发者指南</li>
+<li><code>CONTRIBUTING.md</code> - 贡献指南</li>
+<li><code>docs/dev-notes/cross-layer/ci-cd/testing.md</code> - 测试文档</li>
+<li><code>tools/pytest.ini</code> - Pytest配置</li>
+</ul>
+<h3 id="mock_1">Mock工具<a class="headerlink" href="#mock_1" title="Permanent link">&para;</a></h3>
+<ul>
+<li><code>unittest.mock</code> - Python标准库</li>
+<li><code>pytest-mock</code> - Pytest mock插件</li>
+<li><code>responses</code> - HTTP Mock</li>
+<li><code>pytest-httpx</code> - HTTPX Mock</li>
+<li><code>aioresponses</code> - Async HTTP Mock</li>
+<li><code>pytest-asyncio</code> - 异步测试</li>
+</ul>
+<h3 id="cicd">CI/CD参考<a class="headerlink" href="#cicd" title="Permanent link">&para;</a></h3>
+<ul>
+<li><code>.github/workflows/build-test.yml</code> - CI测试流程</li>
+<li><code>tools/pre-commit-config.yaml</code> - 预提交检查</li>
+</ul>
+<hr />
+<h2 id="_15">附录: 快速启动命令<a class="headerlink" href="#_15" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-27-1" name="__codelineno-27-1" href="#__codelineno-27-1"></a><span class="c1"># 环境准备</span>
+<a id="__codelineno-27-2" name="__codelineno-27-2" href="#__codelineno-27-2"></a>./quickstart.sh<span class="w"> </span>--dev<span class="w"> </span>--yes
+<a id="__codelineno-27-3" name="__codelineno-27-3" href="#__codelineno-27-3"></a>
+<a id="__codelineno-27-4" name="__codelineno-27-4" href="#__codelineno-27-4"></a><span class="c1"># 运行特定任务的测试</span>
+<a id="__codelineno-27-5" name="__codelineno-27-5" href="#__codelineno-27-5"></a><span class="c1"># 任务1</span>
+<a id="__codelineno-27-6" name="__codelineno-27-6" href="#__codelineno-27-6"></a>pytest<span class="w"> </span>packages/sage-common/tests/unit/components/sage_embedding/<span class="w"> </span>-v
+<a id="__codelineno-27-7" name="__codelineno-27-7" href="#__codelineno-27-7"></a>pytest<span class="w"> </span>packages/sage-common/tests/unit/components/sage_llm/<span class="w"> </span>-v
+<a id="__codelineno-27-8" name="__codelineno-27-8" href="#__codelineno-27-8"></a>pytest<span class="w"> </span>packages/sage-common/tests/unit/utils/<span class="w"> </span>-v<span class="w"> </span>--cov<span class="o">=</span>sage.common.utils
+<a id="__codelineno-27-9" name="__codelineno-27-9" href="#__codelineno-27-9"></a>
+<a id="__codelineno-27-10" name="__codelineno-27-10" href="#__codelineno-27-10"></a><span class="c1"># 任务2</span>
+<a id="__codelineno-27-11" name="__codelineno-27-11" href="#__codelineno-27-11"></a>pytest<span class="w"> </span>packages/sage-kernel/tests/unit/runtime/<span class="w"> </span>-v<span class="w"> </span>--cov<span class="o">=</span>sage.kernel.runtime
+<a id="__codelineno-27-12" name="__codelineno-27-12" href="#__codelineno-27-12"></a>pytest<span class="w"> </span>packages/sage-kernel/tests/unit/api/<span class="w"> </span>-v<span class="w"> </span>--cov<span class="o">=</span>sage.kernel.api
+<a id="__codelineno-27-13" name="__codelineno-27-13" href="#__codelineno-27-13"></a>pytest<span class="w"> </span>packages/sage-middleware/tests/components/sage_tsdb/<span class="w"> </span>-v
+<a id="__codelineno-27-14" name="__codelineno-27-14" href="#__codelineno-27-14"></a>
+<a id="__codelineno-27-15" name="__codelineno-27-15" href="#__codelineno-27-15"></a><span class="c1"># 任务3</span>
+<a id="__codelineno-27-16" name="__codelineno-27-16" href="#__codelineno-27-16"></a>pytest<span class="w"> </span>packages/sage-middleware/tests/operators/rag/<span class="w"> </span>-v<span class="w"> </span>--cov<span class="o">=</span>sage.middleware.operators.rag
+<a id="__codelineno-27-17" name="__codelineno-27-17" href="#__codelineno-27-17"></a>pytest<span class="w"> </span>packages/sage-libs/tests/<span class="w"> </span>-v<span class="w"> </span>--cov<span class="o">=</span>sage.libs
+<a id="__codelineno-27-18" name="__codelineno-27-18" href="#__codelineno-27-18"></a>
+<a id="__codelineno-27-19" name="__codelineno-27-19" href="#__codelineno-27-19"></a><span class="c1"># 覆盖率报告</span>
+<a id="__codelineno-27-20" name="__codelineno-27-20" href="#__codelineno-27-20"></a>sage-dev<span class="w"> </span>project<span class="w"> </span><span class="nb">test</span><span class="w"> </span>--coverage<span class="w"> </span>--package<span class="w"> </span>&lt;package-name&gt;
+</code></pre></div>
+<hr />
+<p><strong>最后更新</strong>: 2025-11-20\
+<strong>文档版本</strong>: 1.0\
+<strong>维护者</strong>: SAGE Team</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  回到页面顶部
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Copyright &copy; 2023-2025 IntelliStream Lab
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+        
+<div class="md-social">
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://github.com/intellistream/SAGE" target="_blank" rel="noopener" title="github.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+    </a>
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://pypi.org/project/sage-framework/" target="_blank" rel="noopener" title="pypi.org" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.8 200.5c-7.7-30.9-22.3-54.2-53.4-54.2h-40.1v47.4c0 36.8-31.2 67.8-66.8 67.8H172.7c-29.2 0-53.4 25-53.4 54.3v101.8c0 29 25.2 46 53.4 54.3 33.8 9.9 66.3 11.7 106.8 0 26.9-7.8 53.4-23.5 53.4-54.3v-40.7H226.2v-13.6h160.2c31.1 0 42.6-21.7 53.4-54.2 11.2-33.5 10.7-65.7 0-108.6M286.2 444.7a20.4 20.4 0 1 1 0-40.7 20.4 20.4 0 1 1 0 40.7M167.8 248.1h106.8c29.7 0 53.4-24.5 53.4-54.3V91.9c0-29-24.4-50.7-53.4-55.6-35.8-5.9-74.7-5.6-106.8.1-45.2 8-53.4 24.7-53.4 55.6v40.7h106.9v13.6h-147c-31.1 0-58.3 18.7-66.8 54.2-9.8 40.7-10.2 66.1 0 108.6 7.6 31.6 25.7 54.2 56.8 54.2H101v-48.8c0-35.3 30.5-66.4 66.8-66.4m-6.6-183.4a20.4 20.4 0 1 1 0 40.8 20.4 20.4 0 1 1 0-40.8"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+      <div class="md-progress" data-md-component="progress" role="progressbar"></div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.instant", "navigation.instant.progress", "navigation.tracking", "navigation.tabs", "navigation.tabs.sticky", "navigation.sections", "navigation.path", "navigation.indexes", "navigation.top", "navigation.footer", "navigation.prune", "search.suggest", "search.highlight", "search.share", "content.code.copy", "content.code.annotate", "content.tabs.link", "toc.follow", "toc.integrate"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>
