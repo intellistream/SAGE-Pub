@@ -92,12 +92,22 @@ extra:
 
 nav:
 - 首页: index.md
+
 - 关于: about.md
 
 - 入门指南:
   - 概览: getting-started/index.md
   - 安装: getting-started/installation.md
   - 快速入门: getting-started/quickstart.md
+  - 基础教程:
+    - 流式处理 101: tutorials/basic/streaming-101.md
+    - 批处理示例: tutorials/basic/hello_batch.md
+    - 算子使用:
+      - Filter 过滤: tutorials/basic/operators/hello_filter_world.md
+      - FlatMap 映射: tutorials/basic/operators/hello_flatmap_world.md
+      - CoMap 联合映射: tutorials/basic/operators/hello_filter_world_comap.md
+      - Future 异步: tutorials/basic/operators/hello_future_world.md
+      - Join 连接: tutorials/basic/operators/hello_join_world.md
 
 - 核心概念:
   - 概览: concepts/index.md
@@ -108,7 +118,14 @@ nav:
     - RPC 队列重构: concepts/architecture/design-decisions/rpc-queue-refactoring.md
     - sage-libs 重构: concepts/architecture/design-decisions/sage-libs-restructuring.md
 
-- 高级教程: tutorials/README.md
+- 高级教程:
+  - 概览: tutorials/advanced/index.md
+  - 分布式 Pipeline: tutorials/advanced/distributed-pipeline.md
+  - 自定义算子: tutorials/advanced/custom-operators.md
+  - 复杂工作流: tutorials/advanced/complex-workflows.md
+  - 高级 RAG 技术: tutorials/advanced/advanced-rag.md
+  - 性能调优: tutorials/advanced/performance-tuning.md
+  - 容错与可靠性: tutorials/advanced/fault-tolerance.md
 
 - 用户指南:
   - 概览: guides/index.md
@@ -193,7 +210,7 @@ nav:
       - 仪表化: guides/packages/sage-middleware/middleware_instrument.md
       - 组件:
         - NeuroMem: guides/packages/sage-middleware/components/neuromem.md
-        - SageVDB: guides/packages/sage-middleware/components/sage_db.md
+        - SageDB: guides/packages/sage-middleware/components/sage_db.md
       - 服务:
         - 服务介绍: guides/packages/sage-middleware/service/service_intro.md
         - Memory 服务:
@@ -202,17 +219,23 @@ nav:
         - Vector DB:
           - Vector DB: guides/packages/sage-middleware/service/neuromem/vdb/vdb.md
           - Faiss: guides/packages/sage-middleware/service/neuromem/vdb/faiss.md
-        - SageVDB 服务: guides/packages/sage-middleware/service/sage-db/sage_db_service.md
+        - SageDB 服务: guides/packages/sage-middleware/service/sage-db/sage_db_service.md
         - SageFlow 服务: guides/packages/sage-middleware/service/sage-flow/sage_flow_service.md
       - GPU 加速: guides/packages/sage-middleware/hardware/gpu_acceleration.md
-  - L5 接口层:
+  - L5 应用层:
+    - Apps 应用:
+      - 概览: guides/packages/sage-apps/index.md
+    - Benchmark 性能测试:
+      - 概览: guides/packages/sage-benchmark/index.md
+    - 应用示例:
+      - 概览: guides/applications.md
+      - 文章监控系统: guides/article-monitoring.md
+      - 分布式智能家居系统: guides/smart-home.md
+      - 智能扩缩容聊天系统: guides/auto-scaling-chat.md
+  - L6 接口层:
+    - sage-studio 可视化: guides/packages/sage-studio/index.md
     - CLI 工具: guides/packages/sage-tools/cli_reference.md
     - Pipeline Builder: guides/packages/sage-tools/pipeline_builder.md
-  - 独立仓库:
-    - sage-examples: https://github.com/intellistream/sage-examples
-    - sage-benchmark: https://github.com/intellistream/sage-benchmark
-    - sage-studio: https://github.com/intellistream/sage-studio
-    - sageLLM: https://github.com/intellistream/sageLLM
   - 部署运维:
     - 部署指南: guides/deployment/index.md
     - 安全指南:
@@ -257,8 +280,12 @@ nav:
     - L3 核心引擎: dev-notes/l3-kernel/README.md
     - L3 算法库: dev-notes/l3-libs/README.md
     - L4 中间件: dev-notes/l4-middleware/README.md
-    - L5 CLI: dev-notes/l5-cli/README.md
-    - L5 Tools: dev-notes/l5-tools/README.md
+    - L5 应用: dev-notes/l5-apps/README.md
+    - L5 评测: dev-notes/l5-benchmark/README.md
+    - L6 CLI: dev-notes/l6-cli/README.md
+    - L6 Gateway: dev-notes/l6-gateway/README.md
+    - L6 Studio: dev-notes/l6-studio/README.md
+    - L6 Tools: dev-notes/l6-tools/README.md
     - 交叉层设计: dev-notes/cross-layer/README.md
     - 测试策略: dev-notes/testing/README.md
 
@@ -269,3 +296,14 @@ nav:
   - 每周会议: community/meetings.md
   - 工作报告: community/weekly-reports/index.md
   - IntelliStream Lab: community/intellistream.md
+  - 社区成员:
+    - Shuhao Zhang: community/faculty/Shuhao Zhang.md
+
+
+- 我们的贡献:
+  - 概览: contributions/index.md
+  - 发表的文章:
+    - 推理引擎: contributions/engine.md
+    - 推理构件: contributions/component.md
+    - 推理平台: contributions/platform.md
+  
