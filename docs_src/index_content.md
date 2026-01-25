@@ -180,21 +180,18 @@ cd SAGE
 **Quick PyPI Install**
 
 ```bash
-# Choose your installation mode:
-pip install isage[minimal]   # Core functionality  
-pip install isage[standard]  # Full features
-pip install isage[dev]       # Everything + development tools
+pip install isage        # 安装 SAGE 元包（包含所有核心组件）
+pip install isage[dev]   # 开发模式（额外包含测试和开发工具）
+pip install isage[all]   # 完整安装（包含 CLI、Studio、Gateway 等）
 ```
 
-> Note: PyPI install may not include all system dependencies; use quickstart.sh for complete
-> environment setup.
+> Note: PyPI 安装可能不包含所有系统依赖；建议使用 quickstart.sh 进行完整环境配置。
 
 **Key Installation Features**
 
-- 🎯 Interactive menu for first-time users
-- 🤖 vLLM integration with `--vllm`
-- 🐍 Supports conda or system Python via `--pip`
-- ⚡ Three modes: minimal / standard / dev
+- 🎯 交互式菜单引导首次用户
+- 🐍 支持 conda 或系统 Python（`--pip` / `--conda`）
+- ⚡ 三种安装模式：minimal / dev / full
 
 ## Environment Configuration
 
@@ -335,6 +332,7 @@ Connect with other sage-developers, get help, and stay updated on the latest dev
 
 Quick links:
 
+- **团队分工**: [查看各仓库负责人和贡献者](./community/team-assignments.md)
 - **WeChat Group**: Scan QR codes for instant chat (Chinese/English)
 - **QQ Group**: [IntelliStream课题组讨论群](https://qm.qq.com/q/bcnuyQVcvm)
 - **Slack**:
