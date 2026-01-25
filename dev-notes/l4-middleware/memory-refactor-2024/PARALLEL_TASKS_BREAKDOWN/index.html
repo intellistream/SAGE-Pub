@@ -1,0 +1,2755 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="高性能分布式推理框架 - 数据流原生的模块化、透明、可控的LLM工作流推理框架">
+      
+      
+        <meta name="author" content="IntelliStream Lab">
+      
+      
+        <link rel="canonical" href="https://sage.org.ai/dev-notes/l4-middleware/memory-refactor-2024/PARALLEL_TASKS_BREAKDOWN/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../../assets/img/isage_light.svg">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+    
+    
+  
+    <title>MemoryService 重构 - 并行任务拆解方案</title>
+  
+
+    
+      <link rel="stylesheet" href="../../../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+<!-- Google Tag Manager -->
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-T35S4S46');</script>
+<!-- End Google Tag Manager -->
+
+    
+  <!-- pragma: allowlist secret -->
+  <meta name="algolia-site-verification" content="165B7E7C89E49946" />
+  <style>
+    @import url("https://fonts.googleapis.com/css2?family=Public+Sans&display=swap");
+    :root {
+      --md-primary-fg-color: #333333;
+      --md-accent-fg-color: #1E88E5;
+      --md-default-bg-color: #FFFFFF;
+      --md-default-fg-color: #333333;
+      --md-text-font-family: "Public Sans", sans-serif;
+    }
+
+    body {
+      font-family: var(--md-text-font-family);
+      background-color: var(--md-default-bg-color);
+      color: var(--md-default-fg-color);
+    }
+
+    .md-main {
+      background-color: #FFFFFF;
+    }
+
+    .md-footer {
+      background-color: #F5F5F5;
+      color: #666666;
+    }
+
+    .md-footer-meta {
+      background-color: #4d4d4d;
+    }
+
+    .md-typeset a {
+      color: #1E88E5;
+    }
+
+    .md-typeset a:hover {
+      color: #1565C0;
+    }
+
+    .md-nav__link--active,
+    .md-nav__link:active {
+      color: #1E88E5;
+    }
+
+    .md-search__input {
+      background-color: #F5F5F5;
+      color: #333333;
+    }
+
+    .md-search__input:hover,
+    .md-search__input:focus {
+      background-color: #EEEEEE;
+    }
+    /* Table of contents styles */
+    .md-nav--secondary .md-nav__item--active > .md-nav__link {
+      font-weight: bold;
+      color: var(--md-primary-fg-color);
+    }
+
+    .md-nav--secondary .md-nav__item--nested > .md-nav__link {
+      font-weight: normal;
+      color: var(--md-default-fg-color);
+    }
+
+    .md-header__button.md-logo img {
+      height: 30px;
+      max-height: 30px;
+      width: auto;
+      vertical-align: middle;
+    }
+
+    .md-nav--secondary .md-nav__item--nested > .md-nav__link::before {
+      content: "";
+      display: inline-block;
+      width: 6px;
+      height: 6px;
+      background-color: var(--md-default-fg-color);
+      border-radius: 50%;
+      margin-right: 0.5rem;
+    }
+
+    [data-md-color-scheme="slate"] {
+      --md-default-bg-color: #1E1E1E;
+      --md-default-fg-color: #FFFFFF;
+      --md-accent-fg-color: #64B5F6;
+    }
+
+    [data-md-color-scheme="slate"] .md-main {
+      background-color: #1E1E1E;
+    }
+
+    [data-md-color-scheme="slate"] .navbar {
+      background-color: #1E1E1E;
+      color: #FFFFFF;
+      box-shadow: none;
+    }
+
+    [data-md-color-scheme="slate"] .md-footer {
+      background-color: #1E1E1E;
+      color: #BDBDBD;
+    }
+
+    [data-md-color-scheme="slate"] .md-header {
+      background-color: #1E1E1E;
+      color: #BDBDBD;
+    }
+
+    [data-md-color-scheme="slate"] .md-tabs {
+      background-color: #1E1E1E;
+      color: #BDBDBD;
+    }
+
+    [data-md-color-scheme="slate"] .md-search__input {
+      background-color: #F5F5F5;
+      color: #333333;
+    }
+
+    [data-md-color-scheme="slate"] .md-search__icon {
+      color: #333333;
+    }
+
+    [data-md-color-scheme="slate"] .md-search__input::placeholder {
+      color: #333333;
+    }
+
+    [data-md-color-scheme="slate"] .md-footer-meta {
+      background-color: #4d4d4d;
+    }
+
+    [data-md-color-scheme="slate"] .md-typeset a {
+      color: #64B5F6;
+    }
+
+    [data-md-color-scheme="slate"] .md-typeset a:hover {
+      color: #90CAF9;
+    }
+
+    .notebook-links {
+      display: flex;
+      justify-content: flex-end;
+      margin-bottom: 1rem;
+    }
+    .notebook-links .md-content__button {
+      margin-left: 0.5rem;
+    }
+
+    [data-md-color-scheme=default] .logo-dark {
+      display: none !important;
+    }
+
+    [data-md-color-scheme=slate] .logo-light {
+      display: none !important;
+    }
+
+    .jupyter-wrapper .jp-CodeCell .jp-Cell-inputWrapper .jp-InputPrompt.jp-InputArea-prompt {
+      display: none !important;
+    }
+
+    .jupyter-wrapper .jp-Notebook .jp-Cell .jp-OutputPrompt {
+      display: none !important;
+    }
+
+    .md-banner {
+      background-color: #CFC9FA;
+      color: #000000;
+    }
+
+    .md-banner a {
+      color: #000000;
+      text-decoration: underline;
+    }
+
+    .md-banner a:hover {
+      color: #000000;
+    }
+
+    .md-header__title {
+      visibility: hidden;
+    }
+
+    /* Dark mode banner styling */
+    [data-md-color-scheme="slate"] .md-banner {
+      background-color: #CFC9FA; /* Same light purple for both modes */
+      color: #000000;
+    }
+
+    [data-md-color-scheme="slate"] .md-banner a {
+      color: #000000;
+    }
+
+    [data-md-color-scheme="slate"] .md-banner a:hover {
+      color: #000000;
+    }
+
+  </style>
+
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="blue" data-md-color-accent="blue">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#memoryservice-" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../../../.." title="SAGE Documentation" class="md-header__button md-logo" aria-label="SAGE Documentation" data-md-component="logo">
+      
+  <img src="../../../../assets/logo/sage.svg" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            SAGE Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              MemoryService 重构 - 并行任务拆解方案
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="blue" data-md-color-accent="blue"  aria-label="切换到深色模式"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="切换到深色模式" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="blue" data-md-color-accent="blue"  aria-label="切换到浅色模式"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="切换到浅色模式" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+          <a href="javascript:void(0)" class="md-search__icon md-icon" title="分享" aria-label="分享" data-clipboard data-clipboard-text="" data-md-component="search-share" tabindex="-1">
+            
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.15c-.05.21-.08.43-.08.66 0 1.61 1.31 2.91 2.92 2.91s2.92-1.3 2.92-2.91A2.92 2.92 0 0 0 18 16.08"/></svg>
+          </a>
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/intellistream/SAGE" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    intellistream/SAGE
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+    
+      
+<nav class="md-tabs" aria-label="标签" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  首页
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../../about/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  关于
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../getting-started/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  入门指南
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../concepts/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  核心概念
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../../tutorials/README.md" class="md-tabs__link">
+        
+  
+  
+    
+  
+  高级教程
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../guides/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  用户指南
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../api-reference/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  API 参考
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../developers/commands/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  开发者
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../community/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  社区
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+    
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../../.." title="SAGE Documentation" class="md-nav__button md-logo" aria-label="SAGE Documentation" data-md-component="logo">
+      
+  <img src="../../../../assets/logo/sage.svg" alt="logo">
+
+    </a>
+    SAGE Documentation
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/intellistream/SAGE" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    intellistream/SAGE
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    首页
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../about/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    关于
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../../../getting-started/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    入门指南
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../../../concepts/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    核心概念
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../tutorials/README.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    高级教程
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../../../guides/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    用户指南
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../../../api-reference/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API 参考
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../../../developers/commands/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    开发者
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../../../community/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    社区
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+                
+
+
+
+  
+
+
+              
+              <article class="md-content__inner md-typeset">
+                
+<div class="notebook-links">
+  
+</div>
+
+
+                  
+
+
+  
+  
+
+
+<h1 id="memoryservice-">MemoryService 重构 - 并行任务拆解方案<a class="headerlink" href="#memoryservice-" title="Permanent link">&para;</a></h1>
+<blockquote>
+<p><strong>目标</strong>：将重构任务拆分为可并行执行的子任务，每个任务由不同人员独立完成</p>
+<p><strong>重要约束</strong>：</p>
+<ol>
+<li><strong>一个 Service 对应一个 Collection</strong> - 严格 1:1 关系</li>
+<li><strong>统一接口</strong> - 所有 Service 必须实现 <code>insert(entry, vector, metadata)</code> 和
+   <code>retrieve(query, vector, metadata, top_k)</code></li>
+<li><strong>配置从 from_config 读取</strong> - Service 类自己负责配置解析</li>
+</ol>
+</blockquote>
+<p><strong>更新时间</strong>：2025-12-24</p>
+<p><strong>任务进度</strong>：</p>
+<ul>
+<li>✅ 任务1：基础设施 + Registry（已完成，2025-12-24）</li>
+<li>✅ 任务2：Partitional 类 Service（已完成，2025-12-24）</li>
+<li>✅ 任务3：Hierarchical 类 Service（已完成，2025-12-24）</li>
+<li>✅ 任务4：Hybrid 类 Service（已完成，2025-12-24）</li>
+<li>⏳ 任务5：集成测试 + 文档（待开始）</li>
+</ul>
+<hr />
+<h2 id="12025-12-24">📋 任务1完成报告（2025-12-24）<a class="headerlink" href="#12025-12-24" title="Permanent link">&para;</a></h2>
+<h3 id="_1">核心成果<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h3>
+<p><strong>创建文件</strong>（6个，约1440行）：</p>
+<ul>
+<li><code>base_service.py</code> - BaseMemoryService 抽象基类（~240行）</li>
+<li><code>registry.py</code> - MemoryServiceRegistry 注册表（~180行）</li>
+<li><code>__init__.py</code> - 模块导出（~50行）</li>
+<li><code>README.md</code> - 使用指南（~600行）</li>
+<li><code>examples.py</code> - 示例代码（~200行）</li>
+<li><code>test_registry_standalone.py</code> - 单元测试（~120行）</li>
+</ul>
+<h3 id="_2">关键设计决策<a class="headerlink" href="#_2" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>纯 Registry 模式</strong> - 移除 Factory 层，与 PreInsert/PostInsert 保持一致</li>
+<li><strong>层级命名</strong> - 支持 <code>category.service_name</code> 格式（partitional/hierarchical/hybrid）</li>
+<li><strong>避免循环导入</strong> - 使用 <code>TYPE_CHECKING</code>，移除运行时类型检查</li>
+<li><strong>简化继承</strong> - <code>BaseMemoryService</code> 直接继承 <code>BaseService</code>（不需要多重继承ABC）</li>
+<li><strong>统一接口</strong> - 所有 Service 必须实现 <code>insert/retrieve/delete/get_stats/from_config</code></li>
+</ol>
+<h3 id="_3">测试结果<a class="headerlink" href="#_3" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>✓ Registry 已清空
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>✓ 注册 3 个服务成功
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>✓ 所有服务: [&#39;partitional.vector_memory&#39;, &#39;hierarchical.graph_memory&#39;, &#39;hybrid.multi_index&#39;]
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>✓ Partitional 服务: [&#39;partitional.vector_memory&#39;]
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>✓ Hierarchical 服务: [&#39;hierarchical.graph_memory&#39;]
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>✓ Hybrid 服务: [&#39;hybrid.multi_index&#39;]
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>✓ 获取服务类: MockService
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>✓ 注册状态检查正常
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>✓ 获取类别: partitional
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>✓ 所有类别: [&#39;hierarchical&#39;, &#39;hybrid&#39;, &#39;partitional&#39;]
+<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>✓ 注销服务成功: True
+<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>✓ Registry 清空成功
+<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>所有测试通过!
+</code></pre></div>
+<h3 id="_4">技术亮点<a class="headerlink" href="#_4" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>独立测试</strong> - 使用 <code>importlib</code> 直接加载模块，避免 C++ 依赖问题</li>
+<li><strong>详细文档</strong> - README 包含完整的 API 文档、迁移指南、FAQ</li>
+<li><strong>扩展性强</strong> - 支持按类别过滤、列出所有服务、动态注册/注销</li>
+</ol>
+<h3 id="_5">遇到的问题与解决方案<a class="headerlink" href="#_5" title="Permanent link">&para;</a></h3>
+<p><strong>问题1</strong>: C++ 扩展依赖导致测试失败（<code>GLIBCXX_3.4.30' not found</code>）\
+<strong>解决</strong>: 创建独立测试脚本，使用 <code>importlib.util.spec_from_file_location</code> 直接加载模块</p>
+<p><strong>问题2</strong>: Registry 循环导入问题\
+<strong>解决</strong>: 使用 <code>TYPE_CHECKING</code> 仅在类型检查时导入，移除运行时类型检查</p>
+<hr />
+<h2 id="22025-12-24">📋 任务2完成报告（2025-12-24）<a class="headerlink" href="#22025-12-24" title="Permanent link">&para;</a></h2>
+<h3 id="_6">核心成果<a class="headerlink" href="#_6" title="Permanent link">&para;</a></h3>
+<p><strong>创建文件</strong>（5个，约1200行）：</p>
+<ul>
+<li><code>partitional/short_term_memory.py</code> - ShortTermMemoryService（~290行）</li>
+<li><code>partitional/vector_memory.py</code> - VectorMemoryService（~320行）</li>
+<li><code>partitional/key_value_memory.py</code> - KeyValueMemoryService（~210行）</li>
+<li><code>partitional/vector_hash_memory.py</code> - VectorHashMemoryService（~260行）</li>
+<li><code>partitional/__init__.py</code> - 模块导出和注册（~35行）</li>
+<li><code>tests/.../test_partitional_services.py</code> - 单元测试（~200行）</li>
+</ul>
+<h3 id="service">实现的 Service<a class="headerlink" href="#service" title="Permanent link">&para;</a></h3>
+<ol>
+<li>
+<p><strong>partitional.short_term_memory</strong> - 短期记忆（滑窗 FIFO）</p>
+</li>
+<li>
+<p>Collection: VDBMemoryCollection</p>
+</li>
+<li>特性：时间顺序队列、自动淘汰最旧记忆</li>
+<li>
+<p>配置：max_dialog, embedding_dim</p>
+</li>
+<li>
+<p><strong>partitional.vector_memory</strong> - 向量记忆（多索引支持）</p>
+</li>
+<li>
+<p>Collection: VDBMemoryCollection</p>
+</li>
+<li>特性：支持 6 种 FAISS 索引（LSH/HNSW/Flat/IVF等）</li>
+<li>
+<p>配置：dim, index_type, index_config</p>
+</li>
+<li>
+<p><strong>partitional.key_value_memory</strong> - 键值对记忆（文本检索）</p>
+</li>
+<li>
+<p>Collection: KVMemoryCollection</p>
+</li>
+<li>特性：BM25S 文本检索</li>
+<li>
+<p>配置：index_type, default_topk</p>
+</li>
+<li>
+<p><strong>partitional.vector_hash_memory</strong> - 向量哈希（LSH 近似）</p>
+</li>
+<li>
+<p>Collection: VDBMemoryCollection + IndexLSH</p>
+</li>
+<li>特性：快速近似检索</li>
+<li>配置：dim, nbits, rotate_data</li>
+</ol>
+<h3 id="_7">测试结果<a class="headerlink" href="#_7" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>✓ 注册状态测试 - 所有 4 个服务已注册
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>✓ from_config 测试 - 配置加载正常
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>✓ Service 导入测试 - 类导入成功
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>✓ 所有测试通过
+</code></pre></div>
+<p>运行命令（使用 ksage conda 环境）：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>conda<span class="w"> </span>run<span class="w"> </span>-n<span class="w"> </span>ksage<span class="w"> </span>python<span class="w"> </span>packages/sage-middleware/tests/unit/components/sage_mem/memory_service/test_partitional_services.py
+</code></pre></div>
+<h3 id="_8">技术亮点<a class="headerlink" href="#_8" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>统一接口</strong> - 所有 Service 实现 insert/retrieve/delete/get_stats/from_config</li>
+<li><strong>配置驱动</strong> - 支持从 RuntimeConfig 读取配置并创建 ServiceFactory</li>
+<li><strong>纯 Registry 模式</strong> - 无 Factory 层，直接注册到 MemoryServiceRegistry</li>
+<li><strong>层级命名</strong> - 使用 "partitional.xxx" 格式，清晰分类</li>
+</ol>
+<h3 id="_9">遇到的问题与解决方案<a class="headerlink" href="#_9" title="Permanent link">&para;</a></h3>
+<p><strong>问题1</strong>: C++ 扩展依赖（GLIBCXX_3.4.30 not found）\
+<strong>解决</strong>: 使用 ksage conda 环境运行测试</p>
+<p><strong>问题2</strong>: ServiceFactory 参数传递方式\
+<strong>解决</strong>: 使用 <code>service_kwargs</code> 字典传递所有构造参数</p>
+<p><strong>问题3</strong>: MockConfig 配置读取\
+<strong>解决</strong>: 修正配置结构为分层结构（services → partitional → service_name → params）</p>
+<h3 id="_10">文件位置<a class="headerlink" href="#_10" title="Permanent link">&para;</a></h3>
+<ul>
+<li>实现:
+  <code>/packages/sage-middleware/src/sage/middleware/components/sage_mem/memory_service/partitional/</code></li>
+<li>测试:
+  <code>/packages/sage-middleware/tests/unit/components/sage_mem/memory_service/test_partitional_services.py</code></li>
+</ul>
+<hr />
+<h2 id="32025-12-24">📋 任务3完成报告（2025-12-24）<a class="headerlink" href="#32025-12-24" title="Permanent link">&para;</a></h2>
+<h3 id="_11">核心成果<a class="headerlink" href="#_11" title="Permanent link">&para;</a></h3>
+<p><strong>创建文件</strong>（4个，共1264行）：</p>
+<ul>
+<li><code>hierarchical/three_tier.py</code> - ThreeTierMemoryService（433行）</li>
+<li><code>hierarchical/graph_memory.py</code> - GraphMemoryService（546行）</li>
+<li><code>hierarchical/__init__.py</code> - 模块导出和注册（20行）</li>
+<li><code>tests/.../test_hierarchical_services.py</code> - 单元测试（265行）</li>
+</ul>
+<h3 id="service_1">实现的 Service<a class="headerlink" href="#service_1" title="Permanent link">&para;</a></h3>
+<ol>
+<li>
+<p><strong>hierarchical.three_tier</strong> - 三层记忆（STM/MTM/LTM）</p>
+</li>
+<li>
+<p>Collection: HybridCollection（单一 Collection，多索引代表层级）</p>
+</li>
+<li>特性：三层结构、层间迁移、容量管理</li>
+<li>配置：tier_capacities, migration_policy, embedding_dim</li>
+<li>迁移策略：overflow（溢出迁移）、importance（重要性）、time（遗忘曲线）</li>
+<li>
+<p>MemGPT 特性：use_core_embedding, use_recall_hybrid</p>
+</li>
+<li>
+<p><strong>hierarchical.graph_memory</strong> - 图记忆（HippoRAG/A-Mem）</p>
+</li>
+<li>
+<p>Collection: GraphMemoryCollection</p>
+</li>
+<li>特性：节点/边管理、PPR 检索、向量相似度起始节点查找</li>
+<li>配置：graph_type, link_policy, ppr_depth, ppr_damping, enhanced_rerank</li>
+<li>两种模式：knowledge_graph（HippoRAG）、link_graph（A-Mem）</li>
+<li>被动插入状态管理：_pending_node, _pending_candidates, _pending_action</li>
+</ol>
+<h3 id="_12">测试结果<a class="headerlink" href="#_12" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>============================================================
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>测试 Hierarchical Services 注册状态
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>============================================================
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>✓ Hierarchical 包导入成功
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>✓ hierarchical.three_tier: 已注册
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>✓ hierarchical.graph_memory: 已注册
+<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>
+<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>所有 Hierarchical 服务:
+<a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a>  - hierarchical.three_tier
+<a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a>  - hierarchical.graph_memory
+<a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a>
+<a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a>============================================================
+<a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a>测试 from_config 方法
+<a id="__codelineno-3-14" name="__codelineno-3-14" href="#__codelineno-3-14"></a>============================================================
+<a id="__codelineno-3-15" name="__codelineno-3-15" href="#__codelineno-3-15"></a>✓ ThreeTierMemoryService from_config 成功
+<a id="__codelineno-3-16" name="__codelineno-3-16" href="#__codelineno-3-16"></a>  - service_name: hierarchical.three_tier
+<a id="__codelineno-3-17" name="__codelineno-3-17" href="#__codelineno-3-17"></a>  - service_class: ThreeTierMemoryService
+<a id="__codelineno-3-18" name="__codelineno-3-18" href="#__codelineno-3-18"></a>  - kwargs: [&#39;tier_capacities&#39;, &#39;migration_policy&#39;, &#39;embedding_dim&#39;, ...]
+<a id="__codelineno-3-19" name="__codelineno-3-19" href="#__codelineno-3-19"></a>
+<a id="__codelineno-3-20" name="__codelineno-3-20" href="#__codelineno-3-20"></a>✓ GraphMemoryService from_config 成功
+<a id="__codelineno-3-21" name="__codelineno-3-21" href="#__codelineno-3-21"></a>  - service_name: hierarchical.graph_memory
+<a id="__codelineno-3-22" name="__codelineno-3-22" href="#__codelineno-3-22"></a>  - service_class: GraphMemoryService
+<a id="__codelineno-3-23" name="__codelineno-3-23" href="#__codelineno-3-23"></a>  - kwargs: [&#39;collection_name&#39;, &#39;graph_type&#39;, &#39;link_policy&#39;, ...]
+<a id="__codelineno-3-24" name="__codelineno-3-24" href="#__codelineno-3-24"></a>
+<a id="__codelineno-3-25" name="__codelineno-3-25" href="#__codelineno-3-25"></a>============================================================
+<a id="__codelineno-3-26" name="__codelineno-3-26" href="#__codelineno-3-26"></a>测试 Service 实例化
+<a id="__codelineno-3-27" name="__codelineno-3-27" href="#__codelineno-3-27"></a>============================================================
+<a id="__codelineno-3-28" name="__codelineno-3-28" href="#__codelineno-3-28"></a>✓ ThreeTierMemoryService 导入成功
+<a id="__codelineno-3-29" name="__codelineno-3-29" href="#__codelineno-3-29"></a>✓ GraphMemoryService 导入成功
+<a id="__codelineno-3-30" name="__codelineno-3-30" href="#__codelineno-3-30"></a>✓ 继承关系验证成功（都继承自 BaseMemoryService）
+<a id="__codelineno-3-31" name="__codelineno-3-31" href="#__codelineno-3-31"></a>✓ 必须方法验证成功: [&#39;insert&#39;, &#39;retrieve&#39;, &#39;delete&#39;, &#39;get_stats&#39;, &#39;from_config&#39;]
+<a id="__codelineno-3-32" name="__codelineno-3-32" href="#__codelineno-3-32"></a>
+<a id="__codelineno-3-33" name="__codelineno-3-33" href="#__codelineno-3-33"></a>============================================================
+<a id="__codelineno-3-34" name="__codelineno-3-34" href="#__codelineno-3-34"></a>测试 Registry 列出功能
+<a id="__codelineno-3-35" name="__codelineno-3-35" href="#__codelineno-3-35"></a>============================================================
+<a id="__codelineno-3-36" name="__codelineno-3-36" href="#__codelineno-3-36"></a>✓ Hierarchical 服务列表: [&#39;hierarchical.three_tier&#39;, &#39;hierarchical.graph_memory&#39;]
+<a id="__codelineno-3-37" name="__codelineno-3-37" href="#__codelineno-3-37"></a>✓ 类别验证成功
+<a id="__codelineno-3-38" name="__codelineno-3-38" href="#__codelineno-3-38"></a>
+<a id="__codelineno-3-39" name="__codelineno-3-39" href="#__codelineno-3-39"></a>🎉 所有测试通过!
+</code></pre></div>
+<p>运行命令（使用 ksage conda 环境）：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>conda<span class="w"> </span>run<span class="w"> </span>-n<span class="w"> </span>ksage<span class="w"> </span>python<span class="w"> </span>packages/sage-middleware/tests/unit/components/sage_mem/memory_service/test_hierarchical_services.py
+</code></pre></div>
+<h3 id="_13">技术亮点<a class="headerlink" href="#_13" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>统一接口</strong> - 所有 Service 实现 insert/retrieve/delete/get_stats/from_config</li>
+<li><strong>1:1 关系严格遵守</strong> - ThreeTier 虽有三层，但仍是单一 HybridCollection（通过多索引区分）</li>
+<li><strong>层级命名</strong> - 使用 "hierarchical.xxx" 格式，清晰分类</li>
+<li><strong>被动插入支持</strong> - GraphMemory 实现 _pending_status 管理，供 PostInsert 查询</li>
+<li><strong>完整的配置支持</strong> - 支持所有论文算法的关键参数（MemGPT/HippoRAG/A-Mem）</li>
+</ol>
+<h3 id="_14">关键设计决策<a class="headerlink" href="#_14" title="Permanent link">&para;</a></h3>
+<ol>
+<li>
+<p><strong>三层记忆实现方式</strong>：</p>
+</li>
+<li>
+<p>使用单一 HybridCollection，每层对应独立的 VDB 索引（stm_index/mtm_index/ltm_index）</p>
+</li>
+<li>通过 metadata.tier 标记记忆所属层级</li>
+<li>
+<p>层间迁移使用 remove_from_index + insert_to_index</p>
+</li>
+<li>
+<p><strong>图记忆实现方式</strong>：</p>
+</li>
+<li>
+<p>使用 GraphMemoryCollection 存储节点和边</p>
+</li>
+<li>_vector_index 字典用于向量相似度查找起始节点</li>
+<li>
+<p>支持 BFS/neighbors/PPR 三种检索方法</p>
+</li>
+<li>
+<p><strong>被动插入状态管理</strong>：</p>
+</li>
+<li>
+<p>_pending_node: 新插入的节点信息</p>
+</li>
+<li>_pending_candidates: 候选链接/同义节点列表</li>
+<li>_pending_action: "link"（A-Mem）或 "synonym"（HippoRAG）</li>
+</ol>
+<h3 id="_15">遇到的问题与解决方案<a class="headerlink" href="#_15" title="Permanent link">&para;</a></h3>
+<p><strong>问题1</strong>: C++ 扩展依赖（GLIBCXX_3.4.30 not found）\
+<strong>解决</strong>: 使用 ksage conda 环境运行测试</p>
+<p><strong>问题2</strong>: 三层记忆的 Collection 选择\
+<strong>解决</strong>: 使用 HybridCollection 而非三个独立 Collection，符合 1:1 原则</p>
+<p><strong>问题3</strong>: 图记忆的向量检索起始节点\
+<strong>解决</strong>: 维护独立的 _vector_index 字典，用于快速向量相似度查找</p>
+<h3 id="_16">文件位置<a class="headerlink" href="#_16" title="Permanent link">&para;</a></h3>
+<ul>
+<li>实现:
+  <code>/packages/sage-middleware/src/sage/middleware/components/sage_mem/memory_service/hierarchical/</code></li>
+<li>测试:
+  <code>/packages/sage-middleware/tests/unit/components/sage_mem/memory_service/test_hierarchical_services.py</code></li>
+</ul>
+<hr />
+<h2 id="42025-12-24">📋 任务4完成报告（2025-12-24）<a class="headerlink" href="#42025-12-24" title="Permanent link">&para;</a></h2>
+<h3 id="_17">核心成果<a class="headerlink" href="#_17" title="Permanent link">&para;</a></h3>
+<p><strong>创建文件</strong>（3个，约800行）：</p>
+<ul>
+<li><code>hybrid/multi_index.py</code> - MultiIndexMemoryService（~700行）</li>
+<li><code>hybrid/__init__.py</code> - 模块导出和注册（~30行）</li>
+<li><code>tests/.../test_hybrid_services.py</code> - 单元测试（~150行）</li>
+</ul>
+<h3 id="service_2">实现的 Service<a class="headerlink" href="#service_2" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>hybrid.multi_index</strong> - 多索引混合记忆（Mem0 / EmotionalRAG）</li>
+<li>Collection: HybridCollection（单一 Collection，多索引）</li>
+<li>特性：多索引融合检索、被动插入 CRUD 决策、多向量支持</li>
+<li>配置：indexes, fusion_strategy, fusion_weights, rrf_k, graph_enabled</li>
+<li>融合策略：weighted（加权）、rrf（倒数排名）、union（合并）</li>
+<li>支持模式：<ul>
+<li>Mem0 基础版：VDB + KV（BM25）</li>
+<li>Mem0ᵍ 图增强版：VDB + KV + Graph</li>
+<li>EmotionalRAG：双向量索引（语义 + 情感）</li>
+<li>自定义组合：任意 VDB/KV/Graph 索引组合</li>
+</ul>
+</li>
+</ol>
+<h3 id="_18">测试结果<a class="headerlink" href="#_18" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>============================================================
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>测试 Hybrid Services 注册状态
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>============================================================
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>✓ Hybrid 包导入成功
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>✓ hybrid.multi_index: 已注册
+<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>
+<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a>所有 Hybrid 服务:
+<a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a>  - hybrid.multi_index
+<a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a>
+<a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a>============================================================
+<a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a>测试 from_config 方法
+<a id="__codelineno-5-12" name="__codelineno-5-12" href="#__codelineno-5-12"></a>============================================================
+<a id="__codelineno-5-13" name="__codelineno-5-13" href="#__codelineno-5-13"></a>✓ MultiIndexMemoryService from_config 成功
+<a id="__codelineno-5-14" name="__codelineno-5-14" href="#__codelineno-5-14"></a>  - service_name: hybrid.multi_index
+<a id="__codelineno-5-15" name="__codelineno-5-15" href="#__codelineno-5-15"></a>  - service_class: MultiIndexMemoryService
+<a id="__codelineno-5-16" name="__codelineno-5-16" href="#__codelineno-5-16"></a>  - kwargs: [&#39;indexes&#39;, &#39;fusion_strategy&#39;, &#39;fusion_weights&#39;, &#39;rrf_k&#39;, &#39;collection_name&#39;, ...]
+<a id="__codelineno-5-17" name="__codelineno-5-17" href="#__codelineno-5-17"></a>
+<a id="__codelineno-5-18" name="__codelineno-5-18" href="#__codelineno-5-18"></a>============================================================
+<a id="__codelineno-5-19" name="__codelineno-5-19" href="#__codelineno-5-19"></a>测试 Service 实例化
+<a id="__codelineno-5-20" name="__codelineno-5-20" href="#__codelineno-5-20"></a>============================================================
+<a id="__codelineno-5-21" name="__codelineno-5-21" href="#__codelineno-5-21"></a>✓ MultiIndexMemoryService 导入成功
+<a id="__codelineno-5-22" name="__codelineno-5-22" href="#__codelineno-5-22"></a>✓ 继承关系验证成功（都继承自 BaseMemoryService）
+<a id="__codelineno-5-23" name="__codelineno-5-23" href="#__codelineno-5-23"></a>✓ 必须方法验证成功: [&#39;insert&#39;, &#39;retrieve&#39;, &#39;delete&#39;, &#39;get_stats&#39;, &#39;from_config&#39;]
+<a id="__codelineno-5-24" name="__codelineno-5-24" href="#__codelineno-5-24"></a>
+<a id="__codelineno-5-25" name="__codelineno-5-25" href="#__codelineno-5-25"></a>============================================================
+<a id="__codelineno-5-26" name="__codelineno-5-26" href="#__codelineno-5-26"></a>测试 Registry 列出功能
+<a id="__codelineno-5-27" name="__codelineno-5-27" href="#__codelineno-5-27"></a>============================================================
+<a id="__codelineno-5-28" name="__codelineno-5-28" href="#__codelineno-5-28"></a>✓ Hybrid 服务列表: [&#39;hybrid.multi_index&#39;]
+<a id="__codelineno-5-29" name="__codelineno-5-29" href="#__codelineno-5-29"></a>✓ 类别验证成功
+<a id="__codelineno-5-30" name="__codelineno-5-30" href="#__codelineno-5-30"></a>
+<a id="__codelineno-5-31" name="__codelineno-5-31" href="#__codelineno-5-31"></a>🎉 所有测试通过!
+</code></pre></div>
+<p>运行命令（使用 ksage conda 环境）：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>conda<span class="w"> </span>run<span class="w"> </span>-n<span class="w"> </span>ksage<span class="w"> </span>python<span class="w"> </span>packages/sage-middleware/tests/unit/components/sage_mem/memory_service/test_hybrid_services.py
+</code></pre></div>
+<h3 id="_19">技术亮点<a class="headerlink" href="#_19" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>统一接口</strong> - 完整实现 insert/retrieve/delete/get_stats/from_config</li>
+<li><strong>1:1 关系严格遵守</strong> - 单一 HybridCollection，多索引通过 index_configs 管理</li>
+<li><strong>层级命名</strong> - 使用 "hybrid.xxx" 格式，清晰分类</li>
+<li><strong>被动插入支持</strong> - 实现 _pending_status 管理，供 PostInsert CRUD 决策</li>
+<li><strong>多索引融合</strong> - 支持三种融合策略（weighted/rrf/union）</li>
+<li><strong>灵活配置</strong> - 支持动态索引配置（VDB/KV/Graph 任意组合）</li>
+<li><strong>多向量支持</strong> - 支持 EmotionalRAG 的双向量场景（metadata.vectors）</li>
+</ol>
+<h3 id="_20">关键设计决策<a class="headerlink" href="#_20" title="Permanent link">&para;</a></h3>
+<ol>
+<li>
+<p><strong>混合记忆实现方式</strong>：</p>
+</li>
+<li>
+<p>使用单一 HybridCollection，通过 index_configs 配置多个索引</p>
+</li>
+<li>数据只存一份（text_storage + metadata_storage），多索引共享</li>
+<li>
+<p>支持三种索引类型：VDB（向量）、KV（文本）、Graph（图结构）</p>
+</li>
+<li>
+<p><strong>融合检索策略</strong>：</p>
+</li>
+<li>
+<p>weighted: 加权融合，需指定 fusion_weights</p>
+</li>
+<li>rrf: 倒数排名融合（推荐，无需权重，参数 rrf_k=60）</li>
+<li>
+<p>union: 合并所有结果（不排序）</p>
+</li>
+<li>
+<p><strong>被动插入状态管理</strong>（Mem0 CRUD 模式）：</p>
+</li>
+<li>
+<p>_pending_items: 新插入的待决策条目</p>
+</li>
+<li>_pending_similar: 相似的已有条目（自动检索）</li>
+<li>_pending_action: "crud"（触发 PostInsert 决策）</li>
+<li>get_status(): 供 PostInsert 查询</li>
+<li>
+<p>clear_pending_status(): 决策完成后清除</p>
+</li>
+<li>
+<p><strong>多向量支持</strong>（EmotionalRAG 场景）：</p>
+</li>
+<li>
+<p>metadata.vectors: {"semantic": vec1, "emotional": vec2}</p>
+</li>
+<li>每个 VDB 索引可以有独立的向量</li>
+<li>retrieve 时也支持多向量查询</li>
+</ol>
+<h3 id="_21">遇到的问题与解决方案<a class="headerlink" href="#_21" title="Permanent link">&para;</a></h3>
+<p><strong>问题1</strong>: C++ 扩展依赖（GLIBCXX_3.4.30 not found）\
+<strong>解决</strong>: 使用 ksage conda 环境运行测试</p>
+<p><strong>问题2</strong>: 多索引融合检索的实现\
+<strong>解决</strong>: 依赖 HybridCollection 的 retrieve_multi 方法，自动处理融合逻辑</p>
+<p><strong>问题3</strong>: 被动插入状态管理的时机\
+<strong>解决</strong>: 在 insert 方法末尾，检测 insert_mode="passive" 时自动检索相似项并更新状态</p>
+<h3 id="_22">文件位置<a class="headerlink" href="#_22" title="Permanent link">&para;</a></h3>
+<ul>
+<li>实现: <code>/packages/sage-middleware/src/sage/middleware/components/sage_mem/memory_service/hybrid/</code></li>
+<li>测试:
+  <code>/packages/sage-middleware/tests/unit/components/sage_mem/memory_service/test_hybrid_services.py</code></li>
+</ul>
+<h3 id="_23">配置示例<a class="headerlink" href="#_23" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="nt">services</span><span class="p">:</span>
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="w">  </span><span class="nt">register_memory_service</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;hybrid.multi_index&quot;</span>
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="w">  </span><span class="nt">hybrid.multi_index</span><span class="p">:</span>
+<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="w">    </span><span class="nt">indexes</span><span class="p">:</span>
+<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">semantic</span>
+<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a><span class="w">        </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">vdb</span>
+<a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a><span class="w">        </span><span class="nt">dim</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">768</span>
+<a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">keyword</span>
+<a id="__codelineno-7-9" name="__codelineno-7-9" href="#__codelineno-7-9"></a><span class="w">        </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">kv</span>
+<a id="__codelineno-7-10" name="__codelineno-7-10" href="#__codelineno-7-10"></a><span class="w">        </span><span class="nt">index_type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">bm25s</span>
+<a id="__codelineno-7-11" name="__codelineno-7-11" href="#__codelineno-7-11"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">entity_graph</span><span class="w">  </span><span class="c1"># Mem0ᵍ 图增强</span>
+<a id="__codelineno-7-12" name="__codelineno-7-12" href="#__codelineno-7-12"></a><span class="w">        </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">graph</span>
+<a id="__codelineno-7-13" name="__codelineno-7-13" href="#__codelineno-7-13"></a><span class="w">    </span><span class="nt">fusion_strategy</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">rrf</span>
+<a id="__codelineno-7-14" name="__codelineno-7-14" href="#__codelineno-7-14"></a><span class="w">    </span><span class="nt">rrf_k</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">60</span>
+<a id="__codelineno-7-15" name="__codelineno-7-15" href="#__codelineno-7-15"></a><span class="w">    </span><span class="nt">collection_name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">hybrid_memory</span>
+<a id="__codelineno-7-16" name="__codelineno-7-16" href="#__codelineno-7-16"></a><span class="w">    </span><span class="nt">graph_enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<a id="__codelineno-7-17" name="__codelineno-7-17" href="#__codelineno-7-17"></a><span class="w">    </span><span class="nt">entity_extraction</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<a id="__codelineno-7-18" name="__codelineno-7-18" href="#__codelineno-7-18"></a><span class="w">    </span><span class="nt">relation_extraction</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+</code></pre></div>
+<h3 id="_24">支持的算法<a class="headerlink" href="#_24" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>算法</th>
+<th>索引配置</th>
+<th>融合策略</th>
+<th>特性</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Mem0 基础版</td>
+<td>VDB + KV</td>
+<td>rrf</td>
+<td>CRUD 决策</td>
+</tr>
+<tr>
+<td>Mem0ᵍ 图增强版</td>
+<td>VDB + KV + Graph</td>
+<td>rrf</td>
+<td>实体/关系抽取</td>
+</tr>
+<tr>
+<td>EmotionalRAG</td>
+<td>双 VDB（语义+情感）</td>
+<td>weighted</td>
+<td>多向量融合</td>
+</tr>
+<tr>
+<td>自定义</td>
+<td>任意组合</td>
+<td>weighted/rrf/union</td>
+<td>灵活配置</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="_25">一、上层代码调用分析<a class="headerlink" href="#_25" title="Permanent link">&para;</a></h2>
+<h3 id="11-semantic_search">1.1 核心调用接口（从 semantic_search 结果总结）<a class="headerlink" href="#11-semantic_search" title="Permanent link">&para;</a></h3>
+<p><strong>MemoryInsert 调用</strong>：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="c1"># 插入单条记忆</span>
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="n">memory_id</span> <span class="o">=</span> <span class="n">call_service</span><span class="p">(</span>
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>    <span class="n">service_name</span><span class="p">,</span>          <span class="c1"># 如 &quot;partitional.vector_memory&quot;</span>
+<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>    <span class="n">entry</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>             <span class="c1"># 记忆文本</span>
+<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a>    <span class="n">vector</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>     <span class="c1"># 向量（可选）</span>
+<a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a>    <span class="n">metadata</span><span class="o">=</span><span class="nb">dict</span><span class="p">,</span>         <span class="c1"># 元数据（可选）</span>
+<a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a>    <span class="n">method</span><span class="o">=</span><span class="s2">&quot;insert&quot;</span>
+<a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a><span class="p">)</span>
+</code></pre></div>
+<p><strong>MemoryRetrieval 调用</strong>：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="c1"># 检索记忆</span>
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="n">results</span> <span class="o">=</span> <span class="n">call_service</span><span class="p">(</span>
+<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>    <span class="n">service_name</span><span class="p">,</span>
+<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a>    <span class="n">query</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>             <span class="c1"># 查询文本（可选）</span>
+<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a>    <span class="n">vector</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>     <span class="c1"># 查询向量（可选）</span>
+<a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a>    <span class="n">metadata</span><span class="o">=</span><span class="nb">dict</span><span class="p">,</span>         <span class="c1"># 筛选条件（可选）</span>
+<a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a>    <span class="n">top_k</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span>             <span class="c1"># 返回数量</span>
+<a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a>    <span class="n">method</span><span class="o">=</span><span class="s2">&quot;retrieve&quot;</span>
+<a id="__codelineno-9-9" name="__codelineno-9-9" href="#__codelineno-9-9"></a><span class="p">)</span>
+<a id="__codelineno-9-10" name="__codelineno-9-10" href="#__codelineno-9-10"></a><span class="c1"># 返回: list[dict] - [{&quot;text&quot;: str, &quot;metadata&quot;: dict, &quot;score&quot;: float}, ...]</span>
+</code></pre></div>
+<h3 id="12">1.2 关键发现<a class="headerlink" href="#12" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>统一接口已验证</strong>：从测试代码看，所有 Service 都已实现 <code>insert</code> 和 <code>retrieve</code></li>
+<li><strong>metadata 传递参数</strong>：Service 特定参数通过 <code>metadata</code> 传递（如 <code>tiers</code>, <code>method</code>）</li>
+<li><strong>insert_mode/insert_params</strong> 已存在：部分 Service 已支持 <code>insert_mode="active/passive"</code></li>
+<li><strong>无多余接口</strong>：主要接口就是 <code>insert</code>/<code>retrieve</code>/<code>delete</code>/<code>get_stats</code></li>
+</ol>
+<h3 id="13">1.3 需要调整的接口<a class="headerlink" href="#13" title="Permanent link">&para;</a></h3>
+<p>根据代码分析，当前 Service 已经比较统一，主要需要：</p>
+<ul>
+<li>✅ 添加 <code>from_config</code> 类方法（新增）</li>
+<li>✅ 确保 <code>insert</code>/<code>retrieve</code> 参数完全一致</li>
+<li>❌ 不需要删除任何现有接口（都有用）</li>
+</ul>
+<hr />
+<h2 id="5">二、并行任务拆解（5个独立任务）<a class="headerlink" href="#5" title="Permanent link">&para;</a></h2>
+<h3 id="_26">任务分配原则<a class="headerlink" href="#_26" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>按 Service 类别拆分</strong> - Partitional/Hierarchical/Hybrid 三大类</li>
+<li><strong>每个任务独立</strong> - 可并行开发，互不依赖</li>
+<li><strong>统一模板</strong> - 提供基类和示例，保证接口一致</li>
+</ol>
+<hr />
+<h2 id="1-registry">任务 1: 基础设施 + Registry（核心，优先级最高）✅ <strong>已完成</strong><a class="headerlink" href="#1-registry" title="Permanent link">&para;</a></h2>
+<p><strong>负责人</strong>：资深开发者 A</p>
+<p><strong>工作量</strong>：2-3 小时</p>
+<p><strong>目标</strong>：搭建重构基础，供其他任务使用</p>
+<p><strong>完成时间</strong>：2025-12-24</p>
+<p><strong>完成内容</strong>：</p>
+<ol>
+<li>✅ 创建 <code>base_service.py</code> - BaseMemoryService 抽象基类</li>
+<li>✅ 创建 <code>registry.py</code> - MemoryServiceRegistry 注册表</li>
+<li>✅ 创建 <code>__init__.py</code> - 导出接口</li>
+<li>✅ 创建单元测试 <code>test_registry_standalone.py</code></li>
+<li>✅ 测试通过（所有功能验证成功）</li>
+</ol>
+<p><strong>文件位置</strong>：</p>
+<ul>
+<li><code>/home/zrc/develop_item/SAGE/packages/sage-middleware/src/sage/middleware/components/sage_mem/memory_service/base_service.py</code></li>
+<li><code>/home/zrc/develop_item/SAGE/packages/sage-middleware/src/sage/middleware/components/sage_mem/memory_service/registry.py</code></li>
+<li><code>/home/zrc/develop_item/SAGE/packages/sage-middleware/src/sage/middleware/components/sage_mem/memory_service/__init__.py</code></li>
+<li><code>/home/zrc/develop_item/SAGE/packages/sage-middleware/tests/unit/components/sage_mem/memory_service/test_registry_standalone.py</code></li>
+</ul>
+<p><strong>验收标准</strong>：</p>
+<ul>
+<li>✅ <code>BaseMemoryService</code> 定义清晰的抽象接口（insert/retrieve/delete/get_stats/from_config）</li>
+<li>✅ <code>MemoryServiceRegistry</code> 支持注册和查询（支持层级命名）</li>
+<li>✅ 单元测试通过（测试 Registry 基本功能）</li>
+<li>✅ 注册/注销服务</li>
+<li>✅ 获取服务类</li>
+<li>✅ 列出所有服务</li>
+<li>✅ 按类别列出服务（partitional/hierarchical/hybrid）</li>
+<li>✅ 检查注册状态</li>
+<li>✅ 获取服务类别</li>
+<li>✅ 清空注册表</li>
+</ul>
+<p><strong>关键设计决策</strong>：</p>
+<ol>
+<li>移除 Factory 层，采用纯 Registry 模式（与 PreInsert/PostInsert 一致）</li>
+<li>Service 类自己负责从配置创建实例（通过 <code>from_config</code> 类方法）</li>
+<li>支持层级命名（如 "partitional.vector_memory"）</li>
+<li>Registry 不做运行时类型检查，避免循环导入问题</li>
+</ol>
+<h3 id="11">1.1 创建文件<a class="headerlink" href="#11" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>packages/sage-middleware/src/sage/middleware/components/sage_mem/memory_service/
+<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>├── __init__.py                      # 导出 Registry 和 base
+<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>├── base_service.py                  # BaseMemoryService 抽象基类
+<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a>└── registry.py                      # MemoryServiceRegistry
+</code></pre></div>
+<h3 id="12_1">1.2 实现内容<a class="headerlink" href="#12_1" title="Permanent link">&para;</a></h3>
+<h4 id="base_servicepy-"><code>base_service.py</code> - 抽象基类<a class="headerlink" href="#base_servicepy-" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="sd">&quot;&quot;&quot;MemoryService 基类 - 定义统一接口&quot;&quot;&quot;</span>
+<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>
+<a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a><span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+<a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a>
+<a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a><span class="kn">from</span><span class="w"> </span><span class="nn">abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">abstractmethod</span>
+<a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a><span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Literal</span>
+<a id="__codelineno-11-7" name="__codelineno-11-7" href="#__codelineno-11-7"></a>
+<a id="__codelineno-11-8" name="__codelineno-11-8" href="#__codelineno-11-8"></a><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<a id="__codelineno-11-9" name="__codelineno-11-9" href="#__codelineno-11-9"></a>
+<a id="__codelineno-11-10" name="__codelineno-11-10" href="#__codelineno-11-10"></a><span class="kn">from</span><span class="w"> </span><span class="nn">sage.platform.service</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseService</span>
+<a id="__codelineno-11-11" name="__codelineno-11-11" href="#__codelineno-11-11"></a>
+<a id="__codelineno-11-12" name="__codelineno-11-12" href="#__codelineno-11-12"></a><span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
+<a id="__codelineno-11-13" name="__codelineno-11-13" href="#__codelineno-11-13"></a>    <span class="kn">from</span><span class="w"> </span><span class="nn">sage.kernel.runtime.factory.service_factory</span><span class="w"> </span><span class="kn">import</span> <span class="n">ServiceFactory</span>
+<a id="__codelineno-11-14" name="__codelineno-11-14" href="#__codelineno-11-14"></a>
+<a id="__codelineno-11-15" name="__codelineno-11-15" href="#__codelineno-11-15"></a>
+<a id="__codelineno-11-16" name="__codelineno-11-16" href="#__codelineno-11-16"></a><span class="k">class</span><span class="w"> </span><span class="nc">BaseMemoryService</span><span class="p">(</span><span class="n">BaseService</span><span class="p">):</span>
+<a id="__codelineno-11-17" name="__codelineno-11-17" href="#__codelineno-11-17"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;MemoryService 统一抽象基类</span>
+<a id="__codelineno-11-18" name="__codelineno-11-18" href="#__codelineno-11-18"></a>
+<a id="__codelineno-11-19" name="__codelineno-11-19" href="#__codelineno-11-19"></a><span class="sd">    设计原则：</span>
+<a id="__codelineno-11-20" name="__codelineno-11-20" href="#__codelineno-11-20"></a><span class="sd">    1. 一个 Service 对应一个 Collection（严格 1:1）</span>
+<a id="__codelineno-11-21" name="__codelineno-11-21" href="#__codelineno-11-21"></a><span class="sd">    2. 统一接口：insert/retrieve/delete/get_stats</span>
+<a id="__codelineno-11-22" name="__codelineno-11-22" href="#__codelineno-11-22"></a><span class="sd">    3. 配置通过 from_config 类方法读取</span>
+<a id="__codelineno-11-23" name="__codelineno-11-23" href="#__codelineno-11-23"></a><span class="sd">    &quot;&quot;&quot;</span>
+<a id="__codelineno-11-24" name="__codelineno-11-24" href="#__codelineno-11-24"></a>
+<a id="__codelineno-11-25" name="__codelineno-11-25" href="#__codelineno-11-25"></a>    <span class="nd">@classmethod</span>
+<a id="__codelineno-11-26" name="__codelineno-11-26" href="#__codelineno-11-26"></a>    <span class="nd">@abstractmethod</span>
+<a id="__codelineno-11-27" name="__codelineno-11-27" href="#__codelineno-11-27"></a>    <span class="k">def</span><span class="w"> </span><span class="nf">from_config</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">service_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ServiceFactory</span><span class="p">:</span>
+<a id="__codelineno-11-28" name="__codelineno-11-28" href="#__codelineno-11-28"></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;从配置创建 ServiceFactory（供 Pipeline 使用）</span>
+<a id="__codelineno-11-29" name="__codelineno-11-29" href="#__codelineno-11-29"></a>
+<a id="__codelineno-11-30" name="__codelineno-11-30" href="#__codelineno-11-30"></a><span class="sd">        Args:</span>
+<a id="__codelineno-11-31" name="__codelineno-11-31" href="#__codelineno-11-31"></a><span class="sd">            service_name: 服务名称（如 &quot;partitional.vector_memory&quot;）</span>
+<a id="__codelineno-11-32" name="__codelineno-11-32" href="#__codelineno-11-32"></a><span class="sd">            config: RuntimeConfig 对象</span>
+<a id="__codelineno-11-33" name="__codelineno-11-33" href="#__codelineno-11-33"></a>
+<a id="__codelineno-11-34" name="__codelineno-11-34" href="#__codelineno-11-34"></a><span class="sd">        Returns:</span>
+<a id="__codelineno-11-35" name="__codelineno-11-35" href="#__codelineno-11-35"></a><span class="sd">            ServiceFactory 实例</span>
+<a id="__codelineno-11-36" name="__codelineno-11-36" href="#__codelineno-11-36"></a>
+<a id="__codelineno-11-37" name="__codelineno-11-37" href="#__codelineno-11-37"></a><span class="sd">        Notes:</span>
+<a id="__codelineno-11-38" name="__codelineno-11-38" href="#__codelineno-11-38"></a><span class="sd">            - 子类必须实现此方法</span>
+<a id="__codelineno-11-39" name="__codelineno-11-39" href="#__codelineno-11-39"></a><span class="sd">            - 配置路径：services.{service_name}.*</span>
+<a id="__codelineno-11-40" name="__codelineno-11-40" href="#__codelineno-11-40"></a><span class="sd">            - 返回 ServiceFactory(service_name, service_class, service_kwargs)</span>
+<a id="__codelineno-11-41" name="__codelineno-11-41" href="#__codelineno-11-41"></a><span class="sd">        &quot;&quot;&quot;</span>
+<a id="__codelineno-11-42" name="__codelineno-11-42" href="#__codelineno-11-42"></a>        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">cls</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> must implement from_config()&quot;</span><span class="p">)</span>
+<a id="__codelineno-11-43" name="__codelineno-11-43" href="#__codelineno-11-43"></a>
+<a id="__codelineno-11-44" name="__codelineno-11-44" href="#__codelineno-11-44"></a>    <span class="nd">@abstractmethod</span>
+<a id="__codelineno-11-45" name="__codelineno-11-45" href="#__codelineno-11-45"></a>    <span class="k">def</span><span class="w"> </span><span class="nf">insert</span><span class="p">(</span>
+<a id="__codelineno-11-46" name="__codelineno-11-46" href="#__codelineno-11-46"></a>        <span class="bp">self</span><span class="p">,</span>
+<a id="__codelineno-11-47" name="__codelineno-11-47" href="#__codelineno-11-47"></a>        <span class="n">entry</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+<a id="__codelineno-11-48" name="__codelineno-11-48" href="#__codelineno-11-48"></a>        <span class="n">vector</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<a id="__codelineno-11-49" name="__codelineno-11-49" href="#__codelineno-11-49"></a>        <span class="n">metadata</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<a id="__codelineno-11-50" name="__codelineno-11-50" href="#__codelineno-11-50"></a>        <span class="o">*</span><span class="p">,</span>
+<a id="__codelineno-11-51" name="__codelineno-11-51" href="#__codelineno-11-51"></a>        <span class="n">insert_mode</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;active&quot;</span><span class="p">,</span> <span class="s2">&quot;passive&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;passive&quot;</span><span class="p">,</span>
+<a id="__codelineno-11-52" name="__codelineno-11-52" href="#__codelineno-11-52"></a>        <span class="n">insert_params</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<a id="__codelineno-11-53" name="__codelineno-11-53" href="#__codelineno-11-53"></a>    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<a id="__codelineno-11-54" name="__codelineno-11-54" href="#__codelineno-11-54"></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;插入记忆</span>
+<a id="__codelineno-11-55" name="__codelineno-11-55" href="#__codelineno-11-55"></a>
+<a id="__codelineno-11-56" name="__codelineno-11-56" href="#__codelineno-11-56"></a><span class="sd">        Args:</span>
+<a id="__codelineno-11-57" name="__codelineno-11-57" href="#__codelineno-11-57"></a><span class="sd">            entry: 记忆文本</span>
+<a id="__codelineno-11-58" name="__codelineno-11-58" href="#__codelineno-11-58"></a><span class="sd">            vector: 向量表示（可选）</span>
+<a id="__codelineno-11-59" name="__codelineno-11-59" href="#__codelineno-11-59"></a><span class="sd">            metadata: 元数据</span>
+<a id="__codelineno-11-60" name="__codelineno-11-60" href="#__codelineno-11-60"></a><span class="sd">            insert_mode: 插入模式（passive=自动处理，active=显式控制）</span>
+<a id="__codelineno-11-61" name="__codelineno-11-61" href="#__codelineno-11-61"></a><span class="sd">            insert_params: 插入参数（如 target_tier, priority 等）</span>
+<a id="__codelineno-11-62" name="__codelineno-11-62" href="#__codelineno-11-62"></a>
+<a id="__codelineno-11-63" name="__codelineno-11-63" href="#__codelineno-11-63"></a><span class="sd">        Returns:</span>
+<a id="__codelineno-11-64" name="__codelineno-11-64" href="#__codelineno-11-64"></a><span class="sd">            记忆ID</span>
+<a id="__codelineno-11-65" name="__codelineno-11-65" href="#__codelineno-11-65"></a><span class="sd">        &quot;&quot;&quot;</span>
+<a id="__codelineno-11-66" name="__codelineno-11-66" href="#__codelineno-11-66"></a>        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> must implement insert()&quot;</span><span class="p">)</span>
+<a id="__codelineno-11-67" name="__codelineno-11-67" href="#__codelineno-11-67"></a>
+<a id="__codelineno-11-68" name="__codelineno-11-68" href="#__codelineno-11-68"></a>    <span class="nd">@abstractmethod</span>
+<a id="__codelineno-11-69" name="__codelineno-11-69" href="#__codelineno-11-69"></a>    <span class="k">def</span><span class="w"> </span><span class="nf">retrieve</span><span class="p">(</span>
+<a id="__codelineno-11-70" name="__codelineno-11-70" href="#__codelineno-11-70"></a>        <span class="bp">self</span><span class="p">,</span>
+<a id="__codelineno-11-71" name="__codelineno-11-71" href="#__codelineno-11-71"></a>        <span class="n">query</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<a id="__codelineno-11-72" name="__codelineno-11-72" href="#__codelineno-11-72"></a>        <span class="n">vector</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<a id="__codelineno-11-73" name="__codelineno-11-73" href="#__codelineno-11-73"></a>        <span class="n">metadata</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<a id="__codelineno-11-74" name="__codelineno-11-74" href="#__codelineno-11-74"></a>        <span class="n">top_k</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span>
+<a id="__codelineno-11-75" name="__codelineno-11-75" href="#__codelineno-11-75"></a>    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]:</span>
+<a id="__codelineno-11-76" name="__codelineno-11-76" href="#__codelineno-11-76"></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;检索记忆</span>
+<a id="__codelineno-11-77" name="__codelineno-11-77" href="#__codelineno-11-77"></a>
+<a id="__codelineno-11-78" name="__codelineno-11-78" href="#__codelineno-11-78"></a><span class="sd">        Args:</span>
+<a id="__codelineno-11-79" name="__codelineno-11-79" href="#__codelineno-11-79"></a><span class="sd">            query: 查询文本（可选）</span>
+<a id="__codelineno-11-80" name="__codelineno-11-80" href="#__codelineno-11-80"></a><span class="sd">            vector: 查询向量（可选）</span>
+<a id="__codelineno-11-81" name="__codelineno-11-81" href="#__codelineno-11-81"></a><span class="sd">            metadata: 筛选条件（可选，如 tiers, method）</span>
+<a id="__codelineno-11-82" name="__codelineno-11-82" href="#__codelineno-11-82"></a><span class="sd">            top_k: 返回数量</span>
+<a id="__codelineno-11-83" name="__codelineno-11-83" href="#__codelineno-11-83"></a>
+<a id="__codelineno-11-84" name="__codelineno-11-84" href="#__codelineno-11-84"></a><span class="sd">        Returns:</span>
+<a id="__codelineno-11-85" name="__codelineno-11-85" href="#__codelineno-11-85"></a><span class="sd">            记忆列表 [{&quot;text&quot;: str, &quot;metadata&quot;: dict, &quot;score&quot;: float}, ...]</span>
+<a id="__codelineno-11-86" name="__codelineno-11-86" href="#__codelineno-11-86"></a><span class="sd">        &quot;&quot;&quot;</span>
+<a id="__codelineno-11-87" name="__codelineno-11-87" href="#__codelineno-11-87"></a>        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> must implement retrieve()&quot;</span><span class="p">)</span>
+<a id="__codelineno-11-88" name="__codelineno-11-88" href="#__codelineno-11-88"></a>
+<a id="__codelineno-11-89" name="__codelineno-11-89" href="#__codelineno-11-89"></a>    <span class="nd">@abstractmethod</span>
+<a id="__codelineno-11-90" name="__codelineno-11-90" href="#__codelineno-11-90"></a>    <span class="k">def</span><span class="w"> </span><span class="nf">delete</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<a id="__codelineno-11-91" name="__codelineno-11-91" href="#__codelineno-11-91"></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;删除记忆</span>
+<a id="__codelineno-11-92" name="__codelineno-11-92" href="#__codelineno-11-92"></a>
+<a id="__codelineno-11-93" name="__codelineno-11-93" href="#__codelineno-11-93"></a><span class="sd">        Args:</span>
+<a id="__codelineno-11-94" name="__codelineno-11-94" href="#__codelineno-11-94"></a><span class="sd">            item_id: 记忆ID</span>
+<a id="__codelineno-11-95" name="__codelineno-11-95" href="#__codelineno-11-95"></a>
+<a id="__codelineno-11-96" name="__codelineno-11-96" href="#__codelineno-11-96"></a><span class="sd">        Returns:</span>
+<a id="__codelineno-11-97" name="__codelineno-11-97" href="#__codelineno-11-97"></a><span class="sd">            是否成功</span>
+<a id="__codelineno-11-98" name="__codelineno-11-98" href="#__codelineno-11-98"></a><span class="sd">        &quot;&quot;&quot;</span>
+<a id="__codelineno-11-99" name="__codelineno-11-99" href="#__codelineno-11-99"></a>        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> must implement delete()&quot;</span><span class="p">)</span>
+<a id="__codelineno-11-100" name="__codelineno-11-100" href="#__codelineno-11-100"></a>
+<a id="__codelineno-11-101" name="__codelineno-11-101" href="#__codelineno-11-101"></a>    <span class="nd">@abstractmethod</span>
+<a id="__codelineno-11-102" name="__codelineno-11-102" href="#__codelineno-11-102"></a>    <span class="k">def</span><span class="w"> </span><span class="nf">get_stats</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<a id="__codelineno-11-103" name="__codelineno-11-103" href="#__codelineno-11-103"></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;获取统计信息</span>
+<a id="__codelineno-11-104" name="__codelineno-11-104" href="#__codelineno-11-104"></a>
+<a id="__codelineno-11-105" name="__codelineno-11-105" href="#__codelineno-11-105"></a><span class="sd">        Returns:</span>
+<a id="__codelineno-11-106" name="__codelineno-11-106" href="#__codelineno-11-106"></a><span class="sd">            统计数据（如 total_count, tier_counts 等）</span>
+<a id="__codelineno-11-107" name="__codelineno-11-107" href="#__codelineno-11-107"></a><span class="sd">        &quot;&quot;&quot;</span>
+<a id="__codelineno-11-108" name="__codelineno-11-108" href="#__codelineno-11-108"></a>        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> must implement get_stats()&quot;</span><span class="p">)</span>
+</code></pre></div>
+<h4 id="registrypy-"><code>registry.py</code> - 注册表<a class="headerlink" href="#registrypy-" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="sd">&quot;&quot;&quot;MemoryService 注册表&quot;&quot;&quot;</span>
+<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>
+<a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a><span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+<a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a>
+<a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a><span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span>
+<a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a>
+<a id="__codelineno-12-7" name="__codelineno-12-7" href="#__codelineno-12-7"></a><span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
+<a id="__codelineno-12-8" name="__codelineno-12-8" href="#__codelineno-12-8"></a>    <span class="kn">from</span><span class="w"> </span><span class="nn">.base_service</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseMemoryService</span>
+<a id="__codelineno-12-9" name="__codelineno-12-9" href="#__codelineno-12-9"></a>
+<a id="__codelineno-12-10" name="__codelineno-12-10" href="#__codelineno-12-10"></a>
+<a id="__codelineno-12-11" name="__codelineno-12-11" href="#__codelineno-12-11"></a><span class="k">class</span><span class="w"> </span><span class="nc">MemoryServiceRegistry</span><span class="p">:</span>
+<a id="__codelineno-12-12" name="__codelineno-12-12" href="#__codelineno-12-12"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;MemoryService 注册表</span>
+<a id="__codelineno-12-13" name="__codelineno-12-13" href="#__codelineno-12-13"></a>
+<a id="__codelineno-12-14" name="__codelineno-12-14" href="#__codelineno-12-14"></a><span class="sd">    支持层级命名（如 &quot;partitional.vector_memory&quot;）</span>
+<a id="__codelineno-12-15" name="__codelineno-12-15" href="#__codelineno-12-15"></a>
+<a id="__codelineno-12-16" name="__codelineno-12-16" href="#__codelineno-12-16"></a><span class="sd">    三大类：</span>
+<a id="__codelineno-12-17" name="__codelineno-12-17" href="#__codelineno-12-17"></a><span class="sd">    - Partitional：vector_memory, key_value_memory, short_term_memory, vector_hash_memory</span>
+<a id="__codelineno-12-18" name="__codelineno-12-18" href="#__codelineno-12-18"></a><span class="sd">    - Hierarchical：graph_memory, three_tier</span>
+<a id="__codelineno-12-19" name="__codelineno-12-19" href="#__codelineno-12-19"></a><span class="sd">    - Hybrid：multi_index</span>
+<a id="__codelineno-12-20" name="__codelineno-12-20" href="#__codelineno-12-20"></a><span class="sd">    &quot;&quot;&quot;</span>
+<a id="__codelineno-12-21" name="__codelineno-12-21" href="#__codelineno-12-21"></a>
+<a id="__codelineno-12-22" name="__codelineno-12-22" href="#__codelineno-12-22"></a>    <span class="n">_services</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">type</span><span class="p">[</span><span class="n">BaseMemoryService</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
+<a id="__codelineno-12-23" name="__codelineno-12-23" href="#__codelineno-12-23"></a>
+<a id="__codelineno-12-24" name="__codelineno-12-24" href="#__codelineno-12-24"></a>    <span class="nd">@classmethod</span>
+<a id="__codelineno-12-25" name="__codelineno-12-25" href="#__codelineno-12-25"></a>    <span class="k">def</span><span class="w"> </span><span class="nf">register</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">service_class</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">BaseMemoryService</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<a id="__codelineno-12-26" name="__codelineno-12-26" href="#__codelineno-12-26"></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;注册一个 Service&quot;&quot;&quot;</span>
+<a id="__codelineno-12-27" name="__codelineno-12-27" href="#__codelineno-12-27"></a>        <span class="bp">cls</span><span class="o">.</span><span class="n">_services</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">service_class</span>
+<a id="__codelineno-12-28" name="__codelineno-12-28" href="#__codelineno-12-28"></a>
+<a id="__codelineno-12-29" name="__codelineno-12-29" href="#__codelineno-12-29"></a>    <span class="nd">@classmethod</span>
+<a id="__codelineno-12-30" name="__codelineno-12-30" href="#__codelineno-12-30"></a>    <span class="k">def</span><span class="w"> </span><span class="nf">get</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">type</span><span class="p">[</span><span class="n">BaseMemoryService</span><span class="p">]:</span>
+<a id="__codelineno-12-31" name="__codelineno-12-31" href="#__codelineno-12-31"></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;获取 Service 类&quot;&quot;&quot;</span>
+<a id="__codelineno-12-32" name="__codelineno-12-32" href="#__codelineno-12-32"></a>        <span class="k">if</span> <span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_services</span><span class="p">:</span>
+<a id="__codelineno-12-33" name="__codelineno-12-33" href="#__codelineno-12-33"></a>            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+<a id="__codelineno-12-34" name="__codelineno-12-34" href="#__codelineno-12-34"></a>                <span class="sa">f</span><span class="s2">&quot;Unknown MemoryService: &#39;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39;. &quot;</span>
+<a id="__codelineno-12-35" name="__codelineno-12-35" href="#__codelineno-12-35"></a>                <span class="sa">f</span><span class="s2">&quot;Available: </span><span class="si">{</span><span class="nb">list</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">_services</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span><span class="si">}</span><span class="s2">&quot;</span>
+<a id="__codelineno-12-36" name="__codelineno-12-36" href="#__codelineno-12-36"></a>            <span class="p">)</span>
+<a id="__codelineno-12-37" name="__codelineno-12-37" href="#__codelineno-12-37"></a>        <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_services</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+<a id="__codelineno-12-38" name="__codelineno-12-38" href="#__codelineno-12-38"></a>
+<a id="__codelineno-12-39" name="__codelineno-12-39" href="#__codelineno-12-39"></a>    <span class="nd">@classmethod</span>
+<a id="__codelineno-12-40" name="__codelineno-12-40" href="#__codelineno-12-40"></a>    <span class="k">def</span><span class="w"> </span><span class="nf">list_services</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">category</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<a id="__codelineno-12-41" name="__codelineno-12-41" href="#__codelineno-12-41"></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;列出所有已注册的 Service&quot;&quot;&quot;</span>
+<a id="__codelineno-12-42" name="__codelineno-12-42" href="#__codelineno-12-42"></a>        <span class="k">if</span> <span class="n">category</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+<a id="__codelineno-12-43" name="__codelineno-12-43" href="#__codelineno-12-43"></a>            <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">_services</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+<a id="__codelineno-12-44" name="__codelineno-12-44" href="#__codelineno-12-44"></a>        <span class="n">prefix</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">category</span><span class="si">}</span><span class="s2">.&quot;</span>
+<a id="__codelineno-12-45" name="__codelineno-12-45" href="#__codelineno-12-45"></a>        <span class="k">return</span> <span class="p">[</span><span class="n">name</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_services</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="k">if</span> <span class="n">name</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">prefix</span><span class="p">)]</span>
+<a id="__codelineno-12-46" name="__codelineno-12-46" href="#__codelineno-12-46"></a>
+<a id="__codelineno-12-47" name="__codelineno-12-47" href="#__codelineno-12-47"></a>    <span class="nd">@classmethod</span>
+<a id="__codelineno-12-48" name="__codelineno-12-48" href="#__codelineno-12-48"></a>    <span class="k">def</span><span class="w"> </span><span class="nf">is_registered</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<a id="__codelineno-12-49" name="__codelineno-12-49" href="#__codelineno-12-49"></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;检查 Service 是否已注册&quot;&quot;&quot;</span>
+<a id="__codelineno-12-50" name="__codelineno-12-50" href="#__codelineno-12-50"></a>        <span class="k">return</span> <span class="n">name</span> <span class="ow">in</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_services</span>
+<a id="__codelineno-12-51" name="__codelineno-12-51" href="#__codelineno-12-51"></a>
+<a id="__codelineno-12-52" name="__codelineno-12-52" href="#__codelineno-12-52"></a>    <span class="nd">@classmethod</span>
+<a id="__codelineno-12-53" name="__codelineno-12-53" href="#__codelineno-12-53"></a>    <span class="k">def</span><span class="w"> </span><span class="nf">get_category</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<a id="__codelineno-12-54" name="__codelineno-12-54" href="#__codelineno-12-54"></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;获取 Service 的类别&quot;&quot;&quot;</span>
+<a id="__codelineno-12-55" name="__codelineno-12-55" href="#__codelineno-12-55"></a>        <span class="k">if</span> <span class="s2">&quot;.&quot;</span> <span class="ow">in</span> <span class="n">name</span><span class="p">:</span>
+<a id="__codelineno-12-56" name="__codelineno-12-56" href="#__codelineno-12-56"></a>            <span class="k">return</span> <span class="n">name</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+<a id="__codelineno-12-57" name="__codelineno-12-57" href="#__codelineno-12-57"></a>        <span class="k">return</span> <span class="kc">None</span>
+</code></pre></div>
+<h4 id="__init__py-"><code>__init__.py</code> - 导出接口<a class="headerlink" href="#__init__py-" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="sd">&quot;&quot;&quot;MemoryService 重构版本 - 纯 Registry 模式&quot;&quot;&quot;</span>
+<a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a>
+<a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a><span class="kn">from</span><span class="w"> </span><span class="nn">.base_service</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseMemoryService</span>
+<a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a><span class="kn">from</span><span class="w"> </span><span class="nn">.registry</span><span class="w"> </span><span class="kn">import</span> <span class="n">MemoryServiceRegistry</span>
+<a id="__codelineno-13-5" name="__codelineno-13-5" href="#__codelineno-13-5"></a>
+<a id="__codelineno-13-6" name="__codelineno-13-6" href="#__codelineno-13-6"></a><span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
+<a id="__codelineno-13-7" name="__codelineno-13-7" href="#__codelineno-13-7"></a>    <span class="s2">&quot;BaseMemoryService&quot;</span><span class="p">,</span>
+<a id="__codelineno-13-8" name="__codelineno-13-8" href="#__codelineno-13-8"></a>    <span class="s2">&quot;MemoryServiceRegistry&quot;</span><span class="p">,</span>
+<a id="__codelineno-13-9" name="__codelineno-13-9" href="#__codelineno-13-9"></a><span class="p">]</span>
+</code></pre></div>
+<h3 id="13_1">1.3 验收标准<a class="headerlink" href="#13_1" title="Permanent link">&para;</a></h3>
+<ul>
+<li>✅ <code>BaseMemoryService</code> 定义清晰的抽象接口</li>
+<li>✅ <code>MemoryServiceRegistry</code> 支持注册和查询</li>
+<li>✅ 单元测试通过（测试 Registry 基本功能）</li>
+</ul>
+<hr />
+<h2 id="2-partitional-service4">任务 2: Partitional 类 Service（4个，可并行）<a class="headerlink" href="#2-partitional-service4" title="Permanent link">&para;</a></h2>
+<p><strong>负责人</strong>：开发者 B、C、D、E（每人 1-2 个）</p>
+<p><strong>工作量</strong>：每个 Service 约 1-1.5 小时</p>
+<p><strong>目标</strong>：实现 Partitional 类的 4 个 Service</p>
+<h3 id="21-service">2.1 Service 列表<a class="headerlink" href="#21-service" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Service 名称</th>
+<th>对应原文件</th>
+<th>Collection 类型</th>
+<th>负责人</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>partitional.short_term_memory</code></td>
+<td><code>short_term_memory_service.py</code></td>
+<td><code>VDBMemoryCollection</code></td>
+<td>开发者 B</td>
+</tr>
+<tr>
+<td><code>partitional.vector_memory</code></td>
+<td><code>vector_memory_service.py</code></td>
+<td><code>VDBMemoryCollection</code></td>
+<td>开发者 C</td>
+</tr>
+<tr>
+<td><code>partitional.key_value_memory</code></td>
+<td><code>key_value_memory_service.py</code></td>
+<td><code>KVMemoryCollection</code></td>
+<td>开发者 D</td>
+</tr>
+<tr>
+<td><code>partitional.vector_hash_memory</code></td>
+<td>（新增，参考 vector_memory）</td>
+<td><code>VDBMemoryCollection</code> + LSH</td>
+<td>开发者 E</td>
+</tr>
+</tbody>
+</table>
+<h3 id="22-short_term_memory">2.2 实现模板（以 short_term_memory 为例）<a class="headerlink" href="#22-short_term_memory" title="Permanent link">&para;</a></h3>
+<p><strong>文件位置</strong>：<code>memory_service/partitional/short_term_memory.py</code></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="sd">&quot;&quot;&quot;短期记忆服务 - Partitional 类&quot;&quot;&quot;</span>
+<a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a>
+<a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a><span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+<a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a>
+<a id="__codelineno-14-5" name="__codelineno-14-5" href="#__codelineno-14-5"></a><span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Literal</span>
+<a id="__codelineno-14-6" name="__codelineno-14-6" href="#__codelineno-14-6"></a>
+<a id="__codelineno-14-7" name="__codelineno-14-7" href="#__codelineno-14-7"></a><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<a id="__codelineno-14-8" name="__codelineno-14-8" href="#__codelineno-14-8"></a>
+<a id="__codelineno-14-9" name="__codelineno-14-9" href="#__codelineno-14-9"></a><span class="kn">from</span><span class="w"> </span><span class="nn">sage.kernel.runtime.factory.service_factory</span><span class="w"> </span><span class="kn">import</span> <span class="n">ServiceFactory</span>
+<a id="__codelineno-14-10" name="__codelineno-14-10" href="#__codelineno-14-10"></a><span class="kn">from</span><span class="w"> </span><span class="nn">sage.middleware.components.sage_mem.neuromem.memory_manager</span><span class="w"> </span><span class="kn">import</span> <span class="n">MemoryManager</span>
+<a id="__codelineno-14-11" name="__codelineno-14-11" href="#__codelineno-14-11"></a><span class="kn">from</span><span class="w"> </span><span class="nn">sage.common.config.output_paths</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_appropriate_sage_dir</span>
+<a id="__codelineno-14-12" name="__codelineno-14-12" href="#__codelineno-14-12"></a>
+<a id="__codelineno-14-13" name="__codelineno-14-13" href="#__codelineno-14-13"></a><span class="kn">from</span><span class="w"> </span><span class="nn">..base_service</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseMemoryService</span>
+<a id="__codelineno-14-14" name="__codelineno-14-14" href="#__codelineno-14-14"></a>
+<a id="__codelineno-14-15" name="__codelineno-14-15" href="#__codelineno-14-15"></a><span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
+<a id="__codelineno-14-16" name="__codelineno-14-16" href="#__codelineno-14-16"></a>    <span class="k">pass</span>
+<a id="__codelineno-14-17" name="__codelineno-14-17" href="#__codelineno-14-17"></a>
+<a id="__codelineno-14-18" name="__codelineno-14-18" href="#__codelineno-14-18"></a>
+<a id="__codelineno-14-19" name="__codelineno-14-19" href="#__codelineno-14-19"></a><span class="k">class</span><span class="w"> </span><span class="nc">ShortTermMemoryService</span><span class="p">(</span><span class="n">BaseMemoryService</span><span class="p">):</span>
+<a id="__codelineno-14-20" name="__codelineno-14-20" href="#__codelineno-14-20"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;短期记忆服务 - 滑窗 + FIFO</span>
+<a id="__codelineno-14-21" name="__codelineno-14-21" href="#__codelineno-14-21"></a>
+<a id="__codelineno-14-22" name="__codelineno-14-22" href="#__codelineno-14-22"></a><span class="sd">    设计原则：</span>
+<a id="__codelineno-14-23" name="__codelineno-14-23" href="#__codelineno-14-23"></a><span class="sd">    - Service : Collection = 1 : 1</span>
+<a id="__codelineno-14-24" name="__codelineno-14-24" href="#__codelineno-14-24"></a><span class="sd">    - 使用 VDBMemoryCollection</span>
+<a id="__codelineno-14-25" name="__codelineno-14-25" href="#__codelineno-14-25"></a><span class="sd">    - 自动淘汰最旧记忆</span>
+<a id="__codelineno-14-26" name="__codelineno-14-26" href="#__codelineno-14-26"></a><span class="sd">    &quot;&quot;&quot;</span>
+<a id="__codelineno-14-27" name="__codelineno-14-27" href="#__codelineno-14-27"></a>
+<a id="__codelineno-14-28" name="__codelineno-14-28" href="#__codelineno-14-28"></a>    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+<a id="__codelineno-14-29" name="__codelineno-14-29" href="#__codelineno-14-29"></a>        <span class="bp">self</span><span class="p">,</span>
+<a id="__codelineno-14-30" name="__codelineno-14-30" href="#__codelineno-14-30"></a>        <span class="n">max_dialog</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+<a id="__codelineno-14-31" name="__codelineno-14-31" href="#__codelineno-14-31"></a>        <span class="n">collection_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;stm_collection&quot;</span><span class="p">,</span>
+<a id="__codelineno-14-32" name="__codelineno-14-32" href="#__codelineno-14-32"></a>        <span class="n">embedding_dim</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1024</span><span class="p">,</span>
+<a id="__codelineno-14-33" name="__codelineno-14-33" href="#__codelineno-14-33"></a>    <span class="p">):</span>
+<a id="__codelineno-14-34" name="__codelineno-14-34" href="#__codelineno-14-34"></a>        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+<a id="__codelineno-14-35" name="__codelineno-14-35" href="#__codelineno-14-35"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">max_dialog</span> <span class="o">=</span> <span class="n">max_dialog</span>
+<a id="__codelineno-14-36" name="__codelineno-14-36" href="#__codelineno-14-36"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">collection_name</span> <span class="o">=</span> <span class="n">collection_name</span>
+<a id="__codelineno-14-37" name="__codelineno-14-37" href="#__codelineno-14-37"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">embedding_dim</span> <span class="o">=</span> <span class="n">embedding_dim</span>
+<a id="__codelineno-14-38" name="__codelineno-14-38" href="#__codelineno-14-38"></a>
+<a id="__codelineno-14-39" name="__codelineno-14-39" href="#__codelineno-14-39"></a>        <span class="c1"># 创建 MemoryManager + Collection（1:1 关系）</span>
+<a id="__codelineno-14-40" name="__codelineno-14-40" href="#__codelineno-14-40"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">manager</span> <span class="o">=</span> <span class="n">MemoryManager</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_default_data_dir</span><span class="p">())</span>
+<a id="__codelineno-14-41" name="__codelineno-14-41" href="#__codelineno-14-41"></a>
+<a id="__codelineno-14-42" name="__codelineno-14-42" href="#__codelineno-14-42"></a>        <span class="c1"># 创建或加载 Collection</span>
+<a id="__codelineno-14-43" name="__codelineno-14-43" href="#__codelineno-14-43"></a>        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">manager</span><span class="o">.</span><span class="n">has_collection</span><span class="p">(</span><span class="n">collection_name</span><span class="p">):</span>
+<a id="__codelineno-14-44" name="__codelineno-14-44" href="#__codelineno-14-44"></a>            <span class="bp">self</span><span class="o">.</span><span class="n">collection</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">manager</span><span class="o">.</span><span class="n">create_collection</span><span class="p">({</span>
+<a id="__codelineno-14-45" name="__codelineno-14-45" href="#__codelineno-14-45"></a>                <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">collection_name</span><span class="p">,</span>
+<a id="__codelineno-14-46" name="__codelineno-14-46" href="#__codelineno-14-46"></a>                <span class="s2">&quot;backend_type&quot;</span><span class="p">:</span> <span class="s2">&quot;vdb&quot;</span><span class="p">,</span>
+<a id="__codelineno-14-47" name="__codelineno-14-47" href="#__codelineno-14-47"></a>                <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Short-term memory with sliding window&quot;</span><span class="p">,</span>
+<a id="__codelineno-14-48" name="__codelineno-14-48" href="#__codelineno-14-48"></a>            <span class="p">})</span>
+<a id="__codelineno-14-49" name="__codelineno-14-49" href="#__codelineno-14-49"></a>            <span class="c1"># 创建索引</span>
+<a id="__codelineno-14-50" name="__codelineno-14-50" href="#__codelineno-14-50"></a>            <span class="bp">self</span><span class="o">.</span><span class="n">collection</span><span class="o">.</span><span class="n">create_index</span><span class="p">({</span>
+<a id="__codelineno-14-51" name="__codelineno-14-51" href="#__codelineno-14-51"></a>                <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;main_index&quot;</span><span class="p">,</span>
+<a id="__codelineno-14-52" name="__codelineno-14-52" href="#__codelineno-14-52"></a>                <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;vdb&quot;</span><span class="p">,</span>
+<a id="__codelineno-14-53" name="__codelineno-14-53" href="#__codelineno-14-53"></a>                <span class="s2">&quot;index_type&quot;</span><span class="p">:</span> <span class="s2">&quot;IndexFlatL2&quot;</span><span class="p">,</span>
+<a id="__codelineno-14-54" name="__codelineno-14-54" href="#__codelineno-14-54"></a>                <span class="s2">&quot;dim&quot;</span><span class="p">:</span> <span class="n">embedding_dim</span><span class="p">,</span>
+<a id="__codelineno-14-55" name="__codelineno-14-55" href="#__codelineno-14-55"></a>            <span class="p">})</span>
+<a id="__codelineno-14-56" name="__codelineno-14-56" href="#__codelineno-14-56"></a>        <span class="k">else</span><span class="p">:</span>
+<a id="__codelineno-14-57" name="__codelineno-14-57" href="#__codelineno-14-57"></a>            <span class="bp">self</span><span class="o">.</span><span class="n">collection</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">manager</span><span class="o">.</span><span class="n">get_collection</span><span class="p">(</span><span class="n">collection_name</span><span class="p">)</span>
+<a id="__codelineno-14-58" name="__codelineno-14-58" href="#__codelineno-14-58"></a>
+<a id="__codelineno-14-59" name="__codelineno-14-59" href="#__codelineno-14-59"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">index_name</span> <span class="o">=</span> <span class="s2">&quot;main_index&quot;</span>
+<a id="__codelineno-14-60" name="__codelineno-14-60" href="#__codelineno-14-60"></a>
+<a id="__codelineno-14-61" name="__codelineno-14-61" href="#__codelineno-14-61"></a>    <span class="nd">@classmethod</span>
+<a id="__codelineno-14-62" name="__codelineno-14-62" href="#__codelineno-14-62"></a>    <span class="k">def</span><span class="w"> </span><span class="nf">from_config</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">service_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ServiceFactory</span><span class="p">:</span>
+<a id="__codelineno-14-63" name="__codelineno-14-63" href="#__codelineno-14-63"></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;从配置创建 ServiceFactory</span>
+<a id="__codelineno-14-64" name="__codelineno-14-64" href="#__codelineno-14-64"></a>
+<a id="__codelineno-14-65" name="__codelineno-14-65" href="#__codelineno-14-65"></a><span class="sd">        配置示例:</span>
+<a id="__codelineno-14-66" name="__codelineno-14-66" href="#__codelineno-14-66"></a><span class="sd">            services:</span>
+<a id="__codelineno-14-67" name="__codelineno-14-67" href="#__codelineno-14-67"></a><span class="sd">              partitional.short_term_memory:</span>
+<a id="__codelineno-14-68" name="__codelineno-14-68" href="#__codelineno-14-68"></a><span class="sd">                max_dialog: 10</span>
+<a id="__codelineno-14-69" name="__codelineno-14-69" href="#__codelineno-14-69"></a><span class="sd">                embedding_dim: 1024</span>
+<a id="__codelineno-14-70" name="__codelineno-14-70" href="#__codelineno-14-70"></a><span class="sd">        &quot;&quot;&quot;</span>
+<a id="__codelineno-14-71" name="__codelineno-14-71" href="#__codelineno-14-71"></a>        <span class="n">max_dialog</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;services.</span><span class="si">{</span><span class="n">service_name</span><span class="si">}</span><span class="s2">.max_dialog&quot;</span><span class="p">)</span>
+<a id="__codelineno-14-72" name="__codelineno-14-72" href="#__codelineno-14-72"></a>        <span class="k">if</span> <span class="n">max_dialog</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+<a id="__codelineno-14-73" name="__codelineno-14-73" href="#__codelineno-14-73"></a>            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Missing config: services.</span><span class="si">{</span><span class="n">service_name</span><span class="si">}</span><span class="s2">.max_dialog&quot;</span><span class="p">)</span>
+<a id="__codelineno-14-74" name="__codelineno-14-74" href="#__codelineno-14-74"></a>
+<a id="__codelineno-14-75" name="__codelineno-14-75" href="#__codelineno-14-75"></a>        <span class="n">embedding_dim</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;services.</span><span class="si">{</span><span class="n">service_name</span><span class="si">}</span><span class="s2">.embedding_dim&quot;</span><span class="p">,</span> <span class="mi">1024</span><span class="p">)</span>
+<a id="__codelineno-14-76" name="__codelineno-14-76" href="#__codelineno-14-76"></a>        <span class="n">collection_name</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+<a id="__codelineno-14-77" name="__codelineno-14-77" href="#__codelineno-14-77"></a>            <span class="sa">f</span><span class="s2">&quot;services.</span><span class="si">{</span><span class="n">service_name</span><span class="si">}</span><span class="s2">.collection_name&quot;</span><span class="p">,</span>
+<a id="__codelineno-14-78" name="__codelineno-14-78" href="#__codelineno-14-78"></a>            <span class="sa">f</span><span class="s2">&quot;stm_</span><span class="si">{</span><span class="n">service_name</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;_&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+<a id="__codelineno-14-79" name="__codelineno-14-79" href="#__codelineno-14-79"></a>        <span class="p">)</span>
+<a id="__codelineno-14-80" name="__codelineno-14-80" href="#__codelineno-14-80"></a>
+<a id="__codelineno-14-81" name="__codelineno-14-81" href="#__codelineno-14-81"></a>        <span class="k">return</span> <span class="n">ServiceFactory</span><span class="p">(</span>
+<a id="__codelineno-14-82" name="__codelineno-14-82" href="#__codelineno-14-82"></a>            <span class="n">service_name</span><span class="o">=</span><span class="n">service_name</span><span class="p">,</span>
+<a id="__codelineno-14-83" name="__codelineno-14-83" href="#__codelineno-14-83"></a>            <span class="n">service_class</span><span class="o">=</span><span class="bp">cls</span><span class="p">,</span>
+<a id="__codelineno-14-84" name="__codelineno-14-84" href="#__codelineno-14-84"></a>            <span class="n">service_kwargs</span><span class="o">=</span><span class="p">{</span>
+<a id="__codelineno-14-85" name="__codelineno-14-85" href="#__codelineno-14-85"></a>                <span class="s2">&quot;max_dialog&quot;</span><span class="p">:</span> <span class="n">max_dialog</span><span class="p">,</span>
+<a id="__codelineno-14-86" name="__codelineno-14-86" href="#__codelineno-14-86"></a>                <span class="s2">&quot;embedding_dim&quot;</span><span class="p">:</span> <span class="n">embedding_dim</span><span class="p">,</span>
+<a id="__codelineno-14-87" name="__codelineno-14-87" href="#__codelineno-14-87"></a>                <span class="s2">&quot;collection_name&quot;</span><span class="p">:</span> <span class="n">collection_name</span><span class="p">,</span>
+<a id="__codelineno-14-88" name="__codelineno-14-88" href="#__codelineno-14-88"></a>            <span class="p">},</span>
+<a id="__codelineno-14-89" name="__codelineno-14-89" href="#__codelineno-14-89"></a>        <span class="p">)</span>
+<a id="__codelineno-14-90" name="__codelineno-14-90" href="#__codelineno-14-90"></a>
+<a id="__codelineno-14-91" name="__codelineno-14-91" href="#__codelineno-14-91"></a>    <span class="k">def</span><span class="w"> </span><span class="nf">insert</span><span class="p">(</span>
+<a id="__codelineno-14-92" name="__codelineno-14-92" href="#__codelineno-14-92"></a>        <span class="bp">self</span><span class="p">,</span>
+<a id="__codelineno-14-93" name="__codelineno-14-93" href="#__codelineno-14-93"></a>        <span class="n">entry</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+<a id="__codelineno-14-94" name="__codelineno-14-94" href="#__codelineno-14-94"></a>        <span class="n">vector</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<a id="__codelineno-14-95" name="__codelineno-14-95" href="#__codelineno-14-95"></a>        <span class="n">metadata</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<a id="__codelineno-14-96" name="__codelineno-14-96" href="#__codelineno-14-96"></a>        <span class="o">*</span><span class="p">,</span>
+<a id="__codelineno-14-97" name="__codelineno-14-97" href="#__codelineno-14-97"></a>        <span class="n">insert_mode</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;active&quot;</span><span class="p">,</span> <span class="s2">&quot;passive&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;passive&quot;</span><span class="p">,</span>
+<a id="__codelineno-14-98" name="__codelineno-14-98" href="#__codelineno-14-98"></a>        <span class="n">insert_params</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<a id="__codelineno-14-99" name="__codelineno-14-99" href="#__codelineno-14-99"></a>    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<a id="__codelineno-14-100" name="__codelineno-14-100" href="#__codelineno-14-100"></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;插入记忆（FIFO 淘汰）&quot;&quot;&quot;</span>
+<a id="__codelineno-14-101" name="__codelineno-14-101" href="#__codelineno-14-101"></a>        <span class="c1"># 转换 vector</span>
+<a id="__codelineno-14-102" name="__codelineno-14-102" href="#__codelineno-14-102"></a>        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">vector</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+<a id="__codelineno-14-103" name="__codelineno-14-103" href="#__codelineno-14-103"></a>            <span class="n">vector</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">vector</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+<a id="__codelineno-14-104" name="__codelineno-14-104" href="#__codelineno-14-104"></a>
+<a id="__codelineno-14-105" name="__codelineno-14-105" href="#__codelineno-14-105"></a>        <span class="c1"># 检查容量，FIFO 淘汰</span>
+<a id="__codelineno-14-106" name="__codelineno-14-106" href="#__codelineno-14-106"></a>        <span class="n">stats</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">collection</span><span class="o">.</span><span class="n">list_indexes</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+<a id="__codelineno-14-107" name="__codelineno-14-107" href="#__codelineno-14-107"></a>        <span class="k">if</span> <span class="n">stats</span><span class="p">[</span><span class="s2">&quot;item_count&quot;</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_dialog</span><span class="p">:</span>
+<a id="__codelineno-14-108" name="__codelineno-14-108" href="#__codelineno-14-108"></a>            <span class="c1"># 获取最旧的记忆并删除（简化实现，实际可用时间戳）</span>
+<a id="__codelineno-14-109" name="__codelineno-14-109" href="#__codelineno-14-109"></a>            <span class="n">all_items</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">collection</span><span class="o">.</span><span class="n">retrieve</span><span class="p">(</span>
+<a id="__codelineno-14-110" name="__codelineno-14-110" href="#__codelineno-14-110"></a>                <span class="n">query</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<a id="__codelineno-14-111" name="__codelineno-14-111" href="#__codelineno-14-111"></a>                <span class="n">index_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">index_name</span><span class="p">,</span>
+<a id="__codelineno-14-112" name="__codelineno-14-112" href="#__codelineno-14-112"></a>                <span class="n">top_k</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+<a id="__codelineno-14-113" name="__codelineno-14-113" href="#__codelineno-14-113"></a>                <span class="n">with_metadata</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<a id="__codelineno-14-114" name="__codelineno-14-114" href="#__codelineno-14-114"></a>            <span class="p">)</span>
+<a id="__codelineno-14-115" name="__codelineno-14-115" href="#__codelineno-14-115"></a>            <span class="k">if</span> <span class="n">all_items</span><span class="p">:</span>
+<a id="__codelineno-14-116" name="__codelineno-14-116" href="#__codelineno-14-116"></a>                <span class="n">oldest_id</span> <span class="o">=</span> <span class="n">all_items</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;stable_id&quot;</span><span class="p">]</span>
+<a id="__codelineno-14-117" name="__codelineno-14-117" href="#__codelineno-14-117"></a>                <span class="bp">self</span><span class="o">.</span><span class="n">collection</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="n">oldest_id</span><span class="p">)</span>
+<a id="__codelineno-14-118" name="__codelineno-14-118" href="#__codelineno-14-118"></a>
+<a id="__codelineno-14-119" name="__codelineno-14-119" href="#__codelineno-14-119"></a>        <span class="c1"># 插入新记忆</span>
+<a id="__codelineno-14-120" name="__codelineno-14-120" href="#__codelineno-14-120"></a>        <span class="n">memory_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">collection</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span>
+<a id="__codelineno-14-121" name="__codelineno-14-121" href="#__codelineno-14-121"></a>            <span class="n">content</span><span class="o">=</span><span class="n">entry</span><span class="p">,</span>
+<a id="__codelineno-14-122" name="__codelineno-14-122" href="#__codelineno-14-122"></a>            <span class="n">index_names</span><span class="o">=</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">index_name</span><span class="p">],</span>
+<a id="__codelineno-14-123" name="__codelineno-14-123" href="#__codelineno-14-123"></a>            <span class="n">vector</span><span class="o">=</span><span class="n">vector</span><span class="p">,</span>
+<a id="__codelineno-14-124" name="__codelineno-14-124" href="#__codelineno-14-124"></a>            <span class="n">metadata</span><span class="o">=</span><span class="n">metadata</span><span class="p">,</span>
+<a id="__codelineno-14-125" name="__codelineno-14-125" href="#__codelineno-14-125"></a>        <span class="p">)</span>
+<a id="__codelineno-14-126" name="__codelineno-14-126" href="#__codelineno-14-126"></a>
+<a id="__codelineno-14-127" name="__codelineno-14-127" href="#__codelineno-14-127"></a>        <span class="k">return</span> <span class="n">memory_id</span>
+<a id="__codelineno-14-128" name="__codelineno-14-128" href="#__codelineno-14-128"></a>
+<a id="__codelineno-14-129" name="__codelineno-14-129" href="#__codelineno-14-129"></a>    <span class="k">def</span><span class="w"> </span><span class="nf">retrieve</span><span class="p">(</span>
+<a id="__codelineno-14-130" name="__codelineno-14-130" href="#__codelineno-14-130"></a>        <span class="bp">self</span><span class="p">,</span>
+<a id="__codelineno-14-131" name="__codelineno-14-131" href="#__codelineno-14-131"></a>        <span class="n">query</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<a id="__codelineno-14-132" name="__codelineno-14-132" href="#__codelineno-14-132"></a>        <span class="n">vector</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<a id="__codelineno-14-133" name="__codelineno-14-133" href="#__codelineno-14-133"></a>        <span class="n">metadata</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<a id="__codelineno-14-134" name="__codelineno-14-134" href="#__codelineno-14-134"></a>        <span class="n">top_k</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span>
+<a id="__codelineno-14-135" name="__codelineno-14-135" href="#__codelineno-14-135"></a>    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]:</span>
+<a id="__codelineno-14-136" name="__codelineno-14-136" href="#__codelineno-14-136"></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;检索记忆&quot;&quot;&quot;</span>
+<a id="__codelineno-14-137" name="__codelineno-14-137" href="#__codelineno-14-137"></a>        <span class="c1"># 转换 vector</span>
+<a id="__codelineno-14-138" name="__codelineno-14-138" href="#__codelineno-14-138"></a>        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">vector</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+<a id="__codelineno-14-139" name="__codelineno-14-139" href="#__codelineno-14-139"></a>            <span class="n">vector</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">vector</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+<a id="__codelineno-14-140" name="__codelineno-14-140" href="#__codelineno-14-140"></a>
+<a id="__codelineno-14-141" name="__codelineno-14-141" href="#__codelineno-14-141"></a>        <span class="n">results</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">collection</span><span class="o">.</span><span class="n">retrieve</span><span class="p">(</span>
+<a id="__codelineno-14-142" name="__codelineno-14-142" href="#__codelineno-14-142"></a>            <span class="n">query</span><span class="o">=</span><span class="n">vector</span> <span class="k">if</span> <span class="n">vector</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">query</span><span class="p">,</span>
+<a id="__codelineno-14-143" name="__codelineno-14-143" href="#__codelineno-14-143"></a>            <span class="n">index_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">index_name</span><span class="p">,</span>
+<a id="__codelineno-14-144" name="__codelineno-14-144" href="#__codelineno-14-144"></a>            <span class="n">top_k</span><span class="o">=</span><span class="n">top_k</span><span class="p">,</span>
+<a id="__codelineno-14-145" name="__codelineno-14-145" href="#__codelineno-14-145"></a>            <span class="n">with_metadata</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<a id="__codelineno-14-146" name="__codelineno-14-146" href="#__codelineno-14-146"></a>        <span class="p">)</span>
+<a id="__codelineno-14-147" name="__codelineno-14-147" href="#__codelineno-14-147"></a>
+<a id="__codelineno-14-148" name="__codelineno-14-148" href="#__codelineno-14-148"></a>        <span class="c1"># 转换为统一格式</span>
+<a id="__codelineno-14-149" name="__codelineno-14-149" href="#__codelineno-14-149"></a>        <span class="k">return</span> <span class="p">[</span>
+<a id="__codelineno-14-150" name="__codelineno-14-150" href="#__codelineno-14-150"></a>            <span class="p">{</span>
+<a id="__codelineno-14-151" name="__codelineno-14-151" href="#__codelineno-14-151"></a>                <span class="s2">&quot;text&quot;</span><span class="p">:</span> <span class="n">r</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;text&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">),</span>
+<a id="__codelineno-14-152" name="__codelineno-14-152" href="#__codelineno-14-152"></a>                <span class="s2">&quot;metadata&quot;</span><span class="p">:</span> <span class="n">r</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;metadata&quot;</span><span class="p">,</span> <span class="p">{}),</span>
+<a id="__codelineno-14-153" name="__codelineno-14-153" href="#__codelineno-14-153"></a>                <span class="s2">&quot;score&quot;</span><span class="p">:</span> <span class="n">r</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;distance&quot;</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">),</span>
+<a id="__codelineno-14-154" name="__codelineno-14-154" href="#__codelineno-14-154"></a>            <span class="p">}</span>
+<a id="__codelineno-14-155" name="__codelineno-14-155" href="#__codelineno-14-155"></a>            <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">results</span>
+<a id="__codelineno-14-156" name="__codelineno-14-156" href="#__codelineno-14-156"></a>        <span class="p">]</span>
+<a id="__codelineno-14-157" name="__codelineno-14-157" href="#__codelineno-14-157"></a>
+<a id="__codelineno-14-158" name="__codelineno-14-158" href="#__codelineno-14-158"></a>    <span class="k">def</span><span class="w"> </span><span class="nf">delete</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<a id="__codelineno-14-159" name="__codelineno-14-159" href="#__codelineno-14-159"></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;删除记忆&quot;&quot;&quot;</span>
+<a id="__codelineno-14-160" name="__codelineno-14-160" href="#__codelineno-14-160"></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">collection</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="n">item_id</span><span class="p">)</span>
+<a id="__codelineno-14-161" name="__codelineno-14-161" href="#__codelineno-14-161"></a>
+<a id="__codelineno-14-162" name="__codelineno-14-162" href="#__codelineno-14-162"></a>    <span class="k">def</span><span class="w"> </span><span class="nf">get_stats</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<a id="__codelineno-14-163" name="__codelineno-14-163" href="#__codelineno-14-163"></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;获取统计信息&quot;&quot;&quot;</span>
+<a id="__codelineno-14-164" name="__codelineno-14-164" href="#__codelineno-14-164"></a>        <span class="n">indexes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">collection</span><span class="o">.</span><span class="n">list_indexes</span><span class="p">()</span>
+<a id="__codelineno-14-165" name="__codelineno-14-165" href="#__codelineno-14-165"></a>        <span class="k">return</span> <span class="p">{</span>
+<a id="__codelineno-14-166" name="__codelineno-14-166" href="#__codelineno-14-166"></a>            <span class="s2">&quot;total_count&quot;</span><span class="p">:</span> <span class="n">indexes</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;item_count&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="n">indexes</span> <span class="k">else</span> <span class="mi">0</span><span class="p">,</span>
+<a id="__codelineno-14-167" name="__codelineno-14-167" href="#__codelineno-14-167"></a>            <span class="s2">&quot;max_dialog&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_dialog</span><span class="p">,</span>
+<a id="__codelineno-14-168" name="__codelineno-14-168" href="#__codelineno-14-168"></a>            <span class="s2">&quot;collection_name&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">collection_name</span><span class="p">,</span>
+<a id="__codelineno-14-169" name="__codelineno-14-169" href="#__codelineno-14-169"></a>        <span class="p">}</span>
+<a id="__codelineno-14-170" name="__codelineno-14-170" href="#__codelineno-14-170"></a>
+<a id="__codelineno-14-171" name="__codelineno-14-171" href="#__codelineno-14-171"></a>    <span class="k">def</span><span class="w"> </span><span class="nf">_get_default_data_dir</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<a id="__codelineno-14-172" name="__codelineno-14-172" href="#__codelineno-14-172"></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;获取默认数据目录&quot;&quot;&quot;</span>
+<a id="__codelineno-14-173" name="__codelineno-14-173" href="#__codelineno-14-173"></a>        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">get_appropriate_sage_dir</span><span class="p">(</span><span class="s2">&quot;data&quot;</span><span class="p">)</span> <span class="o">/</span> <span class="s2">&quot;memory_service&quot;</span><span class="p">)</span>
+</code></pre></div>
+<h3 id="23-service-partitional__init__py">2.3 注册 Service（在 <code>partitional/__init__.py</code>）<a class="headerlink" href="#23-service-partitional__init__py" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a><span class="sd">&quot;&quot;&quot;Partitional 类 Service&quot;&quot;&quot;</span>
+<a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a>
+<a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a><span class="kn">from</span><span class="w"> </span><span class="nn">.short_term_memory</span><span class="w"> </span><span class="kn">import</span> <span class="n">ShortTermMemoryService</span>
+<a id="__codelineno-15-4" name="__codelineno-15-4" href="#__codelineno-15-4"></a><span class="kn">from</span><span class="w"> </span><span class="nn">.vector_memory</span><span class="w"> </span><span class="kn">import</span> <span class="n">VectorMemoryService</span>
+<a id="__codelineno-15-5" name="__codelineno-15-5" href="#__codelineno-15-5"></a><span class="kn">from</span><span class="w"> </span><span class="nn">.key_value_memory</span><span class="w"> </span><span class="kn">import</span> <span class="n">KeyValueMemoryService</span>
+<a id="__codelineno-15-6" name="__codelineno-15-6" href="#__codelineno-15-6"></a><span class="kn">from</span><span class="w"> </span><span class="nn">.vector_hash_memory</span><span class="w"> </span><span class="kn">import</span> <span class="n">VectorHashMemoryService</span>
+<a id="__codelineno-15-7" name="__codelineno-15-7" href="#__codelineno-15-7"></a>
+<a id="__codelineno-15-8" name="__codelineno-15-8" href="#__codelineno-15-8"></a><span class="kn">from</span><span class="w"> </span><span class="nn">..registry</span><span class="w"> </span><span class="kn">import</span> <span class="n">MemoryServiceRegistry</span>
+<a id="__codelineno-15-9" name="__codelineno-15-9" href="#__codelineno-15-9"></a>
+<a id="__codelineno-15-10" name="__codelineno-15-10" href="#__codelineno-15-10"></a><span class="c1"># 注册所有 Partitional Service</span>
+<a id="__codelineno-15-11" name="__codelineno-15-11" href="#__codelineno-15-11"></a><span class="n">MemoryServiceRegistry</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="s2">&quot;partitional.short_term_memory&quot;</span><span class="p">,</span> <span class="n">ShortTermMemoryService</span><span class="p">)</span>
+<a id="__codelineno-15-12" name="__codelineno-15-12" href="#__codelineno-15-12"></a><span class="n">MemoryServiceRegistry</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="s2">&quot;partitional.vector_memory&quot;</span><span class="p">,</span> <span class="n">VectorMemoryService</span><span class="p">)</span>
+<a id="__codelineno-15-13" name="__codelineno-15-13" href="#__codelineno-15-13"></a><span class="n">MemoryServiceRegistry</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="s2">&quot;partitional.key_value_memory&quot;</span><span class="p">,</span> <span class="n">KeyValueMemoryService</span><span class="p">)</span>
+<a id="__codelineno-15-14" name="__codelineno-15-14" href="#__codelineno-15-14"></a><span class="n">MemoryServiceRegistry</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="s2">&quot;partitional.vector_hash_memory&quot;</span><span class="p">,</span> <span class="n">VectorHashMemoryService</span><span class="p">)</span>
+<a id="__codelineno-15-15" name="__codelineno-15-15" href="#__codelineno-15-15"></a>
+<a id="__codelineno-15-16" name="__codelineno-15-16" href="#__codelineno-15-16"></a><span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
+<a id="__codelineno-15-17" name="__codelineno-15-17" href="#__codelineno-15-17"></a>    <span class="s2">&quot;ShortTermMemoryService&quot;</span><span class="p">,</span>
+<a id="__codelineno-15-18" name="__codelineno-15-18" href="#__codelineno-15-18"></a>    <span class="s2">&quot;VectorMemoryService&quot;</span><span class="p">,</span>
+<a id="__codelineno-15-19" name="__codelineno-15-19" href="#__codelineno-15-19"></a>    <span class="s2">&quot;KeyValueMemoryService&quot;</span><span class="p">,</span>
+<a id="__codelineno-15-20" name="__codelineno-15-20" href="#__codelineno-15-20"></a>    <span class="s2">&quot;VectorHashMemoryService&quot;</span><span class="p">,</span>
+<a id="__codelineno-15-21" name="__codelineno-15-21" href="#__codelineno-15-21"></a><span class="p">]</span>
+</code></pre></div>
+<h3 id="24-service">2.4 各 Service 要点<a class="headerlink" href="#24-service" title="Permanent link">&para;</a></h3>
+<h4 id="partitionalshort_term_memory-b"><code>partitional.short_term_memory</code>（开发者 B）<a class="headerlink" href="#partitionalshort_term_memory-b" title="Permanent link">&para;</a></h4>
+<ul>
+<li>✅ Collection: <code>VDBMemoryCollection</code></li>
+<li>✅ 核心逻辑：FIFO 淘汰最旧记忆</li>
+<li>✅ 配置参数：<code>max_dialog</code>, <code>embedding_dim</code></li>
+<li>✅ 参考文件：<code>services/short_term_memory_service.py</code></li>
+</ul>
+<h4 id="partitionalvector_memory-c"><code>partitional.vector_memory</code>（开发者 C）<a class="headerlink" href="#partitionalvector_memory-c" title="Permanent link">&para;</a></h4>
+<ul>
+<li>✅ Collection: <code>VDBMemoryCollection</code></li>
+<li>✅ 核心逻辑：纯向量检索，支持多种索引类型</li>
+<li>✅ 配置参数：<code>dim</code>, <code>index_type</code>（IndexFlatL2/IndexIVFFlat）, <code>index_config</code></li>
+<li>✅ 参考文件：<code>services/vector_memory_service.py</code></li>
+</ul>
+<h4 id="partitionalkey_value_memory-d"><code>partitional.key_value_memory</code>（开发者 D）<a class="headerlink" href="#partitionalkey_value_memory-d" title="Permanent link">&para;</a></h4>
+<ul>
+<li>✅ Collection: <code>KVMemoryCollection</code></li>
+<li>✅ 核心逻辑：关键词匹配 + BM25S 检索</li>
+<li>✅ 配置参数：<code>match_type</code>, <code>key_extractor</code>, <code>fuzzy_threshold</code></li>
+<li>✅ 参考文件：<code>services/key_value_memory_service.py</code></li>
+</ul>
+<h4 id="partitionalvector_hash_memory-e"><code>partitional.vector_hash_memory</code>（开发者 E）<a class="headerlink" href="#partitionalvector_hash_memory-e" title="Permanent link">&para;</a></h4>
+<ul>
+<li>✅ Collection: <code>VDBMemoryCollection</code></li>
+<li>✅ 核心逻辑：LSH 哈希索引（IndexLSH）</li>
+<li>✅ 配置参数：<code>dim</code>, <code>nbits</code>, <code>k_nearest</code></li>
+<li>✅ 参考文件：参考 <code>vector_memory_service.py</code>，修改 index_type 为 IndexLSH</li>
+</ul>
+<h3 id="25">2.5 验收标准<a class="headerlink" href="#25" title="Permanent link">&para;</a></h3>
+<p>每个 Service 必须：</p>
+<ul>
+<li>✅ 实现 <code>from_config</code> 类方法</li>
+<li>✅ 实现 <code>insert/retrieve/delete/get_stats</code> 方法</li>
+<li>✅ 遵循 1 Service : 1 Collection 原则</li>
+<li>✅ 单元测试通过</li>
+</ul>
+<hr />
+<h2 id="3-hierarchical-service2">任务 3: Hierarchical 类 Service（2个）✅ <strong>已完成</strong><a class="headerlink" href="#3-hierarchical-service2" title="Permanent link">&para;</a></h2>
+<p><strong>负责人</strong>：开发者 F、G</p>
+<p><strong>工作量</strong>：每个 Service 约 1.5-2 小时</p>
+<p><strong>目标</strong>：实现 Hierarchical 类的 2 个 Service</p>
+<p><strong>完成时间</strong>：2025-12-24</p>
+<h3 id="31-service">3.1 Service 列表<a class="headerlink" href="#31-service" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Service 名称</th>
+<th>对应原文件</th>
+<th>Collection 类型</th>
+<th>负责人</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>hierarchical.three_tier</code></td>
+<td><code>hierarchical_memory_service.py</code></td>
+<td><code>HybridCollection</code></td>
+<td>开发者 F</td>
+</tr>
+<tr>
+<td><code>hierarchical.graph_memory</code></td>
+<td><code>graph_memory_service.py</code></td>
+<td><code>GraphMemoryCollection</code></td>
+<td>开发者 G</td>
+</tr>
+</tbody>
+</table>
+<h3 id="32">3.2 要点<a class="headerlink" href="#32" title="Permanent link">&para;</a></h3>
+<h4 id="hierarchicalthree_tier-f"><code>hierarchical.three_tier</code>（开发者 F）<a class="headerlink" href="#hierarchicalthree_tier-f" title="Permanent link">&para;</a></h4>
+<ul>
+<li>✅ Collection: <code>HybridCollection</code>（一个 Collection，多个索引代表层级）</li>
+<li>✅ 核心逻辑：三层结构（STM/MTM/LTM），支持 heat/overflow 迁移</li>
+<li>✅ 配置参数：<code>tier_mode</code>, <code>tier_capacities</code>, <code>migration_policy</code>, <code>embedding_dim</code></li>
+<li>✅ 参考文件：<code>services/hierarchical_memory_service.py</code></li>
+<li>⚠️ <strong>注意</strong>：虽然有三层，但仍是 1 个 Service : 1 个 Collection</li>
+</ul>
+<h4 id="hierarchicalgraph_memory-g"><code>hierarchical.graph_memory</code>（开发者 G）<a class="headerlink" href="#hierarchicalgraph_memory-g" title="Permanent link">&para;</a></h4>
+<ul>
+<li>✅ Collection: <code>GraphMemoryCollection</code></li>
+<li>✅ 核心逻辑：图结构存储，支持节点/边操作，PPR 检索</li>
+<li>✅ 配置参数：<code>graph_type</code>, <code>node_embedding_dim</code>, <code>edge_types</code>, <code>link_policy</code></li>
+<li>✅ 参考文件：<code>services/graph_memory_service.py</code></li>
+<li>⚠️ <strong>注意</strong>：<code>insert</code> 时可能同时创建节点和边（通过 metadata.edges）</li>
+</ul>
+<h3 id="33">3.3 验收标准<a class="headerlink" href="#33" title="Permanent link">&para;</a></h3>
+<ul>
+<li>✅ 实现 <code>from_config</code> 类方法</li>
+<li>✅ 实现 <code>insert/retrieve/delete/get_stats</code> 方法</li>
+<li>✅ 支持层级特定功能（three_tier 的迁移，graph_memory 的边）</li>
+<li>✅ 单元测试通过</li>
+</ul>
+<hr />
+<h2 id="4-hybrid-service1">任务 4: Hybrid 类 Service（1个）<a class="headerlink" href="#4-hybrid-service1" title="Permanent link">&para;</a></h2>
+<p><strong>负责人</strong>：开发者 H</p>
+<p><strong>工作量</strong>：约 1.5-2 小时</p>
+<p><strong>目标</strong>：实现 Hybrid 类的 Service</p>
+<h3 id="41-service">4.1 Service 列表<a class="headerlink" href="#41-service" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Service 名称</th>
+<th>对应原文件</th>
+<th>Collection 类型</th>
+<th>负责人</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>hybrid.multi_index</code></td>
+<td><code>hybrid_memory_service.py</code></td>
+<td><code>HybridCollection</code></td>
+<td>开发者 H</td>
+</tr>
+</tbody>
+</table>
+<h3 id="42">4.2 要点<a class="headerlink" href="#42" title="Permanent link">&para;</a></h3>
+<ul>
+<li>✅ Collection: <code>HybridCollection</code>（一份数据，多种索引）</li>
+<li>✅ 核心逻辑：多索引融合检索（VDB + KV + Graph）</li>
+<li>✅ 配置参数：<code>indexes</code>（索引配置列表）, <code>fusion_strategy</code>（weighted/rrf）, <code>fusion_weights</code></li>
+<li>✅ 参考文件：<code>services/hybrid_memory_service.py</code></li>
+<li>⚠️ <strong>注意</strong>：虽然有多个索引，但仍是 1 个 Service : 1 个 Collection</li>
+</ul>
+<h3 id="43">4.3 验收标准<a class="headerlink" href="#43" title="Permanent link">&para;</a></h3>
+<ul>
+<li>✅ 实现 <code>from_config</code> 类方法</li>
+<li>✅ 实现 <code>insert/retrieve/delete/get_stats</code> 方法</li>
+<li>✅ 支持多索引融合检索</li>
+<li>✅ 单元测试通过</li>
+</ul>
+<hr />
+<h2 id="5-pipeline">任务 5: Pipeline 适配 + 配置文件迁移<a class="headerlink" href="#5-pipeline" title="Permanent link">&para;</a></h2>
+<p><strong>负责人</strong>：开发者 I（与任务 1 负责人协作）</p>
+<p><strong>工作量</strong>：约 2-3 小时</p>
+<p><strong>前置依赖</strong>：任务 1 完成</p>
+<p><strong>目标</strong>：修改 Pipeline 使用 Registry，迁移所有配置文件</p>
+<h3 id="51-memory_test_pipelinepy">5.1 修改 memory_test_pipeline.py<a class="headerlink" href="#51-memory_test_pipelinepy" title="Permanent link">&para;</a></h3>
+<p><strong>位置</strong>：<code>packages/sage-benchmark/src/sage/benchmark/benchmark_memory/experiment/memory_test_pipeline.py</code></p>
+<p><strong>变更</strong>：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a><span class="c1"># 变更前</span>
+<a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">sage.middleware.components.sage_mem.services</span><span class="w"> </span><span class="kn">import</span> <span class="n">MemoryServiceFactory</span>
+<a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a>
+<a id="__codelineno-16-4" name="__codelineno-16-4" href="#__codelineno-16-4"></a><span class="n">service_name</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;services.register_memory_service&quot;</span><span class="p">,</span> <span class="s2">&quot;short_term_memory&quot;</span><span class="p">)</span>
+<a id="__codelineno-16-5" name="__codelineno-16-5" href="#__codelineno-16-5"></a><span class="n">factory</span> <span class="o">=</span> <span class="n">MemoryServiceFactory</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">service_name</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span>
+<a id="__codelineno-16-6" name="__codelineno-16-6" href="#__codelineno-16-6"></a><span class="n">env</span><span class="o">.</span><span class="n">register_service_factory</span><span class="p">(</span><span class="n">service_name</span><span class="p">,</span> <span class="n">factory</span><span class="p">)</span>
+<a id="__codelineno-16-7" name="__codelineno-16-7" href="#__codelineno-16-7"></a>
+<a id="__codelineno-16-8" name="__codelineno-16-8" href="#__codelineno-16-8"></a><span class="c1"># 变更后</span>
+<a id="__codelineno-16-9" name="__codelineno-16-9" href="#__codelineno-16-9"></a><span class="kn">from</span><span class="w"> </span><span class="nn">sage.middleware.components.sage_mem.memory_service</span><span class="w"> </span><span class="kn">import</span> <span class="n">MemoryServiceRegistry</span>
+<a id="__codelineno-16-10" name="__codelineno-16-10" href="#__codelineno-16-10"></a>
+<a id="__codelineno-16-11" name="__codelineno-16-11" href="#__codelineno-16-11"></a><span class="n">service_name</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;services.register_memory_service&quot;</span><span class="p">)</span>
+<a id="__codelineno-16-12" name="__codelineno-16-12" href="#__codelineno-16-12"></a><span class="n">service_class</span> <span class="o">=</span> <span class="n">MemoryServiceRegistry</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">service_name</span><span class="p">)</span>
+<a id="__codelineno-16-13" name="__codelineno-16-13" href="#__codelineno-16-13"></a><span class="n">factory</span> <span class="o">=</span> <span class="n">service_class</span><span class="o">.</span><span class="n">from_config</span><span class="p">(</span><span class="n">service_name</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span>
+<a id="__codelineno-16-14" name="__codelineno-16-14" href="#__codelineno-16-14"></a><span class="n">env</span><span class="o">.</span><span class="n">register_service_factory</span><span class="p">(</span><span class="n">service_name</span><span class="p">,</span> <span class="n">factory</span><span class="p">)</span>
+</code></pre></div>
+<h3 id="52-13">5.2 迁移配置文件（13 个）<a class="headerlink" href="#52-13" title="Permanent link">&para;</a></h3>
+<p><strong>位置</strong>：<code>packages/sage-benchmark/src/sage/benchmark/benchmark_memory/experiment/config/primitive_memory_model/</code></p>
+<p><strong>迁移清单</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>旧配置文件</th>
+<th>旧 service_name</th>
+<th>新 service_name</th>
+<th>配置块重命名</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>locomo_short_term_memory_pipeline.yaml</code></td>
+<td><code>short_term_memory</code></td>
+<td><code>partitional.short_term_memory</code></td>
+<td>✅</td>
+</tr>
+<tr>
+<td><code>locomo_scm_pipeline.yaml</code></td>
+<td><code>short_term_memory</code></td>
+<td><code>partitional.short_term_memory</code></td>
+<td>✅</td>
+</tr>
+<tr>
+<td><code>locomo_tim_pipeline.yaml</code></td>
+<td><code>vector_memory</code></td>
+<td><code>partitional.vector_memory</code></td>
+<td>✅</td>
+</tr>
+<tr>
+<td><code>locomo_hipporag_pipeline.yaml</code></td>
+<td><code>graph_memory</code></td>
+<td><code>hierarchical.graph_memory</code></td>
+<td>✅</td>
+</tr>
+<tr>
+<td><code>locomo_hipporag2_pipeline.yaml</code></td>
+<td><code>graph_memory</code></td>
+<td><code>hierarchical.graph_memory</code></td>
+<td>✅</td>
+</tr>
+<tr>
+<td><code>locomo_amem_pipeline.yaml</code></td>
+<td><code>graph_memory</code></td>
+<td><code>hierarchical.graph_memory</code></td>
+<td>✅</td>
+</tr>
+<tr>
+<td><code>locomo_memoryos_pipeline.yaml</code></td>
+<td><code>hierarchical_memory</code></td>
+<td><code>hierarchical.three_tier</code></td>
+<td>✅</td>
+</tr>
+<tr>
+<td><code>locomo_memorybank_pipeline.yaml</code></td>
+<td><code>hierarchical_memory</code></td>
+<td><code>hierarchical.three_tier</code></td>
+<td>✅</td>
+</tr>
+<tr>
+<td><code>locomo_ldagent_pipeline.yaml</code></td>
+<td><code>hierarchical_memory</code></td>
+<td><code>hierarchical.three_tier</code></td>
+<td>✅</td>
+</tr>
+<tr>
+<td><code>locomo_secom_pipeline.yaml</code></td>
+<td><code>hierarchical_memory</code></td>
+<td><code>hierarchical.three_tier</code></td>
+<td>✅</td>
+</tr>
+<tr>
+<td><code>locomo_memgpt_pipeline.yaml</code></td>
+<td><code>hierarchical_memory</code></td>
+<td><code>hierarchical.three_tier</code></td>
+<td>✅</td>
+</tr>
+<tr>
+<td><code>locomo_mem0_pipeline.yaml</code></td>
+<td><code>hybrid_memory</code></td>
+<td><code>hybrid.multi_index</code></td>
+<td>✅</td>
+</tr>
+<tr>
+<td><code>locomo_mem0g_pipeline.yaml</code></td>
+<td><code>hybrid_memory</code></td>
+<td><code>hybrid.multi_index</code></td>
+<td>✅</td>
+</tr>
+</tbody>
+</table>
+<p><strong>配置文件修改示例</strong>：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a><span class="c1"># 变更前</span>
+<a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a><span class="nt">services</span><span class="p">:</span>
+<a id="__codelineno-17-3" name="__codelineno-17-3" href="#__codelineno-17-3"></a><span class="w">  </span><span class="nt">register_memory_service</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;hierarchical_memory&quot;</span>
+<a id="__codelineno-17-4" name="__codelineno-17-4" href="#__codelineno-17-4"></a><span class="w">  </span><span class="nt">hierarchical_memory</span><span class="p">:</span>
+<a id="__codelineno-17-5" name="__codelineno-17-5" href="#__codelineno-17-5"></a><span class="w">    </span><span class="nt">tier_mode</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;three_tier&quot;</span>
+<a id="__codelineno-17-6" name="__codelineno-17-6" href="#__codelineno-17-6"></a><span class="w">    </span><span class="c1"># ...</span>
+<a id="__codelineno-17-7" name="__codelineno-17-7" href="#__codelineno-17-7"></a>
+<a id="__codelineno-17-8" name="__codelineno-17-8" href="#__codelineno-17-8"></a><span class="c1"># 变更后</span>
+<a id="__codelineno-17-9" name="__codelineno-17-9" href="#__codelineno-17-9"></a><span class="nt">services</span><span class="p">:</span>
+<a id="__codelineno-17-10" name="__codelineno-17-10" href="#__codelineno-17-10"></a><span class="w">  </span><span class="nt">register_memory_service</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;hierarchical.three_tier&quot;</span>
+<a id="__codelineno-17-11" name="__codelineno-17-11" href="#__codelineno-17-11"></a><span class="w">  </span><span class="nt">hierarchical.three_tier</span><span class="p">:</span>
+<a id="__codelineno-17-12" name="__codelineno-17-12" href="#__codelineno-17-12"></a><span class="w">    </span><span class="nt">tier_mode</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;three_tier&quot;</span>
+<a id="__codelineno-17-13" name="__codelineno-17-13" href="#__codelineno-17-13"></a><span class="w">    </span><span class="c1"># ...</span>
+</code></pre></div>
+<h3 id="53">5.3 验收标准<a class="headerlink" href="#53" title="Permanent link">&para;</a></h3>
+<ul>
+<li>✅ Pipeline 能正常启动</li>
+<li>✅ 所有配置文件迁移完成</li>
+<li>✅ 原有实验结果可复现</li>
+<li>✅ CI 测试通过</li>
+</ul>
+<hr />
+<h2 id="_27">三、并行执行时间表<a class="headerlink" href="#_27" title="Permanent link">&para;</a></h2>
+<h3 id="1">阶段 1: 基础设施（串行）<a class="headerlink" href="#1" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>任务</th>
+<th>负责人</th>
+<th>工作量</th>
+<th>输出</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>任务 1</td>
+<td>开发者 A</td>
+<td>2-3h</td>
+<td>Registry + BaseService</td>
+</tr>
+</tbody>
+</table>
+<h3 id="2-service">阶段 2: Service 实现（并行）<a class="headerlink" href="#2-service" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>任务</th>
+<th>负责人</th>
+<th>工作量</th>
+<th>可并行</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>任务 2.1</td>
+<td>开发者 B</td>
+<td>1-1.5h</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>任务 2.2</td>
+<td>开发者 C</td>
+<td>1-1.5h</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>任务 2.3</td>
+<td>开发者 D</td>
+<td>1-1.5h</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>任务 2.4</td>
+<td>开发者 E</td>
+<td>1-1.5h</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>任务 3.1</td>
+<td>开发者 F</td>
+<td>1.5-2h</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>任务 3.2</td>
+<td>开发者 G</td>
+<td>1.5-2h</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>任务 4</td>
+<td>开发者 H</td>
+<td>1.5-2h</td>
+<td>✅</td>
+</tr>
+</tbody>
+</table>
+<p><strong>阶段 2 总时间</strong>：约 1.5-2 小时（并行执行）</p>
+<h3 id="3">阶段 3: 集成测试（串行）<a class="headerlink" href="#3" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>任务</th>
+<th>负责人</th>
+<th>工作量</th>
+<th>依赖</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>任务 5</td>
+<td>开发者 I + A</td>
+<td>2-3h</td>
+<td>任务 1 + 所有任务 2/3/4</td>
+</tr>
+</tbody>
+</table>
+<p><strong>总时间</strong>：约 5.5-7 小时（并行执行）</p>
+<hr />
+<h2 id="_28">四、质量保证<a class="headerlink" href="#_28" title="Permanent link">&para;</a></h2>
+<h3 id="41-checklist">4.1 代码审查 Checklist<a class="headerlink" href="#41-checklist" title="Permanent link">&para;</a></h3>
+<p>每个 Service 提交前必须检查：</p>
+<ul>
+<li>[ ] 实现 <code>from_config</code> 类方法</li>
+<li>[ ] 实现 <code>insert/retrieve/delete/get_stats</code> 方法</li>
+<li>[ ] 参数签名与 <code>BaseMemoryService</code> 完全一致</li>
+<li>[ ] 遵循 1 Service : 1 Collection 原则</li>
+<li>[ ] Collection 在 <code>__init__</code> 中创建或加载</li>
+<li>[ ] 配置参数从 <code>config.get(f"services.{service_name}.*")</code> 读取</li>
+<li>[ ] 返回值格式统一（retrieve 返回 <code>[{"text", "metadata", "score"}]</code>）</li>
+<li>[ ] 添加单元测试</li>
+<li>[ ] 代码符合 Ruff 规范</li>
+</ul>
+<h3 id="42_1">4.2 单元测试要求<a class="headerlink" href="#42_1" title="Permanent link">&para;</a></h3>
+<p>每个 Service 必须测试：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">test_service_from_config</span><span class="p">():</span>
+<a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;测试 from_config 创建 ServiceFactory&quot;&quot;&quot;</span>
+<a id="__codelineno-18-3" name="__codelineno-18-3" href="#__codelineno-18-3"></a>    <span class="k">pass</span>
+<a id="__codelineno-18-4" name="__codelineno-18-4" href="#__codelineno-18-4"></a>
+<a id="__codelineno-18-5" name="__codelineno-18-5" href="#__codelineno-18-5"></a><span class="k">def</span><span class="w"> </span><span class="nf">test_service_insert</span><span class="p">():</span>
+<a id="__codelineno-18-6" name="__codelineno-18-6" href="#__codelineno-18-6"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;测试 insert 方法&quot;&quot;&quot;</span>
+<a id="__codelineno-18-7" name="__codelineno-18-7" href="#__codelineno-18-7"></a>    <span class="k">pass</span>
+<a id="__codelineno-18-8" name="__codelineno-18-8" href="#__codelineno-18-8"></a>
+<a id="__codelineno-18-9" name="__codelineno-18-9" href="#__codelineno-18-9"></a><span class="k">def</span><span class="w"> </span><span class="nf">test_service_retrieve</span><span class="p">():</span>
+<a id="__codelineno-18-10" name="__codelineno-18-10" href="#__codelineno-18-10"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;测试 retrieve 方法&quot;&quot;&quot;</span>
+<a id="__codelineno-18-11" name="__codelineno-18-11" href="#__codelineno-18-11"></a>    <span class="k">pass</span>
+<a id="__codelineno-18-12" name="__codelineno-18-12" href="#__codelineno-18-12"></a>
+<a id="__codelineno-18-13" name="__codelineno-18-13" href="#__codelineno-18-13"></a><span class="k">def</span><span class="w"> </span><span class="nf">test_service_delete</span><span class="p">():</span>
+<a id="__codelineno-18-14" name="__codelineno-18-14" href="#__codelineno-18-14"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;测试 delete 方法&quot;&quot;&quot;</span>
+<a id="__codelineno-18-15" name="__codelineno-18-15" href="#__codelineno-18-15"></a>    <span class="k">pass</span>
+<a id="__codelineno-18-16" name="__codelineno-18-16" href="#__codelineno-18-16"></a>
+<a id="__codelineno-18-17" name="__codelineno-18-17" href="#__codelineno-18-17"></a><span class="k">def</span><span class="w"> </span><span class="nf">test_service_get_stats</span><span class="p">():</span>
+<a id="__codelineno-18-18" name="__codelineno-18-18" href="#__codelineno-18-18"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;测试 get_stats 方法&quot;&quot;&quot;</span>
+<a id="__codelineno-18-19" name="__codelineno-18-19" href="#__codelineno-18-19"></a>    <span class="k">pass</span>
+</code></pre></div>
+<h3 id="43_1">4.3 集成测试<a class="headerlink" href="#43_1" title="Permanent link">&para;</a></h3>
+<p>任务 5 完成后，运行：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a><span class="c1"># 测试所有 Service 注册</span>
+<a id="__codelineno-19-2" name="__codelineno-19-2" href="#__codelineno-19-2"></a>python<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;from sage.middleware.components.sage_mem.memory_service import MemoryServiceRegistry; print(MemoryServiceRegistry.list_services())&quot;</span>
+<a id="__codelineno-19-3" name="__codelineno-19-3" href="#__codelineno-19-3"></a>
+<a id="__codelineno-19-4" name="__codelineno-19-4" href="#__codelineno-19-4"></a><span class="c1"># 运行 Pipeline</span>
+<a id="__codelineno-19-5" name="__codelineno-19-5" href="#__codelineno-19-5"></a>sage-dev<span class="w"> </span>project<span class="w"> </span><span class="nb">test</span><span class="w"> </span>packages/sage-benchmark/tests/unit/benchmark_memory/
+<a id="__codelineno-19-6" name="__codelineno-19-6" href="#__codelineno-19-6"></a>
+<a id="__codelineno-19-7" name="__codelineno-19-7" href="#__codelineno-19-7"></a><span class="c1"># 运行一个完整实验</span>
+<a id="__codelineno-19-8" name="__codelineno-19-8" href="#__codelineno-19-8"></a>bash<span class="w"> </span>packages/sage-benchmark/src/sage/benchmark/benchmark_memory/experiment/script/primitive_memory_model/run_locomo_short_term_memory.sh
+</code></pre></div>
+<hr />
+<h2 id="faq">五、常见问题 FAQ<a class="headerlink" href="#faq" title="Permanent link">&para;</a></h2>
+<h3 id="q1-1-service-1-collection">Q1: 为什么要求 1 Service : 1 Collection？<a class="headerlink" href="#q1-1-service-1-collection" title="Permanent link">&para;</a></h3>
+<p><strong>A</strong>: 简化设计，避免状态管理复杂度。即使是 HierarchicalMemoryService（三层），也只用一个 HybridCollection（通过不同索引区分层级）。</p>
+<h3 id="q2-metadata-service">Q2: metadata 如何传递 Service 特定参数？<a class="headerlink" href="#q2-metadata-service" title="Permanent link">&para;</a></h3>
+<p><strong>A</strong>: 例如 HierarchicalMemoryService，可以通过 <code>metadata["tiers"] = ["stm", "mtm"]</code> 指定检索哪几层。</p>
+<h3 id="q3-from_config">Q3: from_config 读取配置失败怎么办？<a class="headerlink" href="#q3-from_config" title="Permanent link">&para;</a></h3>
+<p><strong>A</strong>: 抛出 <code>ValueError</code> 并明确提示缺失的配置项，例如：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a><span class="k">if</span> <span class="n">max_dialog</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+<a id="__codelineno-20-2" name="__codelineno-20-2" href="#__codelineno-20-2"></a>    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Missing config: services.</span><span class="si">{</span><span class="n">service_name</span><span class="si">}</span><span class="s2">.max_dialog&quot;</span><span class="p">)</span>
+</code></pre></div>
+<h3 id="q4">Q4: 如何处理向后兼容？<a class="headerlink" href="#q4" title="Permanent link">&para;</a></h3>
+<p><strong>A</strong>: <strong>不需要</strong>。本次重构不保留向后兼容，所有配置文件统一迁移到新格式。</p>
+<h3 id="q5-collection-index_name">Q5: Collection 的 index_name 如何命名？<a class="headerlink" href="#q5-collection-index_name" title="Permanent link">&para;</a></h3>
+<p><strong>A</strong>:</p>
+<ul>
+<li>单索引：<code>"main_index"</code></li>
+<li>多索引：<code>"stm_index"</code>, <code>"mtm_index"</code>, <code>"ltm_index"</code> 等，与层级或用途对应</li>
+</ul>
+<hr />
+<h2 id="_29">六、沟通协调<a class="headerlink" href="#_29" title="Permanent link">&para;</a></h2>
+<h3 id="61">6.1 任务认领<a class="headerlink" href="#61" title="Permanent link">&para;</a></h3>
+<p>请在此文档对应任务下签名认领：</p>
+<ul>
+<li>任务 1（基础设施）：<code>_______</code></li>
+<li>任务 2.1（short_term_memory）：<code>_______</code></li>
+<li>任务 2.2（vector_memory）：<code>_______</code></li>
+<li>任务 2.3（key_value_memory）：<code>_______</code></li>
+<li>任务 2.4（vector_hash_memory）：<code>_______</code></li>
+<li>任务 3.1（three_tier）：<code>_______</code></li>
+<li>任务 3.2（graph_memory）：<code>_______</code></li>
+<li>任务 4（multi_index）：<code>_______</code></li>
+<li>任务 5（Pipeline 适配）：<code>_______</code></li>
+</ul>
+<h3 id="62">6.2 进度汇报<a class="headerlink" href="#62" title="Permanent link">&para;</a></h3>
+<p>每完成一个任务，在此更新：</p>
+<ul>
+<li>[ ] 任务 1 - 完成时间：<code>_______</code></li>
+<li>[ ] 任务 2.1 - 完成时间：<code>_______</code></li>
+<li>[ ] 任务 2.2 - 完成时间：<code>_______</code></li>
+<li>[ ] 任务 2.3 - 完成时间：<code>_______</code></li>
+<li>[ ] 任务 2.4 - 完成时间：<code>_______</code></li>
+<li>[ ] 任务 3.1 - 完成时间：<code>_______</code></li>
+<li>[ ] 任务 3.2 - 完成时间：<code>_______</code></li>
+<li>[ ] 任务 4 - 完成时间：<code>_______</code></li>
+<li>[ ] 任务 5 - 完成时间：<code>_______</code></li>
+</ul>
+<h3 id="63">6.3 问题跟踪<a class="headerlink" href="#63" title="Permanent link">&para;</a></h3>
+<p>遇到问题请在此记录：</p>
+<table>
+<thead>
+<tr>
+<th>问题ID</th>
+<th>负责人</th>
+<th>问题描述</th>
+<th>解决方案</th>
+<th>状态</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>2</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<p><strong>最后更新</strong>：2025-12-23</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  回到页面顶部
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Copyright &copy; 2023-2025 IntelliStream Lab
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+        
+<div class="md-social">
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://github.com/intellistream/SAGE" target="_blank" rel="noopener" title="github.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+    </a>
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://pypi.org/project/sage-framework/" target="_blank" rel="noopener" title="pypi.org" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.8 200.5c-7.7-30.9-22.3-54.2-53.4-54.2h-40.1v47.4c0 36.8-31.2 67.8-66.8 67.8H172.7c-29.2 0-53.4 25-53.4 54.3v101.8c0 29 25.2 46 53.4 54.3 33.8 9.9 66.3 11.7 106.8 0 26.9-7.8 53.4-23.5 53.4-54.3v-40.7H226.2v-13.6h160.2c31.1 0 42.6-21.7 53.4-54.2 11.2-33.5 10.7-65.7 0-108.6M286.2 444.7a20.4 20.4 0 1 1 0-40.7 20.4 20.4 0 1 1 0 40.7M167.8 248.1h106.8c29.7 0 53.4-24.5 53.4-54.3V91.9c0-29-24.4-50.7-53.4-55.6-35.8-5.9-74.7-5.6-106.8.1-45.2 8-53.4 24.7-53.4 55.6v40.7h106.9v13.6h-147c-31.1 0-58.3 18.7-66.8 54.2-9.8 40.7-10.2 66.1 0 108.6 7.6 31.6 25.7 54.2 56.8 54.2H101v-48.8c0-35.3 30.5-66.4 66.8-66.4m-6.6-183.4a20.4 20.4 0 1 1 0 40.8 20.4 20.4 0 1 1 0-40.8"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+      <div class="md-progress" data-md-component="progress" role="progressbar"></div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../../..", "features": ["navigation.instant", "navigation.instant.progress", "navigation.tracking", "navigation.tabs", "navigation.tabs.sticky", "navigation.sections", "navigation.path", "navigation.indexes", "navigation.top", "navigation.footer", "navigation.prune", "search.suggest", "search.highlight", "search.share", "content.code.copy", "content.code.annotate", "content.tabs.link", "toc.follow", "toc.integrate"], "search": "../../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>
