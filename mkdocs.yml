@@ -91,7 +91,7 @@ extra:
     link: https://pypi.org/project/sage-framework/
 
 nav:
-- 首页: index.md
+- 首页: https://sage.org.ai/
 
 - 关于: about.md
 
