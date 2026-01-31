@@ -19,76 +19,76 @@ theme:
   favicon: assets/img/isage_light.svg
   logo: assets/logo/sage.svg
   palette:
-  - media: "(prefers-color-scheme: light)"
-    scheme: default
-    primary: blue
-    accent: blue
-    toggle:
-      icon: material/brightness-7
-      name: 切换到深色模式
-  - media: "(prefers-color-scheme: dark)"
-    scheme: slate
-    primary: blue
-    accent: blue
-    toggle:
-      icon: material/brightness-4
-      name: 切换到浅色模式
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: blue
+      accent: blue
+      toggle:
+        icon: material/brightness-7
+        name: 切换到深色模式
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: blue
+      accent: blue
+      toggle:
+        icon: material/brightness-4
+        name: 切换到浅色模式
   features:
-  # Navigation
-  - navigation.instant
-  - navigation.instant.progress
-  - navigation.tracking
-  - navigation.tabs
-  - navigation.tabs.sticky
-  - navigation.sections
-  - navigation.path
-  - navigation.indexes
-  - navigation.top
-  - navigation.footer
-  - navigation.prune
-  # Search
-  - search.suggest
-  - search.highlight
-  - search.share
-  # Content
-  - content.code.copy
-  - content.code.annotate
-  - content.tabs.link
-  # Table of Contents
-  - toc.follow
-  - toc.integrate
+    # Navigation
+    - navigation.instant
+    - navigation.instant.progress
+    - navigation.tracking
+    - navigation.tabs
+    - navigation.tabs.sticky
+    - navigation.sections
+    - navigation.path
+    - navigation.indexes
+    - navigation.top
+    - navigation.footer
+    - navigation.prune
+    # Search
+    - search.suggest
+    - search.highlight
+    - search.share
+    # Content
+    - content.code.copy
+    - content.code.annotate
+    - content.tabs.link
+    # Table of Contents
+    - toc.follow
+    - toc.integrate
   icon:
     repo: fontawesome/brands/github
 
 markdown_extensions:
-- admonition
-- pymdownx.details
-- pymdownx.superfences
-- pymdownx.highlight:
-    anchor_linenums: true
-- pymdownx.inlinehilite
-- pymdownx.snippets
-- pymdownx.tabbed:
-    alternate_style: true
-- pymdownx.emoji:
-    emoji_index: !!python/name:material.extensions.emoji.twemoji
-    emoji_generator: !!python/name:material.extensions.emoji.to_svg
-- tables
-- attr_list
-- md_in_html
-- toc:
-    permalink: true
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+  - tables
+  - attr_list
+  - md_in_html
+  - toc:
+      permalink: true
 
 plugins:
-- search:
-    separator: '[\s\-,:!=\[\]()"/]+|(?!\b)(?=[A-Z][a-z])|\.(?!\d)|&[lg]t;'
+  - search:
+      separator: '[\s\-,:!=\[\]()"/]+|(?!\b)(?=[A-Z][a-z])|\.(?!\d)|&[lg]t;'
 
 extra:
   social:
-  - icon: fontawesome/brands/github
-    link: https://github.com/intellistream/SAGE
-  - icon: fontawesome/brands/python
-    link: https://pypi.org/project/sage-framework/
+    - icon: fontawesome/brands/github
+      link: https://github.com/intellistream/SAGE
+    - icon: fontawesome/brands/python
+      link: https://pypi.org/project/sage-framework/
 
 nav:
 - 首页: https://sage.org.ai/
@@ -109,14 +109,14 @@ nav:
       - Future 异步: tutorials/basic/operators/hello_future_world.md
       - Join 连接: tutorials/basic/operators/hello_join_world.md
 
-- 核心概念:
-  - 概览: concepts/index.md
-  - 架构总览: concepts/architecture/overview.md
-  - 包结构: concepts/architecture/package-structure.md
-  - 设计决策:
-    - L2 平台层: concepts/architecture/design-decisions/l2-platform-layer.md
-    - RPC 队列重构: concepts/architecture/design-decisions/rpc-queue-refactoring.md
-    - sage-libs 重构: concepts/architecture/design-decisions/sage-libs-restructuring.md
+  - 核心概念:
+      - 概览: concepts/index.md
+      - 架构总览: concepts/architecture/overview.md
+      - 包结构: concepts/architecture/package-structure.md
+      - 设计决策:
+          - L2 平台层: concepts/architecture/design-decisions/l2-platform-layer.md
+          - RPC 队列重构: concepts/architecture/design-decisions/rpc-queue-refactoring.md
+          - sage-libs 重构: concepts/architecture/design-decisions/sage-libs-restructuring.md
 
 - 高级教程:
   - 概览: tutorials/advanced/index.md
@@ -246,27 +246,27 @@ nav:
       - 改进记录: security/SECURITY_IMPROVEMENTS.md
     - 最佳实践: guides/best-practices/index.md
 
-- API 参考:
-  - API 总览: api-reference/index.md
-  - L1 基础设施层:
-    - Common API: api-reference/common/index.md
-  - L2 平台服务层:
-    - Platform API: api-reference/platform/index.md
-  - L3 核心层:
-    - Kernel API:
-      - Kernel 总览: api-reference/kernel/index.md
-      - DataStreams: guides/packages/sage-kernel/api/datastreams.md
-      - Functions: guides/packages/sage-kernel/api/functions.md
-      - Environments: guides/packages/sage-kernel/api/environments.md
-      - Connected Streams: guides/packages/sage-kernel/api/connected-streams.md
-    - Libs API:
-      - Libs 总览: api-reference/libs/index.md
-      - RAG API: guides/packages/sage-libs/rag/api_reference.md
-      - 算子参考: guides/packages/sage-libs/operators_reference.md
-  - L4 中间件层:
-    - Middleware API:
-      - Middleware 总览: api-reference/middleware/index.md
-      - 服务 API: guides/packages/sage-middleware/service/service_api.md
+  - API 参考:
+      - API 总览: api-reference/index.md
+      - L1 基础设施层:
+          - Common API: api-reference/common/index.md
+      - L2 平台服务层:
+          - Platform API: api-reference/platform/index.md
+      - L3 核心层:
+          - Kernel API:
+              - Kernel 总览: api-reference/kernel/index.md
+              - DataStreams: guides/packages/sage-kernel/api/datastreams.md
+              - Functions: guides/packages/sage-kernel/api/functions.md
+              - Environments: guides/packages/sage-kernel/api/environments.md
+              - Connected Streams: guides/packages/sage-kernel/api/connected-streams.md
+          - Libs API:
+              - Libs 总览: api-reference/libs/index.md
+              - RAG API: guides/packages/sage-libs/rag/api_reference.md
+              - 算子参考: guides/packages/sage-libs/operators_reference.md
+      - L4 中间件层:
+          - Middleware API:
+              - Middleware 总览: api-reference/middleware/index.md
+              - 服务 API: guides/packages/sage-middleware/service/service_api.md
 
 - 开发者:
   - 贡献指南: developers/commands.md
