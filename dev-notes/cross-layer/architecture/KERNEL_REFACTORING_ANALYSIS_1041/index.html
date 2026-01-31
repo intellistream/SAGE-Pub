@@ -1,0 +1,2137 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="高性能分布式推理框架 - 数据流原生的模块化、透明、可控的LLM工作流推理框架">
+      
+      
+        <meta name="author" content="IntelliStream Lab">
+      
+      
+        <link rel="canonical" href="https://sage.org.ai/dev-notes/cross-layer/architecture/KERNEL_REFACTORING_ANALYSIS_1041/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../../assets/img/isage_light.svg">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+    
+    
+  
+    <title>Kernel 层重构分析 - Issue #1041</title>
+  
+
+    
+      <link rel="stylesheet" href="../../../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+<!-- Google Tag Manager -->
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-T35S4S46');</script>
+<!-- End Google Tag Manager -->
+
+    
+  <!-- pragma: allowlist secret -->
+  <meta name="algolia-site-verification" content="165B7E7C89E49946" />
+  <style>
+    @import url("https://fonts.googleapis.com/css2?family=Public+Sans&display=swap");
+    :root {
+      --md-primary-fg-color: #333333;
+      --md-accent-fg-color: #1E88E5;
+      --md-default-bg-color: #FFFFFF;
+      --md-default-fg-color: #333333;
+      --md-text-font-family: "Public Sans", sans-serif;
+    }
+
+    body {
+      font-family: var(--md-text-font-family);
+      background-color: var(--md-default-bg-color);
+      color: var(--md-default-fg-color);
+    }
+
+    .md-main {
+      background-color: #FFFFFF;
+    }
+
+    .md-footer {
+      background-color: #F5F5F5;
+      color: #666666;
+    }
+
+    .md-footer-meta {
+      background-color: #4d4d4d;
+    }
+
+    .md-typeset a {
+      color: #1E88E5;
+    }
+
+    .md-typeset a:hover {
+      color: #1565C0;
+    }
+
+    .md-nav__link--active,
+    .md-nav__link:active {
+      color: #1E88E5;
+    }
+
+    .md-search__input {
+      background-color: #F5F5F5;
+      color: #333333;
+    }
+
+    .md-search__input:hover,
+    .md-search__input:focus {
+      background-color: #EEEEEE;
+    }
+    /* Table of contents styles */
+    .md-nav--secondary .md-nav__item--active > .md-nav__link {
+      font-weight: bold;
+      color: var(--md-primary-fg-color);
+    }
+
+    .md-nav--secondary .md-nav__item--nested > .md-nav__link {
+      font-weight: normal;
+      color: var(--md-default-fg-color);
+    }
+
+    .md-header__button.md-logo img {
+      height: 30px;
+      max-height: 30px;
+      width: auto;
+      vertical-align: middle;
+    }
+
+    .md-nav--secondary .md-nav__item--nested > .md-nav__link::before {
+      content: "";
+      display: inline-block;
+      width: 6px;
+      height: 6px;
+      background-color: var(--md-default-fg-color);
+      border-radius: 50%;
+      margin-right: 0.5rem;
+    }
+
+    [data-md-color-scheme="slate"] {
+      --md-default-bg-color: #1E1E1E;
+      --md-default-fg-color: #FFFFFF;
+      --md-accent-fg-color: #64B5F6;
+    }
+
+    [data-md-color-scheme="slate"] .md-main {
+      background-color: #1E1E1E;
+    }
+
+    [data-md-color-scheme="slate"] .navbar {
+      background-color: #1E1E1E;
+      color: #FFFFFF;
+      box-shadow: none;
+    }
+
+    [data-md-color-scheme="slate"] .md-footer {
+      background-color: #1E1E1E;
+      color: #BDBDBD;
+    }
+
+    [data-md-color-scheme="slate"] .md-header {
+      background-color: #1E1E1E;
+      color: #BDBDBD;
+    }
+
+    [data-md-color-scheme="slate"] .md-tabs {
+      background-color: #1E1E1E;
+      color: #BDBDBD;
+    }
+
+    [data-md-color-scheme="slate"] .md-search__input {
+      background-color: #F5F5F5;
+      color: #333333;
+    }
+
+    [data-md-color-scheme="slate"] .md-search__icon {
+      color: #333333;
+    }
+
+    [data-md-color-scheme="slate"] .md-search__input::placeholder {
+      color: #333333;
+    }
+
+    [data-md-color-scheme="slate"] .md-footer-meta {
+      background-color: #4d4d4d;
+    }
+
+    [data-md-color-scheme="slate"] .md-typeset a {
+      color: #64B5F6;
+    }
+
+    [data-md-color-scheme="slate"] .md-typeset a:hover {
+      color: #90CAF9;
+    }
+
+    .notebook-links {
+      display: flex;
+      justify-content: flex-end;
+      margin-bottom: 1rem;
+    }
+    .notebook-links .md-content__button {
+      margin-left: 0.5rem;
+    }
+
+    [data-md-color-scheme=default] .logo-dark {
+      display: none !important;
+    }
+
+    [data-md-color-scheme=slate] .logo-light {
+      display: none !important;
+    }
+
+    .jupyter-wrapper .jp-CodeCell .jp-Cell-inputWrapper .jp-InputPrompt.jp-InputArea-prompt {
+      display: none !important;
+    }
+
+    .jupyter-wrapper .jp-Notebook .jp-Cell .jp-OutputPrompt {
+      display: none !important;
+    }
+
+    .md-banner {
+      background-color: #CFC9FA;
+      color: #000000;
+    }
+
+    .md-banner a {
+      color: #000000;
+      text-decoration: underline;
+    }
+
+    .md-banner a:hover {
+      color: #000000;
+    }
+
+    .md-header__title {
+      visibility: hidden;
+    }
+
+    /* Dark mode banner styling */
+    [data-md-color-scheme="slate"] .md-banner {
+      background-color: #CFC9FA; /* Same light purple for both modes */
+      color: #000000;
+    }
+
+    [data-md-color-scheme="slate"] .md-banner a {
+      color: #000000;
+    }
+
+    [data-md-color-scheme="slate"] .md-banner a:hover {
+      color: #000000;
+    }
+
+  </style>
+
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="blue" data-md-color-accent="blue">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#kernel-issue-1041" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../../../.." title="SAGE Documentation" class="md-header__button md-logo" aria-label="SAGE Documentation" data-md-component="logo">
+      
+  <img src="../../../../assets/logo/sage.svg" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            SAGE Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Kernel 层重构分析 - Issue #1041
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="blue" data-md-color-accent="blue"  aria-label="切换到深色模式"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="切换到深色模式" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="blue" data-md-color-accent="blue"  aria-label="切换到浅色模式"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="切换到浅色模式" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+          <a href="javascript:void(0)" class="md-search__icon md-icon" title="分享" aria-label="分享" data-clipboard data-clipboard-text="" data-md-component="search-share" tabindex="-1">
+            
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.15c-.05.21-.08.43-.08.66 0 1.61 1.31 2.91 2.92 2.91s2.92-1.3 2.92-2.91A2.92 2.92 0 0 0 18 16.08"/></svg>
+          </a>
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/intellistream/SAGE" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    intellistream/SAGE
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+    
+      
+<nav class="md-tabs" aria-label="标签" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="https://sage.org.ai/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  首页
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../../about/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  关于
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../getting-started/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  入门指南
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../tutorials/advanced/index.md" class="md-tabs__link">
+          
+  
+  
+    
+  
+  高级教程
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../guides/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  用户指南
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../developers/commands/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  开发者
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../community/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  社区
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../contributions/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  我们的贡献
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+    
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../../.." title="SAGE Documentation" class="md-nav__button md-logo" aria-label="SAGE Documentation" data-md-component="logo">
+      
+  <img src="../../../../assets/logo/sage.svg" alt="logo">
+
+    </a>
+    SAGE Documentation
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/intellistream/SAGE" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    intellistream/SAGE
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="https://sage.org.ai/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    首页
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../about/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    关于
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../../../getting-started/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    入门指南
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../../../tutorials/advanced/index.md" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    高级教程
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../../../guides/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    用户指南
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../../../developers/commands/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    开发者
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../../../community/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    社区
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../../../contributions/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    我们的贡献
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+                
+
+
+
+
+              
+              <article class="md-content__inner md-typeset">
+                
+<div class="notebook-links">
+  
+</div>
+
+
+                  
+
+
+  
+  
+
+
+<h1 id="kernel-issue-1041">Kernel 层重构分析 - Issue #1041<a class="headerlink" href="#kernel-issue-1041" title="Permanent link">&para;</a></h1>
+<p><strong>Date</strong>: 2025-10-24\
+<strong>Author</strong>: SAGE Team\
+<strong>Summary</strong>: Kernel 层功能重构分析，探讨将部分功能下沉到 platform 或 common 层的可行性</p>
+<blockquote>
+<p><strong>问题</strong>: kernel 的部分功能应该下沉到 platform 或 common 层\
+<strong>状态</strong>: 📋 分析中</p>
+</blockquote>
+<hr />
+<h2 id="_1">🎯 问题陈述<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h2>
+<h3 id="_2">当前架构问题<a class="headerlink" href="#_2" title="Permanent link">&para;</a></h3>
+<ol>
+<li>
+<p><strong>sage-libs (L3) 依赖 sage-kernel (L3)</strong> - 同层依赖不清晰</p>
+</li>
+<li>
+<p>sage-libs 导入了 14 次 <code>sage.kernel.api.function.*</code></p>
+</li>
+<li>sage-libs 需要使用基础函数接口（MapFunction, FilterFunction, SinkFunction等）</li>
+<li>
+<p>这些基础接口应该在更低层</p>
+</li>
+<li>
+<p><strong>kernel.api 和 BaseService 分层不一致</strong></p>
+</li>
+<li>
+<p>BaseService 已在 L2 (sage-platform/service)</p>
+</li>
+<li>kernel.api 中的函数接口仍在 L3</li>
+<li>应该放在同一层级</li>
+</ol>
+<h3 id="_3">依赖统计<a class="headerlink" href="#_3" title="Permanent link">&para;</a></h3>
+<h4 id="sage-libs-sagekernel">sage-libs → sage.kernel 依赖分析<a class="headerlink" href="#sage-libs-sagekernel" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>总计: 14 次导入
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>Function APIs (13次):
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>├── MapFunction: 7次
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>│   ├── agents/agent.py
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>│   ├── agents/runtime/agent.py
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>│   ├── agents/planning/llm_planner.py
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>│   ├── agents/profile/profile.py
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>│   ├── agents/action/mcp_registry.py
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>│   ├── workflow/base.py
+<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>│   └── filters/context_source.py (SourceFunction)
+<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>├── FilterFunction: 3次
+<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>│   ├── filters/tool_filter.py
+<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>│   ├── filters/evaluate_filter.py
+<a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>│   └── rag/profiler.py
+<a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a>├── SinkFunction: 2次
+<a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a>│   ├── io/sink.py
+<a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a>│   └── filters/context_sink.py
+<a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a>├── SourceFunction: 1次
+<a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a>│   └── io/source.py
+<a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a>└── BatchFunction: 1次
+<a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a>    └── io/batch.py
+<a id="__codelineno-0-23" name="__codelineno-0-23" href="#__codelineno-0-23"></a>
+<a id="__codelineno-0-24" name="__codelineno-0-24" href="#__codelineno-0-24"></a>Environment API (可选):
+<a id="__codelineno-0-25" name="__codelineno-0-25" href="#__codelineno-0-25"></a>└── LocalEnvironment: 0次 (libs 不需要)
+</code></pre></div>
+<h4 id="sage-middleware-sagekernel">sage-middleware → sage.kernel 依赖分析<a class="headerlink" href="#sage-middleware-sagekernel" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>总计: 15 次导入
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>Operators (15次):
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>└── MapOperator: 15次
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>    ├── operators/rag/*.py (11个文件)
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>    ├── operators/llm/vllm_generator.py
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>    ├── operators/tools/searcher_tool.py
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>    └── components/sage_refiner/python/adapter.py
+<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>
+<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>Environment API (示例代码):
+<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>└── LocalEnvironment: 1次
+<a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a>    └── components/sage_refiner/examples/rag_integration.py
+</code></pre></div>
+<hr />
+<h2 id="_4">🏗️ 重构方案<a class="headerlink" href="#_4" title="Permanent link">&para;</a></h2>
+<h3 id="1-l2-sage-platform">方案 1: 下沉到 L2 (sage-platform) ✅ <strong>推荐</strong><a class="headerlink" href="#1-l2-sage-platform" title="Permanent link">&para;</a></h3>
+<p>创建 <code>sage-platform/api</code> 子包，包含基础函数接口。</p>
+<h4 id="_5">迁移内容<a class="headerlink" href="#_5" title="Permanent link">&para;</a></h4>
+<p><strong>从 <code>sage-kernel/api/function/</code> 迁移到 <code>sage-platform/api/</code></strong>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>packages/sage-platform/src/sage/platform/api/
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>├── __init__.py                  # 导出所有函数基类
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>├── base_function.py             # ✅ BaseFunction (所有函数基类)
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>├── map_function.py              # ✅ MapFunction
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>├── filter_function.py           # ✅ FilterFunction
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>├── flatmap_function.py          # ✅ FlatMapFunction
+<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>├── sink_function.py             # ✅ SinkFunction
+<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>├── source_function.py           # ✅ SourceFunction
+<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a>├── batch_function.py            # ✅ BatchFunction
+<a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a>├── simple_batch_function.py     # ✅ SimpleBatchFunction
+<a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a>├── keyby_function.py            # ✅ KeyByFunction
+<a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a>├── join_function.py             # ✅ JoinFunction
+<a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a>├── comap_function.py            # ✅ CoMapFunction
+<a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a>├── flatmap_collector.py         # ✅ FlatMapCollector
+<a id="__codelineno-2-15" name="__codelineno-2-15" href="#__codelineno-2-15"></a>├── lambda_function.py           # ✅ LambdaFunction
+<a id="__codelineno-2-16" name="__codelineno-2-16" href="#__codelineno-2-16"></a>├── future_function.py           # ✅ FutureFunction (异步支持)
+<a id="__codelineno-2-17" name="__codelineno-2-17" href="#__codelineno-2-17"></a>├── kafka_source.py              # ⚠️  KafkaSource (考虑是否迁移)
+<a id="__codelineno-2-18" name="__codelineno-2-18" href="#__codelineno-2-18"></a>└── _internal_print_sink.py      # ⚠️  InternalPrintSink (内部实现)
+</code></pre></div>
+<p><strong>保留在 <code>sage-kernel/api/</code></strong>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>packages/sage-kernel/src/sage/kernel/api/
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>├── __init__.py                  # 导出环境和流
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>├── local_environment.py         # ✅ LocalEnvironment (L3 - 执行引擎)
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>├── remote_environment.py        # ✅ RemoteEnvironment (L3 - 分布式执行)
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>├── base_environment.py          # ✅ BaseEnvironment (L3 - 执行环境基类)
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>├── datastream.py                # ✅ DataStream (L3 - 流式API)
+<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>├── connected_streams.py         # ✅ ConnectedStreams (L3 - 多流操作)
+<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>├── operator/                    # ✅ 内部算子实现 (L3 - runtime依赖)
+<a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a>└── transformation/              # ✅ 转换逻辑 (L3 - runtime依赖)
+</code></pre></div>
+<h4 id="_6">架构分层逻辑<a class="headerlink" href="#_6" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>L1 (sage-common)
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>└── 基础工具、配置、日志 (无业务逻辑)
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>L2 (sage-platform)
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>├── queue/          # 消息队列抽象
+<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>├── storage/        # KV存储后端
+<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a>├── service/        # 服务基类 ✅ BaseService
+<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a>└── api/            # ✅ 新增: 函数基类 (MapFunction, SinkFunction等)
+<a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a>    └── 职责: 定义用户自定义函数的抽象接口
+<a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a>    └── 特点: 不依赖执行引擎，纯接口定义
+<a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a>
+<a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a>L3 (sage-kernel, sage-libs)
+<a id="__codelineno-4-13" name="__codelineno-4-13" href="#__codelineno-4-13"></a>├── sage-kernel
+<a id="__codelineno-4-14" name="__codelineno-4-14" href="#__codelineno-4-14"></a>│   ├── api/        # Environment + DataStream (依赖 runtime)
+<a id="__codelineno-4-15" name="__codelineno-4-15" href="#__codelineno-4-15"></a>│   ├── runtime/    # 执行引擎 (JobManager, Dispatcher, Scheduler)
+<a id="__codelineno-4-16" name="__codelineno-4-16" href="#__codelineno-4-16"></a>│   └── operators/  # 内部算子实现
+<a id="__codelineno-4-17" name="__codelineno-4-17" href="#__codelineno-4-17"></a>└── sage-libs
+<a id="__codelineno-4-18" name="__codelineno-4-18" href="#__codelineno-4-18"></a>    ├── agents/     # 使用 platform.api 中的 MapFunction
+<a id="__codelineno-4-19" name="__codelineno-4-19" href="#__codelineno-4-19"></a>    ├── io/         # 使用 platform.api 中的 SourceFunction, SinkFunction
+<a id="__codelineno-4-20" name="__codelineno-4-20" href="#__codelineno-4-20"></a>    └── filters/    # 使用 platform.api 中的 FilterFunction
+<a id="__codelineno-4-21" name="__codelineno-4-21" href="#__codelineno-4-21"></a>
+<a id="__codelineno-4-22" name="__codelineno-4-22" href="#__codelineno-4-22"></a>L4 (sage-middleware)
+<a id="__codelineno-4-23" name="__codelineno-4-23" href="#__codelineno-4-23"></a>└── operators/      # 使用 platform.api 中的 MapFunction
+<a id="__codelineno-4-24" name="__codelineno-4-24" href="#__codelineno-4-24"></a>    └── 职责: 组合 libs + kernel 提供领域算子
+</code></pre></div>
+<h4 id="l2">为什么放在 L2？<a class="headerlink" href="#l2" title="Permanent link">&para;</a></h4>
+<ol>
+<li>
+<p><strong>接口定义 vs 实现分离</strong></p>
+</li>
+<li>
+<p><strong>L2 (platform.api)</strong>: 定义函数<strong>接口</strong> (MapFunction, SinkFunction等)</p>
+<ul>
+<li>用户继承这些类实现自己的逻辑</li>
+<li>不依赖执行引擎</li>
+</ul>
+</li>
+<li>
+<p><strong>L3 (kernel.api)</strong>: 提供<strong>执行环境</strong> (LocalEnvironment, DataStream)</p>
+<ul>
+<li>负责运行时调度和执行</li>
+<li>依赖 runtime 模块</li>
+</ul>
+</li>
+<li>
+<p><strong>与 BaseService 对齐</strong></p>
+</li>
+<li>
+<p>BaseService 已在 L2 (sage-platform/service)</p>
+</li>
+<li>函数接口应该和服务基类在同一层</li>
+<li>
+<p>都是"平台服务抽象"</p>
+</li>
+<li>
+<p><strong>解决同层依赖</strong></p>
+</li>
+<li>
+<p>sage-libs (L3) 可以依赖 sage-platform (L2)</p>
+</li>
+<li>sage-middleware (L4) 可以依赖 sage-platform (L2)</li>
+<li>
+<p>避免 L3 ↔ L3 的水平依赖</p>
+</li>
+<li>
+<p><strong>复用性</strong></p>
+</li>
+<li>
+<p>函数接口是通用抽象，不仅 kernel 使用</p>
+</li>
+<li>libs, middleware 都需要继承这些接口</li>
+<li>应该在更底层提供</li>
+</ol>
+<hr />
+<h3 id="2-l1-sage-common">方案 2: 部分下沉到 L1 (sage-common) ❌ <strong>不推荐</strong><a class="headerlink" href="#2-l1-sage-common" title="Permanent link">&para;</a></h3>
+<p>将<strong>最基础</strong>的函数接口下沉到 common。</p>
+<h4 id="_7">理由<a class="headerlink" href="#_7" title="Permanent link">&para;</a></h4>
+<p><strong>不推荐的原因</strong>:</p>
+<ol>
+<li>
+<p><strong>common 应该"无业务"</strong></p>
+</li>
+<li>
+<p>MapFunction, SinkFunction 是数据流处理的核心抽象</p>
+</li>
+<li>虽然是接口，但已经是"业务概念"</li>
+<li>
+<p>common 应该只有通用工具（log, config, decorators）</p>
+</li>
+<li>
+<p><strong>platform 更合适</strong></p>
+</li>
+<li>
+<p>platform 的定位就是"平台服务抽象"</p>
+</li>
+<li>
+<p>函数接口属于平台API的一部分</p>
+</li>
+<li>
+<p><strong>避免过度下沉</strong></p>
+</li>
+<li>
+<p>不是所有"基础"的东西都要放 L1</p>
+</li>
+<li>L2 存在的意义就是提供平台抽象</li>
+</ol>
+<hr />
+<h2 id="_8">📋 迁移计划 (修订版)<a class="headerlink" href="#_8" title="Permanent link">&para;</a></h2>
+<h3 id="phase-1-sage-commoncorefunctions">Phase 1: 创建 sage-common/core/functions<a class="headerlink" href="#phase-1-sage-commoncorefunctions" title="Permanent link">&para;</a></h3>
+<p><strong>目标</strong>: 在 L1 层创建函数接口模块</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="c1"># 1. 创建目录结构</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>mkdir<span class="w"> </span>-p<span class="w"> </span>packages/sage-common/src/sage/common/core/functions
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="c1"># 2. 迁移函数基类文件 (13个文件)</span>
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="c1"># 从 kernel/api/function/ 迁移纯接口（不依赖 runtime）</span>
+<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>cp<span class="w"> </span>packages/sage-kernel/src/sage/kernel/api/function/base_function.py<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a><span class="w">   </span>packages/sage-common/src/sage/common/core/functions/
+<a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a>
+<a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a>cp<span class="w"> </span>packages/sage-kernel/src/sage/kernel/api/function/map_function.py<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a><span class="w">   </span>packages/sage-common/src/sage/common/core/functions/
+<a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a>
+<a id="__codelineno-5-12" name="__codelineno-5-12" href="#__codelineno-5-12"></a><span class="c1"># ... (其他11个文件)</span>
+<a id="__codelineno-5-13" name="__codelineno-5-13" href="#__codelineno-5-13"></a>
+<a id="__codelineno-5-14" name="__codelineno-5-14" href="#__codelineno-5-14"></a><span class="c1"># 3. 创建 __init__.py 导出</span>
+<a id="__codelineno-5-15" name="__codelineno-5-15" href="#__codelineno-5-15"></a>cat<span class="w"> </span>&gt;<span class="w"> </span>packages/sage-common/src/sage/common/core/functions/__init__.py<span class="w"> </span><span class="s">&lt;&lt; &#39;EOF&#39;</span>
+<a id="__codelineno-5-16" name="__codelineno-5-16" href="#__codelineno-5-16"></a><span class="s">&quot;&quot;&quot;</span>
+<a id="__codelineno-5-17" name="__codelineno-5-17" href="#__codelineno-5-17"></a><span class="s">SAGE Common Functions - 基础函数接口定义</span>
+<a id="__codelineno-5-18" name="__codelineno-5-18" href="#__codelineno-5-18"></a>
+<a id="__codelineno-5-19" name="__codelineno-5-19" href="#__codelineno-5-19"></a><span class="s">Layer: L1 (Common - Core Abstractions)</span>
+<a id="__codelineno-5-20" name="__codelineno-5-20" href="#__codelineno-5-20"></a><span class="s">Dependencies: 无</span>
+<a id="__codelineno-5-21" name="__codelineno-5-21" href="#__codelineno-5-21"></a>
+<a id="__codelineno-5-22" name="__codelineno-5-22" href="#__codelineno-5-22"></a><span class="s">提供用户自定义函数的基础接口：</span>
+<a id="__codelineno-5-23" name="__codelineno-5-23" href="#__codelineno-5-23"></a><span class="s">- BaseFunction: 所有函数的基类</span>
+<a id="__codelineno-5-24" name="__codelineno-5-24" href="#__codelineno-5-24"></a><span class="s">- MapFunction: 一对一映射函数</span>
+<a id="__codelineno-5-25" name="__codelineno-5-25" href="#__codelineno-5-25"></a><span class="s">- FilterFunction: 过滤函数</span>
+<a id="__codelineno-5-26" name="__codelineno-5-26" href="#__codelineno-5-26"></a><span class="s">- SinkFunction: 输出函数</span>
+<a id="__codelineno-5-27" name="__codelineno-5-27" href="#__codelineno-5-27"></a><span class="s">- SourceFunction: 数据源函数</span>
+<a id="__codelineno-5-28" name="__codelineno-5-28" href="#__codelineno-5-28"></a><span class="s">- BatchFunction: 批处理函数</span>
+<a id="__codelineno-5-29" name="__codelineno-5-29" href="#__codelineno-5-29"></a><span class="s">等等...</span>
+<a id="__codelineno-5-30" name="__codelineno-5-30" href="#__codelineno-5-30"></a>
+<a id="__codelineno-5-31" name="__codelineno-5-31" href="#__codelineno-5-31"></a><span class="s">这些接口是纯抽象定义，不依赖任何执行引擎。</span>
+<a id="__codelineno-5-32" name="__codelineno-5-32" href="#__codelineno-5-32"></a><span class="s">&quot;&quot;&quot;</span>
+<a id="__codelineno-5-33" name="__codelineno-5-33" href="#__codelineno-5-33"></a>
+<a id="__codelineno-5-34" name="__codelineno-5-34" href="#__codelineno-5-34"></a><span class="s">from .base_function import BaseFunction</span>
+<a id="__codelineno-5-35" name="__codelineno-5-35" href="#__codelineno-5-35"></a><span class="s">from .map_function import MapFunction</span>
+<a id="__codelineno-5-36" name="__codelineno-5-36" href="#__codelineno-5-36"></a><span class="s">from .filter_function import FilterFunction</span>
+<a id="__codelineno-5-37" name="__codelineno-5-37" href="#__codelineno-5-37"></a><span class="s">from .flatmap_function import FlatMapFunction</span>
+<a id="__codelineno-5-38" name="__codelineno-5-38" href="#__codelineno-5-38"></a><span class="s">from .sink_function import SinkFunction</span>
+<a id="__codelineno-5-39" name="__codelineno-5-39" href="#__codelineno-5-39"></a><span class="s">from .source_function import SourceFunction</span>
+<a id="__codelineno-5-40" name="__codelineno-5-40" href="#__codelineno-5-40"></a><span class="s">from .batch_function import BatchFunction</span>
+<a id="__codelineno-5-41" name="__codelineno-5-41" href="#__codelineno-5-41"></a><span class="s">from .keyby_function import KeyByFunction</span>
+<a id="__codelineno-5-42" name="__codelineno-5-42" href="#__codelineno-5-42"></a><span class="s">from .join_function import JoinFunction</span>
+<a id="__codelineno-5-43" name="__codelineno-5-43" href="#__codelineno-5-43"></a><span class="s">from .comap_function import CoMapFunction</span>
+<a id="__codelineno-5-44" name="__codelineno-5-44" href="#__codelineno-5-44"></a><span class="s">from .flatmap_collector import FlatMapCollector</span>
+<a id="__codelineno-5-45" name="__codelineno-5-45" href="#__codelineno-5-45"></a><span class="s">from .lambda_function import LambdaFunction</span>
+<a id="__codelineno-5-46" name="__codelineno-5-46" href="#__codelineno-5-46"></a><span class="s">from .future_function import FutureFunction</span>
+<a id="__codelineno-5-47" name="__codelineno-5-47" href="#__codelineno-5-47"></a>
+<a id="__codelineno-5-48" name="__codelineno-5-48" href="#__codelineno-5-48"></a><span class="s">__all__ = [</span>
+<a id="__codelineno-5-49" name="__codelineno-5-49" href="#__codelineno-5-49"></a><span class="s">    &quot;BaseFunction&quot;,</span>
+<a id="__codelineno-5-50" name="__codelineno-5-50" href="#__codelineno-5-50"></a><span class="s">    &quot;MapFunction&quot;,</span>
+<a id="__codelineno-5-51" name="__codelineno-5-51" href="#__codelineno-5-51"></a><span class="s">    &quot;FilterFunction&quot;,</span>
+<a id="__codelineno-5-52" name="__codelineno-5-52" href="#__codelineno-5-52"></a><span class="s">    &quot;FlatMapFunction&quot;,</span>
+<a id="__codelineno-5-53" name="__codelineno-5-53" href="#__codelineno-5-53"></a><span class="s">    &quot;SinkFunction&quot;,</span>
+<a id="__codelineno-5-54" name="__codelineno-5-54" href="#__codelineno-5-54"></a><span class="s">    &quot;SourceFunction&quot;,</span>
+<a id="__codelineno-5-55" name="__codelineno-5-55" href="#__codelineno-5-55"></a><span class="s">    &quot;BatchFunction&quot;,</span>
+<a id="__codelineno-5-56" name="__codelineno-5-56" href="#__codelineno-5-56"></a><span class="s">    &quot;KeyByFunction&quot;,</span>
+<a id="__codelineno-5-57" name="__codelineno-5-57" href="#__codelineno-5-57"></a><span class="s">    &quot;JoinFunction&quot;,</span>
+<a id="__codelineno-5-58" name="__codelineno-5-58" href="#__codelineno-5-58"></a><span class="s">    &quot;CoMapFunction&quot;,</span>
+<a id="__codelineno-5-59" name="__codelineno-5-59" href="#__codelineno-5-59"></a><span class="s">    &quot;FlatMapCollector&quot;,</span>
+<a id="__codelineno-5-60" name="__codelineno-5-60" href="#__codelineno-5-60"></a><span class="s">    &quot;LambdaFunction&quot;,</span>
+<a id="__codelineno-5-61" name="__codelineno-5-61" href="#__codelineno-5-61"></a><span class="s">    &quot;FutureFunction&quot;,</span>
+<a id="__codelineno-5-62" name="__codelineno-5-62" href="#__codelineno-5-62"></a><span class="s">]</span>
+<a id="__codelineno-5-63" name="__codelineno-5-63" href="#__codelineno-5-63"></a><span class="s">EOF</span>
+<a id="__codelineno-5-64" name="__codelineno-5-64" href="#__codelineno-5-64"></a>
+<a id="__codelineno-5-65" name="__codelineno-5-65" href="#__codelineno-5-65"></a><span class="c1"># 4. 更新 common 主 __init__.py</span>
+<a id="__codelineno-5-66" name="__codelineno-5-66" href="#__codelineno-5-66"></a><span class="c1"># 添加 functions 到导出列表</span>
+</code></pre></div>
+<p><strong>预计文件变更</strong>:</p>
+<ul>
+<li>✅ 新增: <code>packages/sage-common/src/sage/common/core/functions/</code> (13个文件)</li>
+<li>✅ 迁移: 从 kernel/api/function/ 复制文件（后续删除源文件）</li>
+</ul>
+<hr />
+<h3 id="phase-2-printsink-common">Phase 2: 迁移 PrintSink 到 common<a class="headerlink" href="#phase-2-printsink-common" title="Permanent link">&para;</a></h3>
+<p><strong>目标</strong>: 将调试工具迁移到 common</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="c1"># 1. 创建调试组件目录</span>
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>mkdir<span class="w"> </span>-p<span class="w"> </span>packages/sage-common/src/sage/common/components/debug
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="c1"># 2. 迁移 _internal_print_sink.py</span>
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>mv<span class="w"> </span>packages/sage-kernel/src/sage/kernel/api/function/_internal_print_sink.py<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a><span class="w">   </span>packages/sage-common/src/sage/common/components/debug/print_sink.py
+<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a>
+<a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a><span class="c1"># 3. 更新导入路径（移除 _internal 前缀）</span>
+<a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a><span class="c1"># 修改 print_sink.py 中的导入:</span>
+<a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a><span class="c1"># 旧: from sage.kernel.api.function.sink_function import SinkFunction</span>
+<a id="__codelineno-6-11" name="__codelineno-6-11" href="#__codelineno-6-11"></a><span class="c1"># 新: from sage.common.core.functions import SinkFunction</span>
+<a id="__codelineno-6-12" name="__codelineno-6-12" href="#__codelineno-6-12"></a>
+<a id="__codelineno-6-13" name="__codelineno-6-13" href="#__codelineno-6-13"></a><span class="c1"># 4. 创建 __init__.py</span>
+<a id="__codelineno-6-14" name="__codelineno-6-14" href="#__codelineno-6-14"></a>cat<span class="w"> </span>&gt;<span class="w"> </span>packages/sage-common/src/sage/common/components/debug/__init__.py<span class="w"> </span><span class="s">&lt;&lt; &#39;EOF&#39;</span>
+<a id="__codelineno-6-15" name="__codelineno-6-15" href="#__codelineno-6-15"></a><span class="s">&quot;&quot;&quot;</span>
+<a id="__codelineno-6-16" name="__codelineno-6-16" href="#__codelineno-6-16"></a><span class="s">SAGE Common Debug Components - 调试工具</span>
+<a id="__codelineno-6-17" name="__codelineno-6-17" href="#__codelineno-6-17"></a>
+<a id="__codelineno-6-18" name="__codelineno-6-18" href="#__codelineno-6-18"></a><span class="s">提供调试和开发辅助功能。</span>
+<a id="__codelineno-6-19" name="__codelineno-6-19" href="#__codelineno-6-19"></a><span class="s">&quot;&quot;&quot;</span>
+<a id="__codelineno-6-20" name="__codelineno-6-20" href="#__codelineno-6-20"></a>
+<a id="__codelineno-6-21" name="__codelineno-6-21" href="#__codelineno-6-21"></a><span class="s">from .print_sink import PrintSink</span>
+<a id="__codelineno-6-22" name="__codelineno-6-22" href="#__codelineno-6-22"></a>
+<a id="__codelineno-6-23" name="__codelineno-6-23" href="#__codelineno-6-23"></a><span class="s">__all__ = [&quot;PrintSink&quot;]</span>
+<a id="__codelineno-6-24" name="__codelineno-6-24" href="#__codelineno-6-24"></a><span class="s">EOF</span>
+</code></pre></div>
+<p><strong>预计文件变更</strong>:</p>
+<ul>
+<li>✅ 新增: <code>packages/sage-common/src/sage/common/components/debug/print_sink.py</code></li>
+<li>✅ 删除: <code>packages/sage-kernel/src/sage/kernel/api/function/_internal_print_sink.py</code></li>
+</ul>
+<hr />
+<h3 id="phase-3-kafka_sourcepy">Phase 3: 删除 kafka_source.py<a class="headerlink" href="#phase-3-kafka_sourcepy" title="Permanent link">&para;</a></h3>
+<p><strong>目标</strong>: 移除 kernel 中的重复实现</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="c1"># 1. 删除 kernel 中的 KafkaSourceFunction</span>
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>rm<span class="w"> </span>packages/sage-kernel/src/sage/kernel/api/function/kafka_source.py
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>
+<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="c1"># 2. 更新 base_environment.py</span>
+<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a><span class="c1"># 修改 from_kafka_source() 方法：</span>
+<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a><span class="c1"># 旧: from sage.kernel.api.function.kafka_source import KafkaSourceFunction</span>
+<a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a><span class="c1"># 新: from sage.libs.foundation.io import KafkaSource as KafkaSourceFunction</span>
+<a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a>
+<a id="__codelineno-7-9" name="__codelineno-7-9" href="#__codelineno-7-9"></a><span class="c1"># 3. 改进 libs 中的 KafkaSource 实现</span>
+<a id="__codelineno-7-10" name="__codelineno-7-10" href="#__codelineno-7-10"></a><span class="c1"># 将 kernel 中的完整实现代码迁移到 libs.io.source.KafkaSource</span>
+</code></pre></div>
+<p><strong>预计文件变更</strong>:</p>
+<ul>
+<li>❌ 删除: <code>packages/sage-kernel/src/sage/kernel/api/function/kafka_source.py</code></li>
+<li>🔧 更新: <code>packages/sage-kernel/src/sage/kernel/api/base_environment.py</code></li>
+<li>✨ 改进: <code>packages/sage-libs/src/sage/libs/io/source.py</code> (KafkaSource)</li>
+</ul>
+<hr />
+<h3 id="phase-4-sage-kernel">Phase 4: 更新 sage-kernel 兼容层<a class="headerlink" href="#phase-4-sage-kernel" title="Permanent link">&para;</a></h3>
+<p><strong>目标</strong>: 在 kernel 中保留向后兼容的导出</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="c1"># packages/sage-kernel/src/sage/kernel/api/function/__init__.py</span>
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="sd">&quot;&quot;&quot;</span>
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="sd">SAGE Kernel API Functions - 向后兼容层</span>
+<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>
+<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a><span class="sd">⚠️ Deprecated: 这些类已迁移到 sage.common.core.functions</span>
+<a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a><span class="sd">请使用: from sage.common.core.functions import MapFunction, SinkFunction, ...</span>
+<a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a>
+<a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a><span class="sd">为了向后兼容，本模块仍然提供这些导入。</span>
+<a id="__codelineno-8-9" name="__codelineno-8-9" href="#__codelineno-8-9"></a><span class="sd">&quot;&quot;&quot;</span>
+<a id="__codelineno-8-10" name="__codelineno-8-10" href="#__codelineno-8-10"></a>
+<a id="__codelineno-8-11" name="__codelineno-8-11" href="#__codelineno-8-11"></a><span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
+<a id="__codelineno-8-12" name="__codelineno-8-12" href="#__codelineno-8-12"></a>
+<a id="__codelineno-8-13" name="__codelineno-8-13" href="#__codelineno-8-13"></a><span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+<a id="__codelineno-8-14" name="__codelineno-8-14" href="#__codelineno-8-14"></a>    <span class="s2">&quot;Importing from sage.kernel.api.function is deprecated. &quot;</span>
+<a id="__codelineno-8-15" name="__codelineno-8-15" href="#__codelineno-8-15"></a>    <span class="s2">&quot;Please use: from sage.common.core.functions import MapFunction, ...&quot;</span><span class="p">,</span>
+<a id="__codelineno-8-16" name="__codelineno-8-16" href="#__codelineno-8-16"></a>    <span class="ne">DeprecationWarning</span><span class="p">,</span>
+<a id="__codelineno-8-17" name="__codelineno-8-17" href="#__codelineno-8-17"></a>    <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+<a id="__codelineno-8-18" name="__codelineno-8-18" href="#__codelineno-8-18"></a><span class="p">)</span>
+<a id="__codelineno-8-19" name="__codelineno-8-19" href="#__codelineno-8-19"></a>
+<a id="__codelineno-8-20" name="__codelineno-8-20" href="#__codelineno-8-20"></a><span class="c1"># 从 common 重新导出</span>
+<a id="__codelineno-8-21" name="__codelineno-8-21" href="#__codelineno-8-21"></a><span class="kn">from</span><span class="w"> </span><span class="nn">sage.common.core.functions</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+<a id="__codelineno-8-22" name="__codelineno-8-22" href="#__codelineno-8-22"></a>    <span class="n">BaseFunction</span><span class="p">,</span>
+<a id="__codelineno-8-23" name="__codelineno-8-23" href="#__codelineno-8-23"></a>    <span class="n">MapFunction</span><span class="p">,</span>
+<a id="__codelineno-8-24" name="__codelineno-8-24" href="#__codelineno-8-24"></a>    <span class="n">FilterFunction</span><span class="p">,</span>
+<a id="__codelineno-8-25" name="__codelineno-8-25" href="#__codelineno-8-25"></a>    <span class="n">FlatMapFunction</span><span class="p">,</span>
+<a id="__codelineno-8-26" name="__codelineno-8-26" href="#__codelineno-8-26"></a>    <span class="n">SinkFunction</span><span class="p">,</span>
+<a id="__codelineno-8-27" name="__codelineno-8-27" href="#__codelineno-8-27"></a>    <span class="n">SourceFunction</span><span class="p">,</span>
+<a id="__codelineno-8-28" name="__codelineno-8-28" href="#__codelineno-8-28"></a>    <span class="n">BatchFunction</span><span class="p">,</span>
+<a id="__codelineno-8-29" name="__codelineno-8-29" href="#__codelineno-8-29"></a>    <span class="n">KeyByFunction</span><span class="p">,</span>
+<a id="__codelineno-8-30" name="__codelineno-8-30" href="#__codelineno-8-30"></a>    <span class="n">JoinFunction</span><span class="p">,</span>
+<a id="__codelineno-8-31" name="__codelineno-8-31" href="#__codelineno-8-31"></a>    <span class="n">CoMapFunction</span><span class="p">,</span>
+<a id="__codelineno-8-32" name="__codelineno-8-32" href="#__codelineno-8-32"></a>    <span class="n">FlatMapCollector</span><span class="p">,</span>
+<a id="__codelineno-8-33" name="__codelineno-8-33" href="#__codelineno-8-33"></a>    <span class="n">LambdaFunction</span><span class="p">,</span>
+<a id="__codelineno-8-34" name="__codelineno-8-34" href="#__codelineno-8-34"></a>    <span class="n">FutureFunction</span><span class="p">,</span>
+<a id="__codelineno-8-35" name="__codelineno-8-35" href="#__codelineno-8-35"></a><span class="p">)</span>
+<a id="__codelineno-8-36" name="__codelineno-8-36" href="#__codelineno-8-36"></a>
+<a id="__codelineno-8-37" name="__codelineno-8-37" href="#__codelineno-8-37"></a><span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
+<a id="__codelineno-8-38" name="__codelineno-8-38" href="#__codelineno-8-38"></a>    <span class="s2">&quot;BaseFunction&quot;</span><span class="p">,</span>
+<a id="__codelineno-8-39" name="__codelineno-8-39" href="#__codelineno-8-39"></a>    <span class="s2">&quot;MapFunction&quot;</span><span class="p">,</span>
+<a id="__codelineno-8-40" name="__codelineno-8-40" href="#__codelineno-8-40"></a>    <span class="s2">&quot;FilterFunction&quot;</span><span class="p">,</span>
+<a id="__codelineno-8-41" name="__codelineno-8-41" href="#__codelineno-8-41"></a>    <span class="s2">&quot;FlatMapFunction&quot;</span><span class="p">,</span>
+<a id="__codelineno-8-42" name="__codelineno-8-42" href="#__codelineno-8-42"></a>    <span class="s2">&quot;SinkFunction&quot;</span><span class="p">,</span>
+<a id="__codelineno-8-43" name="__codelineno-8-43" href="#__codelineno-8-43"></a>    <span class="s2">&quot;SourceFunction&quot;</span><span class="p">,</span>
+<a id="__codelineno-8-44" name="__codelineno-8-44" href="#__codelineno-8-44"></a>    <span class="s2">&quot;BatchFunction&quot;</span><span class="p">,</span>
+<a id="__codelineno-8-45" name="__codelineno-8-45" href="#__codelineno-8-45"></a>    <span class="s2">&quot;KeyByFunction&quot;</span><span class="p">,</span>
+<a id="__codelineno-8-46" name="__codelineno-8-46" href="#__codelineno-8-46"></a>    <span class="s2">&quot;JoinFunction&quot;</span><span class="p">,</span>
+<a id="__codelineno-8-47" name="__codelineno-8-47" href="#__codelineno-8-47"></a>    <span class="s2">&quot;CoMapFunction&quot;</span><span class="p">,</span>
+<a id="__codelineno-8-48" name="__codelineno-8-48" href="#__codelineno-8-48"></a>    <span class="s2">&quot;FlatMapCollector&quot;</span><span class="p">,</span>
+<a id="__codelineno-8-49" name="__codelineno-8-49" href="#__codelineno-8-49"></a>    <span class="s2">&quot;LambdaFunction&quot;</span><span class="p">,</span>
+<a id="__codelineno-8-50" name="__codelineno-8-50" href="#__codelineno-8-50"></a>    <span class="s2">&quot;FutureFunction&quot;</span><span class="p">,</span>
+<a id="__codelineno-8-51" name="__codelineno-8-51" href="#__codelineno-8-51"></a><span class="p">]</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="c1"># packages/sage-kernel/src/sage/kernel/operators/__init__.py</span>
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="sd">&quot;&quot;&quot;</span>
+<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="sd">SAGE Kernel Operators - 基础算子 (向后兼容层)</span>
+<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a>
+<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a><span class="sd">⚠️ Deprecated: 算子基类已迁移到 sage.common.core.functions</span>
+<a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a><span class="sd">&quot;&quot;&quot;</span>
+<a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a>
+<a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a><span class="kn">from</span><span class="w"> </span><span class="nn">sage.common.core.functions</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+<a id="__codelineno-9-9" name="__codelineno-9-9" href="#__codelineno-9-9"></a>    <span class="n">BaseFunction</span> <span class="k">as</span> <span class="n">BaseOperator</span><span class="p">,</span>
+<a id="__codelineno-9-10" name="__codelineno-9-10" href="#__codelineno-9-10"></a>    <span class="n">MapFunction</span> <span class="k">as</span> <span class="n">MapOperator</span><span class="p">,</span>
+<a id="__codelineno-9-11" name="__codelineno-9-11" href="#__codelineno-9-11"></a>    <span class="n">FilterFunction</span> <span class="k">as</span> <span class="n">FilterOperator</span><span class="p">,</span>
+<a id="__codelineno-9-12" name="__codelineno-9-12" href="#__codelineno-9-12"></a>    <span class="n">FlatMapFunction</span> <span class="k">as</span> <span class="n">FlatMapOperator</span><span class="p">,</span>
+<a id="__codelineno-9-13" name="__codelineno-9-13" href="#__codelineno-9-13"></a>    <span class="c1"># 保持原名称</span>
+<a id="__codelineno-9-14" name="__codelineno-9-14" href="#__codelineno-9-14"></a>    <span class="n">BaseFunction</span><span class="p">,</span>
+<a id="__codelineno-9-15" name="__codelineno-9-15" href="#__codelineno-9-15"></a>    <span class="n">MapFunction</span><span class="p">,</span>
+<a id="__codelineno-9-16" name="__codelineno-9-16" href="#__codelineno-9-16"></a>    <span class="n">FilterFunction</span><span class="p">,</span>
+<a id="__codelineno-9-17" name="__codelineno-9-17" href="#__codelineno-9-17"></a>    <span class="n">FlatMapFunction</span><span class="p">,</span>
+<a id="__codelineno-9-18" name="__codelineno-9-18" href="#__codelineno-9-18"></a><span class="p">)</span>
+<a id="__codelineno-9-19" name="__codelineno-9-19" href="#__codelineno-9-19"></a>
+<a id="__codelineno-9-20" name="__codelineno-9-20" href="#__codelineno-9-20"></a><span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
+<a id="__codelineno-9-21" name="__codelineno-9-21" href="#__codelineno-9-21"></a>    <span class="s2">&quot;BaseOperator&quot;</span><span class="p">,</span>
+<a id="__codelineno-9-22" name="__codelineno-9-22" href="#__codelineno-9-22"></a>    <span class="s2">&quot;MapOperator&quot;</span><span class="p">,</span>
+<a id="__codelineno-9-23" name="__codelineno-9-23" href="#__codelineno-9-23"></a>    <span class="s2">&quot;FilterOperator&quot;</span><span class="p">,</span>
+<a id="__codelineno-9-24" name="__codelineno-9-24" href="#__codelineno-9-24"></a>    <span class="s2">&quot;FlatMapOperator&quot;</span><span class="p">,</span>
+<a id="__codelineno-9-25" name="__codelineno-9-25" href="#__codelineno-9-25"></a>    <span class="s2">&quot;BaseFunction&quot;</span><span class="p">,</span>
+<a id="__codelineno-9-26" name="__codelineno-9-26" href="#__codelineno-9-26"></a>    <span class="s2">&quot;MapFunction&quot;</span><span class="p">,</span>
+<a id="__codelineno-9-27" name="__codelineno-9-27" href="#__codelineno-9-27"></a>    <span class="s2">&quot;FilterFunction&quot;</span><span class="p">,</span>
+<a id="__codelineno-9-28" name="__codelineno-9-28" href="#__codelineno-9-28"></a>    <span class="s2">&quot;FlatMapFunction&quot;</span><span class="p">,</span>
+<a id="__codelineno-9-29" name="__codelineno-9-29" href="#__codelineno-9-29"></a><span class="p">]</span>
+</code></pre></div>
+<p><strong>预计文件变更</strong>:</p>
+<ul>
+<li>🔧 修改: <code>packages/sage-kernel/src/sage/kernel/api/function/__init__.py</code></li>
+<li>🔧 修改: <code>packages/sage-kernel/src/sage/kernel/operators/__init__.py</code></li>
+<li>🔧 修改: <code>packages/sage-kernel/src/sage/kernel/api/datastream.py</code> (PrintSink导入)</li>
+</ul>
+<hr />
+<h3 id="phase-5-sage-libs">Phase 5: 更新 sage-libs 导入路径<a class="headerlink" href="#phase-5-sage-libs" title="Permanent link">&para;</a></h3>
+<p><strong>目标</strong>: 将 sage-libs 的导入从 kernel 改为 common</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="c1"># 需要更新的文件 (14个)</span>
+<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>packages/sage-libs/src/sage/libs/
+<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>├──<span class="w"> </span>agents/agent.py
+<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a>├──<span class="w"> </span>agents/runtime/agent.py
+<a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a>├──<span class="w"> </span>agents/planning/llm_planner.py
+<a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a>├──<span class="w"> </span>agents/profile/profile.py
+<a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a>├──<span class="w"> </span>agents/action/mcp_registry.py
+<a id="__codelineno-10-8" name="__codelineno-10-8" href="#__codelineno-10-8"></a>├──<span class="w"> </span>filters/tool_filter.py
+<a id="__codelineno-10-9" name="__codelineno-10-9" href="#__codelineno-10-9"></a>├──<span class="w"> </span>filters/evaluate_filter.py
+<a id="__codelineno-10-10" name="__codelineno-10-10" href="#__codelineno-10-10"></a>├──<span class="w"> </span>filters/context_sink.py
+<a id="__codelineno-10-11" name="__codelineno-10-11" href="#__codelineno-10-11"></a>├──<span class="w"> </span>filters/context_source.py
+<a id="__codelineno-10-12" name="__codelineno-10-12" href="#__codelineno-10-12"></a>├──<span class="w"> </span>io/sink.py
+<a id="__codelineno-10-13" name="__codelineno-10-13" href="#__codelineno-10-13"></a>├──<span class="w"> </span>io/source.py
+<a id="__codelineno-10-14" name="__codelineno-10-14" href="#__codelineno-10-14"></a>├──<span class="w"> </span>io/batch.py
+<a id="__codelineno-10-15" name="__codelineno-10-15" href="#__codelineno-10-15"></a>├──<span class="w"> </span>rag/profiler.py
+<a id="__codelineno-10-16" name="__codelineno-10-16" href="#__codelineno-10-16"></a>└──<span class="w"> </span>workflow/base.py
+</code></pre></div>
+<p><strong>批量替换命令</strong>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="nb">cd</span><span class="w"> </span>packages/sage-libs/src
+<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>
+<a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a><span class="c1"># 替换所有函数接口导入</span>
+<a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a>find<span class="w"> </span>.<span class="w"> </span>-name<span class="w"> </span><span class="s2">&quot;*.py&quot;</span><span class="w"> </span>-type<span class="w"> </span>f<span class="w"> </span>-exec<span class="w"> </span>sed<span class="w"> </span>-i<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a><span class="w">  </span>-e<span class="w"> </span><span class="s1">&#39;s/from sage\.kernel\.api\.function\.map_function import MapFunction/from sage.common.core.functions import MapFunction/g&#39;</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a><span class="w">  </span>-e<span class="w"> </span><span class="s1">&#39;s/from sage\.kernel\.api\.function\.filter_function import FilterFunction/from sage.common.core.functions import FilterFunction/g&#39;</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-11-7" name="__codelineno-11-7" href="#__codelineno-11-7"></a><span class="w">  </span>-e<span class="w"> </span><span class="s1">&#39;s/from sage\.kernel\.api\.function\.sink_function import SinkFunction/from sage.common.core.functions import SinkFunction/g&#39;</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-11-8" name="__codelineno-11-8" href="#__codelineno-11-8"></a><span class="w">  </span>-e<span class="w"> </span><span class="s1">&#39;s/from sage\.kernel\.api\.function\.source_function import SourceFunction/from sage.common.core.functions import SourceFunction/g&#39;</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-11-9" name="__codelineno-11-9" href="#__codelineno-11-9"></a><span class="w">  </span>-e<span class="w"> </span><span class="s1">&#39;s/from sage\.kernel\.api\.function\.batch_function import BatchFunction/from sage.common.core.functions import BatchFunction/g&#39;</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-11-10" name="__codelineno-11-10" href="#__codelineno-11-10"></a><span class="w">  </span><span class="o">{}</span><span class="w"> </span><span class="se">\;</span>
+</code></pre></div>
+<p><strong>预计文件变更</strong>:</p>
+<ul>
+<li>🔧 修改: 14 个 sage-libs 文件</li>
+</ul>
+<hr />
+<h3 id="phase-6-sage-middleware">Phase 6: 更新 sage-middleware 导入路径<a class="headerlink" href="#phase-6-sage-middleware" title="Permanent link">&para;</a></h3>
+<p><strong>目标</strong>: 将 middleware 的导入改为从 common</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="c1"># 需要更新的文件 (15个)</span>
+<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>packages/sage-middleware/src/sage/middleware/
+<a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a>├──<span class="w"> </span>operators/rag/*.py<span class="w"> </span><span class="o">(</span>11个<span class="o">)</span>
+<a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a>├──<span class="w"> </span>operators/llm/vllm_generator.py
+<a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a>├──<span class="w"> </span>operators/tools/searcher_tool.py
+<a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a>└──<span class="w"> </span>components/sage_refiner/python/adapter.py
+</code></pre></div>
+<p><strong>两种选择</strong>:</p>
+<p><strong>选项 1</strong>: 直接从 common 导入</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="c1"># 旧导入</span>
+<a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">sage.kernel.operators</span><span class="w"> </span><span class="kn">import</span> <span class="n">MapOperator</span>
+<a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a>
+<a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a><span class="c1"># 新导入</span>
+<a id="__codelineno-13-5" name="__codelineno-13-5" href="#__codelineno-13-5"></a><span class="kn">from</span><span class="w"> </span><span class="nn">sage.common.core.functions</span><span class="w"> </span><span class="kn">import</span> <span class="n">MapFunction</span> <span class="k">as</span> <span class="n">MapOperator</span>
+</code></pre></div>
+<p><strong>选项 2</strong>: 通过 kernel 兼容层（推荐）</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="c1"># 保持不变，kernel.operators 会自动重定向到 common</span>
+<a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">sage.kernel.operators</span><span class="w"> </span><span class="kn">import</span> <span class="n">MapOperator</span>
+</code></pre></div>
+<p><strong>预计文件变更</strong>:</p>
+<ul>
+<li>✅ 选项1: 15 个 middleware 文件</li>
+<li>✅ 选项2: 0 个文件（通过兼容层）</li>
+</ul>
+<hr />
+<h3 id="phase-7-pyprojecttoml">Phase 7: 更新 pyproject.toml 依赖<a class="headerlink" href="#phase-7-pyprojecttoml" title="Permanent link">&para;</a></h3>
+<p><strong>目标</strong>: 调整包依赖关系</p>
+<h4 id="sage-libs">sage-libs<a class="headerlink" href="#sage-libs" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a><span class="c1"># packages/sage-libs/pyproject.toml</span>
+<a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a>
+<a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a><span class="c1"># 修改前</span>
+<a id="__codelineno-15-4" name="__codelineno-15-4" href="#__codelineno-15-4"></a><span class="n">dependencies</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span>
+<a id="__codelineno-15-5" name="__codelineno-15-5" href="#__codelineno-15-5"></a><span class="w">    </span><span class="s2">&quot;isage-kernel&gt;=0.1.0&quot;</span><span class="p">,</span><span class="w">  </span><span class="c1"># ❌ 依赖 L3 kernel</span>
+<a id="__codelineno-15-6" name="__codelineno-15-6" href="#__codelineno-15-6"></a><span class="w">    </span><span class="err">...</span>
+<a id="__codelineno-15-7" name="__codelineno-15-7" href="#__codelineno-15-7"></a><span class="err">]</span>
+<a id="__codelineno-15-8" name="__codelineno-15-8" href="#__codelineno-15-8"></a>
+<a id="__codelineno-15-9" name="__codelineno-15-9" href="#__codelineno-15-9"></a><span class="c1"># 修改后</span>
+<a id="__codelineno-15-10" name="__codelineno-15-10" href="#__codelineno-15-10"></a><span class="n">dependencies</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span>
+<a id="__codelineno-15-11" name="__codelineno-15-11" href="#__codelineno-15-11"></a><span class="w">    </span><span class="s2">&quot;isage-common&gt;=0.1.0&quot;</span><span class="p">,</span><span class="w">  </span><span class="c1"># ✅ 只依赖 L1 common</span>
+<a id="__codelineno-15-12" name="__codelineno-15-12" href="#__codelineno-15-12"></a><span class="w">    </span><span class="c1"># 移除 kernel 依赖</span>
+<a id="__codelineno-15-13" name="__codelineno-15-13" href="#__codelineno-15-13"></a><span class="w">    </span><span class="err">...</span>
+<a id="__codelineno-15-14" name="__codelineno-15-14" href="#__codelineno-15-14"></a><span class="err">]</span>
+<a id="__codelineno-15-15" name="__codelineno-15-15" href="#__codelineno-15-15"></a>
+<a id="__codelineno-15-16" name="__codelineno-15-16" href="#__codelineno-15-16"></a><span class="k">[project.optional-dependencies]</span>
+<a id="__codelineno-15-17" name="__codelineno-15-17" href="#__codelineno-15-17"></a><span class="n">examples</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span>
+<a id="__codelineno-15-18" name="__codelineno-15-18" href="#__codelineno-15-18"></a><span class="w">    </span><span class="s2">&quot;isage-kernel&gt;=0.1.0&quot;</span><span class="p">,</span><span class="w">  </span><span class="c1"># 仅示例代码需要执行环境</span>
+<a id="__codelineno-15-19" name="__codelineno-15-19" href="#__codelineno-15-19"></a><span class="p">]</span>
+</code></pre></div>
+<h4 id="sage-middleware">sage-middleware<a class="headerlink" href="#sage-middleware" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a><span class="c1"># packages/sage-middleware/pyproject.toml</span>
+<a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a>
+<a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a><span class="c1"># 如果使用选项2（kernel兼容层），保持不变</span>
+<a id="__codelineno-16-4" name="__codelineno-16-4" href="#__codelineno-16-4"></a><span class="n">dependencies</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span>
+<a id="__codelineno-16-5" name="__codelineno-16-5" href="#__codelineno-16-5"></a><span class="w">    </span><span class="s2">&quot;isage-common&gt;=0.1.0&quot;</span><span class="p">,</span>
+<a id="__codelineno-16-6" name="__codelineno-16-6" href="#__codelineno-16-6"></a><span class="w">    </span><span class="s2">&quot;isage-kernel&gt;=0.1.0&quot;</span><span class="p">,</span><span class="w">  </span><span class="c1"># 通过兼容层使用函数接口</span>
+<a id="__codelineno-16-7" name="__codelineno-16-7" href="#__codelineno-16-7"></a><span class="w">    </span><span class="err">...</span>
+<a id="__codelineno-16-8" name="__codelineno-16-8" href="#__codelineno-16-8"></a><span class="err">]</span>
+<a id="__codelineno-16-9" name="__codelineno-16-9" href="#__codelineno-16-9"></a>
+<a id="__codelineno-16-10" name="__codelineno-16-10" href="#__codelineno-16-10"></a><span class="c1"># 如果使用选项1（直接导入common），可以考虑移除kernel</span>
+<a id="__codelineno-16-11" name="__codelineno-16-11" href="#__codelineno-16-11"></a><span class="n">dependencies</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span>
+<a id="__codelineno-16-12" name="__codelineno-16-12" href="#__codelineno-16-12"></a><span class="w">    </span><span class="s2">&quot;isage-common&gt;=0.1.0&quot;</span><span class="p">,</span>
+<a id="__codelineno-16-13" name="__codelineno-16-13" href="#__codelineno-16-13"></a><span class="w">    </span><span class="s2">&quot;isage-platform&gt;=0.1.0&quot;</span><span class="p">,</span>
+<a id="__codelineno-16-14" name="__codelineno-16-14" href="#__codelineno-16-14"></a><span class="w">    </span><span class="c1"># kernel 作为可选依赖</span>
+<a id="__codelineno-16-15" name="__codelineno-16-15" href="#__codelineno-16-15"></a><span class="w">    </span><span class="err">...</span>
+<a id="__codelineno-16-16" name="__codelineno-16-16" href="#__codelineno-16-16"></a><span class="err">]</span>
+</code></pre></div>
+<p><strong>预计文件变更</strong>:</p>
+<ul>
+<li>🔧 修改: <code>packages/sage-libs/pyproject.toml</code></li>
+<li>🔧 修改: <code>packages/sage-middleware/pyproject.toml</code> (可选)</li>
+</ul>
+<hr />
+<h3 id="phase-8">Phase 8: 测试和验证<a class="headerlink" href="#phase-8" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a><span class="c1"># 1. 运行所有测试</span>
+<a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a><span class="nb">cd</span><span class="w"> </span>packages/sage-common<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>pytest<span class="w"> </span>tests/
+<a id="__codelineno-17-3" name="__codelineno-17-3" href="#__codelineno-17-3"></a><span class="nb">cd</span><span class="w"> </span>packages/sage-kernel<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>pytest<span class="w"> </span>tests/
+<a id="__codelineno-17-4" name="__codelineno-17-4" href="#__codelineno-17-4"></a><span class="nb">cd</span><span class="w"> </span>packages/sage-libs<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>pytest<span class="w"> </span>tests/
+<a id="__codelineno-17-5" name="__codelineno-17-5" href="#__codelineno-17-5"></a><span class="nb">cd</span><span class="w"> </span>packages/sage-middleware<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>pytest<span class="w"> </span>tests/
+<a id="__codelineno-17-6" name="__codelineno-17-6" href="#__codelineno-17-6"></a>
+<a id="__codelineno-17-7" name="__codelineno-17-7" href="#__codelineno-17-7"></a><span class="c1"># 2. 检查导入</span>
+<a id="__codelineno-17-8" name="__codelineno-17-8" href="#__codelineno-17-8"></a>python<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;from sage.common.core.functions import MapFunction, SinkFunction&quot;</span>
+<a id="__codelineno-17-9" name="__codelineno-17-9" href="#__codelineno-17-9"></a>python<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;from sage.common.components.debug import PrintSink&quot;</span>
+<a id="__codelineno-17-10" name="__codelineno-17-10" href="#__codelineno-17-10"></a>python<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;from sage.kernel.operators import MapOperator&quot;</span><span class="w">  </span><span class="c1"># 兼容层</span>
+<a id="__codelineno-17-11" name="__codelineno-17-11" href="#__codelineno-17-11"></a>python<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;from sage.libs.agentic.agents import LangChainAgentAdapter&quot;</span>
+<a id="__codelineno-17-12" name="__codelineno-17-12" href="#__codelineno-17-12"></a>python<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;from sage.libs.foundation.io import KafkaSource&quot;</span>
+<a id="__codelineno-17-13" name="__codelineno-17-13" href="#__codelineno-17-13"></a>
+<a id="__codelineno-17-14" name="__codelineno-17-14" href="#__codelineno-17-14"></a><span class="c1"># 3. 运行架构检查工具</span>
+<a id="__codelineno-17-15" name="__codelineno-17-15" href="#__codelineno-17-15"></a>sage-dev<span class="w"> </span>check-architecture
+<a id="__codelineno-17-16" name="__codelineno-17-16" href="#__codelineno-17-16"></a>
+<a id="__codelineno-17-17" name="__codelineno-17-17" href="#__codelineno-17-17"></a><span class="c1"># 4. 检查循环依赖</span>
+<a id="__codelineno-17-18" name="__codelineno-17-18" href="#__codelineno-17-18"></a>python<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;</span>
+<a id="__codelineno-17-19" name="__codelineno-17-19" href="#__codelineno-17-19"></a><span class="s2">import sys</span>
+<a id="__codelineno-17-20" name="__codelineno-17-20" href="#__codelineno-17-20"></a><span class="s2">sys.path.insert(0, &#39;tools&#39;)</span>
+<a id="__codelineno-17-21" name="__codelineno-17-21" href="#__codelineno-17-21"></a><span class="s2">from lib.dependency_analyzer import analyze_dependencies</span>
+<a id="__codelineno-17-22" name="__codelineno-17-22" href="#__codelineno-17-22"></a><span class="s2">analyze_dependencies(&#39;packages/&#39;)</span>
+<a id="__codelineno-17-23" name="__codelineno-17-23" href="#__codelineno-17-23"></a><span class="s2">&quot;</span>
+<a id="__codelineno-17-24" name="__codelineno-17-24" href="#__codelineno-17-24"></a>
+<a id="__codelineno-17-25" name="__codelineno-17-25" href="#__codelineno-17-25"></a><span class="c1"># 5. 测试示例代码</span>
+<a id="__codelineno-17-26" name="__codelineno-17-26" href="#__codelineno-17-26"></a><span class="nb">cd</span><span class="w"> </span>examples
+<a id="__codelineno-17-27" name="__codelineno-17-27" href="#__codelineno-17-27"></a>python<span class="w"> </span>tutorials/01_quick_start.py
+<a id="__codelineno-17-28" name="__codelineno-17-28" href="#__codelineno-17-28"></a>python<span class="w"> </span>tutorials/02_rag_pipeline.py
+</code></pre></div>
+<hr />
+<h2 id="_9">📊 影响分析 (修订版)<a class="headerlink" href="#_9" title="Permanent link">&para;</a></h2>
+<h3 id="_10">代码变更统计<a class="headerlink" href="#_10" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>包</th>
+<th>变更类型</th>
+<th>文件数</th>
+<th>影响范围</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>sage-common</td>
+<td>✅ 新增 core/functions</td>
+<td>~13</td>
+<td>函数接口</td>
+</tr>
+<tr>
+<td>sage-common</td>
+<td>✅ 新增 components/debug</td>
+<td>~1</td>
+<td>PrintSink</td>
+</tr>
+<tr>
+<td>sage-kernel</td>
+<td>❌ 删除 kafka_source.py</td>
+<td>-1</td>
+<td>移除重复</td>
+</tr>
+<tr>
+<td>sage-kernel</td>
+<td>🔧 更新兼容层</td>
+<td>~3</td>
+<td>function/, operators/, datastream.py</td>
+</tr>
+<tr>
+<td>sage-libs</td>
+<td>📝 更新导入</td>
+<td>~14</td>
+<td>所有使用函数接口的文件</td>
+</tr>
+<tr>
+<td>sage-libs</td>
+<td>✨ 改进 KafkaSource</td>
+<td>~1</td>
+<td>完整实现</td>
+</tr>
+<tr>
+<td>sage-middleware</td>
+<td>📝 更新导入(可选)</td>
+<td>~0-15</td>
+<td>通过兼容层或直接导入</td>
+</tr>
+<tr>
+<td><strong>总计</strong></td>
+<td>-</td>
+<td><strong>~32-47</strong></td>
+<td>-</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_11">依赖关系变化<a class="headerlink" href="#_11" title="Permanent link">&para;</a></h3>
+<p><strong>修改前</strong>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a>L1: sage-common (基础工具)
+<a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a>L2: sage-platform (队列、存储、服务)
+<a id="__codelineno-18-3" name="__codelineno-18-3" href="#__codelineno-18-3"></a>L3: sage-kernel (执行引擎 + 函数接口) ← 问题：函数接口在L3
+<a id="__codelineno-18-4" name="__codelineno-18-4" href="#__codelineno-18-4"></a>    sage-libs → sage-kernel ❌ 同层依赖，只为了函数接口
+<a id="__codelineno-18-5" name="__codelineno-18-5" href="#__codelineno-18-5"></a>L4: sage-middleware → sage-kernel ✅ 正常向下依赖
+</code></pre></div>
+<p><strong>修改后</strong>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a>L1: sage-common
+<a id="__codelineno-19-2" name="__codelineno-19-2" href="#__codelineno-19-2"></a>    ├── core/functions/      ✅ 函数接口下沉到L1
+<a id="__codelineno-19-3" name="__codelineno-19-3" href="#__codelineno-19-3"></a>    └── components/debug/    ✅ PrintSink下沉到L1
+<a id="__codelineno-19-4" name="__codelineno-19-4" href="#__codelineno-19-4"></a>
+<a id="__codelineno-19-5" name="__codelineno-19-5" href="#__codelineno-19-5"></a>L2: sage-platform (队列、存储、服务)
+<a id="__codelineno-19-6" name="__codelineno-19-6" href="#__codelineno-19-6"></a>
+<a id="__codelineno-19-7" name="__codelineno-19-7" href="#__codelineno-19-7"></a>L3: sage-kernel (执行引擎) ✅ 不再包含函数接口
+<a id="__codelineno-19-8" name="__codelineno-19-8" href="#__codelineno-19-8"></a>    └── 依赖: common (函数接口), platform (队列、服务)
+<a id="__codelineno-19-9" name="__codelineno-19-9" href="#__codelineno-19-9"></a>
+<a id="__codelineno-19-10" name="__codelineno-19-10" href="#__codelineno-19-10"></a>    sage-libs ✅ 现在只依赖 common
+<a id="__codelineno-19-11" name="__codelineno-19-11" href="#__codelineno-19-11"></a>    └── 依赖: common (函数接口)
+<a id="__codelineno-19-12" name="__codelineno-19-12" href="#__codelineno-19-12"></a>
+<a id="__codelineno-19-13" name="__codelineno-19-13" href="#__codelineno-19-13"></a>L4: sage-middleware
+<a id="__codelineno-19-14" name="__codelineno-19-14" href="#__codelineno-19-14"></a>    └── 依赖: common, platform, kernel, libs
+</code></pre></div>
+<p><strong>关键改进</strong>:</p>
+<ul>
+<li>✅ sage-libs (L3) → sage-common (L1) - 清晰的向下依赖</li>
+<li>✅ sage-kernel (L3) → sage-common (L1) - 使用函数接口</li>
+<li>✅ 解决了 L3 ↔ L3 的水平依赖问题</li>
+<li>✅ 函数接口在最底层，任何包都可以使用</li>
+</ul>
+<h3 id="_12">优点<a class="headerlink" href="#_12" title="Permanent link">&para;</a></h3>
+<ol>
+<li>✅ <strong>彻底解决同层依赖</strong>: sage-libs 不再依赖 sage-kernel</li>
+<li>✅ <strong>函数接口最大复用</strong>: 在 L1 层，所有包都可以安全使用</li>
+<li>✅ <strong>架构更清晰</strong>: 接口(L1) → 平台服务(L2) → 执行引擎(L3) → 领域组件(L4)</li>
+<li>✅ <strong>简化依赖链</strong>: libs 只需 common，不需 platform 或 kernel</li>
+<li>✅ <strong>向后兼容</strong>: kernel 保留兼容层，不破坏现有代码</li>
+<li>✅ <strong>删除重复代码</strong>: KafkaSource 只保留一个实现</li>
+</ol>
+<h3 id="_13">缺点/风险<a class="headerlink" href="#_13" title="Permanent link">&para;</a></h3>
+<ol>
+<li>⚠️ <strong>common 包变大</strong>: 从基础工具扩展到函数接口</li>
+<li>缓解: functions 作为 core 子模块，职责清晰</li>
+<li>⚠️ <strong>短期工作量</strong>: 需要更新 ~32-47 个文件</li>
+<li>缓解: 大部分是简单的导入路径替换</li>
+<li>⚠️ <strong>测试覆盖</strong>: 需要全面测试确保没有遗漏</li>
+<li>缓解: 保留兼容层，渐进式验证</li>
+<li>⚠️ <strong>KafkaSource 迁移</strong>: 需要将完整实现从 kernel 迁移到 libs</li>
+<li>缓解: 代码已经存在，只需复制粘贴</li>
+</ol>
+<hr />
+<h2 id="2025-10-24">✅ 决策结果 (2025-10-24)<a class="headerlink" href="#2025-10-24" title="Permanent link">&para;</a></h2>
+<h3 id="1-kafka_sourcepy-">1. kafka_source.py - 删除重复实现 ✅<a class="headerlink" href="#1-kafka_sourcepy-" title="Permanent link">&para;</a></h3>
+<p><strong>决定</strong>: 删除 <code>sage.kernel.api.function.kafka_source.py</code></p>
+<p><strong>理由</strong>:</p>
+<ol>
+<li><strong>重复实现</strong>:</li>
+<li><code>sage-kernel</code>: KafkaSourceFunction (完整实现，202行)</li>
+<li><code>sage-libs</code>: KafkaSource (占位符，仅24行)</li>
+<li><strong>未被使用</strong>:</li>
+<li>kernel 中的实现只在 <code>base_environment.from_kafka_source()</code> 中使用</li>
+<li>libs 中的实现是占位符</li>
+<li><strong>简化架构</strong>:</li>
+<li>Kafka 是具体功能，不是基础接口</li>
+<li>应该在应用层（libs 或 middleware）提供</li>
+</ol>
+<p><strong>行动</strong>:</p>
+<ul>
+<li>❌ 删除: <code>packages/sage-kernel/src/sage/kernel/api/function/kafka_source.py</code></li>
+<li>✅ 保留/改进: <code>packages/sage-libs/src/sage/libs/io/source.py</code> 中的 KafkaSource</li>
+<li>📝 更新: <code>base_environment.from_kafka_source()</code> 调用 libs 中的实现</li>
+</ul>
+<hr />
+<h3 id="2-_internal_print_sinkpy-l1-common">2. _internal_print_sink.py - 下移到 L1 (common) ✅<a class="headerlink" href="#2-_internal_print_sinkpy-l1-common" title="Permanent link">&para;</a></h3>
+<p><strong>决定</strong>: 迁移到 <code>sage-common</code></p>
+<p><strong>理由</strong>:</p>
+<ol>
+<li><strong>SinkFunction 应该在更低层</strong>:</li>
+<li>sage-libs 依赖 SinkFunction（io/sink.py）</li>
+<li>SinkFunction 是基础接口，应该在 L1 或 L2</li>
+<li>_internal_print_sink 也应该跟随 SinkFunction</li>
+<li><strong>打破依赖链</strong>:</li>
+<li>当前: libs → kernel (为了 SinkFunction)</li>
+<li>目标: libs → common (SinkFunction 在 common)</li>
+<li><strong>通用性</strong>:</li>
+<li>Print sink 是通用调试工具</li>
+<li>不依赖执行引擎</li>
+</ol>
+<p><strong>行动</strong>:</p>
+<ul>
+<li>✅ 迁移 SinkFunction → <code>sage-common/core/functions/</code></li>
+<li>✅ 迁移 _internal_print_sink → <code>sage-common/components/debug/</code></li>
+<li>✅ kernel 从 common 导入使用</li>
+</ul>
+<hr />
+<h3 id="3">3. 一次性迁移 ✅<a class="headerlink" href="#3" title="Permanent link">&para;</a></h3>
+<p><strong>决定</strong>: 一次性完成所有迁移（保留兼容层）</p>
+<p><strong>理由</strong>:</p>
+<ul>
+<li>快速完成，避免长期维护中间状态</li>
+<li>保留兼容层确保不破坏现有代码</li>
+<li>后续可以逐步移除 deprecated warnings</li>
+</ul>
+<hr />
+<h3 id="4-sage-libs-kernel">4. sage-libs 完全移除对 kernel 的依赖 ✅<a class="headerlink" href="#4-sage-libs-kernel" title="Permanent link">&para;</a></h3>
+<p><strong>决定</strong>: 是的，libs 不应该依赖 kernel</p>
+<p><strong>新的依赖关系</strong>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a><span class="c1"># packages/sage-libs/pyproject.toml</span>
+<a id="__codelineno-20-2" name="__codelineno-20-2" href="#__codelineno-20-2"></a><span class="n">dependencies</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span>
+<a id="__codelineno-20-3" name="__codelineno-20-3" href="#__codelineno-20-3"></a><span class="w">    </span><span class="s2">&quot;isage-common&gt;=0.1.0&quot;</span><span class="p">,</span><span class="w">    </span><span class="c1"># 基础设施（包括函数接口）</span>
+<a id="__codelineno-20-4" name="__codelineno-20-4" href="#__codelineno-20-4"></a><span class="w">    </span><span class="c1"># 移除: &quot;isage-kernel&gt;=0.1.0&quot;</span>
+<a id="__codelineno-20-5" name="__codelineno-20-5" href="#__codelineno-20-5"></a><span class="p">]</span>
+<a id="__codelineno-20-6" name="__codelineno-20-6" href="#__codelineno-20-6"></a>
+<a id="__codelineno-20-7" name="__codelineno-20-7" href="#__codelineno-20-7"></a><span class="k">[project.optional-dependencies]</span>
+<a id="__codelineno-20-8" name="__codelineno-20-8" href="#__codelineno-20-8"></a><span class="n">examples</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span>
+<a id="__codelineno-20-9" name="__codelineno-20-9" href="#__codelineno-20-9"></a><span class="w">    </span><span class="s2">&quot;isage-kernel&gt;=0.1.0&quot;</span><span class="p">,</span><span class="w">  </span><span class="c1"># 仅用于运行示例</span>
+<a id="__codelineno-20-10" name="__codelineno-20-10" href="#__codelineno-20-10"></a><span class="p">]</span>
+</code></pre></div>
+<hr />
+<h2 id="_14">🎯 修正后的重构方案<a class="headerlink" href="#_14" title="Permanent link">&para;</a></h2>
+<h3 id="_15">核心变更<a class="headerlink" href="#_15" title="Permanent link">&para;</a></h3>
+<p>基于以上决策，重构方案调整为：</p>
+<ol>
+<li>
+<p><strong>函数接口 → L1 (sage-common)</strong> ✅ 更激进的下沉</p>
+</li>
+<li>
+<p>所有基础函数接口迁移到 common</p>
+</li>
+<li>
+<p>理由: libs 需要这些接口，而 libs 应该独立于 kernel</p>
+</li>
+<li>
+<p><strong>删除重复实现</strong> ✅</p>
+</li>
+<li>
+<p>删除 kernel 中的 KafkaSourceFunction</p>
+</li>
+<li>
+<p>改进 libs 中的 KafkaSource</p>
+</li>
+<li>
+<p><strong>operator/transformation 保留</strong> ✅</p>
+</li>
+<li>
+<p>这些是 runtime 的内部实现</p>
+</li>
+<li>依赖 Packet, TaskContext, Factory 等</li>
+<li>保留在 kernel/api/operator 和 kernel/api/transformation</li>
+</ol>
+<h3 id="_16">更新后的架构分层<a class="headerlink" href="#_16" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a>L1 (sage-common)
+<a id="__codelineno-21-2" name="__codelineno-21-2" href="#__codelineno-21-2"></a>├── core/
+<a id="__codelineno-21-3" name="__codelineno-21-3" href="#__codelineno-21-3"></a>│   └── functions/          # ✅ 新增: 基础函数接口
+<a id="__codelineno-21-4" name="__codelineno-21-4" href="#__codelineno-21-4"></a>│       ├── base_function.py
+<a id="__codelineno-21-5" name="__codelineno-21-5" href="#__codelineno-21-5"></a>│       ├── map_function.py
+<a id="__codelineno-21-6" name="__codelineno-21-6" href="#__codelineno-21-6"></a>│       ├── filter_function.py
+<a id="__codelineno-21-7" name="__codelineno-21-7" href="#__codelineno-21-7"></a>│       ├── sink_function.py
+<a id="__codelineno-21-8" name="__codelineno-21-8" href="#__codelineno-21-8"></a>│       ├── source_function.py
+<a id="__codelineno-21-9" name="__codelineno-21-9" href="#__codelineno-21-9"></a>│       └── ... (13个接口)
+<a id="__codelineno-21-10" name="__codelineno-21-10" href="#__codelineno-21-10"></a>└── components/
+<a id="__codelineno-21-11" name="__codelineno-21-11" href="#__codelineno-21-11"></a>    └── debug/              # ✅ 新增: 调试组件
+<a id="__codelineno-21-12" name="__codelineno-21-12" href="#__codelineno-21-12"></a>        └── print_sink.py   # 从 _internal_print_sink 迁移
+<a id="__codelineno-21-13" name="__codelineno-21-13" href="#__codelineno-21-13"></a>
+<a id="__codelineno-21-14" name="__codelineno-21-14" href="#__codelineno-21-14"></a>L2 (sage-platform)
+<a id="__codelineno-21-15" name="__codelineno-21-15" href="#__codelineno-21-15"></a>├── queue/                  # 消息队列抽象
+<a id="__codelineno-21-16" name="__codelineno-21-16" href="#__codelineno-21-16"></a>├── storage/                # KV存储后端
+<a id="__codelineno-21-17" name="__codelineno-21-17" href="#__codelineno-21-17"></a>└── service/                # 服务基类
+<a id="__codelineno-21-18" name="__codelineno-21-18" href="#__codelineno-21-18"></a>
+<a id="__codelineno-21-19" name="__codelineno-21-19" href="#__codelineno-21-19"></a>L3 (sage-kernel)
+<a id="__codelineno-21-20" name="__codelineno-21-20" href="#__codelineno-21-20"></a>├── api/
+<a id="__codelineno-21-21" name="__codelineno-21-21" href="#__codelineno-21-21"></a>│   ├── local_environment.py    # ✅ 保留
+<a id="__codelineno-21-22" name="__codelineno-21-22" href="#__codelineno-21-22"></a>│   ├── remote_environment.py   # ✅ 保留
+<a id="__codelineno-21-23" name="__codelineno-21-23" href="#__codelineno-21-23"></a>│   ├── datastream.py           # ✅ 保留
+<a id="__codelineno-21-24" name="__codelineno-21-24" href="#__codelineno-21-24"></a>│   ├── operator/               # ✅ 保留（内部实现）
+<a id="__codelineno-21-25" name="__codelineno-21-25" href="#__codelineno-21-25"></a>│   └── transformation/         # ✅ 保留（转换逻辑）
+<a id="__codelineno-21-26" name="__codelineno-21-26" href="#__codelineno-21-26"></a>└── runtime/                    # ✅ 保留（执行引擎）
+<a id="__codelineno-21-27" name="__codelineno-21-27" href="#__codelineno-21-27"></a>
+<a id="__codelineno-21-28" name="__codelineno-21-28" href="#__codelineno-21-28"></a>L3 (sage-libs)
+<a id="__codelineno-21-29" name="__codelineno-21-29" href="#__codelineno-21-29"></a>└── io/
+<a id="__codelineno-21-30" name="__codelineno-21-30" href="#__codelineno-21-30"></a>    └── source.py              # ✅ KafkaSource（改进实现）
+</code></pre></div>
+<h3 id="l1-l2">为什么放在 L1 而不是 L2？<a class="headerlink" href="#l1-l2" title="Permanent link">&para;</a></h3>
+<p><strong>用户反馈理解</strong>:</p>
+<blockquote>
+<p>"应该把sink从sage-libs往下推到sage-common? 然后让sage-kernel去引用sage-common里面的sink算子？"</p>
+</blockquote>
+<p><strong>分析</strong>:</p>
+<ol>
+<li>
+<p><strong>libs 需要函数接口</strong>:</p>
+</li>
+<li>
+<p>sage-libs (L3) 需要继承 MapFunction, SinkFunction 等</p>
+</li>
+<li>如果放 L2，libs 仍然需要依赖 platform</li>
+<li>
+<p>放 L1 更彻底，libs 只依赖 common</p>
+</li>
+<li>
+<p><strong>函数接口是"纯抽象"</strong>:</p>
+</li>
+<li>
+<p>没有业务逻辑</p>
+</li>
+<li>没有外部依赖</li>
+<li>只是定义接口契约</li>
+<li>
+<p>符合 common 的"基础设施"定位</p>
+</li>
+<li>
+<p><strong>kernel 也需要</strong>:</p>
+</li>
+<li>
+<p>kernel 的 operator 需要调用用户定义的 Function</p>
+</li>
+<li>如果 Function 在 common，kernel 可以安全导入</li>
+<li>避免 L3 ↔ L3 依赖</li>
+</ol>
+<p><strong>结论</strong>: 函数接口放 L1 (common) 是正确的 ✅</p>
+<hr />
+<h2 id="_17">✅ 下一步行动<a class="headerlink" href="#_17" title="Permanent link">&para;</a></h2>
+<h3 id="_18">立即行动<a class="headerlink" href="#_18" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>获得共识</strong> - 在 Issue #1041 中讨论方案</li>
+<li><strong>回答问题</strong> - 确定 kafka_source 和 _internal_print_sink 的处理方式</li>
+<li><strong>创建分支</strong> - <code>feature/kernel-refactoring-1041</code></li>
+</ol>
+<h3 id="_19">执行步骤<a class="headerlink" href="#_19" title="Permanent link">&para;</a></h3>
+<ol>
+<li>✅ Phase 1: 创建 sage-platform/api (1-2 小时)</li>
+<li>✅ Phase 2: 更新 sage-kernel 兼容层 (0.5 小时)</li>
+<li>✅ Phase 3: 更新 sage-libs 导入 (1 小时)</li>
+<li>✅ Phase 4: 更新 sage-middleware 导入 (1 小时)</li>
+<li>✅ Phase 5: 更新 pyproject.toml (0.5 小时)</li>
+<li>✅ Phase 6: 测试和验证 (2-3 小时)</li>
+<li>✅ Phase 7: 更新文档 (1-2 小时)</li>
+</ol>
+<p><strong>预计总时间</strong>: 7-10 小时</p>
+<hr />
+<h2 id="_20">📚 参考文档<a class="headerlink" href="#_20" title="Permanent link">&para;</a></h2>
+<ul>
+<li><a href="../package-architecture.md">Package Architecture</a> - 当前架构文档</li>
+<li><a href="../L2_LAYER_ANALYSIS.md">L2 Layer Analysis</a> - L2 层分析</li>
+<li><a href="../RPC_QUEUE_REFACTORING_2025.md">RPC Queue Refactoring</a> - 工厂模式参考</li>
+<li><a href="../ARCHITECTURE_REVIEW_2025.md">Architecture Review 2025</a> - 架构评审</li>
+</ul>
+<hr />
+<h2 id="_21">💬 讨论记录<a class="headerlink" href="#_21" title="Permanent link">&para;</a></h2>
+<h3 id="2025-10-24-">2025-10-24 - 初始提案<a class="headerlink" href="#2025-10-24-" title="Permanent link">&para;</a></h3>
+<p><strong>提出者</strong>: @用户\
+<strong>问题</strong>: kernel 的 api 和 operators 应该和 BaseService 放在同一层</p>
+<p><strong>分析结果</strong>:</p>
+<ul>
+<li>✅ sage-libs 确实依赖了 kernel (14次导入)</li>
+<li>✅ 这些导入都是函数接口（MapFunction, SinkFunction等）</li>
+<li>✅ BaseService 已在 L2 (sage-platform)</li>
+<li>✅ 函数接口应该也在 L2</li>
+</ul>
+<p><strong>建议</strong>: 将 kernel.api.function 迁移到 platform.api</p>
+<hr />
+<p><em>最后更新: 2025-10-24</em></p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  回到页面顶部
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Copyright &copy; 2023-2025 IntelliStream Lab
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+        
+<div class="md-social">
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://github.com/intellistream/SAGE" target="_blank" rel="noopener" title="github.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+    </a>
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://pypi.org/project/sage-framework/" target="_blank" rel="noopener" title="pypi.org" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.8 200.5c-7.7-30.9-22.3-54.2-53.4-54.2h-40.1v47.4c0 36.8-31.2 67.8-66.8 67.8H172.7c-29.2 0-53.4 25-53.4 54.3v101.8c0 29 25.2 46 53.4 54.3 33.8 9.9 66.3 11.7 106.8 0 26.9-7.8 53.4-23.5 53.4-54.3v-40.7H226.2v-13.6h160.2c31.1 0 42.6-21.7 53.4-54.2 11.2-33.5 10.7-65.7 0-108.6M286.2 444.7a20.4 20.4 0 1 1 0-40.7 20.4 20.4 0 1 1 0 40.7M167.8 248.1h106.8c29.7 0 53.4-24.5 53.4-54.3V91.9c0-29-24.4-50.7-53.4-55.6-35.8-5.9-74.7-5.6-106.8.1-45.2 8-53.4 24.7-53.4 55.6v40.7h106.9v13.6h-147c-31.1 0-58.3 18.7-66.8 54.2-9.8 40.7-10.2 66.1 0 108.6 7.6 31.6 25.7 54.2 56.8 54.2H101v-48.8c0-35.3 30.5-66.4 66.8-66.4m-6.6-183.4a20.4 20.4 0 1 1 0 40.8 20.4 20.4 0 1 1 0-40.8"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+      <div class="md-progress" data-md-component="progress" role="progressbar"></div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../../..", "features": ["navigation.instant", "navigation.instant.progress", "navigation.tracking", "navigation.tabs", "navigation.tabs.sticky", "navigation.sections", "navigation.path", "navigation.indexes", "navigation.top", "navigation.footer", "navigation.prune", "search.suggest", "search.highlight", "search.share", "content.code.copy", "content.code.annotate", "content.tabs.link", "toc.follow", "toc.integrate"], "search": "../../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

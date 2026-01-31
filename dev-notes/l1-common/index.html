@@ -1,0 +1,3247 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="高性能分布式推理框架 - 数据流原生的模块化、透明、可控的LLM工作流推理框架">
+      
+      
+        <meta name="author" content="IntelliStream Lab">
+      
+      
+        <link rel="canonical" href="https://sage.org.ai/dev-notes/l1-common/">
+      
+      
+        <link rel="prev" href="../package-architecture/">
+      
+      
+        <link rel="next" href="../l2-platform/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/img/isage_light.svg">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+    
+    
+  
+    <title>L1 基础设施</title>
+  
+
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+<!-- Google Tag Manager -->
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-T35S4S46');</script>
+<!-- End Google Tag Manager -->
+
+    
+  <!-- pragma: allowlist secret -->
+  <meta name="algolia-site-verification" content="165B7E7C89E49946" />
+  <style>
+    @import url("https://fonts.googleapis.com/css2?family=Public+Sans&display=swap");
+    :root {
+      --md-primary-fg-color: #333333;
+      --md-accent-fg-color: #1E88E5;
+      --md-default-bg-color: #FFFFFF;
+      --md-default-fg-color: #333333;
+      --md-text-font-family: "Public Sans", sans-serif;
+    }
+
+    body {
+      font-family: var(--md-text-font-family);
+      background-color: var(--md-default-bg-color);
+      color: var(--md-default-fg-color);
+    }
+
+    .md-main {
+      background-color: #FFFFFF;
+    }
+
+    .md-footer {
+      background-color: #F5F5F5;
+      color: #666666;
+    }
+
+    .md-footer-meta {
+      background-color: #4d4d4d;
+    }
+
+    .md-typeset a {
+      color: #1E88E5;
+    }
+
+    .md-typeset a:hover {
+      color: #1565C0;
+    }
+
+    .md-nav__link--active,
+    .md-nav__link:active {
+      color: #1E88E5;
+    }
+
+    .md-search__input {
+      background-color: #F5F5F5;
+      color: #333333;
+    }
+
+    .md-search__input:hover,
+    .md-search__input:focus {
+      background-color: #EEEEEE;
+    }
+    /* Table of contents styles */
+    .md-nav--secondary .md-nav__item--active > .md-nav__link {
+      font-weight: bold;
+      color: var(--md-primary-fg-color);
+    }
+
+    .md-nav--secondary .md-nav__item--nested > .md-nav__link {
+      font-weight: normal;
+      color: var(--md-default-fg-color);
+    }
+
+    .md-header__button.md-logo img {
+      height: 30px;
+      max-height: 30px;
+      width: auto;
+      vertical-align: middle;
+    }
+
+    .md-nav--secondary .md-nav__item--nested > .md-nav__link::before {
+      content: "";
+      display: inline-block;
+      width: 6px;
+      height: 6px;
+      background-color: var(--md-default-fg-color);
+      border-radius: 50%;
+      margin-right: 0.5rem;
+    }
+
+    [data-md-color-scheme="slate"] {
+      --md-default-bg-color: #1E1E1E;
+      --md-default-fg-color: #FFFFFF;
+      --md-accent-fg-color: #64B5F6;
+    }
+
+    [data-md-color-scheme="slate"] .md-main {
+      background-color: #1E1E1E;
+    }
+
+    [data-md-color-scheme="slate"] .navbar {
+      background-color: #1E1E1E;
+      color: #FFFFFF;
+      box-shadow: none;
+    }
+
+    [data-md-color-scheme="slate"] .md-footer {
+      background-color: #1E1E1E;
+      color: #BDBDBD;
+    }
+
+    [data-md-color-scheme="slate"] .md-header {
+      background-color: #1E1E1E;
+      color: #BDBDBD;
+    }
+
+    [data-md-color-scheme="slate"] .md-tabs {
+      background-color: #1E1E1E;
+      color: #BDBDBD;
+    }
+
+    [data-md-color-scheme="slate"] .md-search__input {
+      background-color: #F5F5F5;
+      color: #333333;
+    }
+
+    [data-md-color-scheme="slate"] .md-search__icon {
+      color: #333333;
+    }
+
+    [data-md-color-scheme="slate"] .md-search__input::placeholder {
+      color: #333333;
+    }
+
+    [data-md-color-scheme="slate"] .md-footer-meta {
+      background-color: #4d4d4d;
+    }
+
+    [data-md-color-scheme="slate"] .md-typeset a {
+      color: #64B5F6;
+    }
+
+    [data-md-color-scheme="slate"] .md-typeset a:hover {
+      color: #90CAF9;
+    }
+
+    .notebook-links {
+      display: flex;
+      justify-content: flex-end;
+      margin-bottom: 1rem;
+    }
+    .notebook-links .md-content__button {
+      margin-left: 0.5rem;
+    }
+
+    [data-md-color-scheme=default] .logo-dark {
+      display: none !important;
+    }
+
+    [data-md-color-scheme=slate] .logo-light {
+      display: none !important;
+    }
+
+    .jupyter-wrapper .jp-CodeCell .jp-Cell-inputWrapper .jp-InputPrompt.jp-InputArea-prompt {
+      display: none !important;
+    }
+
+    .jupyter-wrapper .jp-Notebook .jp-Cell .jp-OutputPrompt {
+      display: none !important;
+    }
+
+    .md-banner {
+      background-color: #CFC9FA;
+      color: #000000;
+    }
+
+    .md-banner a {
+      color: #000000;
+      text-decoration: underline;
+    }
+
+    .md-banner a:hover {
+      color: #000000;
+    }
+
+    .md-header__title {
+      visibility: hidden;
+    }
+
+    /* Dark mode banner styling */
+    [data-md-color-scheme="slate"] .md-banner {
+      background-color: #CFC9FA; /* Same light purple for both modes */
+      color: #000000;
+    }
+
+    [data-md-color-scheme="slate"] .md-banner a {
+      color: #000000;
+    }
+
+    [data-md-color-scheme="slate"] .md-banner a:hover {
+      color: #000000;
+    }
+
+  </style>
+
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="blue" data-md-color-accent="blue">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#l1-common" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../.." title="SAGE Documentation" class="md-header__button md-logo" aria-label="SAGE Documentation" data-md-component="logo">
+      
+  <img src="../../assets/logo/sage.svg" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            SAGE Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              L1 基础设施
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="blue" data-md-color-accent="blue"  aria-label="切换到深色模式"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="切换到深色模式" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="blue" data-md-color-accent="blue"  aria-label="切换到浅色模式"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="切换到浅色模式" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+          <a href="javascript:void(0)" class="md-search__icon md-icon" title="分享" aria-label="分享" data-clipboard data-clipboard-text="" data-md-component="search-share" tabindex="-1">
+            
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.15c-.05.21-.08.43-.08.66 0 1.61 1.31 2.91 2.92 2.91s2.92-1.3 2.92-2.91A2.92 2.92 0 0 0 18 16.08"/></svg>
+          </a>
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/intellistream/SAGE" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    intellistream/SAGE
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+    
+      
+<nav class="md-tabs" aria-label="标签" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="https://sage.org.ai/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  首页
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../about/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  关于
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../getting-started/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  入门指南
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../tutorials/advanced/index.md" class="md-tabs__link">
+          
+  
+  
+    
+  
+  高级教程
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../guides/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  用户指南
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../../developers/commands/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  开发者
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../community/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  社区
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../contributions/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  我们的贡献
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+    
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="SAGE Documentation" class="md-nav__button md-logo" aria-label="SAGE Documentation" data-md-component="logo">
+      
+  <img src="../../assets/logo/sage.svg" alt="logo">
+
+    </a>
+    SAGE Documentation
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/intellistream/SAGE" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    intellistream/SAGE
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="https://sage.org.ai/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    首页
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../about/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    关于
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../getting-started/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    入门指南
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../tutorials/advanced/index.md" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    高级教程
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../guides/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    用户指南
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    开发者
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    开发者
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../developers/commands/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    贡献指南
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../developers/development-setup/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    开发环境
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../developers/ci-cd/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CI/CD
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_4" checked>
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    开发笔记
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_6_4" id="__nav_6_4_label" tabindex="">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_6_4_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_6_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    开发笔记
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../package-architecture/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    包架构
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    L1 基础设施
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    L1 基础设施
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#quickstart" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🚀 Quickstart
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🚀 Quickstart">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. 启动服务
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. 使用统一客户端
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. 使用引擎管理命令
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. 停止服务
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cli" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🖥️ CLI 命令详解
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🖥️ CLI 命令详解">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        服务管理
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#gpu" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GPU 监控
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        引擎管理
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        预设系统
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        模型管理
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        📦 主要模块
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="📦 主要模块">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#sagellm" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🤖 sageLLM 组件
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sage_embedding-componentssage_embedding" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🎯 sage_embedding 组件 (components/sage_embedding/)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#config" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ⚙️ 配置模块 (config/)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_6" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        📁 文档结构与主题索引
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="📁 文档结构与主题索引">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_7" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        核心文档（原始笔记）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_8" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        工具与运维文档
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#gateway" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🏗️ Gateway 架构说明
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_9" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🎯 快速导航
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_10" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🔗 相关资源
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#control-plane" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Control Plane 路线图与任务拆解
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Control Plane 路线图与任务拆解">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#unifiedinferenceclientcreate" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        统一入口 UnifiedInferenceClient.create()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_11" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        引擎健康检查与自动重启
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#embedding-gpu" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Embedding 引擎 GPU 支持
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#unified-gateway" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Unified Gateway 统一网关任务
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Unified Gateway 统一网关任务">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#unified-gateway-tasksmd" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        规划视角（来自 unified-gateway-tasks.md）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pr-unified-gatewaymd" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        结果视角（来自 PR-unified-gateway.md）
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#control-plane_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Control Plane 增强概要
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#vllm-torch" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        vLLM 与 Torch 版本兼容性
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="vLLM 与 Torch 版本兼容性">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_12" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        结论速览
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_13" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        项目层面的改进建议
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cli_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🎓 CLI 使用教程
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🎓 CLI 使用教程">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        教程 1: 基础服务启动与对话
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-llm-embedding" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        教程 2: 完整服务栈（LLM + Embedding）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-gpu" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        教程 3: GPU 资源监控与引擎管理
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        教程 4: 使用预设系统
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        教程 5: 服务诊断与日志
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_14" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        常用命令速查表
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../l2-platform/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    L2 平台服务
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../l3-kernel/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    L3 核心引擎
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../l3-libs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    L3 算法库
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../l4-middleware/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    L4 中间件
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../l5-apps/README.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    L5 应用
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../l5-benchmark/README.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    L5 评测
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../l6-cli/README.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    L6 CLI
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../l6-gateway/README.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    L6 Gateway
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../l6-studio/README.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    L6 Studio
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../l6-tools/README.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    L6 Tools
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../cross-layer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    交叉层设计
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../testing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    测试策略
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../community/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    社区
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../contributions/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    我们的贡献
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+                
+
+
+
+
+  <nav class="md-path" aria-label="导航栏" >
+    <ol class="md-path__list">
+      
+      
+        
+  
+  
+    
+    
+      <li class="md-path__item">
+        <a href="../../developers/commands/" class="md-path__link">
+          
+  <span class="md-ellipsis">
+    开发者
+  </span>
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+    
+    
+      <li class="md-path__item">
+        <a href="../" class="md-path__link">
+          
+  <span class="md-ellipsis">
+    开发笔记
+  </span>
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ol>
+  </nav>
+
+              
+              <article class="md-content__inner md-typeset">
+                
+<div class="notebook-links">
+  
+</div>
+
+
+                  
+
+
+  
+  
+
+
+<h1 id="l1-common">L1 Common 开发文档<a class="headerlink" href="#l1-common" title="Permanent link">&para;</a></h1>
+<p><code>sage-common</code> 属于 L1（基础层），提供 SAGE 框架的核心基础设施和通用组件。本目录聚合了与 <strong>sageLLM Control Plane</strong>、<strong>统一 Gateway</strong> 以及
+<strong>vLLM 依赖管理</strong> 等主题相关的开发文档，帮助你从整体视角理解 L1 的演进历程。</p>
+<h2 id="quickstart">🚀 Quickstart<a class="headerlink" href="#quickstart" title="Permanent link">&para;</a></h2>
+<h3 id="1">1. 启动服务<a class="headerlink" href="#1" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="c1"># 方式一：启动 Gateway 服务（推荐，包含 Control Plane）</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>sage<span class="w"> </span>gateway<span class="w"> </span>start
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="c1"># 方式二：仅启动 LLM + Embedding 服务（不含 Control Plane）</span>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>sage<span class="w"> </span>llm<span class="w"> </span>serve
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="c1"># 方式三：指定端口</span>
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>sage<span class="w"> </span>gateway<span class="w"> </span>start<span class="w"> </span>-p<span class="w"> </span><span class="m">9000</span>
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="c1"># 查看服务状态</span>
+<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>sage<span class="w"> </span>gateway<span class="w"> </span>status
+<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>sage<span class="w"> </span>llm<span class="w"> </span>status
+</code></pre></div>
+<h3 id="2">2. 使用统一客户端<a class="headerlink" href="#2" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">sage.llm</span><span class="w"> </span><span class="kn">import</span> <span class="n">UnifiedInferenceClient</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="c1"># 创建客户端（自动连接本地服务）</span>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="n">client</span> <span class="o">=</span> <span class="n">UnifiedInferenceClient</span><span class="o">.</span><span class="n">create</span><span class="p">()</span>
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="c1"># Chat 对话</span>
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="n">response</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">chat</span><span class="p">([</span>
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>    <span class="p">{</span><span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;user&quot;</span><span class="p">,</span> <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="s2">&quot;用一句话介绍人工智能&quot;</span><span class="p">}</span>
+<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a><span class="p">])</span>
+<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span class="nb">print</span><span class="p">(</span><span class="n">response</span><span class="p">)</span>  <span class="c1"># &quot;人工智能是让计算机模拟人类智能的技术。&quot;</span>
+<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>
+<a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a><span class="c1"># Embedding 向量化</span>
+<a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a><span class="n">vectors</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">embed</span><span class="p">([</span><span class="s2">&quot;Hello world&quot;</span><span class="p">,</span> <span class="s2">&quot;你好世界&quot;</span><span class="p">])</span>
+<a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;向量维度: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">vectors</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>  <span class="c1"># 向量维度: 512</span>
+</code></pre></div>
+<h3 id="3">3. 使用引擎管理命令<a class="headerlink" href="#3" title="Permanent link">&para;</a></h3>
+<blockquote>
+<p>ℹ️ <strong>说明</strong>：<code>sage gateway</code> 是统一的 API Gateway，包含 Control Plane 引擎管理功能。</p>
+</blockquote>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="c1"># 启动 Gateway（包含 Control Plane）</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>sage<span class="w"> </span>gateway<span class="w"> </span>start
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="c1"># 引擎管理命令</span>
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>sage<span class="w"> </span>llm<span class="w"> </span>gpu<span class="w">                    </span><span class="c1"># 查看 GPU 状态</span>
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>sage<span class="w"> </span>llm<span class="w"> </span>engine<span class="w"> </span>list<span class="w">            </span><span class="c1"># 列出引擎</span>
+<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>sage<span class="w"> </span>llm<span class="w"> </span>engine<span class="w"> </span>start<span class="w"> </span>&lt;model&gt;<span class="w">   </span><span class="c1"># 启动新引擎</span>
+<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>sage<span class="w"> </span>llm<span class="w"> </span>preset<span class="w"> </span>list<span class="w">            </span><span class="c1"># 查看预设</span>
+<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a>sage<span class="w"> </span>llm<span class="w"> </span>preset<span class="w"> </span>apply<span class="w"> </span>-n<span class="w"> </span>qwen-lite<span class="w"> </span>--dry-run<span class="w">  </span><span class="c1"># 预览预设</span>
+</code></pre></div>
+<h3 id="4">4. 停止服务<a class="headerlink" href="#4" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>sage<span class="w"> </span>llm<span class="w"> </span>stop
+</code></pre></div>
+<hr />
+<h2 id="cli">🖥️ CLI 命令详解<a class="headerlink" href="#cli" title="Permanent link">&para;</a></h2>
+<h3 id="_1">服务管理<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="c1"># 启动服务</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>sage<span class="w"> </span>llm<span class="w"> </span>serve<span class="w">                              </span><span class="c1"># LLM + Embedding（默认）</span>
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>sage<span class="w"> </span>llm<span class="w"> </span>serve<span class="w"> </span>--no-embedding<span class="w">               </span><span class="c1"># 仅 LLM</span>
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>sage<span class="w"> </span>llm<span class="w"> </span>serve<span class="w"> </span>-m<span class="w"> </span>&lt;model&gt;<span class="w"> </span>-e<span class="w"> </span>&lt;embed_model&gt;<span class="w">  </span><span class="c1"># 指定模型</span>
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>sage<span class="w"> </span>llm<span class="w"> </span>serve<span class="w"> </span>--foreground<span class="w">                 </span><span class="c1"># 前台运行（调试用）</span>
+<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>sage<span class="w"> </span>llm<span class="w"> </span>serve<span class="w"> </span>--port<span class="w"> </span><span class="m">8901</span><span class="w"> </span>--embedding-port<span class="w"> </span><span class="m">8090</span><span class="w">  </span><span class="c1"># 指定端口</span>
+<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a>
+<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a><span class="c1"># 服务状态</span>
+<a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a>sage<span class="w"> </span>llm<span class="w"> </span>status<span class="w">                             </span><span class="c1"># 查看运行状态和健康检查</span>
+<a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a>
+<a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a><span class="c1"># 停止/重启</span>
+<a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a>sage<span class="w"> </span>llm<span class="w"> </span>stop<span class="w">                               </span><span class="c1"># 停止服务</span>
+<a id="__codelineno-4-13" name="__codelineno-4-13" href="#__codelineno-4-13"></a>sage<span class="w"> </span>llm<span class="w"> </span>restart<span class="w">                            </span><span class="c1"># 重启服务</span>
+<a id="__codelineno-4-14" name="__codelineno-4-14" href="#__codelineno-4-14"></a>
+<a id="__codelineno-4-15" name="__codelineno-4-15" href="#__codelineno-4-15"></a><span class="c1"># 日志</span>
+<a id="__codelineno-4-16" name="__codelineno-4-16" href="#__codelineno-4-16"></a>sage<span class="w"> </span>llm<span class="w"> </span>logs<span class="w">                               </span><span class="c1"># 查看日志</span>
+<a id="__codelineno-4-17" name="__codelineno-4-17" href="#__codelineno-4-17"></a>sage<span class="w"> </span>llm<span class="w"> </span>logs<span class="w"> </span>--follow<span class="w">                      </span><span class="c1"># 实时跟踪日志</span>
+</code></pre></div>
+<h3 id="gpu">GPU 监控<a class="headerlink" href="#gpu" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>sage<span class="w"> </span>llm<span class="w"> </span>gpu<span class="w">                                </span><span class="c1"># 显示 GPU 资源状态</span>
+</code></pre></div>
+<p>输出示例：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>                         GPU 资源  
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>┏━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━┳━━━━━━━━┳━━━━━━━━━━┓
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>┃ GPU                      ┃ 内存 (已用/总量)  ┃  空闲   ┃ 利用率 ┃ 关联引擎 ┃
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>┡━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━╇━━━━━━━━╇━━━━━━━━━━┩
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>│ 0: NVIDIA A100 80GB PCIe │ 68.7 GB / 80.0 GB │ 11.3 GB │  28%   │ engine-1 │
+<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>│ 1: NVIDIA A100 80GB PCIe │ 9.7 GB / 80.0 GB  │ 70.3 GB │  30%   │ -        │
+<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a>└──────────────────────────┴───────────────────┴─────────┴────────┴──────────┘
+</code></pre></div>
+<h3 id="_2">引擎管理<a class="headerlink" href="#_2" title="Permanent link">&para;</a></h3>
+<blockquote>
+<p>ℹ️ <strong>说明</strong>：引擎管理命令需要 Gateway 运行（<code>sage gateway start</code>）。</p>
+<p><code>sage studio start</code> 也会自动启动 Gateway（包含 Control Plane）。</p>
+</blockquote>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="c1"># 列出引擎</span>
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>sage<span class="w"> </span>llm<span class="w"> </span>engine<span class="w"> </span>list
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>
+<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="c1"># 启动引擎</span>
+<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a>sage<span class="w"> </span>llm<span class="w"> </span>engine<span class="w"> </span>start<span class="w"> </span>&lt;model_id&gt;<span class="w"> </span><span class="o">[</span>options<span class="o">]</span>
+<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a>
+<a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a><span class="c1"># 示例</span>
+<a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a>sage<span class="w"> </span>llm<span class="w"> </span>engine<span class="w"> </span>start<span class="w"> </span>Qwen/Qwen2.5-7B-Instruct<span class="w">           </span><span class="c1"># 启动 LLM 引擎</span>
+<a id="__codelineno-7-9" name="__codelineno-7-9" href="#__codelineno-7-9"></a>sage<span class="w"> </span>llm<span class="w"> </span>engine<span class="w"> </span>start<span class="w"> </span>Qwen/Qwen2.5-7B-Instruct<span class="w"> </span>-tp<span class="w"> </span><span class="m">2</span><span class="w">     </span><span class="c1"># 2 GPU 并行</span>
+<a id="__codelineno-7-10" name="__codelineno-7-10" href="#__codelineno-7-10"></a>sage<span class="w"> </span>llm<span class="w"> </span>engine<span class="w"> </span>start<span class="w"> </span>Qwen/Qwen2.5-7B-Instruct<span class="w"> </span>--engine-port<span class="w"> </span><span class="m">8902</span><span class="w">  </span><span class="c1"># 指定端口</span>
+<a id="__codelineno-7-11" name="__codelineno-7-11" href="#__codelineno-7-11"></a>sage<span class="w"> </span>llm<span class="w"> </span>engine<span class="w"> </span>start<span class="w"> </span>BAAI/bge-m3<span class="w"> </span>--engine-kind<span class="w"> </span>embedding<span class="w">          </span><span class="c1"># Embedding 引擎</span>
+<a id="__codelineno-7-12" name="__codelineno-7-12" href="#__codelineno-7-12"></a>sage<span class="w"> </span>llm<span class="w"> </span>engine<span class="w"> </span>start<span class="w"> </span>BAAI/bge-m3<span class="w"> </span>--engine-kind<span class="w"> </span>embedding<span class="w"> </span>--use-gpu<span class="w">  </span><span class="c1"># Embedding + GPU</span>
+<a id="__codelineno-7-13" name="__codelineno-7-13" href="#__codelineno-7-13"></a>
+<a id="__codelineno-7-14" name="__codelineno-7-14" href="#__codelineno-7-14"></a><span class="c1"># 停止引擎</span>
+<a id="__codelineno-7-15" name="__codelineno-7-15" href="#__codelineno-7-15"></a>sage<span class="w"> </span>llm<span class="w"> </span>engine<span class="w"> </span>stop<span class="w"> </span>&lt;engine_id&gt;
+</code></pre></div>
+<p><strong>engine start 参数</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--engine-port</code></td>
+<td>引擎监听端口</td>
+</tr>
+<tr>
+<td><code>-tp, --tensor-parallel</code></td>
+<td>Tensor 并行 GPU 数</td>
+</tr>
+<tr>
+<td><code>-pp, --pipeline-parallel</code></td>
+<td>Pipeline 并行 GPU 数</td>
+</tr>
+<tr>
+<td><code>--engine-kind</code></td>
+<td>引擎类型：<code>llm</code> (默认) 或 <code>embedding</code></td>
+</tr>
+<tr>
+<td><code>--use-gpu / --no-gpu</code></td>
+<td>是否使用 GPU（默认 LLM 用，Embedding 不用）</td>
+</tr>
+<tr>
+<td><code>--label</code></td>
+<td>自定义标签</td>
+</tr>
+<tr>
+<td><code>--max-concurrent</code></td>
+<td>最大并发数（默认 256）</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_3">预设系统<a class="headerlink" href="#_3" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="c1"># 列出内置预设</span>
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>sage<span class="w"> </span>llm<span class="w"> </span>preset<span class="w"> </span>list
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>
+<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a><span class="c1"># 查看预设详情</span>
+<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a>sage<span class="w"> </span>llm<span class="w"> </span>preset<span class="w"> </span>show<span class="w"> </span>--name<span class="w"> </span>qwen-lite
+<a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a>sage<span class="w"> </span>llm<span class="w"> </span>preset<span class="w"> </span>show<span class="w"> </span>--file<span class="w"> </span>my-preset.yaml<span class="w">  </span><span class="c1"># 自定义预设文件</span>
+<a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a>
+<a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a><span class="c1"># 应用预设</span>
+<a id="__codelineno-8-9" name="__codelineno-8-9" href="#__codelineno-8-9"></a>sage<span class="w"> </span>llm<span class="w"> </span>preset<span class="w"> </span>apply<span class="w"> </span>--name<span class="w"> </span>qwen-lite<span class="w">              </span><span class="c1"># 执行预设</span>
+<a id="__codelineno-8-10" name="__codelineno-8-10" href="#__codelineno-8-10"></a>sage<span class="w"> </span>llm<span class="w"> </span>preset<span class="w"> </span>apply<span class="w"> </span>--name<span class="w"> </span>qwen-lite<span class="w"> </span>--dry-run<span class="w">    </span><span class="c1"># 仅预览</span>
+<a id="__codelineno-8-11" name="__codelineno-8-11" href="#__codelineno-8-11"></a>sage<span class="w"> </span>llm<span class="w"> </span>preset<span class="w"> </span>apply<span class="w"> </span>--file<span class="w"> </span>my-preset.yaml<span class="w"> </span>-y<span class="w">      </span><span class="c1"># 无需确认</span>
+</code></pre></div>
+<p><strong>内置预设</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>预设名</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>qwen-lite</code></td>
+<td>单个 Qwen 0.5B 引擎（无 Embedding）</td>
+</tr>
+<tr>
+<td><code>qwen-mini-with-embeddings</code></td>
+<td>Qwen 1.5B + BGE-small Embedding</td>
+</tr>
+</tbody>
+</table>
+<p><strong>自定义预设文件示例</strong> (<code>my-preset.yaml</code>):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">my-custom-preset</span>
+<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">自定义多引擎配置</span>
+<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a><span class="nt">engines</span><span class="p">:</span>
+<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a><span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">chat</span>
+<a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a><span class="w">    </span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">llm</span>
+<a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a><span class="w">    </span><span class="nt">model</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Qwen/Qwen2.5-7B-Instruct</span>
+<a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a><span class="w">    </span><span class="nt">tensor_parallel</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2</span>
+<a id="__codelineno-9-9" name="__codelineno-9-9" href="#__codelineno-9-9"></a><span class="w">    </span><span class="nt">port</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">8901</span>
+<a id="__codelineno-9-10" name="__codelineno-9-10" href="#__codelineno-9-10"></a><span class="w">    </span><span class="nt">label</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">main-chat</span>
+<a id="__codelineno-9-11" name="__codelineno-9-11" href="#__codelineno-9-11"></a><span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">embed</span>
+<a id="__codelineno-9-12" name="__codelineno-9-12" href="#__codelineno-9-12"></a><span class="w">    </span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">embedding</span>
+<a id="__codelineno-9-13" name="__codelineno-9-13" href="#__codelineno-9-13"></a><span class="w">    </span><span class="nt">model</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">BAAI/bge-m3</span>
+<a id="__codelineno-9-14" name="__codelineno-9-14" href="#__codelineno-9-14"></a><span class="w">    </span><span class="nt">port</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">8090</span>
+<a id="__codelineno-9-15" name="__codelineno-9-15" href="#__codelineno-9-15"></a><span class="w">    </span><span class="nt">use_gpu</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span><span class="w">  </span><span class="c1"># Embedding 使用 GPU</span>
+</code></pre></div>
+<h3 id="_4">模型管理<a class="headerlink" href="#_4" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>sage<span class="w"> </span>llm<span class="w"> </span>model<span class="w"> </span>download<span class="w"> </span>&lt;model_id&gt;<span class="w">          </span><span class="c1"># 下载模型</span>
+<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>sage<span class="w"> </span>llm<span class="w"> </span>model<span class="w"> </span>list<span class="w">                         </span><span class="c1"># 列出已下载模型</span>
+</code></pre></div>
+<hr />
+<h2 id="_5">📦 主要模块<a class="headerlink" href="#_5" title="Permanent link">&para;</a></h2>
+<h3 id="sagellm">🤖 sageLLM 组件<a class="headerlink" href="#sagellm" title="Permanent link">&para;</a></h3>
+<blockquote>
+<p><strong>迁移通知</strong>: sageLLM 已从 <code>sage-common</code> 迁移至独立包 <code>sage-llm-core</code>。</p>
+<ul>
+<li>新位置: <code>packages/sage-llm-core/src/sage/llm/</code></li>
+<li>导入: <code>from sage.llm import UnifiedInferenceClient</code></li>
+<li>单元测试: <code>packages/sage-llm-core/tests/</code></li>
+</ul>
+</blockquote>
+<p>统一的 LLM 和 Embedding 推理客户端和调度系统：</p>
+<table>
+<thead>
+<tr>
+<th>模块</th>
+<th>描述</th>
+<th>位置</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>unified_client.py</code></td>
+<td><code>UnifiedInferenceClient</code> - 统一推理客户端（<strong>唯一入口</strong>）</td>
+<td><code>sage-llm-core</code></td>
+</tr>
+<tr>
+<td><code>control_plane_service.py</code></td>
+<td>Control Plane SAGE 封装层</td>
+<td><code>sage-llm-core</code></td>
+</tr>
+<tr>
+<td><code>service.py</code></td>
+<td><code>VLLMService</code> - vLLM 引擎包装</td>
+<td><code>sage-llm-core</code></td>
+</tr>
+<tr>
+<td><code>control_plane/</code></td>
+<td>核心调度框架（GPU 管理、引擎生命周期、预设系统）</td>
+<td><code>sage-llm-core</code></td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>注意</strong>：<code>UnifiedAPIServer</code> 已移除，Control Plane 功能现由 <code>sage-llm-gateway</code> 提供。</p>
+</blockquote>
+<p><strong>统一入口 API</strong>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">sage.llm</span><span class="w"> </span><span class="kn">import</span> <span class="n">UnifiedInferenceClient</span>
+<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>
+<a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a><span class="c1"># 方式一：自动检测（推荐）</span>
+<a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a><span class="c1"># 自动发现本地 LLM (8901) 和 Embedding (8090) 服务</span>
+<a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a><span class="n">client</span> <span class="o">=</span> <span class="n">UnifiedInferenceClient</span><span class="o">.</span><span class="n">create</span><span class="p">()</span>
+<a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a>
+<a id="__codelineno-11-7" name="__codelineno-11-7" href="#__codelineno-11-7"></a><span class="c1"># 方式二：连接指定的 Control Plane Gateway</span>
+<a id="__codelineno-11-8" name="__codelineno-11-8" href="#__codelineno-11-8"></a><span class="n">client</span> <span class="o">=</span> <span class="n">UnifiedInferenceClient</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
+<a id="__codelineno-11-9" name="__codelineno-11-9" href="#__codelineno-11-9"></a>    <span class="n">control_plane_url</span><span class="o">=</span><span class="s2">&quot;http://localhost:8000/v1&quot;</span>
+<a id="__codelineno-11-10" name="__codelineno-11-10" href="#__codelineno-11-10"></a><span class="p">)</span>
+<a id="__codelineno-11-11" name="__codelineno-11-11" href="#__codelineno-11-11"></a>
+<a id="__codelineno-11-12" name="__codelineno-11-12" href="#__codelineno-11-12"></a><span class="c1"># 方式三：内嵌模式（在进程内启动 Control Plane）</span>
+<a id="__codelineno-11-13" name="__codelineno-11-13" href="#__codelineno-11-13"></a><span class="n">client</span> <span class="o">=</span> <span class="n">UnifiedInferenceClient</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">embedded</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<a id="__codelineno-11-14" name="__codelineno-11-14" href="#__codelineno-11-14"></a>
+<a id="__codelineno-11-15" name="__codelineno-11-15" href="#__codelineno-11-15"></a><span class="c1"># 使用</span>
+<a id="__codelineno-11-16" name="__codelineno-11-16" href="#__codelineno-11-16"></a><span class="n">response</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">chat</span><span class="p">([{</span><span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;user&quot;</span><span class="p">,</span> <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="s2">&quot;Hello&quot;</span><span class="p">}])</span>
+<a id="__codelineno-11-17" name="__codelineno-11-17" href="#__codelineno-11-17"></a><span class="n">vectors</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">embed</span><span class="p">([</span><span class="s2">&quot;text1&quot;</span><span class="p">,</span> <span class="s2">&quot;text2&quot;</span><span class="p">])</span>
+</code></pre></div>
+<p><strong>CLI 引擎管理</strong>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="c1"># 启动 Embedding 引擎（默认 CPU）</span>
+<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>sage<span class="w"> </span>llm<span class="w"> </span>engine<span class="w"> </span>start<span class="w"> </span>BAAI/bge-m3<span class="w"> </span>--engine-kind<span class="w"> </span>embedding
+<a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a>
+<a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a><span class="c1"># 启动 Embedding 引擎使用 GPU</span>
+<a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a>sage<span class="w"> </span>llm<span class="w"> </span>engine<span class="w"> </span>start<span class="w"> </span>BAAI/bge-m3<span class="w"> </span>--engine-kind<span class="w"> </span>embedding<span class="w"> </span>--use-gpu
+<a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a>
+<a id="__codelineno-12-7" name="__codelineno-12-7" href="#__codelineno-12-7"></a><span class="c1"># 查看引擎列表</span>
+<a id="__codelineno-12-8" name="__codelineno-12-8" href="#__codelineno-12-8"></a>sage<span class="w"> </span>llm<span class="w"> </span>engine<span class="w"> </span>list
+</code></pre></div>
+<h3 id="sage_embedding-componentssage_embedding">🎯 sage_embedding 组件 (<code>components/sage_embedding/</code>)<a class="headerlink" href="#sage_embedding-componentssage_embedding" title="Permanent link">&para;</a></h3>
+<p>Embedding 服务和工厂：</p>
+<table>
+<thead>
+<tr>
+<th>模块</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>embedding_server.py</code></td>
+<td>OpenAI 兼容 Embedding 服务器</td>
+</tr>
+<tr>
+<td><code>factory.py</code></td>
+<td><code>EmbeddingFactory</code> - 本地模型加载</td>
+</tr>
+<tr>
+<td><code>service.py</code></td>
+<td><code>EmbeddingService</code> - Embedding 服务管理</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>注意</strong>: 独立的 <code>IntelligentEmbeddingClient</code> 已被移除，请使用 <code>UnifiedInferenceClient.create().embed()</code> 替代。</p>
+</blockquote>
+<h3 id="config">⚙️ 配置模块 (<code>config/</code>)<a class="headerlink" href="#config" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>模块</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ports.py</code></td>
+<td><code>SagePorts</code> - 统一端口配置</td>
+</tr>
+<tr>
+<td><code>env.py</code></td>
+<td>环境变量管理</td>
+</tr>
+</tbody>
+</table>
+<h2 id="_6">📁 文档结构与主题索引<a class="headerlink" href="#_6" title="Permanent link">&para;</a></h2>
+<p>本目录下的历史开发笔记已按主题整合到本 README 中，推荐从以下几个小节阅读：</p>
+<ul>
+<li><a href="#control-plane-%E8%B7%AF%E7%BA%BF%E5%9B%BE%E4%B8%8E%E4%BB%BB%E5%8A%A1%E6%8B%86%E8%A7%A3">Control Plane 路线图与任务拆解</a></li>
+<li><a href="#unified-gateway-%E7%BB%9F%E4%B8%80%E7%BD%91%E5%85%B3%E4%BB%BB%E5%8A%A1">Unified Gateway 统一网关任务</a></li>
+<li><a href="#control-plane-%E5%A2%9E%E5%BC%BA%E6%A6%82%E8%A6%81">Control Plane 增强概要</a></li>
+<li><a href="#vllm-%E4%B8%8E-torch-%E7%89%88%E6%9C%AC%E5%85%BC%E5%AE%B9%E6%80%A7">vLLM 与 Torch 版本兼容性</a></li>
+</ul>
+<p>原始的详细任务文档仍然保留，可用于追溯完整的 AI 提示词、任务清单与文件列表：</p>
+<h3 id="_7">核心文档（原始笔记）<a class="headerlink" href="#_7" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong><a href="control-plane-enhancement/">control-plane-enhancement.md</a></strong> - Control Plane
+  动态引擎管理增强（GPU/Lifecycle/预设/<code>use_gpu</code> 支持）</li>
+<li><strong><a href="control-plane-roadmap-tasks/">control-plane-roadmap-tasks.md</a></strong> - Control Plane
+  任务路线图（详细任务书）</li>
+<li><strong><a href="unified-gateway-tasks/">unified-gateway-tasks.md</a></strong> - Unified Gateway 开发任务拆解</li>
+<li><strong><a href="PR-unified-gateway/">PR-unified-gateway.md</a></strong> - Unified Gateway 集成 PR 总结</li>
+</ul>
+<h3 id="_8">工具与运维文档<a class="headerlink" href="#_8" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong><a href="CLEANUP_AUTOMATION/">CLEANUP_AUTOMATION.md</a></strong> - 自动清理功能说明</li>
+<li><strong><a href="VLLM_TORCH_VERSION_CONFLICT/">VLLM_TORCH_VERSION_CONFLICT.md</a></strong> - vLLM 和 Torch
+  版本冲突解决与版本管理建议</li>
+</ul>
+<h2 id="gateway">🏗️ Gateway 架构说明<a class="headerlink" href="#gateway" title="Permanent link">&para;</a></h2>
+<p><code>sage-llm-gateway</code> 是 SAGE 的<strong>统一 API Gateway</strong>，提供：</p>
+<ul>
+<li><strong>OpenAI 兼容 API</strong>：<code>/v1/chat/completions</code>、<code>/v1/completions</code>、<code>/v1/embeddings</code></li>
+<li><strong>Control Plane 引擎管理</strong>：<code>/v1/management/engines/*</code>、<code>/v1/management/gpu</code></li>
+<li><strong>会话管理</strong>：<code>/sessions/*</code>（多轮对话持久化）</li>
+<li><strong>RAG 索引</strong>：<code>/admin/index/*</code>（文档索引和检索）</li>
+</ul>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>┌─────────────────────────────────────────────────────────────────────────┐
+<a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a>│                         sage-llm-gateway (统一 Gateway)                      │
+<a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a>├─────────────────────────────────────────────────────────────────────────┤
+<a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a>│                                                                         │
+<a id="__codelineno-13-5" name="__codelineno-13-5" href="#__codelineno-13-5"></a>│   ┌─────────────────────────────────────────────────────────────────┐   │
+<a id="__codelineno-13-6" name="__codelineno-13-6" href="#__codelineno-13-6"></a>│   │                     API 端点                                     │   │
+<a id="__codelineno-13-7" name="__codelineno-13-7" href="#__codelineno-13-7"></a>│   ├─────────────────────────────────────────────────────────────────┤   │
+<a id="__codelineno-13-8" name="__codelineno-13-8" href="#__codelineno-13-8"></a>│   │  ✅ /v1/chat/completions       ← OpenAI 兼容                    │   │
+<a id="__codelineno-13-9" name="__codelineno-13-9" href="#__codelineno-13-9"></a>│   │  ✅ /v1/completions            ← OpenAI 兼容                    │   │
+<a id="__codelineno-13-10" name="__codelineno-13-10" href="#__codelineno-13-10"></a>│   │  ✅ /v1/embeddings             ← OpenAI 兼容                    │   │
+<a id="__codelineno-13-11" name="__codelineno-13-11" href="#__codelineno-13-11"></a>│   │  ✅ /v1/management/engines     ← Control Plane 引擎管理         │   │
+<a id="__codelineno-13-12" name="__codelineno-13-12" href="#__codelineno-13-12"></a>│   │  ✅ /v1/management/gpu         ← GPU 资源监控                   │   │
+<a id="__codelineno-13-13" name="__codelineno-13-13" href="#__codelineno-13-13"></a>│   │  ✅ /v1/management/backends    ← 后端发现                       │   │
+<a id="__codelineno-13-14" name="__codelineno-13-14" href="#__codelineno-13-14"></a>│   │  ✅ /sessions                  ← 会话管理                       │   │
+<a id="__codelineno-13-15" name="__codelineno-13-15" href="#__codelineno-13-15"></a>│   │  ✅ /admin/index               ← RAG 索引管理                   │   │
+<a id="__codelineno-13-16" name="__codelineno-13-16" href="#__codelineno-13-16"></a>│   └─────────────────────────────────────────────────────────────────┘   │
+<a id="__codelineno-13-17" name="__codelineno-13-17" href="#__codelineno-13-17"></a>│                                                                         │
+<a id="__codelineno-13-18" name="__codelineno-13-18" href="#__codelineno-13-18"></a>│   启动方式:                                                              │
+<a id="__codelineno-13-19" name="__codelineno-13-19" href="#__codelineno-13-19"></a>│     • sage gateway start           # 直接启动 Gateway                  │
+<a id="__codelineno-13-20" name="__codelineno-13-20" href="#__codelineno-13-20"></a>│     • sage studio start            # 启动 Studio（自动启动 Gateway）    │
+<a id="__codelineno-13-21" name="__codelineno-13-21" href="#__codelineno-13-21"></a>│                                                                         │
+<a id="__codelineno-13-22" name="__codelineno-13-22" href="#__codelineno-13-22"></a>└─────────────────────────────────────────────────────────────────────────┘
+</code></pre></div>
+<p><strong>CLI 命令参考</strong>：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="c1"># Gateway 管理</span>
+<a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a>sage<span class="w"> </span>gateway<span class="w"> </span>start<span class="w">                  </span><span class="c1"># 启动 Gateway（后台）</span>
+<a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a>sage<span class="w"> </span>gateway<span class="w"> </span>start<span class="w"> </span>--foreground<span class="w">     </span><span class="c1"># 前台运行（调试用）</span>
+<a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a>sage<span class="w"> </span>gateway<span class="w"> </span>stop<span class="w">                   </span><span class="c1"># 停止 Gateway</span>
+<a id="__codelineno-14-5" name="__codelineno-14-5" href="#__codelineno-14-5"></a>sage<span class="w"> </span>gateway<span class="w"> </span>status<span class="w">                 </span><span class="c1"># 查看状态和已注册引擎</span>
+<a id="__codelineno-14-6" name="__codelineno-14-6" href="#__codelineno-14-6"></a>sage<span class="w"> </span>gateway<span class="w"> </span>logs<span class="w"> </span>--follow<span class="w">          </span><span class="c1"># 查看日志</span>
+<a id="__codelineno-14-7" name="__codelineno-14-7" href="#__codelineno-14-7"></a>
+<a id="__codelineno-14-8" name="__codelineno-14-8" href="#__codelineno-14-8"></a><span class="c1"># 引擎管理（需要 Gateway 运行）</span>
+<a id="__codelineno-14-9" name="__codelineno-14-9" href="#__codelineno-14-9"></a>sage<span class="w"> </span>llm<span class="w"> </span>engine<span class="w"> </span>list<span class="w">               </span><span class="c1"># 列出引擎</span>
+<a id="__codelineno-14-10" name="__codelineno-14-10" href="#__codelineno-14-10"></a>sage<span class="w"> </span>llm<span class="w"> </span>engine<span class="w"> </span>start<span class="w"> </span>&lt;model&gt;<span class="w">      </span><span class="c1"># 启动引擎</span>
+<a id="__codelineno-14-11" name="__codelineno-14-11" href="#__codelineno-14-11"></a>sage<span class="w"> </span>llm<span class="w"> </span>engine<span class="w"> </span>stop<span class="w"> </span>&lt;id&gt;<span class="w">          </span><span class="c1"># 停止引擎</span>
+<a id="__codelineno-14-12" name="__codelineno-14-12" href="#__codelineno-14-12"></a>sage<span class="w"> </span>llm<span class="w"> </span>gpu<span class="w">                       </span><span class="c1"># GPU 资源状态</span>
+<a id="__codelineno-14-13" name="__codelineno-14-13" href="#__codelineno-14-13"></a>sage<span class="w"> </span>llm<span class="w"> </span>preset<span class="w"> </span>list<span class="w">               </span><span class="c1"># 查看预设</span>
+</code></pre></div>
+<h2 id="_9">🎯 快速导航<a class="headerlink" href="#_9" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>想要了解...</th>
+<th>查看</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>统一推理客户端使用</td>
+<td><a href="./hybrid-scheduler/README.md">hybrid-scheduler/README.md</a></td>
+</tr>
+<tr>
+<td>动态引擎管理</td>
+<td><a href="control-plane-enhancement/">control-plane-enhancement.md</a></td>
+</tr>
+<tr>
+<td>Embedding GPU 支持</td>
+<td><a href="control-plane-enhancement/">control-plane-enhancement.md</a></td>
+</tr>
+<tr>
+<td>Control Plane 架构</td>
+<td><code>packages/sage-llm-core/src/sage/llm/control_plane/</code></td>
+</tr>
+<tr>
+<td>端口配置</td>
+<td><code>packages/sage-common/src/sage/common/config/ports.py</code></td>
+</tr>
+<tr>
+<td>Embedding 服务</td>
+<td><code>packages/sage-common/src/sage/common/components/sage_embedding/</code></td>
+</tr>
+<tr>
+<td>sageLLM 单元测试</td>
+<td><code>packages/sage-llm-core/tests/</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="_10">🔗 相关资源<a class="headerlink" href="#_10" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>代码位置</strong>: <code>packages/sage-common/src/sage/common/</code></li>
+<li><strong>测试</strong>: <code>packages/sage-common/tests/</code></li>
+<li><strong>Copilot 指南</strong>: <code>.github/copilot-instructions.md</code></li>
+</ul>
+<hr />
+<h2 id="control-plane">Control Plane 路线图与任务拆解<a class="headerlink" href="#control-plane" title="Permanent link">&para;</a></h2>
+<p>该小节对 <code>control-plane-roadmap-tasks.md</code> 进行提炼，聚焦于 <strong>UnifiedInferenceClient 统一入口</strong>、<strong>引擎健康检查与自动重启</strong>、以及
+<strong>Embedding GPU 支持</strong> 三大方向。</p>
+<h3 id="unifiedinferenceclientcreate">统一入口 <code>UnifiedInferenceClient.create()</code><a class="headerlink" href="#unifiedinferenceclientcreate" title="Permanent link">&para;</a></h3>
+<ul>
+<li>将原有多种创建方式（<code>create_auto</code> / <code>create_with_control_plane</code> / 直接构造）统一为单一入口 <code>create()</code>：</li>
+<li><code>UnifiedInferenceClient.create()</code></li>
+<li><code>UnifiedInferenceClient.create(control_plane_url=...)</code></li>
+<li><code>UnifiedInferenceClient.create(embedded=True)</code></li>
+<li>删除旧 API 和模式枚举，确保所有调用路径都经由 Control Plane 管理。</li>
+<li>在 Control Plane Manager 中集中端口和资源管理逻辑，减少分散的端口常量与重复判断。</li>
+</ul>
+<p>在实现层面，任务书明确了需要更新的核心文件（<code>unified_client.py</code>、<code>control_plane/__init__.py</code>、<code>engine_lifecycle.py</code>、<code>manager.py</code>
+及所有调用方），并给出了<strong>验收示例代码</strong>，这些完整细节仍可在原文档中查阅。</p>
+<h3 id="_11">引擎健康检查与自动重启<a class="headerlink" href="#_11" title="Permanent link">&para;</a></h3>
+<p>依据任务书：</p>
+<ul>
+<li>在 <code>EngineLifecycleManager</code> 中新增：</li>
+<li><code>health_check(engine_id, timeout=...)</code></li>
+<li><code>health_check_all()</code></li>
+<li>在 <code>ControlPlaneManager</code> 中增加后台循环：</li>
+<li>周期性调用健康检查</li>
+<li>支持 <code>auto_restart=True</code>、<code>max_restart_attempts</code> 等配置</li>
+<li>使用指数退避策略进行重试</li>
+</ul>
+<p>这部分任务为后续的 <strong>稳定性保障</strong> 和 <strong>生产可用性</strong> 打下基础，也是与 Gateway 合并后保持统一行为的关键前置条件。</p>
+<h3 id="embedding-gpu">Embedding 引擎 GPU 支持<a class="headerlink" href="#embedding-gpu" title="Permanent link">&para;</a></h3>
+<ul>
+<li>在 Control Plane API、Preset 模型与 CLI 中统一引入 <code>use_gpu: bool | None</code>：</li>
+<li><code>None</code>（默认）: LLM 使用 GPU，Embedding 使用 CPU</li>
+<li><code>True</code>: 强制使用 GPU</li>
+<li><code>False</code>: 强制不使用 GPU</li>
+<li>调整 <code>needs_gpu</code> 判断逻辑与 Embedding Server 启动参数，使得大型 Embedding 模型（如 BGE-M3）可以按需迁移到 GPU 上运行。</li>
+</ul>
+<p>更多包含 AI 提示词的详细拆解，仍保存在 <code>control-plane-roadmap-tasks.md</code> 中，适合在做二次重构或回顾设计决策时阅读。</p>
+<hr />
+<h2 id="unified-gateway">Unified Gateway 统一网关任务<a class="headerlink" href="#unified-gateway" title="Permanent link">&para;</a></h2>
+<p>本节综合 <code>unified-gateway-tasks.md</code> 与 <code>PR-unified-gateway.md</code>，从“规划 → 实现结果”的视角描述 Gateway 统一工作的整体图景。</p>
+<h3 id="unified-gateway-tasksmd">规划视角（来自 unified-gateway-tasks.md）<a class="headerlink" href="#unified-gateway-tasksmd" title="Permanent link">&para;</a></h3>
+<p>统一 Gateway 的任务被拆解为三个串行任务组：</p>
+<ol>
+<li><strong>任务组 1：Control Plane 动态引擎管理</strong></li>
+<li>引擎注册与生命周期管理（<code>EngineState</code> / <code>EngineInfo</code> / 心跳机制 / 优雅关闭）</li>
+<li>动态后端发现（定期刷新后端列表、故障转移、客户端透明切换）</li>
+<li><strong>任务组 2：Gateway 统一</strong></li>
+<li>将 Control Plane 端点迁移到 <code>sage-llm-gateway</code></li>
+<li>合并 LLM / Embedding 代理与管理路由</li>
+<li>CLI 命令统一：增加 <code>sage gateway</code> 命令组，重定向 <code>sage llm engine</code> 到 Gateway 端点</li>
+<li><strong>任务组 3：测试与文档</strong></li>
+<li>编写端到端集成测试（Gateway + Control Plane + Client）</li>
+<li>更新文档与示例代码（尤其是 L1 tutorial 与 CLI 参考）</li>
+</ol>
+<p>任务文档为每一小节都提供了清晰的 AI 提示词、文件列表与验收标准，适合用作未来类似大型重构任务的模板。</p>
+<h3 id="pr-unified-gatewaymd">结果视角（来自 PR-unified-gateway.md）<a class="headerlink" href="#pr-unified-gatewaymd" title="Permanent link">&para;</a></h3>
+<p>PR 文档记录了这些规划在代码层面的最终落地：</p>
+<ul>
+<li>控制平面与 Gateway：</li>
+<li>在 <code>sage-llm-gateway</code> 中新增 <code>routes/control_plane.py</code>，承载所有 <code>/v1/management/*</code> 端点。</li>
+<li>删除 <code>unified_api_server.py</code>，所有控制功能正式迁移到 Gateway。</li>
+<li>补充 <code>/v1/embeddings</code> 路由，确保 OpenAI 兼容接口完整。</li>
+<li>CLI 统一：</li>
+<li>新增 <code>sage gateway</code> 命令组（<code>start/stop/status/logs/restart</code>）。</li>
+<li><code>sage llm engine</code> 命令改为通过 Gateway Control Plane 进行管理。</li>
+<li>客户端与 API：</li>
+<li><code>UnifiedInferenceClient.create(control_plane_url=...)</code> 作为标准调用方式。</li>
+<li>OpenAI 兼容端点与 Management API 的清单一并整理在 PR 文档中，可作为对接其他系统时的参考表。</li>
+</ul>
+<p>如果你希望理解“为什么现在的 Gateway/Control Plane 是这个形态”，推荐顺序是：</p>
+<ol>
+<li>先读本 README 中的综述小节（路线图 + Gateway 统一）；</li>
+<li>再按需查阅 <code>unified-gateway-tasks.md</code>（规划）和 <code>PR-unified-gateway.md</code>（实际差异）。</li>
+</ol>
+<hr />
+<h2 id="control-plane_1">Control Plane 增强概要<a class="headerlink" href="#control-plane_1" title="Permanent link">&para;</a></h2>
+<p><code>control-plane-enhancement.md</code> 详细记录了 GPU 资源管理、引擎生命周期与预设系统的设计与实现，本节只保留对后续开发最关键的提要：</p>
+<ul>
+<li><strong>GPUResourceManager</strong>：</li>
+<li>负责采集 GPU 状态（NVML / Mock），维护逻辑预留，暴露 <code>get_system_status()</code>、<code>allocate_resources()</code> 等接口。</li>
+<li><strong>EngineLifecycleManager</strong>：</li>
+<li>通过 subprocess 启动/停止 vLLM 或 Embedding Server，追踪运行状态。</li>
+<li>提供 <code>spawn_engine()</code>、<code>stop_engine()</code>、<code>get_engine_status()</code> 等方法。</li>
+<li><strong>ControlPlaneManager</strong>：</li>
+<li>统一暴露 <code>request_engine_startup()</code>、<code>request_engine_shutdown()</code> 与集群状态快照。</li>
+<li>区分 LLM / Embedding，引擎类型贯穿元数据与调度决策。</li>
+<li><strong>预设系统 + CLI</strong>：</li>
+<li><code>sage llm preset</code> 命令族依赖 Control Plane 提供的一致启动/回滚能力。</li>
+<li>通过 YAML 描述多引擎集群（含 <code>use_gpu</code> 与高并发配置），一键部署。</li>
+</ul>
+<p>对于需要修改 Control Plane 行为（例如新增引擎类型、扩展 GPU 策略）的开发者，建议在阅读源码时将本节与 <code>control-plane-enhancement.md</code> 结合使用。</p>
+<hr />
+<h2 id="vllm-torch">vLLM 与 Torch 版本兼容性<a class="headerlink" href="#vllm-torch" title="Permanent link">&para;</a></h2>
+<p><code>VLLM_TORCH_VERSION_CONFLICT.md</code> 总结了 vLLM 与 Torch 之间的版本不兼容问题及修复策略，本节给出简要结论与最佳实践，方便在排查环境问题时快速参考。</p>
+<h3 id="_12">结论速览<a class="headerlink" href="#_12" title="Permanent link">&para;</a></h3>
+<ul>
+<li>vLLM <code>0.10.x</code> 需要 <strong>Torch ≥ 2.4.0</strong>，否则会出现 <code>torch._inductor.config</code> 缺失等错误。</li>
+<li>推荐做法是<strong>让 vLLM 驱动 Torch 版本</strong>：</li>
+<li>卸载已有 <code>torch</code>/<code>torchaudio</code>/<code>torchvision</code>/<code>vllm</code>；</li>
+<li>通过 <code>pip install vllm==&lt;目标版本&gt;</code> 让 pip 自动解析并安装兼容的 Torch。</li>
+<li>对于 CPU-only 或特定平台，还可以通过官方 PyTorch CPU 源安装对应的 <code>torch==2.7.1+cpu</code> 等精确版本。</li>
+</ul>
+<h3 id="_13">项目层面的改进建议<a class="headerlink" href="#_13" title="Permanent link">&para;</a></h3>
+<ul>
+<li>在 <code>packages/sage-common/pyproject.toml</code> 的可选依赖中：</li>
+<li>对 <code>vllm</code> 和 <code>torch</code> 做更严格的联合约束。</li>
+<li>引入专门的 <code>requirements-vllm.txt</code> 或安装脚本段，统一约定 vLLM 相关依赖版本。</li>
+<li>增加依赖验证脚本（如 <code>tools/install/verify_dependencies.py</code>），在本地与 CI 中主动检查 vLLM / Torch 版本是否兼容。</li>
+</ul>
+<p>如需查看完整的错误日志、表格化的兼容性矩阵以及具体命令示例，请参考原文档 <code>VLLM_TORCH_VERSION_CONFLICT.md</code>。</p>
+<hr />
+<h2 id="cli_1">🎓 CLI 使用教程<a class="headerlink" href="#cli_1" title="Permanent link">&para;</a></h2>
+<p>本教程演示如何使用 SAGE Gateway 和 LLM CLI 命令完成完整的推理流程。</p>
+<h3 id="1_1">教程 1: 基础服务启动与对话<a class="headerlink" href="#1_1" title="Permanent link">&para;</a></h3>
+<p><strong>目标</strong>: 启动 Gateway 服务，完成一次 LLM 对话</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a><span class="c1"># 第一步: 启动 Gateway（包含 Control Plane）</span>
+<a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a>sage<span class="w"> </span>gateway<span class="w"> </span>start
+<a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a>
+<a id="__codelineno-15-4" name="__codelineno-15-4" href="#__codelineno-15-4"></a><span class="c1"># 输出示例:</span>
+<a id="__codelineno-15-5" name="__codelineno-15-5" href="#__codelineno-15-5"></a><span class="c1"># ✅ Gateway 已启动 (PID: 12345)</span>
+<a id="__codelineno-15-6" name="__codelineno-15-6" href="#__codelineno-15-6"></a><span class="c1">#    地址: http://localhost:8000</span>
+<a id="__codelineno-15-7" name="__codelineno-15-7" href="#__codelineno-15-7"></a><span class="c1">#    Control Plane: 已启用</span>
+<a id="__codelineno-15-8" name="__codelineno-15-8" href="#__codelineno-15-8"></a><span class="c1">#    健康检查: http://localhost:8000/health</span>
+<a id="__codelineno-15-9" name="__codelineno-15-9" href="#__codelineno-15-9"></a>
+<a id="__codelineno-15-10" name="__codelineno-15-10" href="#__codelineno-15-10"></a><span class="c1"># 第二步: 确认 Gateway 状态</span>
+<a id="__codelineno-15-11" name="__codelineno-15-11" href="#__codelineno-15-11"></a>sage<span class="w"> </span>gateway<span class="w"> </span>status
+<a id="__codelineno-15-12" name="__codelineno-15-12" href="#__codelineno-15-12"></a>
+<a id="__codelineno-15-13" name="__codelineno-15-13" href="#__codelineno-15-13"></a><span class="c1"># 输出示例:</span>
+<a id="__codelineno-15-14" name="__codelineno-15-14" href="#__codelineno-15-14"></a><span class="c1"># Gateway: ✅ 运行中 (PID 12345)</span>
+<a id="__codelineno-15-15" name="__codelineno-15-15" href="#__codelineno-15-15"></a><span class="c1">#   地址: http://localhost:8000</span>
+<a id="__codelineno-15-16" name="__codelineno-15-16" href="#__codelineno-15-16"></a><span class="c1">#   Control Plane: ✅ 可用</span>
+<a id="__codelineno-15-17" name="__codelineno-15-17" href="#__codelineno-15-17"></a><span class="c1">#   已注册引擎: 0</span>
+<a id="__codelineno-15-18" name="__codelineno-15-18" href="#__codelineno-15-18"></a>
+<a id="__codelineno-15-19" name="__codelineno-15-19" href="#__codelineno-15-19"></a><span class="c1"># 第三步: 启动 LLM 引擎</span>
+<a id="__codelineno-15-20" name="__codelineno-15-20" href="#__codelineno-15-20"></a>sage<span class="w"> </span>llm<span class="w"> </span>engine<span class="w"> </span>start<span class="w"> </span>Qwen/Qwen2.5-0.5B-Instruct
+<a id="__codelineno-15-21" name="__codelineno-15-21" href="#__codelineno-15-21"></a>
+<a id="__codelineno-15-22" name="__codelineno-15-22" href="#__codelineno-15-22"></a><span class="c1"># 输出示例:</span>
+<a id="__codelineno-15-23" name="__codelineno-15-23" href="#__codelineno-15-23"></a><span class="c1"># ✅ 引擎启动成功</span>
+<a id="__codelineno-15-24" name="__codelineno-15-24" href="#__codelineno-15-24"></a><span class="c1">#    ID: engine-abc123</span>
+<a id="__codelineno-15-25" name="__codelineno-15-25" href="#__codelineno-15-25"></a><span class="c1">#    模型: Qwen/Qwen2.5-0.5B-Instruct</span>
+<a id="__codelineno-15-26" name="__codelineno-15-26" href="#__codelineno-15-26"></a><span class="c1">#    端口: 8901</span>
+<a id="__codelineno-15-27" name="__codelineno-15-27" href="#__codelineno-15-27"></a><span class="c1">#    状态: READY</span>
+<a id="__codelineno-15-28" name="__codelineno-15-28" href="#__codelineno-15-28"></a>
+<a id="__codelineno-15-29" name="__codelineno-15-29" href="#__codelineno-15-29"></a><span class="c1"># 第四步: 验证引擎已注册</span>
+<a id="__codelineno-15-30" name="__codelineno-15-30" href="#__codelineno-15-30"></a>sage<span class="w"> </span>llm<span class="w"> </span>engine<span class="w"> </span>list
+<a id="__codelineno-15-31" name="__codelineno-15-31" href="#__codelineno-15-31"></a>
+<a id="__codelineno-15-32" name="__codelineno-15-32" href="#__codelineno-15-32"></a><span class="c1"># 输出示例:</span>
+<a id="__codelineno-15-33" name="__codelineno-15-33" href="#__codelineno-15-33"></a><span class="c1">#           引擎列表</span>
+<a id="__codelineno-15-34" name="__codelineno-15-34" href="#__codelineno-15-34"></a><span class="c1"># ┏━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━┳━━━━━━━━┓</span>
+<a id="__codelineno-15-35" name="__codelineno-15-35" href="#__codelineno-15-35"></a><span class="c1"># ┃ ID             ┃ 模型                    ┃ 端口    ┃ 状态   ┃</span>
+<a id="__codelineno-15-36" name="__codelineno-15-36" href="#__codelineno-15-36"></a><span class="c1"># ┡━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━╇━━━━━━━━┩</span>
+<a id="__codelineno-15-37" name="__codelineno-15-37" href="#__codelineno-15-37"></a><span class="c1"># │ engine-abc123  │ Qwen/Qwen2.5-0.5B-Inst..│ 8901    │ ✅ READY│</span>
+<a id="__codelineno-15-38" name="__codelineno-15-38" href="#__codelineno-15-38"></a><span class="c1"># └────────────────┴─────────────────────────┴─────────┴────────┘</span>
+<a id="__codelineno-15-39" name="__codelineno-15-39" href="#__codelineno-15-39"></a>
+<a id="__codelineno-15-40" name="__codelineno-15-40" href="#__codelineno-15-40"></a><span class="c1"># 第五步: 测试对话</span>
+<a id="__codelineno-15-41" name="__codelineno-15-41" href="#__codelineno-15-41"></a>curl<span class="w"> </span>http://localhost:8000/v1/chat/completions<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-15-42" name="__codelineno-15-42" href="#__codelineno-15-42"></a><span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Content-Type: application/json&quot;</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-15-43" name="__codelineno-15-43" href="#__codelineno-15-43"></a><span class="w">  </span>-d<span class="w"> </span><span class="s1">&#39;{</span>
+<a id="__codelineno-15-44" name="__codelineno-15-44" href="#__codelineno-15-44"></a><span class="s1">    &quot;model&quot;: &quot;Qwen/Qwen2.5-0.5B-Instruct&quot;,</span>
+<a id="__codelineno-15-45" name="__codelineno-15-45" href="#__codelineno-15-45"></a><span class="s1">    &quot;messages&quot;: [{&quot;role&quot;: &quot;user&quot;, &quot;content&quot;: &quot;你好&quot;}]</span>
+<a id="__codelineno-15-46" name="__codelineno-15-46" href="#__codelineno-15-46"></a><span class="s1">  }&#39;</span>
+</code></pre></div>
+<h3 id="2-llm-embedding">教程 2: 完整服务栈（LLM + Embedding）<a class="headerlink" href="#2-llm-embedding" title="Permanent link">&para;</a></h3>
+<p><strong>目标</strong>: 启动 LLM 和 Embedding 引擎，使用 Python 客户端</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a><span class="c1"># 第一步: 启动 Gateway</span>
+<a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a>sage<span class="w"> </span>gateway<span class="w"> </span>start
+<a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a>
+<a id="__codelineno-16-4" name="__codelineno-16-4" href="#__codelineno-16-4"></a><span class="c1"># 第二步: 启动 LLM 引擎</span>
+<a id="__codelineno-16-5" name="__codelineno-16-5" href="#__codelineno-16-5"></a>sage<span class="w"> </span>llm<span class="w"> </span>engine<span class="w"> </span>start<span class="w"> </span>Qwen/Qwen2.5-0.5B-Instruct
+<a id="__codelineno-16-6" name="__codelineno-16-6" href="#__codelineno-16-6"></a>
+<a id="__codelineno-16-7" name="__codelineno-16-7" href="#__codelineno-16-7"></a><span class="c1"># 第三步: 启动 Embedding 引擎（CPU 模式）</span>
+<a id="__codelineno-16-8" name="__codelineno-16-8" href="#__codelineno-16-8"></a>sage<span class="w"> </span>llm<span class="w"> </span>engine<span class="w"> </span>start<span class="w"> </span>BAAI/bge-m3<span class="w"> </span>--engine-kind<span class="w"> </span>embedding
+<a id="__codelineno-16-9" name="__codelineno-16-9" href="#__codelineno-16-9"></a>
+<a id="__codelineno-16-10" name="__codelineno-16-10" href="#__codelineno-16-10"></a><span class="c1"># 或使用 GPU 加速 Embedding</span>
+<a id="__codelineno-16-11" name="__codelineno-16-11" href="#__codelineno-16-11"></a>sage<span class="w"> </span>llm<span class="w"> </span>engine<span class="w"> </span>start<span class="w"> </span>BAAI/bge-m3<span class="w"> </span>--engine-kind<span class="w"> </span>embedding<span class="w"> </span>--use-gpu
+<a id="__codelineno-16-12" name="__codelineno-16-12" href="#__codelineno-16-12"></a>
+<a id="__codelineno-16-13" name="__codelineno-16-13" href="#__codelineno-16-13"></a><span class="c1"># 第四步: 确认所有引擎就绪</span>
+<a id="__codelineno-16-14" name="__codelineno-16-14" href="#__codelineno-16-14"></a>sage<span class="w"> </span>llm<span class="w"> </span>engine<span class="w"> </span>list
+<a id="__codelineno-16-15" name="__codelineno-16-15" href="#__codelineno-16-15"></a>
+<a id="__codelineno-16-16" name="__codelineno-16-16" href="#__codelineno-16-16"></a><span class="c1"># 输出示例:</span>
+<a id="__codelineno-16-17" name="__codelineno-16-17" href="#__codelineno-16-17"></a><span class="c1">#           引擎列表</span>
+<a id="__codelineno-16-18" name="__codelineno-16-18" href="#__codelineno-16-18"></a><span class="c1"># ┏━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━┳━━━━━━━━┓</span>
+<a id="__codelineno-16-19" name="__codelineno-16-19" href="#__codelineno-16-19"></a><span class="c1"># ┃ ID             ┃ 模型                    ┃ 端口    ┃ 状态   ┃</span>
+<a id="__codelineno-16-20" name="__codelineno-16-20" href="#__codelineno-16-20"></a><span class="c1"># ┡━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━╇━━━━━━━━┩</span>
+<a id="__codelineno-16-21" name="__codelineno-16-21" href="#__codelineno-16-21"></a><span class="c1"># │ engine-abc123  │ Qwen/Qwen2.5-0.5B-Inst..│ 8901    │ ✅ READY│</span>
+<a id="__codelineno-16-22" name="__codelineno-16-22" href="#__codelineno-16-22"></a><span class="c1"># │ engine-xyz789  │ BAAI/bge-m3             │ 8090    │ ✅ READY│</span>
+<a id="__codelineno-16-23" name="__codelineno-16-23" href="#__codelineno-16-23"></a><span class="c1"># └────────────────┴─────────────────────────┴─────────┴────────┘</span>
+</code></pre></div>
+<p><strong>使用 Python 客户端</strong> (详见 <code>examples/tutorials/L1-common/unified_inference_client_example.py</code>):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">sage.llm</span><span class="w"> </span><span class="kn">import</span> <span class="n">UnifiedInferenceClient</span>
+<a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a>
+<a id="__codelineno-17-3" name="__codelineno-17-3" href="#__codelineno-17-3"></a><span class="c1"># 创建客户端，连接到 Gateway</span>
+<a id="__codelineno-17-4" name="__codelineno-17-4" href="#__codelineno-17-4"></a><span class="n">client</span> <span class="o">=</span> <span class="n">UnifiedInferenceClient</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
+<a id="__codelineno-17-5" name="__codelineno-17-5" href="#__codelineno-17-5"></a>    <span class="n">control_plane_url</span><span class="o">=</span><span class="s2">&quot;http://localhost:8000/v1&quot;</span>
+<a id="__codelineno-17-6" name="__codelineno-17-6" href="#__codelineno-17-6"></a><span class="p">)</span>
+<a id="__codelineno-17-7" name="__codelineno-17-7" href="#__codelineno-17-7"></a>
+<a id="__codelineno-17-8" name="__codelineno-17-8" href="#__codelineno-17-8"></a><span class="c1"># 对话</span>
+<a id="__codelineno-17-9" name="__codelineno-17-9" href="#__codelineno-17-9"></a><span class="n">response</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">chat</span><span class="p">([</span>
+<a id="__codelineno-17-10" name="__codelineno-17-10" href="#__codelineno-17-10"></a>    <span class="p">{</span><span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;user&quot;</span><span class="p">,</span> <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="s2">&quot;什么是人工智能？&quot;</span><span class="p">}</span>
+<a id="__codelineno-17-11" name="__codelineno-17-11" href="#__codelineno-17-11"></a><span class="p">])</span>
+<a id="__codelineno-17-12" name="__codelineno-17-12" href="#__codelineno-17-12"></a><span class="nb">print</span><span class="p">(</span><span class="n">response</span><span class="p">)</span>
+<a id="__codelineno-17-13" name="__codelineno-17-13" href="#__codelineno-17-13"></a>
+<a id="__codelineno-17-14" name="__codelineno-17-14" href="#__codelineno-17-14"></a><span class="c1"># Embedding</span>
+<a id="__codelineno-17-15" name="__codelineno-17-15" href="#__codelineno-17-15"></a><span class="n">vectors</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">embed</span><span class="p">([</span><span class="s2">&quot;Hello world&quot;</span><span class="p">,</span> <span class="s2">&quot;你好世界&quot;</span><span class="p">])</span>
+<a id="__codelineno-17-16" name="__codelineno-17-16" href="#__codelineno-17-16"></a><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;向量维度: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">vectors</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</code></pre></div>
+<h3 id="3-gpu">教程 3: GPU 资源监控与引擎管理<a class="headerlink" href="#3-gpu" title="Permanent link">&para;</a></h3>
+<p><strong>目标</strong>: 监控 GPU 使用情况，管理多个引擎</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a><span class="c1"># 查看 GPU 资源状态</span>
+<a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a>sage<span class="w"> </span>llm<span class="w"> </span>gpu
+<a id="__codelineno-18-3" name="__codelineno-18-3" href="#__codelineno-18-3"></a>
+<a id="__codelineno-18-4" name="__codelineno-18-4" href="#__codelineno-18-4"></a><span class="c1"># 输出示例:</span>
+<a id="__codelineno-18-5" name="__codelineno-18-5" href="#__codelineno-18-5"></a><span class="c1">#                          GPU 资源  </span>
+<a id="__codelineno-18-6" name="__codelineno-18-6" href="#__codelineno-18-6"></a><span class="c1"># ┏━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━┳━━━━━━━━┳━━━━━━━━━━┓</span>
+<a id="__codelineno-18-7" name="__codelineno-18-7" href="#__codelineno-18-7"></a><span class="c1"># ┃ GPU                      ┃ 内存 (已用/总量)  ┃  空闲   ┃ 利用率 ┃ 关联引擎 ┃</span>
+<a id="__codelineno-18-8" name="__codelineno-18-8" href="#__codelineno-18-8"></a><span class="c1"># ┡━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━╇━━━━━━━━╇━━━━━━━━━━┩</span>
+<a id="__codelineno-18-9" name="__codelineno-18-9" href="#__codelineno-18-9"></a><span class="c1"># │ 0: NVIDIA A100 80GB PCIe │ 12.5 GB / 80.0 GB │ 67.5 GB │  12%   │ engine-1 │</span>
+<a id="__codelineno-18-10" name="__codelineno-18-10" href="#__codelineno-18-10"></a><span class="c1"># │ 1: NVIDIA A100 80GB PCIe │ 0.0 GB / 80.0 GB  │ 80.0 GB │  0%    │ -        │</span>
+<a id="__codelineno-18-11" name="__codelineno-18-11" href="#__codelineno-18-11"></a><span class="c1"># └──────────────────────────┴───────────────────┴─────────┴────────┴──────────┘</span>
+<a id="__codelineno-18-12" name="__codelineno-18-12" href="#__codelineno-18-12"></a>
+<a id="__codelineno-18-13" name="__codelineno-18-13" href="#__codelineno-18-13"></a><span class="c1"># 使用多 GPU 并行启动大模型</span>
+<a id="__codelineno-18-14" name="__codelineno-18-14" href="#__codelineno-18-14"></a>sage<span class="w"> </span>llm<span class="w"> </span>engine<span class="w"> </span>start<span class="w"> </span>Qwen/Qwen2.5-72B-Instruct<span class="w"> </span>-tp<span class="w"> </span><span class="m">4</span>
+<a id="__codelineno-18-15" name="__codelineno-18-15" href="#__codelineno-18-15"></a>
+<a id="__codelineno-18-16" name="__codelineno-18-16" href="#__codelineno-18-16"></a><span class="c1"># 停止特定引擎（优雅关闭）</span>
+<a id="__codelineno-18-17" name="__codelineno-18-17" href="#__codelineno-18-17"></a>sage<span class="w"> </span>llm<span class="w"> </span>engine<span class="w"> </span>stop<span class="w"> </span>engine-abc123
+<a id="__codelineno-18-18" name="__codelineno-18-18" href="#__codelineno-18-18"></a>
+<a id="__codelineno-18-19" name="__codelineno-18-19" href="#__codelineno-18-19"></a><span class="c1"># 强制停止引擎</span>
+<a id="__codelineno-18-20" name="__codelineno-18-20" href="#__codelineno-18-20"></a>sage<span class="w"> </span>llm<span class="w"> </span>engine<span class="w"> </span>stop<span class="w"> </span>engine-abc123<span class="w"> </span>--force
+</code></pre></div>
+<h3 id="4_1">教程 4: 使用预设系统<a class="headerlink" href="#4_1" title="Permanent link">&para;</a></h3>
+<p><strong>目标</strong>: 使用预设快速部署多引擎配置</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a><span class="c1"># 列出可用预设</span>
+<a id="__codelineno-19-2" name="__codelineno-19-2" href="#__codelineno-19-2"></a>sage<span class="w"> </span>llm<span class="w"> </span>preset<span class="w"> </span>list
+<a id="__codelineno-19-3" name="__codelineno-19-3" href="#__codelineno-19-3"></a>
+<a id="__codelineno-19-4" name="__codelineno-19-4" href="#__codelineno-19-4"></a><span class="c1"># 输出示例:</span>
+<a id="__codelineno-19-5" name="__codelineno-19-5" href="#__codelineno-19-5"></a><span class="c1">#           可用预设</span>
+<a id="__codelineno-19-6" name="__codelineno-19-6" href="#__codelineno-19-6"></a><span class="c1"># ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓</span>
+<a id="__codelineno-19-7" name="__codelineno-19-7" href="#__codelineno-19-7"></a><span class="c1"># ┃ 名称                       ┃ 描述                                          ┃</span>
+<a id="__codelineno-19-8" name="__codelineno-19-8" href="#__codelineno-19-8"></a><span class="c1"># ┡━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┩</span>
+<a id="__codelineno-19-9" name="__codelineno-19-9" href="#__codelineno-19-9"></a><span class="c1"># │ qwen-lite                  │ 单个 Qwen 0.5B 引擎（无 Embedding）            │</span>
+<a id="__codelineno-19-10" name="__codelineno-19-10" href="#__codelineno-19-10"></a><span class="c1"># │ qwen-mini-with-embeddings  │ Qwen 1.5B + BGE-small Embedding               │</span>
+<a id="__codelineno-19-11" name="__codelineno-19-11" href="#__codelineno-19-11"></a><span class="c1"># └────────────────────────────┴───────────────────────────────────────────────┘</span>
+<a id="__codelineno-19-12" name="__codelineno-19-12" href="#__codelineno-19-12"></a>
+<a id="__codelineno-19-13" name="__codelineno-19-13" href="#__codelineno-19-13"></a><span class="c1"># 预览预设（不实际执行）</span>
+<a id="__codelineno-19-14" name="__codelineno-19-14" href="#__codelineno-19-14"></a>sage<span class="w"> </span>llm<span class="w"> </span>preset<span class="w"> </span>apply<span class="w"> </span>--name<span class="w"> </span>qwen-lite<span class="w"> </span>--dry-run
+<a id="__codelineno-19-15" name="__codelineno-19-15" href="#__codelineno-19-15"></a>
+<a id="__codelineno-19-16" name="__codelineno-19-16" href="#__codelineno-19-16"></a><span class="c1"># 应用预设</span>
+<a id="__codelineno-19-17" name="__codelineno-19-17" href="#__codelineno-19-17"></a>sage<span class="w"> </span>llm<span class="w"> </span>preset<span class="w"> </span>apply<span class="w"> </span>--name<span class="w"> </span>qwen-mini-with-embeddings
+</code></pre></div>
+<p><strong>自定义预设文件</strong> (<code>my-preset.yaml</code>):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
+<a id="__codelineno-20-2" name="__codelineno-20-2" href="#__codelineno-20-2"></a><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">production-stack</span>
+<a id="__codelineno-20-3" name="__codelineno-20-3" href="#__codelineno-20-3"></a><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">生产环境多引擎配置</span>
+<a id="__codelineno-20-4" name="__codelineno-20-4" href="#__codelineno-20-4"></a><span class="nt">engines</span><span class="p">:</span>
+<a id="__codelineno-20-5" name="__codelineno-20-5" href="#__codelineno-20-5"></a><span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">chat-main</span>
+<a id="__codelineno-20-6" name="__codelineno-20-6" href="#__codelineno-20-6"></a><span class="w">    </span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">llm</span>
+<a id="__codelineno-20-7" name="__codelineno-20-7" href="#__codelineno-20-7"></a><span class="w">    </span><span class="nt">model</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Qwen/Qwen2.5-7B-Instruct</span>
+<a id="__codelineno-20-8" name="__codelineno-20-8" href="#__codelineno-20-8"></a><span class="w">    </span><span class="nt">tensor_parallel</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2</span>
+<a id="__codelineno-20-9" name="__codelineno-20-9" href="#__codelineno-20-9"></a><span class="w">    </span><span class="nt">port</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">8901</span>
+<a id="__codelineno-20-10" name="__codelineno-20-10" href="#__codelineno-20-10"></a><span class="w">    </span><span class="nt">max_concurrent</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">256</span>
+<a id="__codelineno-20-11" name="__codelineno-20-11" href="#__codelineno-20-11"></a><span class="w">    </span><span class="nt">label</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">main-chat</span>
+<a id="__codelineno-20-12" name="__codelineno-20-12" href="#__codelineno-20-12"></a><span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">chat-backup</span>
+<a id="__codelineno-20-13" name="__codelineno-20-13" href="#__codelineno-20-13"></a><span class="w">    </span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">llm</span>
+<a id="__codelineno-20-14" name="__codelineno-20-14" href="#__codelineno-20-14"></a><span class="w">    </span><span class="nt">model</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Qwen/Qwen2.5-7B-Instruct</span>
+<a id="__codelineno-20-15" name="__codelineno-20-15" href="#__codelineno-20-15"></a><span class="w">    </span><span class="nt">tensor_parallel</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2</span>
+<a id="__codelineno-20-16" name="__codelineno-20-16" href="#__codelineno-20-16"></a><span class="w">    </span><span class="nt">port</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">8902</span>
+<a id="__codelineno-20-17" name="__codelineno-20-17" href="#__codelineno-20-17"></a><span class="w">    </span><span class="nt">label</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">backup-chat</span>
+<a id="__codelineno-20-18" name="__codelineno-20-18" href="#__codelineno-20-18"></a><span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">embed</span>
+<a id="__codelineno-20-19" name="__codelineno-20-19" href="#__codelineno-20-19"></a><span class="w">    </span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">embedding</span>
+<a id="__codelineno-20-20" name="__codelineno-20-20" href="#__codelineno-20-20"></a><span class="w">    </span><span class="nt">model</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">BAAI/bge-m3</span>
+<a id="__codelineno-20-21" name="__codelineno-20-21" href="#__codelineno-20-21"></a><span class="w">    </span><span class="nt">port</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">8090</span>
+<a id="__codelineno-20-22" name="__codelineno-20-22" href="#__codelineno-20-22"></a><span class="w">    </span><span class="nt">use_gpu</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<a id="__codelineno-20-23" name="__codelineno-20-23" href="#__codelineno-20-23"></a><span class="w">    </span><span class="nt">label</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">main-embed</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a><span class="c1"># 应用自定义预设</span>
+<a id="__codelineno-21-2" name="__codelineno-21-2" href="#__codelineno-21-2"></a>sage<span class="w"> </span>llm<span class="w"> </span>preset<span class="w"> </span>apply<span class="w"> </span>--file<span class="w"> </span>my-preset.yaml<span class="w"> </span>-y
+</code></pre></div>
+<h3 id="5">教程 5: 服务诊断与日志<a class="headerlink" href="#5" title="Permanent link">&para;</a></h3>
+<p><strong>目标</strong>: 排查服务问题</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a><span class="c1"># 查看 Gateway 日志</span>
+<a id="__codelineno-22-2" name="__codelineno-22-2" href="#__codelineno-22-2"></a>sage<span class="w"> </span>gateway<span class="w"> </span>logs<span class="w"> </span>--follow
+<a id="__codelineno-22-3" name="__codelineno-22-3" href="#__codelineno-22-3"></a>
+<a id="__codelineno-22-4" name="__codelineno-22-4" href="#__codelineno-22-4"></a><span class="c1"># 查看 Gateway 详细状态</span>
+<a id="__codelineno-22-5" name="__codelineno-22-5" href="#__codelineno-22-5"></a>sage<span class="w"> </span>gateway<span class="w"> </span>status
+<a id="__codelineno-22-6" name="__codelineno-22-6" href="#__codelineno-22-6"></a>
+<a id="__codelineno-22-7" name="__codelineno-22-7" href="#__codelineno-22-7"></a><span class="c1"># 常见问题诊断</span>
+<a id="__codelineno-22-8" name="__codelineno-22-8" href="#__codelineno-22-8"></a><span class="c1"># 问题 1: Gateway 启动失败</span>
+<a id="__codelineno-22-9" name="__codelineno-22-9" href="#__codelineno-22-9"></a>sage<span class="w"> </span>gateway<span class="w"> </span>start<span class="w"> </span>--foreground<span class="w">  </span><span class="c1"># 前台运行查看错误</span>
+<a id="__codelineno-22-10" name="__codelineno-22-10" href="#__codelineno-22-10"></a>
+<a id="__codelineno-22-11" name="__codelineno-22-11" href="#__codelineno-22-11"></a><span class="c1"># 问题 2: 引擎启动失败</span>
+<a id="__codelineno-22-12" name="__codelineno-22-12" href="#__codelineno-22-12"></a>sage<span class="w"> </span>llm<span class="w"> </span>engine<span class="w"> </span>list<span class="w">  </span><span class="c1"># 检查引擎状态是否为 ERROR</span>
+<a id="__codelineno-22-13" name="__codelineno-22-13" href="#__codelineno-22-13"></a>
+<a id="__codelineno-22-14" name="__codelineno-22-14" href="#__codelineno-22-14"></a><span class="c1"># 问题 3: 端口冲突</span>
+<a id="__codelineno-22-15" name="__codelineno-22-15" href="#__codelineno-22-15"></a>lsof<span class="w"> </span>-i<span class="w"> </span>:8000<span class="w">  </span><span class="c1"># 检查 Gateway 端口</span>
+<a id="__codelineno-22-16" name="__codelineno-22-16" href="#__codelineno-22-16"></a>lsof<span class="w"> </span>-i<span class="w"> </span>:8901<span class="w">  </span><span class="c1"># 检查 LLM 端口</span>
+<a id="__codelineno-22-17" name="__codelineno-22-17" href="#__codelineno-22-17"></a>lsof<span class="w"> </span>-i<span class="w"> </span>:8090<span class="w">  </span><span class="c1"># 检查 Embedding 端口</span>
+<a id="__codelineno-22-18" name="__codelineno-22-18" href="#__codelineno-22-18"></a>
+<a id="__codelineno-22-19" name="__codelineno-22-19" href="#__codelineno-22-19"></a><span class="c1"># 问题 4: 重启所有服务</span>
+<a id="__codelineno-22-20" name="__codelineno-22-20" href="#__codelineno-22-20"></a>sage<span class="w"> </span>gateway<span class="w"> </span>stop
+<a id="__codelineno-22-21" name="__codelineno-22-21" href="#__codelineno-22-21"></a>sage<span class="w"> </span>llm<span class="w"> </span>stop
+<a id="__codelineno-22-22" name="__codelineno-22-22" href="#__codelineno-22-22"></a>sage<span class="w"> </span>gateway<span class="w"> </span>start
+</code></pre></div>
+<h3 id="_14">常用命令速查表<a class="headerlink" href="#_14" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>命令</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>sage gateway start</code></td>
+<td>启动 Gateway（后台）</td>
+</tr>
+<tr>
+<td><code>sage gateway start --foreground</code></td>
+<td>启动 Gateway（前台调试）</td>
+</tr>
+<tr>
+<td><code>sage gateway stop</code></td>
+<td>停止 Gateway</td>
+</tr>
+<tr>
+<td><code>sage gateway status</code></td>
+<td>查看 Gateway 状态</td>
+</tr>
+<tr>
+<td><code>sage gateway logs --follow</code></td>
+<td>实时查看日志</td>
+</tr>
+<tr>
+<td><code>sage llm engine list</code></td>
+<td>列出所有引擎</td>
+</tr>
+<tr>
+<td><code>sage llm engine start &lt;model&gt;</code></td>
+<td>启动 LLM 引擎</td>
+</tr>
+<tr>
+<td><code>sage llm engine start &lt;model&gt; --engine-kind embedding</code></td>
+<td>启动 Embedding 引擎</td>
+</tr>
+<tr>
+<td><code>sage llm engine start &lt;model&gt; --engine-kind embedding --use-gpu</code></td>
+<td>GPU Embedding</td>
+</tr>
+<tr>
+<td><code>sage llm engine stop &lt;id&gt;</code></td>
+<td>停止引擎</td>
+</tr>
+<tr>
+<td><code>sage llm gpu</code></td>
+<td>查看 GPU 状态</td>
+</tr>
+<tr>
+<td><code>sage llm preset list</code></td>
+<td>列出预设</td>
+</tr>
+<tr>
+<td><code>sage llm preset apply --name &lt;preset&gt;</code></td>
+<td>应用预设</td>
+</tr>
+<tr>
+<td><code>sage llm status</code></td>
+<td>查看 LLM 服务状态</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<p><strong>最后更新</strong>: 2025-12-03</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  回到页面顶部
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="页脚" >
+        
+          
+          <a href="../package-architecture/" class="md-footer__link md-footer__link--prev" aria-label="上一页: 包架构">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                上一页
+              </span>
+              <div class="md-ellipsis">
+                包架构
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../l2-platform/" class="md-footer__link md-footer__link--next" aria-label="下一页: L2 平台服务">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                下一页
+              </span>
+              <div class="md-ellipsis">
+                L2 平台服务
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Copyright &copy; 2023-2025 IntelliStream Lab
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+        
+<div class="md-social">
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://github.com/intellistream/SAGE" target="_blank" rel="noopener" title="github.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+    </a>
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://pypi.org/project/sage-framework/" target="_blank" rel="noopener" title="pypi.org" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.8 200.5c-7.7-30.9-22.3-54.2-53.4-54.2h-40.1v47.4c0 36.8-31.2 67.8-66.8 67.8H172.7c-29.2 0-53.4 25-53.4 54.3v101.8c0 29 25.2 46 53.4 54.3 33.8 9.9 66.3 11.7 106.8 0 26.9-7.8 53.4-23.5 53.4-54.3v-40.7H226.2v-13.6h160.2c31.1 0 42.6-21.7 53.4-54.2 11.2-33.5 10.7-65.7 0-108.6M286.2 444.7a20.4 20.4 0 1 1 0-40.7 20.4 20.4 0 1 1 0 40.7M167.8 248.1h106.8c29.7 0 53.4-24.5 53.4-54.3V91.9c0-29-24.4-50.7-53.4-55.6-35.8-5.9-74.7-5.6-106.8.1-45.2 8-53.4 24.7-53.4 55.6v40.7h106.9v13.6h-147c-31.1 0-58.3 18.7-66.8 54.2-9.8 40.7-10.2 66.1 0 108.6 7.6 31.6 25.7 54.2 56.8 54.2H101v-48.8c0-35.3 30.5-66.4 66.8-66.4m-6.6-183.4a20.4 20.4 0 1 1 0 40.8 20.4 20.4 0 1 1 0-40.8"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+      <div class="md-progress" data-md-component="progress" role="progressbar"></div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.instant", "navigation.instant.progress", "navigation.tracking", "navigation.tabs", "navigation.tabs.sticky", "navigation.sections", "navigation.path", "navigation.indexes", "navigation.top", "navigation.footer", "navigation.prune", "search.suggest", "search.highlight", "search.share", "content.code.copy", "content.code.annotate", "content.tabs.link", "toc.follow", "toc.integrate"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

@@ -1,0 +1,1884 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="高性能分布式推理框架 - 数据流原生的模块化、透明、可控的LLM工作流推理框架">
+      
+      
+        <meta name="author" content="IntelliStream Lab">
+      
+      
+        <link rel="canonical" href="https://sage.org.ai/dev-notes/research_work/slo-aware-kv-cache-management-proposal/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/img/isage_light.svg">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+    
+    
+  
+    <title>Research Proposal: SLO-Aware KV Cache Management for Collocated LLM-Embedding Services</title>
+  
+
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+<!-- Google Tag Manager -->
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-T35S4S46');</script>
+<!-- End Google Tag Manager -->
+
+    
+  <!-- pragma: allowlist secret -->
+  <meta name="algolia-site-verification" content="165B7E7C89E49946" />
+  <style>
+    @import url("https://fonts.googleapis.com/css2?family=Public+Sans&display=swap");
+    :root {
+      --md-primary-fg-color: #333333;
+      --md-accent-fg-color: #1E88E5;
+      --md-default-bg-color: #FFFFFF;
+      --md-default-fg-color: #333333;
+      --md-text-font-family: "Public Sans", sans-serif;
+    }
+
+    body {
+      font-family: var(--md-text-font-family);
+      background-color: var(--md-default-bg-color);
+      color: var(--md-default-fg-color);
+    }
+
+    .md-main {
+      background-color: #FFFFFF;
+    }
+
+    .md-footer {
+      background-color: #F5F5F5;
+      color: #666666;
+    }
+
+    .md-footer-meta {
+      background-color: #4d4d4d;
+    }
+
+    .md-typeset a {
+      color: #1E88E5;
+    }
+
+    .md-typeset a:hover {
+      color: #1565C0;
+    }
+
+    .md-nav__link--active,
+    .md-nav__link:active {
+      color: #1E88E5;
+    }
+
+    .md-search__input {
+      background-color: #F5F5F5;
+      color: #333333;
+    }
+
+    .md-search__input:hover,
+    .md-search__input:focus {
+      background-color: #EEEEEE;
+    }
+    /* Table of contents styles */
+    .md-nav--secondary .md-nav__item--active > .md-nav__link {
+      font-weight: bold;
+      color: var(--md-primary-fg-color);
+    }
+
+    .md-nav--secondary .md-nav__item--nested > .md-nav__link {
+      font-weight: normal;
+      color: var(--md-default-fg-color);
+    }
+
+    .md-header__button.md-logo img {
+      height: 30px;
+      max-height: 30px;
+      width: auto;
+      vertical-align: middle;
+    }
+
+    .md-nav--secondary .md-nav__item--nested > .md-nav__link::before {
+      content: "";
+      display: inline-block;
+      width: 6px;
+      height: 6px;
+      background-color: var(--md-default-fg-color);
+      border-radius: 50%;
+      margin-right: 0.5rem;
+    }
+
+    [data-md-color-scheme="slate"] {
+      --md-default-bg-color: #1E1E1E;
+      --md-default-fg-color: #FFFFFF;
+      --md-accent-fg-color: #64B5F6;
+    }
+
+    [data-md-color-scheme="slate"] .md-main {
+      background-color: #1E1E1E;
+    }
+
+    [data-md-color-scheme="slate"] .navbar {
+      background-color: #1E1E1E;
+      color: #FFFFFF;
+      box-shadow: none;
+    }
+
+    [data-md-color-scheme="slate"] .md-footer {
+      background-color: #1E1E1E;
+      color: #BDBDBD;
+    }
+
+    [data-md-color-scheme="slate"] .md-header {
+      background-color: #1E1E1E;
+      color: #BDBDBD;
+    }
+
+    [data-md-color-scheme="slate"] .md-tabs {
+      background-color: #1E1E1E;
+      color: #BDBDBD;
+    }
+
+    [data-md-color-scheme="slate"] .md-search__input {
+      background-color: #F5F5F5;
+      color: #333333;
+    }
+
+    [data-md-color-scheme="slate"] .md-search__icon {
+      color: #333333;
+    }
+
+    [data-md-color-scheme="slate"] .md-search__input::placeholder {
+      color: #333333;
+    }
+
+    [data-md-color-scheme="slate"] .md-footer-meta {
+      background-color: #4d4d4d;
+    }
+
+    [data-md-color-scheme="slate"] .md-typeset a {
+      color: #64B5F6;
+    }
+
+    [data-md-color-scheme="slate"] .md-typeset a:hover {
+      color: #90CAF9;
+    }
+
+    .notebook-links {
+      display: flex;
+      justify-content: flex-end;
+      margin-bottom: 1rem;
+    }
+    .notebook-links .md-content__button {
+      margin-left: 0.5rem;
+    }
+
+    [data-md-color-scheme=default] .logo-dark {
+      display: none !important;
+    }
+
+    [data-md-color-scheme=slate] .logo-light {
+      display: none !important;
+    }
+
+    .jupyter-wrapper .jp-CodeCell .jp-Cell-inputWrapper .jp-InputPrompt.jp-InputArea-prompt {
+      display: none !important;
+    }
+
+    .jupyter-wrapper .jp-Notebook .jp-Cell .jp-OutputPrompt {
+      display: none !important;
+    }
+
+    .md-banner {
+      background-color: #CFC9FA;
+      color: #000000;
+    }
+
+    .md-banner a {
+      color: #000000;
+      text-decoration: underline;
+    }
+
+    .md-banner a:hover {
+      color: #000000;
+    }
+
+    .md-header__title {
+      visibility: hidden;
+    }
+
+    /* Dark mode banner styling */
+    [data-md-color-scheme="slate"] .md-banner {
+      background-color: #CFC9FA; /* Same light purple for both modes */
+      color: #000000;
+    }
+
+    [data-md-color-scheme="slate"] .md-banner a {
+      color: #000000;
+    }
+
+    [data-md-color-scheme="slate"] .md-banner a:hover {
+      color: #000000;
+    }
+
+  </style>
+
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="blue" data-md-color-accent="blue">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#research-proposal-slo-aware-kv-cache-management-for-collocated-llm-embedding-services" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../../.." title="SAGE Documentation" class="md-header__button md-logo" aria-label="SAGE Documentation" data-md-component="logo">
+      
+  <img src="../../../assets/logo/sage.svg" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            SAGE Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Research Proposal: SLO-Aware KV Cache Management for Collocated LLM-Embedding Services
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="blue" data-md-color-accent="blue"  aria-label="切换到深色模式"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="切换到深色模式" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="blue" data-md-color-accent="blue"  aria-label="切换到浅色模式"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="切换到浅色模式" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+          <a href="javascript:void(0)" class="md-search__icon md-icon" title="分享" aria-label="分享" data-clipboard data-clipboard-text="" data-md-component="search-share" tabindex="-1">
+            
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.15c-.05.21-.08.43-.08.66 0 1.61 1.31 2.91 2.92 2.91s2.92-1.3 2.92-2.91A2.92 2.92 0 0 0 18 16.08"/></svg>
+          </a>
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/intellistream/SAGE" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    intellistream/SAGE
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+    
+      
+<nav class="md-tabs" aria-label="标签" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="https://sage.org.ai/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  首页
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../about/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  关于
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../getting-started/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  入门指南
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../tutorials/advanced/index.md" class="md-tabs__link">
+          
+  
+  
+    
+  
+  高级教程
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../guides/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  用户指南
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../developers/commands/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  开发者
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../community/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  社区
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../contributions/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  我们的贡献
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+    
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="SAGE Documentation" class="md-nav__button md-logo" aria-label="SAGE Documentation" data-md-component="logo">
+      
+  <img src="../../../assets/logo/sage.svg" alt="logo">
+
+    </a>
+    SAGE Documentation
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/intellistream/SAGE" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    intellistream/SAGE
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="https://sage.org.ai/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    首页
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../about/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    关于
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../../getting-started/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    入门指南
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../../tutorials/advanced/index.md" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    高级教程
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../../guides/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    用户指南
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../../developers/commands/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    开发者
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../../community/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    社区
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../../contributions/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    我们的贡献
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+                
+
+
+
+
+              
+              <article class="md-content__inner md-typeset">
+                
+<div class="notebook-links">
+  
+</div>
+
+
+                  
+
+
+  
+  
+
+
+<h1 id="research-proposal-slo-aware-kv-cache-management-for-collocated-llm-embedding-services">Research Proposal: SLO-Aware KV Cache Management for Collocated LLM-Embedding Services<a class="headerlink" href="#research-proposal-slo-aware-kv-cache-management-for-collocated-llm-embedding-services" title="Permanent link">&para;</a></h1>
+<blockquote>
+<p><strong>Status</strong>: Draft\
+<strong>Created</strong>: 2025-12-02\
+<strong>Target Venues</strong>: OSDI 2025 / SOSP 2025 / EuroSys 2026 / NSDI 2026</p>
+</blockquote>
+<hr />
+<h2 id="1">1. 研究背景与动机<a class="headerlink" href="#1" title="Permanent link">&para;</a></h2>
+<h3 id="11">1.1 问题背景<a class="headerlink" href="#11" title="Permanent link">&para;</a></h3>
+<p>现代 AI 应用（RAG、Agent、多模态问答）通常需要同时部署 LLM 推理服务和 Embedding 服务。为了降低成本和提高资源利用率，业界趋向于将两者<strong>共置 (Collocate)</strong>
+在同一 GPU 资源池中。</p>
+<p>然而，这种共置部署面临严峻挑战：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>┌─────────────────────────────────────────────────────────────┐
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>│                    GPU Memory (e.g., 80GB)                   │
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>├─────────────────────────────────────────────────────────────┤
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>│  Model Weights   │   KV Cache (LLM)   │  Embedding Workspace │
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>│    (固定)        │    (动态增长)       │     (动态波动)        │
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>│    ~40GB         │    0-30GB          │     0-10GB           │
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>└─────────────────────────────────────────────────────────────┘
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>                          ↑
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>                   核心矛盾点：
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>            KV Cache 和 Embedding 争抢剩余显存
+</code></pre></div>
+<h3 id="12">1.2 现有工作的局限<a class="headerlink" href="#12" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>现有工作</th>
+<th>关注点</th>
+<th>局限</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>vLLM (PagedAttention)</strong></td>
+<td>LLM KV Cache 内存效率</td>
+<td>未考虑与 Embedding 共置</td>
+</tr>
+<tr>
+<td><strong>DistServe/Mooncake</strong></td>
+<td>Prefill-Decode 分离</td>
+<td>物理隔离，无法共享 GPU</td>
+</tr>
+<tr>
+<td><strong>ICLR 2026 在审</strong></td>
+<td>同架构 Batch 合并</td>
+<td>架构约束强，未解决内存竞争</td>
+</tr>
+<tr>
+<td><strong>S-LoRA</strong></td>
+<td>多 LoRA 适配器管理</td>
+<td>未涉及 Embedding 工作负载</td>
+</tr>
+</tbody>
+</table>
+<p><strong>关键空白</strong>：<strong>没有工作研究 LLM KV Cache 与 Embedding 工作负载共置时的内存管理问题</strong>。</p>
+<h3 id="13">1.3 核心洞察<a class="headerlink" href="#13" title="Permanent link">&para;</a></h3>
+<p>我们观察到以下关键特征差异：</p>
+<table>
+<thead>
+<tr>
+<th>特征</th>
+<th>LLM KV Cache</th>
+<th>Embedding 工作负载</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>内存模式</strong></td>
+<td>逐 token 增长，生命周期长</td>
+<td>批量分配，生命周期短</td>
+</tr>
+<tr>
+<td><strong>可预测性</strong></td>
+<td>输出长度难预测</td>
+<td>批大小已知，完全可预测</td>
+</tr>
+<tr>
+<td><strong>可驱逐性</strong></td>
+<td>驱逐代价高（需重计算）</td>
+<td>无状态，计算完即释放</td>
+</tr>
+<tr>
+<td><strong>SLO 敏感度</strong></td>
+<td>TTFT/TPOT 敏感</td>
+<td>批处理延迟容忍度较高</td>
+</tr>
+</tbody>
+</table>
+<p><strong>核心洞察</strong>：Embedding 的<strong>完全可预测性</strong>可以用来指导 LLM KV Cache 的管理决策，而不是简单地争抢资源。</p>
+<hr />
+<h2 id="2">2. 问题形式化<a class="headerlink" href="#2" title="Permanent link">&para;</a></h2>
+<h3 id="21">2.1 系统模型<a class="headerlink" href="#21" title="Permanent link">&para;</a></h3>
+<p>考虑一个 GPU 资源池，总显存容量为 $M$，已被模型权重占用 $M_w$，可用显存为 $M_{avail} = M - M_w$。</p>
+<p><strong>请求模型</strong>：</p>
+<ul>
+<li>LLM 请求 $r_l = (t_{arr}, p_{len}, o_{len}, slo_l)$：到达时间、prompt 长度、输出长度（未知）、SLO</li>
+<li>Embedding 请求 $r_e = (t_{arr}, n_{texts}, d_{dim}, slo_e)$：到达时间、文本数量、向量维度、SLO</li>
+</ul>
+<p><strong>内存需求</strong>：</p>
+<ul>
+<li>LLM 请求 $r_l$ 的 KV Cache：$m_l(t) = 2 \cdot n_{layers} \cdot d_{head} \cdot (p_{len} +
+  tokens_generated(t))$</li>
+<li>Embedding 批次 $B_e$：$m_e(B_e) = batch_size \cdot max_seq_len \cdot d_{model}$</li>
+</ul>
+<h3 id="22">2.2 优化目标<a class="headerlink" href="#22" title="Permanent link">&para;</a></h3>
+<p><strong>多目标优化问题</strong>：</p>
+<p>$$ \max \quad \alpha \cdot SLO_Attainment_{LLM} + \beta \cdot SLO_Attainment_{Emb} + \gamma
+\cdot Throughput $$</p>
+<p>Subject to:</p>
+<p>$$ \sum_{r_l \in Active} m_l(t) + \sum_{B_e \in Running} m_e(B_e) \leq M_{avail}, \quad
+\forall t $$</p>
+<p>其中：</p>
+<ul>
+<li>$SLO_Attainment_{LLM} = \frac{|{r_l : TTFT &lt; slo_l.ttft \land TPOT &lt; slo_l.tpot}|}{|R_l|}$</li>
+<li>$SLO_Attainment_{Emb} = \frac{|{r_e : Latency &lt; slo_e.deadline}|}{|R_e|}$</li>
+</ul>
+<h3 id="23">2.3 问题复杂度<a class="headerlink" href="#23" title="Permanent link">&para;</a></h3>
+<p><strong>定理 1</strong>：混合工作负载的 SLO 感知内存分配问题是 <strong>NP-Hard</strong>。</p>
+<p><strong>证明思路</strong>：可从带期限的背包问题 (Knapsack with Deadlines) 规约。每个请求对应一个物品，内存需求对应重量，SLO 满足对应价值，显存容量对应背包容量。由于 LLM
+输出长度未知，问题具有在线特性，进一步增加复杂度。</p>
+<hr />
+<h2 id="3">3. 核心方法<a class="headerlink" href="#3" title="Permanent link">&para;</a></h2>
+<h3 id="31">3.1 整体架构<a class="headerlink" href="#31" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>┌─────────────────────────────────────────────────────────────────┐
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>│                    Unified Request Queue                         │
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>│         (LLM Chat / LLM Batch / Embedding Requests)             │
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>└─────────────────────────────────────────────────────────────────┘
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>                              │
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>                              ▼
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>┌─────────────────────────────────────────────────────────────────┐
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>│                   Predictive Memory Planner                      │
+<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>│  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐  │
+<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>│  │ Output Length   │  │ Embedding Load  │  │ Memory Budget   │  │
+<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>│  │ Predictor       │  │ Forecaster      │  │ Allocator       │  │
+<a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a>│  └─────────────────┘  └─────────────────┘  └─────────────────┘  │
+<a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a>└─────────────────────────────────────────────────────────────────┘
+<a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a>                              │
+<a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a>                              ▼
+<a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a>┌─────────────────────────────────────────────────────────────────┐
+<a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a>│              SLO-Aware KV Cache Manager (核心贡献)               │
+<a id="__codelineno-1-18" name="__codelineno-1-18" href="#__codelineno-1-18"></a>│  ┌─────────────────────────────────────────────────────────────┐│
+<a id="__codelineno-1-19" name="__codelineno-1-19" href="#__codelineno-1-19"></a>│  │  Admission Control: 基于预测的请求准入决策                    ││
+<a id="__codelineno-1-20" name="__codelineno-1-20" href="#__codelineno-1-20"></a>│  │  Quota Allocation: LLM/Embedding 动态内存配额                ││
+<a id="__codelineno-1-21" name="__codelineno-1-21" href="#__codelineno-1-21"></a>│  │  Preemption Policy: SLO 感知的 KV Cache 驱逐策略             ││
+<a id="__codelineno-1-22" name="__codelineno-1-22" href="#__codelineno-1-22"></a>│  │  Speculative Reservation: 为高优先级请求预留空间             ││
+<a id="__codelineno-1-23" name="__codelineno-1-23" href="#__codelineno-1-23"></a>│  └─────────────────────────────────────────────────────────────┘│
+<a id="__codelineno-1-24" name="__codelineno-1-24" href="#__codelineno-1-24"></a>└─────────────────────────────────────────────────────────────────┘
+<a id="__codelineno-1-25" name="__codelineno-1-25" href="#__codelineno-1-25"></a>                              │
+<a id="__codelineno-1-26" name="__codelineno-1-26" href="#__codelineno-1-26"></a>                              ▼
+<a id="__codelineno-1-27" name="__codelineno-1-27" href="#__codelineno-1-27"></a>┌─────────────────────────────────────────────────────────────────┐
+<a id="__codelineno-1-28" name="__codelineno-1-28" href="#__codelineno-1-28"></a>│                      GPU Execution Engine                        │
+<a id="__codelineno-1-29" name="__codelineno-1-29" href="#__codelineno-1-29"></a>│            (vLLM Backend + Embedding Backend)                    │
+<a id="__codelineno-1-30" name="__codelineno-1-30" href="#__codelineno-1-30"></a>└─────────────────────────────────────────────────────────────────┘
+</code></pre></div>
+<h3 id="32-1embedding-aware-kv-cache-admission-control">3.2 核心算法 1：Embedding-Aware KV Cache Admission Control<a class="headerlink" href="#32-1embedding-aware-kv-cache-admission-control" title="Permanent link">&para;</a></h3>
+<p><strong>动机</strong>：传统的 KV Cache 管理只看当前状态，不考虑即将到来的 Embedding 批次。</p>
+<p><strong>算法思想</strong>：利用 Embedding 请求的可预测性，在 LLM 请求准入时<strong>预留</strong>未来 Embedding 批次所需的内存。</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>Algorithm 1: Embedding-Aware Admission Control
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>────────────────────────────────────────────────
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>Input:
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>  - new_llm_request r_l
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>  - pending_embedding_queue Q_e
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>  - current_memory_usage m_current
+<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>  - available_memory M_avail
+<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>
+<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a>Output:
+<a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a>  - ADMIT or REJECT or DEFER
+<a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a>
+<a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a>1:  # 预测新请求的 KV Cache 需求
+<a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a>2:  predicted_output_len = OutputPredictor.predict(r_l.prompt)
+<a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a>3:  predicted_kv_memory = compute_kv_size(r_l.prompt_len + predicted_output_len)
+<a id="__codelineno-2-15" name="__codelineno-2-15" href="#__codelineno-2-15"></a>4:  
+<a id="__codelineno-2-16" name="__codelineno-2-16" href="#__codelineno-2-16"></a>5:  # 预测近期 Embedding 批次的内存需求
+<a id="__codelineno-2-17" name="__codelineno-2-17" href="#__codelineno-2-17"></a>6:  future_window = estimate_completion_time(r_l, predicted_output_len)
+<a id="__codelineno-2-18" name="__codelineno-2-18" href="#__codelineno-2-18"></a>7:  embedding_memory_forecast = 0
+<a id="__codelineno-2-19" name="__codelineno-2-19" href="#__codelineno-2-19"></a>8:  for batch in Q_e where batch.expected_start &lt; future_window:
+<a id="__codelineno-2-20" name="__codelineno-2-20" href="#__codelineno-2-20"></a>9:      embedding_memory_forecast += compute_embedding_memory(batch)
+<a id="__codelineno-2-21" name="__codelineno-2-21" href="#__codelineno-2-21"></a>10:
+<a id="__codelineno-2-22" name="__codelineno-2-22" href="#__codelineno-2-22"></a>11: # 计算安全内存阈值
+<a id="__codelineno-2-23" name="__codelineno-2-23" href="#__codelineno-2-23"></a>12: safety_margin = M_avail * SAFETY_RATIO  # e.g., 10%
+<a id="__codelineno-2-24" name="__codelineno-2-24" href="#__codelineno-2-24"></a>13: required_memory = predicted_kv_memory + embedding_memory_forecast + safety_margin
+<a id="__codelineno-2-25" name="__codelineno-2-25" href="#__codelineno-2-25"></a>14:
+<a id="__codelineno-2-26" name="__codelineno-2-26" href="#__codelineno-2-26"></a>15: if m_current + required_memory &lt;= M_avail:
+<a id="__codelineno-2-27" name="__codelineno-2-27" href="#__codelineno-2-27"></a>16:     return ADMIT
+<a id="__codelineno-2-28" name="__codelineno-2-28" href="#__codelineno-2-28"></a>17: elif r_l.priority == HIGH and can_preempt_low_priority():
+<a id="__codelineno-2-29" name="__codelineno-2-29" href="#__codelineno-2-29"></a>18:     return ADMIT_WITH_PREEMPTION
+<a id="__codelineno-2-30" name="__codelineno-2-30" href="#__codelineno-2-30"></a>19: elif r_l.slo.deadline - current_time &gt; DEFER_THRESHOLD:
+<a id="__codelineno-2-31" name="__codelineno-2-31" href="#__codelineno-2-31"></a>20:     return DEFER  # 等待内存释放
+<a id="__codelineno-2-32" name="__codelineno-2-32" href="#__codelineno-2-32"></a>21: else:
+<a id="__codelineno-2-33" name="__codelineno-2-33" href="#__codelineno-2-33"></a>22:     return REJECT
+</code></pre></div>
+<h3 id="33-2slo-driven-dynamic-memory-quota">3.3 核心算法 2：SLO-Driven Dynamic Memory Quota<a class="headerlink" href="#33-2slo-driven-dynamic-memory-quota" title="Permanent link">&para;</a></h3>
+<p><strong>动机</strong>：静态划分 LLM/Embedding 内存配额无法适应动态工作负载。</p>
+<p><strong>算法思想</strong>：基于<strong>队列状态</strong>和 <strong>SLO 紧迫度</strong>动态调整内存配额。</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>Algorithm 2: SLO-Driven Quota Adjustment
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>────────────────────────────────────────────────
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>Input:
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>  - llm_queue_state: {pending, running, slo_violations}
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>  - embedding_queue_state: {pending, running, slo_violations}
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>  - current_quota: {llm_quota, embedding_quota}
+<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>
+<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>Output:
+<a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a>  - new_quota: {llm_quota, embedding_quota}
+<a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a>
+<a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a>1:  # 计算 SLO 紧迫度分数
+<a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a>2:  llm_urgency = compute_urgency(llm_queue_state)
+<a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a>3:  embedding_urgency = compute_urgency(embedding_queue_state)
+<a id="__codelineno-3-14" name="__codelineno-3-14" href="#__codelineno-3-14"></a>4:  
+<a id="__codelineno-3-15" name="__codelineno-3-15" href="#__codelineno-3-15"></a>5:  # 基于紧迫度重新分配
+<a id="__codelineno-3-16" name="__codelineno-3-16" href="#__codelineno-3-16"></a>6:  total_flexible = M_avail - MIN_LLM_QUOTA - MIN_EMBEDDING_QUOTA
+<a id="__codelineno-3-17" name="__codelineno-3-17" href="#__codelineno-3-17"></a>7:  
+<a id="__codelineno-3-18" name="__codelineno-3-18" href="#__codelineno-3-18"></a>8:  if llm_urgency + embedding_urgency == 0:
+<a id="__codelineno-3-19" name="__codelineno-3-19" href="#__codelineno-3-19"></a>9:      # 无紧迫请求，按默认比例
+<a id="__codelineno-3-20" name="__codelineno-3-20" href="#__codelineno-3-20"></a>10:     llm_share = DEFAULT_LLM_RATIO
+<a id="__codelineno-3-21" name="__codelineno-3-21" href="#__codelineno-3-21"></a>11: else:
+<a id="__codelineno-3-22" name="__codelineno-3-22" href="#__codelineno-3-22"></a>12:     llm_share = llm_urgency / (llm_urgency + embedding_urgency)
+<a id="__codelineno-3-23" name="__codelineno-3-23" href="#__codelineno-3-23"></a>13:
+<a id="__codelineno-3-24" name="__codelineno-3-24" href="#__codelineno-3-24"></a>14: # 平滑调整，避免震荡
+<a id="__codelineno-3-25" name="__codelineno-3-25" href="#__codelineno-3-25"></a>15: new_llm_quota = MIN_LLM_QUOTA + total_flexible * llm_share
+<a id="__codelineno-3-26" name="__codelineno-3-26" href="#__codelineno-3-26"></a>16: new_llm_quota = smooth_adjust(current_quota.llm, new_llm_quota, MAX_CHANGE_RATE)
+<a id="__codelineno-3-27" name="__codelineno-3-27" href="#__codelineno-3-27"></a>17: new_embedding_quota = M_avail - new_llm_quota
+<a id="__codelineno-3-28" name="__codelineno-3-28" href="#__codelineno-3-28"></a>18:
+<a id="__codelineno-3-29" name="__codelineno-3-29" href="#__codelineno-3-29"></a>19: return {new_llm_quota, new_embedding_quota}
+<a id="__codelineno-3-30" name="__codelineno-3-30" href="#__codelineno-3-30"></a>
+<a id="__codelineno-3-31" name="__codelineno-3-31" href="#__codelineno-3-31"></a>Function compute_urgency(queue_state):
+<a id="__codelineno-3-32" name="__codelineno-3-32" href="#__codelineno-3-32"></a>    urgency = 0
+<a id="__codelineno-3-33" name="__codelineno-3-33" href="#__codelineno-3-33"></a>    for request in queue_state.pending + queue_state.running:
+<a id="__codelineno-3-34" name="__codelineno-3-34" href="#__codelineno-3-34"></a>        time_to_deadline = request.slo.deadline - current_time
+<a id="__codelineno-3-35" name="__codelineno-3-35" href="#__codelineno-3-35"></a>        estimated_completion = estimate_completion_time(request)
+<a id="__codelineno-3-36" name="__codelineno-3-36" href="#__codelineno-3-36"></a>        slack = time_to_deadline - estimated_completion
+<a id="__codelineno-3-37" name="__codelineno-3-37" href="#__codelineno-3-37"></a>        if slack &lt; 0:
+<a id="__codelineno-3-38" name="__codelineno-3-38" href="#__codelineno-3-38"></a>            urgency += VIOLATION_WEIGHT * abs(slack)
+<a id="__codelineno-3-39" name="__codelineno-3-39" href="#__codelineno-3-39"></a>        elif slack &lt; CRITICAL_THRESHOLD:
+<a id="__codelineno-3-40" name="__codelineno-3-40" href="#__codelineno-3-40"></a>            urgency += CRITICAL_WEIGHT / (slack + 1)
+<a id="__codelineno-3-41" name="__codelineno-3-41" href="#__codelineno-3-41"></a>    return urgency
+</code></pre></div>
+<h3 id="34-3slo-aware-kv-cache-eviction">3.4 核心算法 3：SLO-Aware KV Cache Eviction<a class="headerlink" href="#34-3slo-aware-kv-cache-eviction" title="Permanent link">&para;</a></h3>
+<p><strong>动机</strong>：当内存不足时，需要驱逐 KV Cache。传统 LRU/FIFO 策略不考虑 SLO。</p>
+<p><strong>算法思想</strong>：结合<strong>请求优先级</strong>、<strong>SLO 松弛度</strong>和<strong>重计算代价</strong>设计驱逐策略。</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>Algorithm 3: SLO-Aware Eviction Policy
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>────────────────────────────────────────────────
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>Input:
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>  - active_requests: list of LLM requests with KV Cache
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>  - memory_needed: amount of memory to free
+<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>  - incoming_request: the request causing eviction (optional)
+<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a>
+<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a>Output:
+<a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a>  - eviction_list: requests to evict
+<a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a>
+<a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a>1:  # 计算每个请求的驱逐代价
+<a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a>2:  eviction_costs = []
+<a id="__codelineno-4-13" name="__codelineno-4-13" href="#__codelineno-4-13"></a>3:  for r in active_requests:
+<a id="__codelineno-4-14" name="__codelineno-4-14" href="#__codelineno-4-14"></a>4:      # SLO 松弛度：距离 deadline 的时间
+<a id="__codelineno-4-15" name="__codelineno-4-15" href="#__codelineno-4-15"></a>5:      slack = r.slo.deadline - (current_time + estimated_remaining_time(r))
+<a id="__codelineno-4-16" name="__codelineno-4-16" href="#__codelineno-4-16"></a>6:  
+<a id="__codelineno-4-17" name="__codelineno-4-17" href="#__codelineno-4-17"></a>7:      # 重计算代价：已生成的 token 数
+<a id="__codelineno-4-18" name="__codelineno-4-18" href="#__codelineno-4-18"></a>8:      recompute_cost = r.generated_tokens * RECOMPUTE_WEIGHT
+<a id="__codelineno-4-19" name="__codelineno-4-19" href="#__codelineno-4-19"></a>9:  
+<a id="__codelineno-4-20" name="__codelineno-4-20" href="#__codelineno-4-20"></a>10:     # 优先级因子
+<a id="__codelineno-4-21" name="__codelineno-4-21" href="#__codelineno-4-21"></a>11:     priority_factor = PRIORITY_WEIGHTS[r.priority]
+<a id="__codelineno-4-22" name="__codelineno-4-22" href="#__codelineno-4-22"></a>12:  
+<a id="__codelineno-4-23" name="__codelineno-4-23" href="#__codelineno-4-23"></a>13:     # 综合驱逐代价（越高越不应该驱逐）
+<a id="__codelineno-4-24" name="__codelineno-4-24" href="#__codelineno-4-24"></a>14:     cost = priority_factor * (1 / (slack + ε)) + recompute_cost
+<a id="__codelineno-4-25" name="__codelineno-4-25" href="#__codelineno-4-25"></a>15:     eviction_costs.append((r, cost, r.kv_cache_size))
+<a id="__codelineno-4-26" name="__codelineno-4-26" href="#__codelineno-4-26"></a>16:
+<a id="__codelineno-4-27" name="__codelineno-4-27" href="#__codelineno-4-27"></a>17: # 按代价升序排序（先驱逐代价低的）
+<a id="__codelineno-4-28" name="__codelineno-4-28" href="#__codelineno-4-28"></a>18: eviction_costs.sort(key=lambda x: x[1])
+<a id="__codelineno-4-29" name="__codelineno-4-29" href="#__codelineno-4-29"></a>19:
+<a id="__codelineno-4-30" name="__codelineno-4-30" href="#__codelineno-4-30"></a>20: # 贪心选择直到释放足够内存
+<a id="__codelineno-4-31" name="__codelineno-4-31" href="#__codelineno-4-31"></a>21: eviction_list = []
+<a id="__codelineno-4-32" name="__codelineno-4-32" href="#__codelineno-4-32"></a>22: freed_memory = 0
+<a id="__codelineno-4-33" name="__codelineno-4-33" href="#__codelineno-4-33"></a>23: for r, cost, size in eviction_costs:
+<a id="__codelineno-4-34" name="__codelineno-4-34" href="#__codelineno-4-34"></a>24:     if freed_memory &gt;= memory_needed:
+<a id="__codelineno-4-35" name="__codelineno-4-35" href="#__codelineno-4-35"></a>25:         break
+<a id="__codelineno-4-36" name="__codelineno-4-36" href="#__codelineno-4-36"></a>26:     # 保护即将完成的请求
+<a id="__codelineno-4-37" name="__codelineno-4-37" href="#__codelineno-4-37"></a>27:     if r.estimated_remaining_tokens &lt; COMPLETION_THRESHOLD:
+<a id="__codelineno-4-38" name="__codelineno-4-38" href="#__codelineno-4-38"></a>28:         continue
+<a id="__codelineno-4-39" name="__codelineno-4-39" href="#__codelineno-4-39"></a>29:     eviction_list.append(r)
+<a id="__codelineno-4-40" name="__codelineno-4-40" href="#__codelineno-4-40"></a>30:     freed_memory += size
+<a id="__codelineno-4-41" name="__codelineno-4-41" href="#__codelineno-4-41"></a>31:
+<a id="__codelineno-4-42" name="__codelineno-4-42" href="#__codelineno-4-42"></a>32: return eviction_list
+</code></pre></div>
+<h3 id="35">3.5 理论分析<a class="headerlink" href="#35" title="Permanent link">&para;</a></h3>
+<p><strong>定理 2 (Admission Control 的有效性)</strong>：在 Embedding 负载可准确预测的情况下，Algorithm 1 可以将内存溢出导致的 SLO 违反率降低至
+$O(\frac{1}{n})$，其中 $n$ 是预测窗口内的请求数。</p>
+<p><strong>定理 3 (Quota Adjustment 的稳定性)</strong>：Algorithm 2 在 smooth_adjust 的约束下，内存配额变化满足 Lyapunov 稳定性条件，不会产生震荡。</p>
+<p><strong>定理 4 (Eviction Policy 的竞争比)</strong>：在请求优先级均匀分布的情况下，Algorithm 3 相对于离线最优策略的竞争比为 $O(\log k)$，其中 $k$
+是优先级级别数。</p>
+<hr />
+<h2 id="4">4. 系统实现<a class="headerlink" href="#4" title="Permanent link">&para;</a></h2>
+<h3 id="41-sage">4.1 SAGE 集成架构<a class="headerlink" href="#41-sage" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>┌─────────────────────────────────────────────────────────────────┐
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>│                         SAGE Framework                           │
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>├─────────────────────────────────────────────────────────────────┤
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>│  sage-common/components/sage_llm/sageLLM/                       │
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>│  ├── control_plane/                                              │
+<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>│  │   ├── memory_manager/           ← 新增：核心贡献              │
+<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a>│  │   │   ├── admission_controller.py                            │
+<a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a>│  │   │   ├── quota_allocator.py                                 │
+<a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a>│  │   │   ├── eviction_policy.py                                 │
+<a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a>│  │   │   └── memory_monitor.py                                  │
+<a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a>│  │   ├── predictors/               ← 新增：预测组件              │
+<a id="__codelineno-5-12" name="__codelineno-5-12" href="#__codelineno-5-12"></a>│  │   │   ├── output_length_predictor.py                         │
+<a id="__codelineno-5-13" name="__codelineno-5-13" href="#__codelineno-5-13"></a>│  │   │   └── embedding_load_forecaster.py                       │
+<a id="__codelineno-5-14" name="__codelineno-5-14" href="#__codelineno-5-14"></a>│  │   ├── strategies/                                             │
+<a id="__codelineno-5-15" name="__codelineno-5-15" href="#__codelineno-5-15"></a>│  │   │   └── hybrid_policy.py      ← 扩展：集成内存感知          │
+<a id="__codelineno-5-16" name="__codelineno-5-16" href="#__codelineno-5-16"></a>│  │   └── manager.py                ← 扩展：内存管理集成          │
+<a id="__codelineno-5-17" name="__codelineno-5-17" href="#__codelineno-5-17"></a>│  └── unified_client.py                                           │
+<a id="__codelineno-5-18" name="__codelineno-5-18" href="#__codelineno-5-18"></a>├─────────────────────────────────────────────────────────────────┤
+<a id="__codelineno-5-19" name="__codelineno-5-19" href="#__codelineno-5-19"></a>│  sage-benchmark/benchmark_control_plane/                         │
+<a id="__codelineno-5-20" name="__codelineno-5-20" href="#__codelineno-5-20"></a>│  └── memory_benchmark/             ← 新增：内存管理评测          │
+<a id="__codelineno-5-21" name="__codelineno-5-21" href="#__codelineno-5-21"></a>│      ├── workload_generator.py                                   │
+<a id="__codelineno-5-22" name="__codelineno-5-22" href="#__codelineno-5-22"></a>│      ├── memory_metrics.py                                       │
+<a id="__codelineno-5-23" name="__codelineno-5-23" href="#__codelineno-5-23"></a>│      └── slo_analyzer.py                                         │
+<a id="__codelineno-5-24" name="__codelineno-5-24" href="#__codelineno-5-24"></a>└─────────────────────────────────────────────────────────────────┘
+</code></pre></div>
+<h3 id="42">4.2 关键实现细节<a class="headerlink" href="#42" title="Permanent link">&para;</a></h3>
+<h4 id="421">4.2.1 内存监控机制<a class="headerlink" href="#421" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">MemoryMonitor</span><span class="p">:</span>
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;实时监控 GPU 显存使用&quot;&quot;&quot;</span>
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">device_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">sample_interval_ms</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">10</span><span class="p">):</span>
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">device_id</span> <span class="o">=</span> <span class="n">device_id</span>
+<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">sample_interval</span> <span class="o">=</span> <span class="n">sample_interval_ms</span>
+<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">kv_cache_tracker</span> <span class="o">=</span> <span class="n">KVCacheTracker</span><span class="p">()</span>
+<a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">embedding_tracker</span> <span class="o">=</span> <span class="n">EmbeddingMemoryTracker</span><span class="p">()</span>
+<a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a>
+<a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a>    <span class="k">def</span><span class="w"> </span><span class="nf">get_memory_snapshot</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">MemorySnapshot</span><span class="p">:</span>
+<a id="__codelineno-6-11" name="__codelineno-6-11" href="#__codelineno-6-11"></a>        <span class="k">return</span> <span class="n">MemorySnapshot</span><span class="p">(</span>
+<a id="__codelineno-6-12" name="__codelineno-6-12" href="#__codelineno-6-12"></a>            <span class="n">total</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">get_device_properties</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">device_id</span><span class="p">)</span><span class="o">.</span><span class="n">total_memory</span><span class="p">,</span>
+<a id="__codelineno-6-13" name="__codelineno-6-13" href="#__codelineno-6-13"></a>            <span class="n">allocated</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">memory_allocated</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">device_id</span><span class="p">),</span>
+<a id="__codelineno-6-14" name="__codelineno-6-14" href="#__codelineno-6-14"></a>            <span class="n">reserved</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">memory_reserved</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">device_id</span><span class="p">),</span>
+<a id="__codelineno-6-15" name="__codelineno-6-15" href="#__codelineno-6-15"></a>            <span class="n">kv_cache_usage</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">kv_cache_tracker</span><span class="o">.</span><span class="n">get_usage</span><span class="p">(),</span>
+<a id="__codelineno-6-16" name="__codelineno-6-16" href="#__codelineno-6-16"></a>            <span class="n">embedding_usage</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">embedding_tracker</span><span class="o">.</span><span class="n">get_usage</span><span class="p">(),</span>
+<a id="__codelineno-6-17" name="__codelineno-6-17" href="#__codelineno-6-17"></a>            <span class="n">timestamp</span><span class="o">=</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">(),</span>
+<a id="__codelineno-6-18" name="__codelineno-6-18" href="#__codelineno-6-18"></a>        <span class="p">)</span>
+</code></pre></div>
+<h4 id="422-vllm">4.2.2 与 vLLM 的集成<a class="headerlink" href="#422-vllm" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">SLOAwareBlockManager</span><span class="p">:</span>
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;扩展 vLLM 的 BlockManager，集成 SLO 感知驱逐&quot;&quot;&quot;</span>
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>
+<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">vllm_block_manager</span><span class="p">,</span> <span class="n">eviction_policy</span><span class="p">:</span> <span class="n">SLOAwareEvictionPolicy</span><span class="p">):</span>
+<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">base_manager</span> <span class="o">=</span> <span class="n">vllm_block_manager</span>
+<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">eviction_policy</span> <span class="o">=</span> <span class="n">eviction_policy</span>
+<a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a>
+<a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a>    <span class="k">def</span><span class="w"> </span><span class="nf">allocate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">:</span> <span class="n">LLMRequest</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">BlockAllocation</span><span class="p">]:</span>
+<a id="__codelineno-7-9" name="__codelineno-7-9" href="#__codelineno-7-9"></a>        <span class="c1"># 先尝试直接分配</span>
+<a id="__codelineno-7-10" name="__codelineno-7-10" href="#__codelineno-7-10"></a>        <span class="n">allocation</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">base_manager</span><span class="o">.</span><span class="n">try_allocate</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">num_blocks_needed</span><span class="p">)</span>
+<a id="__codelineno-7-11" name="__codelineno-7-11" href="#__codelineno-7-11"></a>        <span class="k">if</span> <span class="n">allocation</span><span class="p">:</span>
+<a id="__codelineno-7-12" name="__codelineno-7-12" href="#__codelineno-7-12"></a>            <span class="k">return</span> <span class="n">allocation</span>
+<a id="__codelineno-7-13" name="__codelineno-7-13" href="#__codelineno-7-13"></a>
+<a id="__codelineno-7-14" name="__codelineno-7-14" href="#__codelineno-7-14"></a>        <span class="c1"># 内存不足，触发 SLO 感知驱逐</span>
+<a id="__codelineno-7-15" name="__codelineno-7-15" href="#__codelineno-7-15"></a>        <span class="n">eviction_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">eviction_policy</span><span class="o">.</span><span class="n">select_victims</span><span class="p">(</span>
+<a id="__codelineno-7-16" name="__codelineno-7-16" href="#__codelineno-7-16"></a>            <span class="n">active_requests</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">get_active_requests</span><span class="p">(),</span>
+<a id="__codelineno-7-17" name="__codelineno-7-17" href="#__codelineno-7-17"></a>            <span class="n">memory_needed</span><span class="o">=</span><span class="n">request</span><span class="o">.</span><span class="n">num_blocks_needed</span> <span class="o">*</span> <span class="n">BLOCK_SIZE</span><span class="p">,</span>
+<a id="__codelineno-7-18" name="__codelineno-7-18" href="#__codelineno-7-18"></a>            <span class="n">incoming_request</span><span class="o">=</span><span class="n">request</span><span class="p">,</span>
+<a id="__codelineno-7-19" name="__codelineno-7-19" href="#__codelineno-7-19"></a>        <span class="p">)</span>
+<a id="__codelineno-7-20" name="__codelineno-7-20" href="#__codelineno-7-20"></a>
+<a id="__codelineno-7-21" name="__codelineno-7-21" href="#__codelineno-7-21"></a>        <span class="k">for</span> <span class="n">victim</span> <span class="ow">in</span> <span class="n">eviction_list</span><span class="p">:</span>
+<a id="__codelineno-7-22" name="__codelineno-7-22" href="#__codelineno-7-22"></a>            <span class="bp">self</span><span class="o">.</span><span class="n">evict</span><span class="p">(</span><span class="n">victim</span><span class="p">)</span>
+<a id="__codelineno-7-23" name="__codelineno-7-23" href="#__codelineno-7-23"></a>
+<a id="__codelineno-7-24" name="__codelineno-7-24" href="#__codelineno-7-24"></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">base_manager</span><span class="o">.</span><span class="n">try_allocate</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">num_blocks_needed</span><span class="p">)</span>
+</code></pre></div>
+<hr />
+<h2 id="5">5. 实验设计<a class="headerlink" href="#5" title="Permanent link">&para;</a></h2>
+<h3 id="51">5.1 实验环境<a class="headerlink" href="#51" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>配置项</th>
+<th>规格</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>GPU</td>
+<td>NVIDIA A100 80GB / H100 80GB</td>
+</tr>
+<tr>
+<td>模型</td>
+<td>LLaMA-2-7B/13B/70B, Qwen2.5-7B/72B</td>
+</tr>
+<tr>
+<td>Embedding</td>
+<td>BGE-M3, E5-Large, GTE-Large</td>
+</tr>
+<tr>
+<td>Baseline</td>
+<td>vLLM, DistServe, Mooncake, ICLR 2026 在审工作</td>
+</tr>
+</tbody>
+</table>
+<h3 id="52">5.2 工作负载设计<a class="headerlink" href="#52" title="Permanent link">&para;</a></h3>
+<h4 id="521">5.2.1 合成工作负载<a class="headerlink" href="#521" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>范围</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>LLM:Embedding 比例</td>
+<td>1:9, 3:7, 5:5, 7:3, 9:1</td>
+</tr>
+<tr>
+<td>请求到达模式</td>
+<td>Poisson, Bursty, Periodic</td>
+</tr>
+<tr>
+<td>LLM 输出长度分布</td>
+<td>短 (50-100), 中 (200-500), 长 (1000-2000)</td>
+</tr>
+<tr>
+<td>Embedding 批大小</td>
+<td>16, 32, 64, 128</td>
+</tr>
+</tbody>
+</table>
+<h4 id="522">5.2.2 真实工作负载<a class="headerlink" href="#522" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>Azure LLM Traces</strong> (BurstGPT 数据集)</li>
+<li><strong>Embedding Production Logs</strong> (自采集或公开数据集)</li>
+</ul>
+<h3 id="53">5.3 评估指标<a class="headerlink" href="#53" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>指标类别</th>
+<th>具体指标</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>SLO 达成率</strong></td>
+<td>LLM TTFT P99, LLM TPOT P99, Embedding P99</td>
+</tr>
+<tr>
+<td><strong>吞吐量</strong></td>
+<td>Requests/sec, Tokens/sec</td>
+</tr>
+<tr>
+<td><strong>资源效率</strong></td>
+<td>GPU 利用率, 显存利用率, KV Cache 命中率</td>
+</tr>
+<tr>
+<td><strong>公平性</strong></td>
+<td>不同优先级请求的 SLO 达成率差异</td>
+</tr>
+</tbody>
+</table>
+<h3 id="54">5.4 关键实验<a class="headerlink" href="#54" title="Permanent link">&para;</a></h3>
+<p><strong>实验 1：SLO 达成率对比</strong></p>
+<ul>
+<li>对比不同系统在相同 SLO 约束下的达成率</li>
+<li>变量：工作负载强度 (50%-150% of capacity)</li>
+</ul>
+<p><strong>实验 2：内存压力测试</strong></p>
+<ul>
+<li>人为制造高内存压力（大量长输出 LLM + 大批量 Embedding）</li>
+<li>观察各系统的退化行为</li>
+</ul>
+<p><strong>实验 3：预测准确性影响</strong></p>
+<ul>
+<li>消融实验：对比有/无预测组件的性能差异</li>
+<li>分析预测误差与系统性能的关系</li>
+</ul>
+<p><strong>实验 4：扩展性测试</strong></p>
+<ul>
+<li>单 GPU → 多 GPU → 多节点</li>
+<li>分析通信开销和一致性维护成本</li>
+</ul>
+<p><strong>实验 5：与 ICLR 工作的直接对比</strong></p>
+<ul>
+<li>在其支持的场景（同架构模型）下进行公平对比</li>
+<li>在其不支持的场景（异构模型）下展示我们的优势</li>
+</ul>
+<hr />
+<h2 id="6">6. 预期贡献<a class="headerlink" href="#6" title="Permanent link">&para;</a></h2>
+<h3 id="61">6.1 学术贡献<a class="headerlink" href="#61" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>问题形式化</strong>：首次形式化定义 LLM-Embedding 共置场景下的 SLO 感知内存管理问题</li>
+<li><strong>理论分析</strong>：证明问题 NP-Hard，并给出近似算法及竞争比分析</li>
+<li><strong>新算法</strong>：</li>
+<li>Embedding-Aware Admission Control</li>
+<li>SLO-Driven Dynamic Memory Quota</li>
+<li>SLO-Aware KV Cache Eviction Policy</li>
+<li><strong>系统洞察</strong>：揭示 Embedding 可预测性如何指导 LLM 内存管理</li>
+</ol>
+<h3 id="62">6.2 系统贡献<a class="headerlink" href="#62" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>SAGE 集成实现</strong>：完整的系统原型</li>
+<li><strong>与 vLLM 的无缝集成</strong>：可直接用于生产环境</li>
+<li><strong>开源代码和数据集</strong></li>
+</ol>
+<h3 id="63">6.3 实验贡献<a class="headerlink" href="#63" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>全面的基准测试</strong>：对比所有 SOTA 系统</li>
+<li><strong>真实工作负载验证</strong>：不仅限于合成测试</li>
+</ol>
+<hr />
+<h2 id="7">7. 时间规划<a class="headerlink" href="#7" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>阶段</th>
+<th>任务</th>
+<th>时间</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Phase 1</td>
+<td>问题形式化 + 理论分析</td>
+<td>4 周</td>
+</tr>
+<tr>
+<td>Phase 2</td>
+<td>核心算法设计与实现</td>
+<td>6 周</td>
+</tr>
+<tr>
+<td>Phase 3</td>
+<td>SAGE 系统集成</td>
+<td>4 周</td>
+</tr>
+<tr>
+<td>Phase 4</td>
+<td>实验评估</td>
+<td>6 周</td>
+</tr>
+<tr>
+<td>Phase 5</td>
+<td>论文撰写</td>
+<td>4 周</td>
+</tr>
+<tr>
+<td><strong>总计</strong></td>
+<td></td>
+<td><strong>24 周 (~6 个月)</strong></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="8">8. 目标会议<a class="headerlink" href="#8" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>优先级</th>
+<th>会议</th>
+<th>截止日期 (预估)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td><strong>OSDI 2025</strong></td>
+<td>2025 年 5 月</td>
+</tr>
+<tr>
+<td>2</td>
+<td><strong>SOSP 2025</strong></td>
+<td>2025 年 4 月</td>
+</tr>
+<tr>
+<td>3</td>
+<td><strong>EuroSys 2026</strong></td>
+<td>2025 年 10 月</td>
+</tr>
+<tr>
+<td>4</td>
+<td><strong>NSDI 2026</strong></td>
+<td>2025 年 9 月</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="9">9. 风险与应对<a class="headerlink" href="#9" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>风险</th>
+<th>应对策略</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>预测模型不准确</td>
+<td>设计鲁棒的 fallback 机制</td>
+</tr>
+<tr>
+<td>vLLM 版本更新导致不兼容</td>
+<td>抽象接口层，降低耦合</td>
+</tr>
+<tr>
+<td>实验资源不足</td>
+<td>优先使用云 GPU，考虑与业界合作</td>
+</tr>
+<tr>
+<td>与 ICLR 工作撞车</td>
+<td>强调异构模型支持 + 理论贡献的差异化</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="10">10. 相关工作<a class="headerlink" href="#10" title="Permanent link">&para;</a></h2>
+<h3 id="101-llm-serving-systems">10.1 LLM Serving Systems<a class="headerlink" href="#101-llm-serving-systems" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>vLLM</strong> (SOSP 2023): PagedAttention for KV Cache memory efficiency</li>
+<li><strong>Orca</strong> (OSDI 2022): Iteration-level scheduling for LLM inference</li>
+<li><strong>FastServe</strong> (2023): Preemptive scheduling with skip-join MLFQ</li>
+<li><strong>DistServe</strong> (OSDI 2024): Disaggregating prefill and decoding</li>
+<li><strong>Mooncake</strong> (2024): KVCache-centric disaggregated architecture</li>
+<li><strong>SGLang</strong> (2024): RadixAttention for KV cache reuse</li>
+</ul>
+<h3 id="102-memory-management-for-ml">10.2 Memory Management for ML<a class="headerlink" href="#102-memory-management-for-ml" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Capuchin</strong> (ASPLOS 2020): Memory-efficient GPU memory management</li>
+<li><strong>vDNN</strong> (MICRO 2016): Virtualized DNN with memory optimization</li>
+<li><strong>SwapAdvisor</strong> (ASPLOS 2020): GPU memory management for DL training</li>
+</ul>
+<h3 id="103-multi-model-serving">10.3 Multi-Model Serving<a class="headerlink" href="#103-multi-model-serving" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>S-LoRA</strong> (2024): Scalable serving of many LoRA adapters</li>
+<li><strong>Punica</strong> (2023): Multi-tenant LoRA serving with shared base model</li>
+</ul>
+<h3 id="104-slo-aware-systems">10.4 SLO-Aware Systems<a class="headerlink" href="#104-slo-aware-systems" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Clipper</strong> (NSDI 2017): Low-latency prediction serving</li>
+<li><strong>INFaaS</strong> (ATC 2021): Automated model-less inference serving</li>
+</ul>
+<hr />
+<h2 id="11_1">11. 参考文献<a class="headerlink" href="#11_1" title="Permanent link">&para;</a></h2>
+<ol>
+<li>Kwon, W., et al. "Efficient Memory Management for Large Language Model Serving with
+   PagedAttention." SOSP 2023.</li>
+<li>Zhong, Y., et al. "DistServe: Disaggregating Prefill and Decoding for Goodput-optimized Large
+   Language Model Serving." OSDI 2024.</li>
+<li>Qin, R., et al. "Mooncake: A KVCache-centric Disaggregated Architecture for LLM Serving." arXiv
+   2024.</li>
+<li>Sheng, Y., et al. "S-LoRA: Serving Thousands of Concurrent LoRA Adapters." arXiv 2024.</li>
+<li>Agrawal, A., et al. "SARATHI: Efficient LLM Inference by Piggybacking Decodes with Chunked
+   Prefills." arXiv 2023.</li>
+<li>Zheng, L., et al. "SGLang: Efficient Execution of Structured Language Model Programs." arXiv
+   2024.</li>
+<li>Wang, Y., et al. "BurstGPT: A Real-world Workload Dataset to Optimize LLM Serving Systems." arXiv
+   2024.</li>
+</ol>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  回到页面顶部
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Copyright &copy; 2023-2025 IntelliStream Lab
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+        
+<div class="md-social">
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://github.com/intellistream/SAGE" target="_blank" rel="noopener" title="github.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+    </a>
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://pypi.org/project/sage-framework/" target="_blank" rel="noopener" title="pypi.org" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.8 200.5c-7.7-30.9-22.3-54.2-53.4-54.2h-40.1v47.4c0 36.8-31.2 67.8-66.8 67.8H172.7c-29.2 0-53.4 25-53.4 54.3v101.8c0 29 25.2 46 53.4 54.3 33.8 9.9 66.3 11.7 106.8 0 26.9-7.8 53.4-23.5 53.4-54.3v-40.7H226.2v-13.6h160.2c31.1 0 42.6-21.7 53.4-54.2 11.2-33.5 10.7-65.7 0-108.6M286.2 444.7a20.4 20.4 0 1 1 0-40.7 20.4 20.4 0 1 1 0 40.7M167.8 248.1h106.8c29.7 0 53.4-24.5 53.4-54.3V91.9c0-29-24.4-50.7-53.4-55.6-35.8-5.9-74.7-5.6-106.8.1-45.2 8-53.4 24.7-53.4 55.6v40.7h106.9v13.6h-147c-31.1 0-58.3 18.7-66.8 54.2-9.8 40.7-10.2 66.1 0 108.6 7.6 31.6 25.7 54.2 56.8 54.2H101v-48.8c0-35.3 30.5-66.4 66.8-66.4m-6.6-183.4a20.4 20.4 0 1 1 0 40.8 20.4 20.4 0 1 1 0-40.8"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+      <div class="md-progress" data-md-component="progress" role="progressbar"></div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.instant", "navigation.instant.progress", "navigation.tracking", "navigation.tabs", "navigation.tabs.sticky", "navigation.sections", "navigation.path", "navigation.indexes", "navigation.top", "navigation.footer", "navigation.prune", "search.suggest", "search.highlight", "search.share", "content.code.copy", "content.code.annotate", "content.tabs.link", "toc.follow", "toc.integrate"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>
