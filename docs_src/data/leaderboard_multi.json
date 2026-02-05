@@ -1,0 +1,239 @@
+[
+  {
+    "entry_id": "sage-multi-001",
+    "sagellm_version": "1.2.0",
+    "config_type": "multi_gpu",
+    "hardware": {
+      "vendor": "NVIDIA",
+      "chip_model": "NVIDIA A100 80GB",
+      "chip_count": 4,
+      "interconnect": "NVLink",
+      "chips_per_node": 4,
+      "intra_node_interconnect": "NVLink",
+      "memory_per_chip_gb": 80,
+      "total_memory_gb": 320
+    },
+    "model": {
+      "name": "Qwen2.5-72B",
+      "parameters": "72B",
+      "precision": "FP16",
+      "quantization": "None"
+    },
+    "workload": {
+      "input_length": 1024,
+      "output_length": 256,
+      "batch_size": 16,
+      "concurrent_requests": 4,
+      "dataset": "default"
+    },
+    "metrics": {
+      "ttft_ms": 85.2,
+      "tbt_ms": 0.35,
+      "tpot_ms": 0.35,
+      "throughput_tps": 2850.5,
+      "peak_mem_mb": 148800,
+      "error_rate": 0.0,
+      "prefix_hit_rate": 0.94,
+      "kv_used_tokens": 25000,
+      "kv_used_bytes": 6400000,
+      "evict_count": 0,
+      "evict_ms": 0.0,
+      "spec_accept_rate": null
+    },
+    "cluster": null,
+    "versions": {
+      "protocol": "1.0.0",
+      "backend": "1.2.0",
+      "core": "1.2.0",
+      "control_plane": "1.0.0",
+      "gateway": "1.0.0",
+      "kv_cache": "1.0.0",
+      "comm": "1.0.0",
+      "compression": "1.0.0",
+      "benchmark": "1.2.0"
+    },
+    "environment": {
+      "os": "Linux 6.2.0-26-generic",
+      "python_version": "3.11.0",
+      "pytorch_version": "2.1.0+cu121",
+      "cuda_version": "12.1",
+      "cann_version": null,
+      "driver_version": "535.104.05"
+    },
+    "kv_cache_config": {
+      "enabled": true,
+      "eviction_policy": "LRU",
+      "budget_tokens": 32768,
+      "prefix_cache_enabled": true
+    },
+    "metadata": {
+      "submitted_at": "2026-01-18T10:00:00+00:00",
+      "submitter": "SAGE benchmark",
+      "data_source": "automated-benchmark",
+      "reproducible_cmd": "sage-benchmark run --model qwen2.5-72b --backend cuda --tp 4",
+      "git_commit": null,
+      "release_date": "2026-01-18",
+      "changelog_url": "https://github.com/intellistream/sage/blob/main/CHANGELOG.md",
+      "notes": "4-way tensor parallelism",
+      "verified": true
+    }
+  },
+  {
+    "entry_id": "sage-multi-002",
+    "sagellm_version": "1.2.0",
+    "config_type": "multi_gpu",
+    "hardware": {
+      "vendor": "NVIDIA",
+      "chip_model": "NVIDIA A100 80GB",
+      "chip_count": 4,
+      "interconnect": "NVLink",
+      "chips_per_node": 4,
+      "intra_node_interconnect": "NVLink",
+      "memory_per_chip_gb": 80,
+      "total_memory_gb": 320
+    },
+    "model": {
+      "name": "LLaMA-3-70B",
+      "parameters": "70B",
+      "precision": "FP16",
+      "quantization": "None"
+    },
+    "workload": {
+      "input_length": 1024,
+      "output_length": 256,
+      "batch_size": 16,
+      "concurrent_requests": 4,
+      "dataset": "default"
+    },
+    "metrics": {
+      "ttft_ms": 92.5,
+      "tbt_ms": 0.38,
+      "tpot_ms": 0.38,
+      "throughput_tps": 2680.3,
+      "peak_mem_mb": 156200,
+      "error_rate": 0.0,
+      "prefix_hit_rate": 0.91,
+      "kv_used_tokens": 26000,
+      "kv_used_bytes": 6656000,
+      "evict_count": 0,
+      "evict_ms": 0.0,
+      "spec_accept_rate": null
+    },
+    "cluster": null,
+    "versions": {
+      "protocol": "1.0.0",
+      "backend": "1.2.0",
+      "core": "1.2.0",
+      "control_plane": "1.0.0",
+      "gateway": "1.0.0",
+      "kv_cache": "1.0.0",
+      "comm": "1.0.0",
+      "compression": "1.0.0",
+      "benchmark": "1.2.0"
+    },
+    "environment": {
+      "os": "Linux 6.2.0-26-generic",
+      "python_version": "3.11.0",
+      "pytorch_version": "2.1.0+cu121",
+      "cuda_version": "12.1",
+      "cann_version": null,
+      "driver_version": "535.104.05"
+    },
+    "kv_cache_config": {
+      "enabled": true,
+      "eviction_policy": "LRU",
+      "budget_tokens": 32768,
+      "prefix_cache_enabled": true
+    },
+    "metadata": {
+      "submitted_at": "2026-01-18T14:00:00+00:00",
+      "submitter": "SAGE benchmark",
+      "data_source": "automated-benchmark",
+      "reproducible_cmd": "sage-benchmark run --model llama-3-70b --backend cuda --tp 4",
+      "git_commit": null,
+      "release_date": "2026-01-18",
+      "changelog_url": "https://github.com/intellistream/sage/blob/main/CHANGELOG.md",
+      "notes": "4-way tensor parallelism",
+      "verified": true
+    }
+  },
+  {
+    "entry_id": "sage-multi-003",
+    "sagellm_version": "1.2.0",
+    "config_type": "multi_gpu",
+    "hardware": {
+      "vendor": "NVIDIA",
+      "chip_model": "NVIDIA A100 80GB",
+      "chip_count": 2,
+      "interconnect": "NVLink",
+      "chips_per_node": 2,
+      "intra_node_interconnect": "NVLink",
+      "memory_per_chip_gb": 80,
+      "total_memory_gb": 160
+    },
+    "model": {
+      "name": "Mixtral-8x7B",
+      "parameters": "47B",
+      "precision": "FP16",
+      "quantization": "None"
+    },
+    "workload": {
+      "input_length": 1024,
+      "output_length": 256,
+      "batch_size": 8,
+      "concurrent_requests": 2,
+      "dataset": "default"
+    },
+    "metrics": {
+      "ttft_ms": 72.8,
+      "tbt_ms": 0.52,
+      "tpot_ms": 0.52,
+      "throughput_tps": 1920.8,
+      "peak_mem_mb": 87800,
+      "error_rate": 0.0,
+      "prefix_hit_rate": 0.88,
+      "kv_used_tokens": 18000,
+      "kv_used_bytes": 4608000,
+      "evict_count": 0,
+      "evict_ms": 0.0,
+      "spec_accept_rate": null
+    },
+    "cluster": null,
+    "versions": {
+      "protocol": "1.0.0",
+      "backend": "1.2.0",
+      "core": "1.2.0",
+      "control_plane": "1.0.0",
+      "gateway": "1.0.0",
+      "kv_cache": "1.0.0",
+      "comm": "1.0.0",
+      "compression": "1.0.0",
+      "benchmark": "1.2.0"
+    },
+    "environment": {
+      "os": "Linux 6.2.0-26-generic",
+      "python_version": "3.11.0",
+      "pytorch_version": "2.1.0+cu121",
+      "cuda_version": "12.1",
+      "cann_version": null,
+      "driver_version": "535.104.05"
+    },
+    "kv_cache_config": {
+      "enabled": true,
+      "eviction_policy": "LRU",
+      "budget_tokens": 16384,
+      "prefix_cache_enabled": true
+    },
+    "metadata": {
+      "submitted_at": "2026-01-19T10:00:00+00:00",
+      "submitter": "SAGE benchmark",
+      "data_source": "automated-benchmark",
+      "reproducible_cmd": "sage-benchmark run --model mixtral-8x7b --backend cuda --ep 2",
+      "git_commit": null,
+      "release_date": "2026-01-19",
+      "changelog_url": "https://github.com/intellistream/sage/blob/main/CHANGELOG.md",
+      "notes": "MoE with expert parallelism",
+      "verified": true
+    }
+  }
+]

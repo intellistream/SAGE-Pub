@@ -15,6 +15,7 @@
     <link rel="stylesheet" href="sections.css">
     <link rel="stylesheet" href="animations.css">
     <link rel="stylesheet" href="responsive.css">
+    <link rel="stylesheet" href="leaderboard.css">
     
     <!-- Asciinema Player CSS -->
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/asciinema-player@3.8.0/dist/bundle/asciinema-player.css" />
@@ -450,6 +451,150 @@ python examples/tutorials/hello_world.py</code></pre>
         </div>
     </section>
 
+    
+    <!-- Performance Leaderboard Section -->
+    <section id="leaderboard" class="leaderboard-section section-animate">
+        <div class="container">
+            <h2 class="section-title">Performance Leaderboard</h2>
+            <p class="section-subtitle">SAGE 在各种配置下的推理性能基准测试结果</p>
+
+            <!-- Tab Navigation -->
+            <div class="lb-tab-nav">
+                <button class="lb-tab-button active" data-tab="single">
+                    <i class="fas fa-microchip"></i> 单机单卡
+                </button>
+                <button class="lb-tab-button" data-tab="multi">
+                    <i class="fas fa-server"></i> 单机多卡
+                </button>
+                <button class="lb-tab-button" data-tab="distributed">
+                    <i class="fas fa-network-wired"></i> 多机多卡
+                </button>
+            </div>
+
+            <!-- Single GPU Tab Content -->
+            <div class="lb-tab-content active" data-tab="single">
+                <div class="lb-filter-container">
+                    <div class="lb-filter-group">
+                        <label class="lb-filter-label">GPU 型号:</label>
+                        <select class="lb-filter-select" data-filter="gpu">
+                            <option value="all">全部</option>
+                            <option value="A100">NVIDIA A100</option>
+                            <option value="H100">NVIDIA H100</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="lb-loading" style="display: none;">
+                    <div class="lb-spinner"></div>
+                    <span>加载数据中...</span>
+                </div>
+                <div class="lb-empty" style="display: none;">暂无数据</div>
+                <div class="lb-error" style="display: none;">数据加载失败</div>
+
+                <div class="lb-table-container" style="display: none;">
+                    <table class="lb-table">
+                        <thead>
+                            <tr>
+                                <th>排名</th>
+                                <th>模型</th>
+                                <th>吞吐量</th>
+                                <th>延迟</th>
+                                <th>显存</th>
+                                <th>趋势</th>
+                                <th>详情</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Multi GPU Tab Content -->
+            <div class="lb-tab-content" data-tab="multi">
+                <div class="lb-filter-container">
+                    <div class="lb-filter-group">
+                        <label class="lb-filter-label">GPU 数量:</label>
+                        <select class="lb-filter-select" data-filter="gpuCount">
+                            <option value="all">全部</option>
+                            <option value="2">2 GPUs</option>
+                            <option value="4">4 GPUs</option>
+                            <option value="8">8 GPUs</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="lb-loading" style="display: none;">
+                    <div class="lb-spinner"></div>
+                    <span>加载数据中...</span>
+                </div>
+                <div class="lb-empty" style="display: none;">暂无数据</div>
+                <div class="lb-error" style="display: none;">数据加载失败</div>
+
+                <div class="lb-table-container" style="display: none;">
+                    <table class="lb-table">
+                        <thead>
+                            <tr>
+                                <th>排名</th>
+                                <th>模型</th>
+                                <th>吞吐量</th>
+                                <th>延迟</th>
+                                <th>显存</th>
+                                <th>趋势</th>
+                                <th>详情</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Distributed Tab Content -->
+            <div class="lb-tab-content" data-tab="distributed">
+                <div class="lb-filter-container">
+                    <div class="lb-filter-group">
+                        <label class="lb-filter-label">节点数:</label>
+                        <select class="lb-filter-select" data-filter="nodeCount">
+                            <option value="all">全部</option>
+                            <option value="2">2 Nodes</option>
+                            <option value="4">4 Nodes</option>
+                            <option value="8">8+ Nodes</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="lb-loading" style="display: none;">
+                    <div class="lb-spinner"></div>
+                    <span>加载数据中...</span>
+                </div>
+                <div class="lb-empty" style="display: none;">暂无数据</div>
+                <div class="lb-error" style="display: none;">数据加载失败</div>
+
+                <div class="lb-table-container" style="display: none;">
+                    <table class="lb-table">
+                        <thead>
+                            <tr>
+                                <th>排名</th>
+                                <th>模型</th>
+                                <th>吞吐量</th>
+                                <th>延迟</th>
+                                <th>显存</th>
+                                <th>趋势</th>
+                                <th>详情</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div style="text-align: center; margin-top: 2rem;">
+                <a href="benchmarks/" class="btn btn-secondary">
+                    <i class="fas fa-chart-bar"></i> 查看完整基准测试
+                </a>
+            </div>
+        </div>
+    </section>
+
     <!-- Developer & Collaboration Section -->
     <section id="team" class="developer-collaboration section-animate">
         <div class="container">
@@ -825,5 +970,8 @@ python examples/tutorials/hello_world.py</code></pre>
             setTimeout(initPlayers, 100); 
         })();
     </script>
+    <!-- Leaderboard Scripts -->
+    <script src="assets/hf-data-loader.js"></script>
+    <script src="assets/leaderboard.js"></script>
 </body>
 </html>
