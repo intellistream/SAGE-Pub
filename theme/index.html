@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SAGE</title>
     <link rel="icon" href="assets/img/isage_light.svg">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fira+Code&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css">
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
 
@@ -453,140 +453,84 @@ python examples/tutorials/hello_world.py</code></pre>
 
     
     <!-- Performance Leaderboard Section -->
-    <section id="leaderboard" class="leaderboard-section section-animate">
+    <section id="leaderboard" class="section-animate">
         <div class="container">
-            <h2 class="section-title">Performance Leaderboard</h2>
-            <p class="section-subtitle">SAGE 在各种配置下的推理性能基准测试结果</p>
+            <div class="leaderboard-section">
+                <h2>📊 Performance Leaderboard</h2>
+                <p>
+                  Track SAGE's version evolution with real-world performance metrics. Compare performance across different versions, resource configurations, and standard RAG/Agent workloads.
+                </p>
 
-            <!-- Tab Navigation -->
-            <div class="lb-tab-nav">
-                <button class="lb-tab-button active" data-tab="single">
-                    <i class="fas fa-microchip"></i> 单机单卡
-                </button>
-                <button class="lb-tab-button" data-tab="multi">
-                    <i class="fas fa-server"></i> 单机多卡
-                </button>
-                <button class="lb-tab-button" data-tab="distributed">
-                    <i class="fas fa-network-wired"></i> 多机多卡
-                </button>
-            </div>
+                <!-- Tab Navigation -->
+                <div class="tab-nav">
+                  <button class="tab-button active" data-tab="single-chip">单机单卡</button>
+                  <button class="tab-button" data-tab="multi-chip">单机多卡</button>
+                  <button class="tab-button" data-tab="multi-node">多机多卡</button>
+                </div>
 
-            <!-- Single GPU Tab Content -->
-            <div class="lb-tab-content active" data-tab="single">
-                <div class="lb-filter-container">
-                    <div class="lb-filter-group">
-                        <label class="lb-filter-label">GPU 型号:</label>
-                        <select class="lb-filter-select" data-filter="gpu">
-                            <option value="all">全部</option>
-                            <option value="A100">NVIDIA A100</option>
-                            <option value="H100">NVIDIA H100</option>
-                        </select>
+                <!-- Loading State -->
+                <div id="leaderboard-loading" class="loading-state">
+                  <div class="spinner"></div>
+                  <p>Loading leaderboard data...</p>
+                </div>
+
+                <!-- Error State -->
+                <div id="leaderboard-error" class="empty-state" style="display: none">
+                  <div class="empty-state-icon">⚠️</div>
+                  <h3>Failed to Load Data</h3>
+                  <p>Please refresh the page or check your internet connection.</p>
+                </div>
+
+                <!-- Main Content -->
+                <div id="leaderboard-content" style="display: none">
+                  <!-- Filters -->
+                  <div class="filters">
+                    <div class="filter-group">
+                      <label for="filter-version">SAGE Version</label>
+                      <select id="filter-version">
+                        <option value="all">All</option>
+                      </select>
                     </div>
-                </div>
-
-                <div class="lb-loading" style="display: none;">
-                    <div class="lb-spinner"></div>
-                    <span>加载数据中...</span>
-                </div>
-                <div class="lb-empty" style="display: none;">暂无数据</div>
-                <div class="lb-error" style="display: none;">数据加载失败</div>
-
-                <div class="lb-table-container" style="display: none;">
-                    <table class="lb-table">
-                        <thead>
-                            <tr>
-                                <th>排名</th>
-                                <th>模型</th>
-                                <th>吞吐量</th>
-                                <th>延迟</th>
-                                <th>显存</th>
-                                <th>趋势</th>
-                                <th>详情</th>
-                            </tr>
-                        </thead>
-                        <tbody></tbody>
-                    </table>
-                </div>
-            </div>
-
-            <!-- Multi GPU Tab Content -->
-            <div class="lb-tab-content" data-tab="multi">
-                <div class="lb-filter-container">
-                    <div class="lb-filter-group">
-                        <label class="lb-filter-label">GPU 数量:</label>
-                        <select class="lb-filter-select" data-filter="gpuCount">
-                            <option value="all">全部</option>
-                            <option value="2">2 GPUs</option>
-                            <option value="4">4 GPUs</option>
-                            <option value="8">8 GPUs</option>
-                        </select>
+                    <div class="filter-group">
+                      <label for="filter-resource">Resource</label>
+                      <select id="filter-resource">
+                        <option value="all">All</option>
+                      </select>
                     </div>
-                </div>
+                  </div>
 
-                <div class="lb-loading" style="display: none;">
-                    <div class="lb-spinner"></div>
-                    <span>加载数据中...</span>
-                </div>
-                <div class="lb-empty" style="display: none;">暂无数据</div>
-                <div class="lb-error" style="display: none;">数据加载失败</div>
-
-                <div class="lb-table-container" style="display: none;">
-                    <table class="lb-table">
-                        <thead>
-                            <tr>
-                                <th>排名</th>
-                                <th>模型</th>
-                                <th>吞吐量</th>
-                                <th>延迟</th>
-                                <th>显存</th>
-                                <th>趋势</th>
-                                <th>详情</th>
-                            </tr>
-                        </thead>
-                        <tbody></tbody>
+                  <!-- Table -->
+                  <div class="table-container">
+                    <table class="leaderboard-table">
+                      <thead>
+                        <tr>
+                          <th>SAGE Ver</th>
+                          <th>Workload</th>
+                          <th>Resource</th>
+                          <th>Date</th>
+                          <th>Latency (ms) ↓</th>
+                          <th>QPS ↑</th>
+                          <th>Memory (MB) ↓</th>
+                          <th>Success % ↑</th>
+                          <th>Score ↑</th>
+                          <th>Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody id="leaderboard-tbody">
+                        <!-- Populated by JS -->
+                      </tbody>
                     </table>
+                  </div>
+
+                  <!-- Empty State -->
+                  <div id="empty-state" class="empty-state" style="display: none">
+                    <div class="empty-state-icon">🔍</div>
+                    <h3>No Results Found</h3>
+                    <p>Try adjusting your filters to see more data.</p>
+                  </div>
                 </div>
             </div>
-
-            <!-- Distributed Tab Content -->
-            <div class="lb-tab-content" data-tab="distributed">
-                <div class="lb-filter-container">
-                    <div class="lb-filter-group">
-                        <label class="lb-filter-label">节点数:</label>
-                        <select class="lb-filter-select" data-filter="nodeCount">
-                            <option value="all">全部</option>
-                            <option value="2">2 Nodes</option>
-                            <option value="4">4 Nodes</option>
-                            <option value="8">8+ Nodes</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div class="lb-loading" style="display: none;">
-                    <div class="lb-spinner"></div>
-                    <span>加载数据中...</span>
-                </div>
-                <div class="lb-empty" style="display: none;">暂无数据</div>
-                <div class="lb-error" style="display: none;">数据加载失败</div>
-
-                <div class="lb-table-container" style="display: none;">
-                    <table class="lb-table">
-                        <thead>
-                            <tr>
-                                <th>排名</th>
-                                <th>模型</th>
-                                <th>吞吐量</th>
-                                <th>延迟</th>
-                                <th>显存</th>
-                                <th>趋势</th>
-                                <th>详情</th>
-                            </tr>
-                        </thead>
-                        <tbody></tbody>
-                    </table>
-                </div>
-            </div>
-
+            
             <div style="text-align: center; margin-top: 2rem;">
                 <a href="benchmarks/" class="btn btn-secondary">
                     <i class="fas fa-chart-bar"></i> 查看完整基准测试
