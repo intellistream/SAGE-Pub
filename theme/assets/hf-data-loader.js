@@ -4,7 +4,7 @@
 
 const HF_CONFIG = {
     // Hugging Face Repository Config
-    repo: 'intellistream/sagellm-benchmark-results', // Placeholder until real repo is ready
+    repo: 'intellistream/sage-benchmark-results', // Placeholder until real repo is ready
     branch: 'main',
 
     // Data files in HF repo
