@@ -1,397 +1,138 @@
 [
-  {
-    "entry_id": "sage-single-001",
-    "sagellm_version": "1.2.0",
-    "config_type": "single_gpu",
-    "hardware": {
-      "vendor": "NVIDIA",
-      "chip_model": "NVIDIA A100 80GB",
-      "chip_count": 1,
-      "interconnect": "None",
-      "chips_per_node": 1,
-      "intra_node_interconnect": "None",
-      "memory_per_chip_gb": 80,
-      "total_memory_gb": 80
+    {
+        "entry_id": "v0.6.0-q1-single",
+        "sage_version": "v0.6.0",
+        "timestamp": "2024-03-20",
+        "config_type": "single-chip",
+        "resource_config": {
+            "name": "Single Node (A100)",
+            "details": "1x NVIDIA A100 80GB, 64GB RAM"
+        },
+        "components": {
+            "sage_flow": "0.4.1",
+            "sage_mem": "0.3.2"
+        },
+        "workload": {
+            "name": "Q1",
+            "type": "Standard RAG",
+            "description": "Simple dense retrieval + generation"
+        },
+        "metrics": {
+            "throughput_qps": 45.2,
+            "latency_p99": 85.5,
+            "success_rate": 99.9,
+            "memory_mb": 12040,
+            "accuracy_score": 0.92
+        }
     },
-    "model": {
-      "name": "Qwen2.5-7B",
-      "parameters": "7B",
-      "precision": "FP16",
-      "quantization": "None"
+    {
+        "entry_id": "v0.6.0-q2-single",
+        "sage_version": "v0.6.0",
+        "timestamp": "2024-03-20",
+        "config_type": "single-chip",
+        "resource_config": {
+            "name": "Single Node (A100)",
+            "details": "1x NVIDIA A100 80GB, 64GB RAM"
+        },
+        "workload": {
+            "name": "Q2",
+            "type": "Long Context",
+            "description": "32k context summary"
+        },
+        "metrics": {
+            "throughput_qps": 12.5,
+            "latency_p99": 450.2,
+            "success_rate": 99.5,
+            "memory_mb": 24080,
+            "accuracy_score": 0.88
+        }
     },
-    "workload": {
-      "input_length": 512,
-      "output_length": 128,
-      "batch_size": 8,
-      "concurrent_requests": 1,
-      "dataset": "default"
+    {
+        "entry_id": "v0.6.0-q3-single",
+        "sage_version": "v0.6.0",
+        "timestamp": "2024-03-20",
+        "config_type": "single-chip",
+        "resource_config": {
+            "name": "Single Node (A100)",
+            "details": "1x NVIDIA A100 80GB, 64GB RAM"
+        },
+        "workload": {
+            "name": "Q3",
+            "type": "Agent Planning",
+            "description": "Multi-step reasoning"
+        },
+        "metrics": {
+            "throughput_qps": 8.1,
+            "latency_p99": 1200.0,
+            "success_rate": 98.2,
+            "memory_mb": 18500,
+            "accuracy_score": 0.85
+        }
     },
-    "metrics": {
-      "ttft_ms": 45.2,
-      "tbt_ms": 0.85,
-      "tpot_ms": 0.85,
-      "throughput_tps": 1250.5,
-      "peak_mem_mb": 14500,
-      "error_rate": 0.0,
-      "prefix_hit_rate": 0.92,
-      "kv_used_tokens": 5000,
-      "kv_used_bytes": 1280000,
-      "evict_count": 0,
-      "evict_ms": 0.0,
-      "spec_accept_rate": null
+    {
+        "entry_id": "v0.5.9-q1-single",
+        "sage_version": "v0.5.9",
+        "timestamp": "2024-02-15",
+        "config_type": "single-chip",
+        "resource_config": {
+            "name": "Single Node (A100)",
+            "details": "1x NVIDIA A100 80GB, 64GB RAM"
+        },
+        "workload": {
+            "name": "Q1",
+            "type": "Standard RAG",
+            "description": "Simple dense retrieval + generation"
+        },
+        "metrics": {
+            "throughput_qps": 40.1,
+            "latency_p99": 95.0,
+            "success_rate": 99.0,
+            "memory_mb": 12500,
+            "accuracy_score": 0.90
+        }
     },
-    "cluster": null,
-    "versions": {
-      "protocol": "1.0.0",
-      "backend": "1.2.0",
-      "core": "1.2.0",
-      "control_plane": "1.0.0",
-      "gateway": "1.0.0",
-      "kv_cache": "1.0.0",
-      "comm": "1.0.0",
-      "compression": "1.0.0",
-      "benchmark": "1.2.0"
+    {
+        "entry_id": "v0.5.9-q2-single",
+        "sage_version": "v0.5.9",
+        "timestamp": "2024-02-15",
+        "config_type": "single-chip",
+        "resource_config": {
+            "name": "Single Node (A100)",
+            "details": "1x NVIDIA A100 80GB, 64GB RAM"
+        },
+        "workload": {
+            "name": "Q2",
+            "type": "Long Context",
+            "description": "32k context summary"
+        },
+        "metrics": {
+            "throughput_qps": 10.0,
+            "latency_p99": 500.0,
+            "success_rate": 98.5,
+            "memory_mb": 26000,
+            "accuracy_score": 0.85
+        }
     },
-    "environment": {
-      "os": "Linux 6.2.0-26-generic",
-      "python_version": "3.11.0",
-      "pytorch_version": "2.1.0+cu121",
-      "cuda_version": "12.1",
-      "cann_version": null,
-      "driver_version": "535.104.05"
-    },
-    "kv_cache_config": {
-      "enabled": true,
-      "eviction_policy": "LRU",
-      "budget_tokens": 8192,
-      "prefix_cache_enabled": true
-    },
-    "metadata": {
-      "submitted_at": "2026-01-15T10:00:00+00:00",
-      "submitter": "SAGE benchmark",
-      "data_source": "automated-benchmark",
-      "reproducible_cmd": "sage-benchmark run --model qwen2.5-7b --backend cuda",
-      "git_commit": null,
-      "release_date": "2026-01-15",
-      "changelog_url": "https://github.com/intellistream/sage/blob/main/CHANGELOG.md",
-      "notes": "Standard inference test with Flash Attention",
-      "verified": true
+        {
+        "entry_id": "v0.5.9-q3-single",
+        "sage_version": "v0.5.9",
+        "timestamp": "2024-02-15",
+        "config_type": "single-chip",
+        "resource_config": {
+            "name": "Single Node (A100)",
+            "details": "1x NVIDIA A100 80GB, 64GB RAM"
+        },
+        "workload": {
+            "name": "Q3",
+            "type": "Agent Planning",
+            "description": "Multi-step reasoning"
+        },
+        "metrics": {
+            "throughput_qps": 6.5,
+            "latency_p99": 1400.0,
+            "success_rate": 95.0,
+            "memory_mb": 20000,
+            "accuracy_score": 0.80
+        }
     }
-  },
-  {
-    "entry_id": "sage-single-002",
-    "sagellm_version": "1.2.0",
-    "config_type": "single_gpu",
-    "hardware": {
-      "vendor": "NVIDIA",
-      "chip_model": "NVIDIA A100 80GB",
-      "chip_count": 1,
-      "interconnect": "None",
-      "chips_per_node": 1,
-      "intra_node_interconnect": "None",
-      "memory_per_chip_gb": 80,
-      "total_memory_gb": 80
-    },
-    "model": {
-      "name": "LLaMA-3-8B",
-      "parameters": "8B",
-      "precision": "FP16",
-      "quantization": "None"
-    },
-    "workload": {
-      "input_length": 512,
-      "output_length": 128,
-      "batch_size": 8,
-      "concurrent_requests": 1,
-      "dataset": "default"
-    },
-    "metrics": {
-      "ttft_ms": 48.5,
-      "tbt_ms": 0.92,
-      "tpot_ms": 0.92,
-      "throughput_tps": 1180.3,
-      "peak_mem_mb": 15800,
-      "error_rate": 0.0,
-      "prefix_hit_rate": 0.89,
-      "kv_used_tokens": 5200,
-      "kv_used_bytes": 1331200,
-      "evict_count": 0,
-      "evict_ms": 0.0,
-      "spec_accept_rate": null
-    },
-    "cluster": null,
-    "versions": {
-      "protocol": "1.0.0",
-      "backend": "1.2.0",
-      "core": "1.2.0",
-      "control_plane": "1.0.0",
-      "gateway": "1.0.0",
-      "kv_cache": "1.0.0",
-      "comm": "1.0.0",
-      "compression": "1.0.0",
-      "benchmark": "1.2.0"
-    },
-    "environment": {
-      "os": "Linux 6.2.0-26-generic",
-      "python_version": "3.11.0",
-      "pytorch_version": "2.1.0+cu121",
-      "cuda_version": "12.1",
-      "cann_version": null,
-      "driver_version": "535.104.05"
-    },
-    "kv_cache_config": {
-      "enabled": true,
-      "eviction_policy": "LRU",
-      "budget_tokens": 8192,
-      "prefix_cache_enabled": true
-    },
-    "metadata": {
-      "submitted_at": "2026-01-15T11:00:00+00:00",
-      "submitter": "SAGE benchmark",
-      "data_source": "automated-benchmark",
-      "reproducible_cmd": "sage-benchmark run --model llama-3-8b --backend cuda",
-      "git_commit": null,
-      "release_date": "2026-01-15",
-      "changelog_url": "https://github.com/intellistream/sage/blob/main/CHANGELOG.md",
-      "notes": "Standard inference test",
-      "verified": true
-    }
-  },
-  {
-    "entry_id": "sage-single-003",
-    "sagellm_version": "1.2.0",
-    "config_type": "single_gpu",
-    "hardware": {
-      "vendor": "NVIDIA",
-      "chip_model": "NVIDIA A100 80GB",
-      "chip_count": 1,
-      "interconnect": "None",
-      "chips_per_node": 1,
-      "intra_node_interconnect": "None",
-      "memory_per_chip_gb": 80,
-      "total_memory_gb": 80
-    },
-    "model": {
-      "name": "Mistral-7B",
-      "parameters": "7B",
-      "precision": "FP16",
-      "quantization": "None"
-    },
-    "workload": {
-      "input_length": 512,
-      "output_length": 128,
-      "batch_size": 8,
-      "concurrent_requests": 1,
-      "dataset": "default"
-    },
-    "metrics": {
-      "ttft_ms": 42.8,
-      "tbt_ms": 0.78,
-      "tpot_ms": 0.78,
-      "throughput_tps": 1320.8,
-      "peak_mem_mb": 13800,
-      "error_rate": 0.0,
-      "prefix_hit_rate": 0.94,
-      "kv_used_tokens": 4800,
-      "kv_used_bytes": 1228800,
-      "evict_count": 0,
-      "evict_ms": 0.0,
-      "spec_accept_rate": null
-    },
-    "cluster": null,
-    "versions": {
-      "protocol": "1.0.0",
-      "backend": "1.2.0",
-      "core": "1.2.0",
-      "control_plane": "1.0.0",
-      "gateway": "1.0.0",
-      "kv_cache": "1.0.0",
-      "comm": "1.0.0",
-      "compression": "1.0.0",
-      "benchmark": "1.2.0"
-    },
-    "environment": {
-      "os": "Linux 6.2.0-26-generic",
-      "python_version": "3.11.0",
-      "pytorch_version": "2.1.0+cu121",
-      "cuda_version": "12.1",
-      "cann_version": null,
-      "driver_version": "535.104.05"
-    },
-    "kv_cache_config": {
-      "enabled": true,
-      "eviction_policy": "LRU",
-      "budget_tokens": 8192,
-      "prefix_cache_enabled": true
-    },
-    "metadata": {
-      "submitted_at": "2026-01-16T09:00:00+00:00",
-      "submitter": "SAGE benchmark",
-      "data_source": "automated-benchmark",
-      "reproducible_cmd": "sage-benchmark run --model mistral-7b --backend cuda",
-      "git_commit": null,
-      "release_date": "2026-01-16",
-      "changelog_url": "https://github.com/intellistream/sage/blob/main/CHANGELOG.md",
-      "notes": "Optimized with Sliding Window Attention",
-      "verified": true
-    }
-  },
-  {
-    "entry_id": "sage-single-004",
-    "sagellm_version": "1.2.0",
-    "config_type": "single_gpu",
-    "hardware": {
-      "vendor": "NVIDIA",
-      "chip_model": "NVIDIA A100 80GB",
-      "chip_count": 1,
-      "interconnect": "None",
-      "chips_per_node": 1,
-      "intra_node_interconnect": "None",
-      "memory_per_chip_gb": 80,
-      "total_memory_gb": 80
-    },
-    "model": {
-      "name": "Qwen2.5-14B",
-      "parameters": "14B",
-      "precision": "INT8",
-      "quantization": "GPTQ"
-    },
-    "workload": {
-      "input_length": 512,
-      "output_length": 128,
-      "batch_size": 4,
-      "concurrent_requests": 1,
-      "dataset": "default"
-    },
-    "metrics": {
-      "ttft_ms": 65.3,
-      "tbt_ms": 1.25,
-      "tpot_ms": 1.25,
-      "throughput_tps": 850.2,
-      "peak_mem_mb": 16500,
-      "error_rate": 0.0,
-      "prefix_hit_rate": 0.88,
-      "kv_used_tokens": 6000,
-      "kv_used_bytes": 1536000,
-      "evict_count": 0,
-      "evict_ms": 0.0,
-      "spec_accept_rate": null
-    },
-    "cluster": null,
-    "versions": {
-      "protocol": "1.0.0",
-      "backend": "1.2.0",
-      "core": "1.2.0",
-      "control_plane": "1.0.0",
-      "gateway": "1.0.0",
-      "kv_cache": "1.0.0",
-      "comm": "1.0.0",
-      "compression": "1.0.0",
-      "benchmark": "1.2.0"
-    },
-    "environment": {
-      "os": "Linux 6.2.0-26-generic",
-      "python_version": "3.11.0",
-      "pytorch_version": "2.1.0+cu121",
-      "cuda_version": "12.1",
-      "cann_version": null,
-      "driver_version": "535.104.05"
-    },
-    "kv_cache_config": {
-      "enabled": true,
-      "eviction_policy": "LRU",
-      "budget_tokens": 8192,
-      "prefix_cache_enabled": true
-    },
-    "metadata": {
-      "submitted_at": "2026-01-16T14:00:00+00:00",
-      "submitter": "SAGE benchmark",
-      "data_source": "automated-benchmark",
-      "reproducible_cmd": "sage-benchmark run --model qwen2.5-14b --backend cuda --quantization int8",
-      "git_commit": null,
-      "release_date": "2026-01-16",
-      "changelog_url": "https://github.com/intellistream/sage/blob/main/CHANGELOG.md",
-      "notes": "INT8 quantization test",
-      "verified": true
-    }
-  },
-  {
-    "entry_id": "sage-single-005",
-    "sagellm_version": "1.2.0",
-    "config_type": "single_gpu",
-    "hardware": {
-      "vendor": "NVIDIA",
-      "chip_model": "NVIDIA A100 80GB",
-      "chip_count": 1,
-      "interconnect": "None",
-      "chips_per_node": 1,
-      "intra_node_interconnect": "None",
-      "memory_per_chip_gb": 80,
-      "total_memory_gb": 80
-    },
-    "model": {
-      "name": "DeepSeek-7B",
-      "parameters": "7B",
-      "precision": "FP16",
-      "quantization": "None"
-    },
-    "workload": {
-      "input_length": 512,
-      "output_length": 128,
-      "batch_size": 8,
-      "concurrent_requests": 1,
-      "dataset": "default"
-    },
-    "metrics": {
-      "ttft_ms": 49.2,
-      "tbt_ms": 0.95,
-      "tpot_ms": 0.95,
-      "throughput_tps": 1150.6,
-      "peak_mem_mb": 14800,
-      "error_rate": 0.0,
-      "prefix_hit_rate": 0.91,
-      "kv_used_tokens": 5100,
-      "kv_used_bytes": 1305600,
-      "evict_count": 0,
-      "evict_ms": 0.0,
-      "spec_accept_rate": null
-    },
-    "cluster": null,
-    "versions": {
-      "protocol": "1.0.0",
-      "backend": "1.2.0",
-      "core": "1.2.0",
-      "control_plane": "1.0.0",
-      "gateway": "1.0.0",
-      "kv_cache": "1.0.0",
-      "comm": "1.0.0",
-      "compression": "1.0.0",
-      "benchmark": "1.2.0"
-    },
-    "environment": {
-      "os": "Linux 6.2.0-26-generic",
-      "python_version": "3.11.0",
-      "pytorch_version": "2.1.0+cu121",
-      "cuda_version": "12.1",
-      "cann_version": null,
-      "driver_version": "535.104.05"
-    },
-    "kv_cache_config": {
-      "enabled": true,
-      "eviction_policy": "LRU",
-      "budget_tokens": 8192,
-      "prefix_cache_enabled": true
-    },
-    "metadata": {
-      "submitted_at": "2026-01-17T10:00:00+00:00",
-      "submitter": "SAGE benchmark",
-      "data_source": "automated-benchmark",
-      "reproducible_cmd": "sage-benchmark run --model deepseek-7b --backend cuda",
-      "git_commit": null,
-      "release_date": "2026-01-17",
-      "changelog_url": "https://github.com/intellistream/sage/blob/main/CHANGELOG.md",
-      "notes": "Standard inference test",
-      "verified": true
-    }
-  }
 ]
