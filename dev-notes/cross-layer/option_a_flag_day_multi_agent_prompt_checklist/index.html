@@ -1,0 +1,1689 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="高性能分布式推理框架 - 数据流原生的模块化、透明、可控的LLM工作流推理框架">
+      
+      
+        <meta name="author" content="IntelliStream Lab">
+      
+      
+        <link rel="canonical" href="https://sage.org.ai/dev-notes/cross-layer/option_a_flag_day_multi_agent_prompt_checklist/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/img/isage_light.svg">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+    
+    
+  
+    <title>Option A Flag-Day Refactor (No Backward Compatibility)</title>
+  
+
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+<!-- Google Tag Manager -->
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-T35S4S46');</script>
+<!-- End Google Tag Manager -->
+
+    
+  <!-- pragma: allowlist secret -->
+  <meta name="algolia-site-verification" content="165B7E7C89E49946" />
+  <style>
+    @import url("https://fonts.googleapis.com/css2?family=Public+Sans&display=swap");
+    :root {
+      --md-primary-fg-color: #333333;
+      --md-accent-fg-color: #1E88E5;
+      --md-default-bg-color: #FFFFFF;
+      --md-default-fg-color: #333333;
+      --md-text-font-family: "Public Sans", sans-serif;
+    }
+
+    body {
+      font-family: var(--md-text-font-family);
+      background-color: var(--md-default-bg-color);
+      color: var(--md-default-fg-color);
+    }
+
+    .md-main {
+      background-color: #FFFFFF;
+    }
+
+    .md-footer {
+      background-color: #F5F5F5;
+      color: #666666;
+    }
+
+    .md-footer-meta {
+      background-color: #4d4d4d;
+    }
+
+    .md-typeset a {
+      color: #1E88E5;
+    }
+
+    .md-typeset a:hover {
+      color: #1565C0;
+    }
+
+    .md-nav__link--active,
+    .md-nav__link:active {
+      color: #1E88E5;
+    }
+
+    .md-search__input {
+      background-color: #F5F5F5;
+      color: #333333;
+    }
+
+    .md-search__input:hover,
+    .md-search__input:focus {
+      background-color: #EEEEEE;
+    }
+    /* Table of contents styles */
+    .md-nav--secondary .md-nav__item--active > .md-nav__link {
+      font-weight: bold;
+      color: var(--md-primary-fg-color);
+    }
+
+    .md-nav--secondary .md-nav__item--nested > .md-nav__link {
+      font-weight: normal;
+      color: var(--md-default-fg-color);
+    }
+
+    .md-header__button.md-logo img {
+      height: 30px;
+      max-height: 30px;
+      width: auto;
+      vertical-align: middle;
+    }
+
+    .md-nav--secondary .md-nav__item--nested > .md-nav__link::before {
+      content: "";
+      display: inline-block;
+      width: 6px;
+      height: 6px;
+      background-color: var(--md-default-fg-color);
+      border-radius: 50%;
+      margin-right: 0.5rem;
+    }
+
+    [data-md-color-scheme="slate"] {
+      --md-default-bg-color: #1E1E1E;
+      --md-default-fg-color: #FFFFFF;
+      --md-accent-fg-color: #64B5F6;
+    }
+
+    [data-md-color-scheme="slate"] .md-main {
+      background-color: #1E1E1E;
+    }
+
+    [data-md-color-scheme="slate"] .navbar {
+      background-color: #1E1E1E;
+      color: #FFFFFF;
+      box-shadow: none;
+    }
+
+    [data-md-color-scheme="slate"] .md-footer {
+      background-color: #1E1E1E;
+      color: #BDBDBD;
+    }
+
+    [data-md-color-scheme="slate"] .md-header {
+      background-color: #1E1E1E;
+      color: #BDBDBD;
+    }
+
+    [data-md-color-scheme="slate"] .md-tabs {
+      background-color: #1E1E1E;
+      color: #BDBDBD;
+    }
+
+    [data-md-color-scheme="slate"] .md-search__input {
+      background-color: #F5F5F5;
+      color: #333333;
+    }
+
+    [data-md-color-scheme="slate"] .md-search__icon {
+      color: #333333;
+    }
+
+    [data-md-color-scheme="slate"] .md-search__input::placeholder {
+      color: #333333;
+    }
+
+    [data-md-color-scheme="slate"] .md-footer-meta {
+      background-color: #4d4d4d;
+    }
+
+    [data-md-color-scheme="slate"] .md-typeset a {
+      color: #64B5F6;
+    }
+
+    [data-md-color-scheme="slate"] .md-typeset a:hover {
+      color: #90CAF9;
+    }
+
+    .notebook-links {
+      display: flex;
+      justify-content: flex-end;
+      margin-bottom: 1rem;
+    }
+    .notebook-links .md-content__button {
+      margin-left: 0.5rem;
+    }
+
+    [data-md-color-scheme=default] .logo-dark {
+      display: none !important;
+    }
+
+    [data-md-color-scheme=slate] .logo-light {
+      display: none !important;
+    }
+
+    .jupyter-wrapper .jp-CodeCell .jp-Cell-inputWrapper .jp-InputPrompt.jp-InputArea-prompt {
+      display: none !important;
+    }
+
+    .jupyter-wrapper .jp-Notebook .jp-Cell .jp-OutputPrompt {
+      display: none !important;
+    }
+
+    .md-banner {
+      background-color: #CFC9FA;
+      color: #000000;
+    }
+
+    .md-banner a {
+      color: #000000;
+      text-decoration: underline;
+    }
+
+    .md-banner a:hover {
+      color: #000000;
+    }
+
+    .md-header__title {
+      visibility: hidden;
+    }
+
+    /* Dark mode banner styling */
+    [data-md-color-scheme="slate"] .md-banner {
+      background-color: #CFC9FA; /* Same light purple for both modes */
+      color: #000000;
+    }
+
+    [data-md-color-scheme="slate"] .md-banner a {
+      color: #000000;
+    }
+
+    [data-md-color-scheme="slate"] .md-banner a:hover {
+      color: #000000;
+    }
+
+  </style>
+
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="blue" data-md-color-accent="blue">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#option-a-flag-day-refactor-no-backward-compatibility" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../../.." title="SAGE Documentation" class="md-header__button md-logo" aria-label="SAGE Documentation" data-md-component="logo">
+      
+  <img src="../../../assets/logo/sage.svg" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            SAGE Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Option A Flag-Day Refactor (No Backward Compatibility)
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="blue" data-md-color-accent="blue"  aria-label="切换到深色模式"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="切换到深色模式" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="blue" data-md-color-accent="blue"  aria-label="切换到浅色模式"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="切换到浅色模式" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+          <a href="javascript:void(0)" class="md-search__icon md-icon" title="分享" aria-label="分享" data-clipboard data-clipboard-text="" data-md-component="search-share" tabindex="-1">
+            
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.15c-.05.21-.08.43-.08.66 0 1.61 1.31 2.91 2.92 2.91s2.92-1.3 2.92-2.91A2.92 2.92 0 0 0 18 16.08"/></svg>
+          </a>
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/intellistream/SAGE" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    intellistream/SAGE
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+    
+      
+<nav class="md-tabs" aria-label="标签" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="https://sage.org.ai/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  首页
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../about/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  关于
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../getting-started/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  入门指南
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../tutorials/advanced/index.md" class="md-tabs__link">
+          
+  
+  
+    
+  
+  高级教程
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../guides/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  用户指南
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../developers/commands/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  开发者
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../community/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  社区
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../contributions/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  我们的贡献
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+    
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="SAGE Documentation" class="md-nav__button md-logo" aria-label="SAGE Documentation" data-md-component="logo">
+      
+  <img src="../../../assets/logo/sage.svg" alt="logo">
+
+    </a>
+    SAGE Documentation
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/intellistream/SAGE" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    intellistream/SAGE
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="https://sage.org.ai/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    首页
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../about/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    关于
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../../getting-started/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    入门指南
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../../tutorials/advanced/index.md" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    高级教程
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../../guides/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    用户指南
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../../developers/commands/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    开发者
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../../community/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    社区
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../../contributions/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    我们的贡献
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+                
+
+
+
+
+              
+              <article class="md-content__inner md-typeset">
+                
+<div class="notebook-links">
+  
+</div>
+
+
+                  
+
+
+  
+  
+
+
+<h1 id="option-a-flag-day-refactor-no-backward-compatibility">Option A Flag-Day Refactor (No Backward Compatibility)<a class="headerlink" href="#option-a-flag-day-refactor-no-backward-compatibility" title="Permanent link">&para;</a></h1>
+<p>Date: 2025-12-25 Owner: multi-agent swarm (shared prompt checklist)</p>
+<h2 id="0-one-sentence-goal">0) One-sentence goal<a class="headerlink" href="#0-one-sentence-goal" title="Permanent link">&para;</a></h2>
+<p>Split the LLM serving stack out of ambiguous <code>sage-common</code> / <code>sage-gateway</code> naming into dedicated
+packages (<code>sage-llm-core</code> in L1, <code>sage-llm-gateway</code> in L6), and update the entire repo in one shot
+<strong>without</strong> compatibility shims.</p>
+<h2 id="1-non-negotiable-constraints">1) Non-negotiable constraints<a class="headerlink" href="#1-non-negotiable-constraints" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Strict layering: L6 → L5 → L4 → L3 → L2 → L1 (no upward deps).</li>
+<li>Ports must come from <code>sage.common.config.ports.SagePorts</code>.</li>
+<li>User data paths must use <code>sage.common.config.user_paths.get_user_paths()</code> (no <code>~/.sage</code>).</li>
+<li><code>UnifiedInferenceClient</code> must be created via factory (<code>create()</code> / <code>create_with_control_plane()</code>),
+  never direct instantiation.</li>
+<li>No compatibility path: do not keep old imports, packages, wrappers, or alias console scripts.</li>
+</ul>
+<h2 id="2-target-end-state-package-map">2) Target end state (package map)<a class="headerlink" href="#2-target-end-state-package-map" title="Permanent link">&para;</a></h2>
+<h3 id="21-new-packages">2.1 New packages<a class="headerlink" href="#21-new-packages" title="Permanent link">&para;</a></h3>
+<ul>
+<li>L1: <code>packages/sage-llm-core/</code> → <code>src/sage/llm/</code></li>
+<li><code>UnifiedInferenceClient</code></li>
+<li>Engine control plane impl (today under <code>sage.llm.sageLLM/...</code>)</li>
+<li>LLM/embedding-specific logic only (no general foundation code)</li>
+<li>L6: <code>packages/sage-llm-gateway/</code> → <code>src/sage/llm/gateway/</code></li>
+<li>OpenAI/Anthropic-compatible endpoints</li>
+<li>Engine management endpoints (control plane surface)</li>
+<li>Sessions/memory APIs at the interface boundary</li>
+</ul>
+<h4 id="optional-reserved-l6-edge-aggregator">Optional (reserved) L6 edge aggregator<a class="headerlink" href="#optional-reserved-l6-edge-aggregator" title="Permanent link">&para;</a></h4>
+<ul>
+<li>L6: <code>packages/sage-edge/</code> → <code>src/sage/edge/</code></li>
+<li>Purpose: a <strong>minimal placeholder</strong> “edge aggregator” that can mount multiple domain gateways in
+    the future (e.g., <code>sage.llm.gateway</code>, potential kernel admin APIs), without reintroducing
+    ambiguity around “gateway = scheduler”.</li>
+<li>For this refactor: keep it as a stub; it must not change runtime behavior unless explicitly
+    started.</li>
+</ul>
+<h5 id="sage-edge-placeholder-design-write-once-avoid-future-churn"><code>sage-edge</code> placeholder design (write once, avoid future churn)<a class="headerlink" href="#sage-edge-placeholder-design-write-once-avoid-future-churn" title="Permanent link">&para;</a></h5>
+<p>This is a deliberately thin “composition shell”. It should <em>not</em> contain LLM-specific logic.</p>
+<p><strong>Primary requirement:</strong> when <code>sage-edge</code> is started and it mounts the LLM gateway, the
+OpenAI-compatible API paths must still work at <code>/v1/*</code> (because many clients hard-code that path).</p>
+<p>Recommended behavior:</p>
+<ul>
+<li>Default: mount the LLM gateway at <code>/</code> (so <code>/v1/...</code> stays valid).</li>
+<li>Optional: support a configurable prefix (e.g., <code>SAGE_EDGE_LLM_PREFIX=/llm</code>) for advanced
+  deployments; if enabled, document that <code>/v1/*</code> clients must target <code>/llm/v1/*</code>.</li>
+</ul>
+<p>Recommended endpoints owned by <code>sage-edge</code> (minimal):</p>
+<ul>
+<li><code>GET /healthz</code> → 200</li>
+<li><code>GET /readyz</code> → 200 (can be same as healthz for now)</li>
+</ul>
+<p>Recommended file layout (so future expansion does not require reshuffling):</p>
+<ul>
+<li><code>packages/sage-edge/src/sage/edge/__init__.py</code></li>
+<li><code>packages/sage-edge/src/sage/edge/app.py</code> (FastAPI <code>create_app(...)</code> factory)</li>
+<li><code>packages/sage-edge/src/sage/edge/server.py</code> (uvicorn entrypoint; parses args/env; calls
+  <code>create_app</code>)</li>
+</ul>
+<p>Ports:</p>
+<ul>
+<li>Add a dedicated port constant in <code>sage.common.config.ports.SagePorts</code> (to avoid re-refactors
+  later):</li>
+<li><code>EDGE_DEFAULT</code> (choose a free default; do not hard-code in code; only via SagePorts).</li>
+</ul>
+<p>CLI/entrypoint stability:</p>
+<ul>
+<li>Prefer a stable CLI: <code>sage edge start --port ...</code> (implemented in <code>sage-cli</code>).</li>
+<li>During bring-up you may also expose <code>python -m sage.edge.server --port ...</code>.</li>
+</ul>
+<h3 id="22-existing-packages-post-move-expectations">2.2 Existing packages (post-move expectations)<a class="headerlink" href="#22-existing-packages-post-move-expectations" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Keep: <code>sage-common</code> (foundation utilities only), <code>sage-kernel</code>, <code>sage-middleware</code>,
+  <code>sage-benchmark</code>, <code>sage-apps</code>, <code>sage-cli</code>, <code>sage-studio</code>, <code>sage-tools</code>.</li>
+<li>Remove or shrink: <code>packages/sage-gateway/</code> (code moves to <code>sage-llm-gateway</code>).</li>
+</ul>
+<h2 id="3-canonical-module-namespaces-post-refactor">3) Canonical module namespaces (post-refactor)<a class="headerlink" href="#3-canonical-module-namespaces-post-refactor" title="Permanent link">&para;</a></h2>
+<ul>
+<li><code>sage.llm.unified_client</code></li>
+<li><code>sage.llm.control_plane.*</code></li>
+<li><code>sage.llm.gateway.*</code> Rule: anything about LLM/embedding serving, routing, engine lifecycle,
+  OpenAI-compatible protocol lives under <code>sage.llm.*</code>.</li>
+</ul>
+<h2 id="4-high-level-move-map">4) High-level move map<a class="headerlink" href="#4-high-level-move-map" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Control plane impl:</li>
+<li>FROM: <code>packages/sage-common/src/sage/common/components/sage_llm/sageLLM/</code></li>
+<li>TO: <code>packages/sage-llm-core/src/sage/llm/control_plane/</code></li>
+<li>Unified client:</li>
+<li>FROM: <code>packages/sage-common/src/sage/common/components/sage_llm/unified_client.py</code></li>
+<li>TO: <code>packages/sage-llm-core/src/sage/llm/unified_client.py</code></li>
+<li>Gateway:</li>
+<li>FROM: <code>packages/sage-gateway/src/sage/gateway/</code></li>
+<li>TO: <code>packages/sage-llm-gateway/src/sage/llm/gateway/</code></li>
+</ul>
+<h2 id="5-sequencing-flag-day-order">5) Sequencing (flag-day order)<a class="headerlink" href="#5-sequencing-flag-day-order" title="Permanent link">&para;</a></h2>
+<ol>
+<li>Create new packages + pyproject wiring (destinations exist).</li>
+<li>Move L1 control plane + unified client into <code>sage-llm-core</code>.</li>
+<li>Move L6 gateway into <code>sage-llm-gateway</code> (rename routes: <code>control_plane.py</code> →
+   <code>engine_control_plane.py</code>).</li>
+<li>Repo-wide import rewrites + CLI entrypoint updates.</li>
+<li>Update docs/examples/benchmarks.</li>
+<li>Remove obsolete packages/paths; run tests/quality.</li>
+</ol>
+<h2 id="6-definition-of-done">6) Definition of done<a class="headerlink" href="#6-definition-of-done" title="Permanent link">&para;</a></h2>
+<ul>
+<li><code>sage-dev project test --quick</code> passes from repo root.</li>
+<li><code>sage-dev quality --check-only</code> passes.</li>
+<li>Starting the new gateway works (OpenAI-compatible endpoint served from <code>sage-llm-gateway</code>).</li>
+<li>No remaining imports from <code>sage.llm.*</code> or <code>sage.gateway.*</code>.</li>
+</ul>
+<h2 id="7-multi-agent-workstreams-task-ids">7) Multi-agent workstreams (task IDs)<a class="headerlink" href="#7-multi-agent-workstreams-task-ids" title="Permanent link">&para;</a></h2>
+<ul>
+<li>
+<p><strong>Task A — Package scaffolding + meta wiring</strong></p>
+</li>
+<li>
+<p>Goal: create <code>sage-llm-core</code> (L1) and <code>sage-llm-gateway</code> (L6); add pyproject metadata, minimal
+    <code>__init__.py</code>; update meta-package.</p>
+</li>
+<li>
+<p>Checks: <code>python -c "import sage; import sage.llm; import sage.llm.gateway"</code>;
+    <code>sage-dev quality --check-only</code> if time.</p>
+</li>
+<li>
+<p><strong>Task B — Move L1 engine control plane into <code>sage-llm-core</code></strong></p>
+</li>
+<li>
+<p>Move <code>sage.llm.sageLLM/...</code> and <code>unified_client.py</code> to <code>sage.llm.control_plane/</code> and
+    <code>sage.llm.unified_client</code>.</p>
+</li>
+<li>
+<p>Fix all imports to new namespace; no shims. Keep factory-only creation rule.</p>
+</li>
+<li>
+<p><strong>Task C — Move gateway into <code>sage-llm-gateway</code></strong></p>
+</li>
+<li>
+<p>Move FastAPI app + routes/adapters under <code>sage.llm.gateway</code>.</p>
+</li>
+<li>
+<p>Rename route module <code>control_plane.py</code> → <code>engine_control_plane.py</code>; update all refs; no
+    wrappers.</p>
+</li>
+<li>
+<p><strong>Task D — Repo-wide import rewrite + dead-path cleanup</strong></p>
+</li>
+<li>
+<p>Replace old namespaces with new across codebase; delete obsolete modules/entrypoints.</p>
+</li>
+<li>
+<p>Verify via grep that no <code>sage.llm</code> or <code>sage.gateway</code> remain.</p>
+</li>
+<li>
+<p><strong>Task E — Docs/examples updates</strong></p>
+</li>
+<li>
+<p>Update docs, guides, tutorials, examples to new namespaces and start commands.</p>
+</li>
+<li>
+<p><strong>Task F — Tests/benchmarks stabilization</strong></p>
+</li>
+<li>
+<p>Fix test/benchmark imports; run fastest suites; ensure coverage for control plane + gateway
+    flows.</p>
+</li>
+<li>
+<p><strong>Task G — <code>sage-edge</code> placeholder implementation (optional but requested)</strong></p>
+</li>
+<li>
+<p>Goal: scaffold <code>packages/sage-edge</code> (L6) with a minimal FastAPI app (or equivalent) that can
+    later mount <code>sage.llm.gateway</code> under a path (e.g., <code>/llm</code>).</p>
+</li>
+<li>
+<p>Requirements:</p>
+<ul>
+<li>It must be safe-by-default: nothing changes unless <code>sage-edge</code> is started.</li>
+<li>Do not move any runtime responsibilities into <code>sage-edge</code>; it is an aggregator shell only.</li>
+<li>No backward compatibility shims.</li>
+</ul>
+</li>
+<li>
+<p>Concrete spec (to prevent future refactors):</p>
+<ul>
+<li>Implement <code>create_app(mount_llm: bool, llm_prefix: str | None)</code> in <code>sage.edge.app</code>.</li>
+<li>If <code>mount_llm=True</code>:</li>
+<li>Import the LLM gateway app factory (canonical) from <code>sage.llm.gateway</code> and mount it.</li>
+<li>Default mount path must be <code>/</code> (keep <code>/v1/*</code> working).</li>
+<li>If <code>llm_prefix</code> is provided, mount under that prefix.</li>
+<li>Provide <code>GET /healthz</code> and <code>GET /readyz</code> at the edge level.</li>
+<li>Add a <code>server.py</code> module that can be started via either:</li>
+<li><code>sage edge start --port &lt;port&gt; [--llm-prefix &lt;prefix&gt;]</code> (preferred)</li>
+<li><code>python -m sage.edge.server --port &lt;port&gt; [--llm-prefix &lt;prefix&gt;]</code></li>
+<li>Port default must come from <code>SagePorts.EDGE_DEFAULT</code>.</li>
+</ul>
+</li>
+</ul>
+<h2 id="8-repo-wide-verification-commands">8) Repo-wide verification commands<a class="headerlink" href="#8-repo-wide-verification-commands" title="Permanent link">&para;</a></h2>
+<ul>
+<li><code>sage-dev quality --check-only</code></li>
+<li><code>sage-dev project test --quick</code></li>
+<li>Ad-hoc:</li>
+<li><code>python -c "from sage.llm import UnifiedInferenceClient; print(UnifiedInferenceClient)"</code></li>
+<li><code>python -c "import sage.llm.gateway"</code></li>
+<li>(if Task G is done) <code>python -c "import sage.edge"</code></li>
+</ul>
+<h2 id="9-coordination-rules">9) Coordination rules<a class="headerlink" href="#9-coordination-rules" title="Permanent link">&para;</a></h2>
+<h3 id="single-pr-rule">Single-PR rule<a class="headerlink" href="#single-pr-rule" title="Permanent link">&para;</a></h3>
+<ul>
+<li>All workstreams land into <strong>one branch</strong> and ship as <strong>one PR</strong>.</li>
+<li>Multiple agents may contribute, but they must coordinate to avoid overlapping edits.</li>
+</ul>
+<h3 id="how-to-coordinate-safely">How to coordinate safely<a class="headerlink" href="#how-to-coordinate-safely" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Avoid touching the same file across tasks when possible.</li>
+<li>If two tasks must edit the same file, agree on an owner first.</li>
+<li>Each task reports: files changed, commands run, remaining grep hits (if any).</li>
+<li>Before opening the PR, run the full verification suite in section 10.4.</li>
+</ul>
+<h2 id="10-global-replacement-map-top-hit-files-for-delegation">10) Global replacement map + top-hit files (for delegation)<a class="headerlink" href="#10-global-replacement-map-top-hit-files-for-delegation" title="Permanent link">&para;</a></h2>
+<h3 id="101-replacement-map-flag-day-no-shims">10.1 Replacement map (flag-day, no shims)<a class="headerlink" href="#101-replacement-map-flag-day-no-shims" title="Permanent link">&para;</a></h3>
+<ul>
+<li><code>sage.llm</code> → <code>sage.llm</code></li>
+<li><code>sage.gateway</code> → <code>sage.llm.gateway</code></li>
+</ul>
+<h3 id="102-top-hit-files-old-namespaces">10.2 Top-hit files (old namespaces)<a class="headerlink" href="#102-top-hit-files-old-namespaces" title="Permanent link">&para;</a></h3>
+<p>Use these to split work quickly (counts from <code>rg -c</code>):</p>
+<p><strong>Pattern: <code>sage.llm</code></strong></p>
+<ul>
+<li>14: packages/sage-common/tests/unit/components/sage_llm/test_api_server.py</li>
+<li>10: packages/sage-common/tests/integration/test_unified_client_e2e.py</li>
+<li>9: packages/sage-common/tests/unit/components/sage_llm/test_unified_client.py</li>
+<li>8: docs-public/docs_src/api-reference/common/index.md</li>
+<li>7: packages/sage-benchmark/src/sage/benchmark/benchmark_agent/adapter_registry.py</li>
+<li>5: packages/sage-cli/src/sage/cli/commands/apps/chat.py</li>
+<li>5: packages/sage-cli/src/sage/cli/commands/apps/llm.py</li>
+<li>5: packages/sage-studio/src/sage/studio/chat_manager.py</li>
+<li>4: docs-public/docs_src/dev-notes/cross-layer/architecture/SAGE_VLLM_CONTROL_PLANE_INTEGRATION.md</li>
+<li>4: docs-public/docs_src/tutorials/advanced/advanced-rag.md</li>
+<li>4: docs-public/docs_src/tutorials/advanced/performance-tuning.md</li>
+<li>4: packages/sage-common/src/sage/common/components/sage_llm/control_plane_service.py</li>
+<li>4: packages/sage-gateway/tests/test_kernel_integration.py</li>
+<li>3: docs-public/docs_src/dev-notes/l1-common/README.md</li>
+<li>3: docs-public/docs_src/guides/packages/sage-common/overview.md</li>
+<li>3: packages/sage-cli/src/sage/cli/commands/apps/pipeline_embedding.py</li>
+<li>3: packages/sage-common/src/sage/common/components/sage_llm/unified_client.py</li>
+<li>3: packages/sage-common/tests/integration/test_hybrid_scheduling_e2e.py</li>
+<li>3: packages/sage-gateway/src/sage/gateway/routes/control_plane.py</li>
+<li>3: packages/sage-studio/src/sage/studio/config/backend/api.py</li>
+</ul>
+<p><strong>Pattern: <code>sage.gateway</code></strong></p>
+<ul>
+<li>7: packages/sage-gateway/src/sage/gateway/server.py</li>
+<li>7: packages/sage-gateway/tests/integration/test_control_plane.py</li>
+<li>6: packages/sage-gateway/tests/test_kernel_integration.py</li>
+<li>5: packages/sage-gateway/tests/manual/test_phase1_integration.py</li>
+<li>5: packages/sage-gateway/tests/test_server.py</li>
+<li>4: packages/sage-gateway/tests/test_openai_adapter.py</li>
+<li>3: docs-public/docs_src/dev-notes/l6-studio/MEMORY_OVERVIEW.md</li>
+<li>3: packages/sage-gateway/src/sage/gateway/<strong>main</strong>.py</li>
+<li>3: tools/install/tests/verify_installation.sh</li>
+<li>2: docs-public/docs_src/dev-notes/l1-common/PR-unified-gateway.md</li>
+<li>2: docs-public/docs_src/dev-notes/package-architecture.md</li>
+<li>2: examples/tutorials/l6/memory_backend_demo.py</li>
+<li>2: packages/sage-common/tests/integration/test_dynamic_discovery.py</li>
+<li>2: packages/sage-gateway/examples/quickstart_gateway.py</li>
+<li>2: packages/sage-gateway/pyproject.toml</li>
+<li>2: packages/sage-gateway/README.md</li>
+<li>2: packages/sage-gateway/src/sage/gateway/adapters/openai.py</li>
+<li>2: packages/sage-gateway/tests/test_e2e_chat_flow.py</li>
+<li>2: packages/sage-gateway/tests/test_openai_adapter_model.py</li>
+<li>2: packages/sage-gateway/tests/test_rag_pipeline.py</li>
+</ul>
+<h3 id="103-quick-verification-grep-commands">10.3 Quick verification grep commands<a class="headerlink" href="#103-quick-verification-grep-commands" title="Permanent link">&para;</a></h3>
+<ul>
+<li><code>rg 'sage\.common\.components\.sage_llm'</code></li>
+<li><code>rg 'sage\.gateway'</code></li>
+</ul>
+<h3 id="104-verification-command-suite-run-before-opening-the-single-pr">10.4 Verification command suite (run before opening the single PR)<a class="headerlink" href="#104-verification-command-suite-run-before-opening-the-single-pr" title="Permanent link">&para;</a></h3>
+<p>Run from repo root. Ordered fast → slower.</p>
+<p><strong>A. Syntax + import sanity (fast)</strong></p>
+<ul>
+<li><code>python -m compileall packages -q</code></li>
+<li><code>python -c "import sage; import sage.llm; import sage.llm.gateway"</code></li>
+<li><code>python -c "from sage.llm import UnifiedInferenceClient; print(UnifiedInferenceClient)"</code></li>
+<li>(if Task G is done) <code>python -c "import sage.edge"</code></li>
+</ul>
+<p><strong>B. Namespace cleanup gates (must be zero matches)</strong></p>
+<ul>
+<li><code>rg 'sage\.common\.components\.sage_llm' -n</code></li>
+<li><code>rg 'sage\.gateway' -n</code></li>
+</ul>
+<p><strong>C. Code quality</strong></p>
+<ul>
+<li><code>sage-dev quality --check-only</code></li>
+</ul>
+<p><strong>D. Tests</strong></p>
+<ul>
+<li><code>SAGE_TEST_MODE=true sage-dev project test --quick</code></li>
+</ul>
+<p><strong>E. Gateway smoke (OpenAI-compatible)</strong> Update the start command as part of the refactor so this
+works post-move.</p>
+<p>Option 1 (preferred: keep <code>sage</code> CLI UX stable, but point it at new modules):</p>
+<ul>
+<li><code>sage gateway start --port 8889</code></li>
+<li><code>curl -sS http://localhost:8889/v1/models | head</code></li>
+<li><code>curl -N http://localhost:8889/v1/chat/completions -H 'Content-Type: application/json' -d '{"model":"sage-default","messages":[{"role":"user","content":"ping"}],"stream":true}' --max-time 20 | head</code></li>
+<li><code>sage gateway stop --port 8889</code></li>
+</ul>
+<p>Option 2 (direct python module during bring-up):</p>
+<ul>
+<li><code>python -m sage.llm.gateway.server --port 8889</code></li>
+<li>(run the same <code>curl</code> checks as above)</li>
+</ul>
+<p><strong>F. Edge smoke (if Task G is implemented)</strong> This ensures the edge mount preserves <code>/v1/*</code> paths.</p>
+<ul>
+<li><code>sage edge start --port 8899</code> (or <code>python -m sage.edge.server --port 8899</code>)</li>
+<li><code>curl -sS http://localhost:8899/healthz | head</code></li>
+<li><code>curl -sS http://localhost:8899/v1/models | head</code></li>
+<li><code>curl -N http://localhost:8899/v1/chat/completions -H 'Content-Type: application/json' -d '{"model":"sage-default","messages":[{"role":"user","content":"ping"}],"stream":true}' --max-time 20 | head</code></li>
+<li><code>sage edge stop --port 8899</code> (if the CLI exists; otherwise stop the process)</li>
+</ul>
+<h2 id="11-task-h-studio-compatibility-workflow-routing-agentic-pipeline-embedding">11) Task H — Studio compatibility: workflow routing + Agentic pipeline embedding<a class="headerlink" href="#11-task-h-studio-compatibility-workflow-routing-agentic-pipeline-embedding" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Goal: Studio backend uses the same multi-workflow router (Intent → Simple RAG → Agentic
+  RAG/Programming assistant), with Agent steps和ingest hooks在 L3/L4，不在 L6。</li>
+<li>Scope/changes (L3/L4):</li>
+<li>Add reusable workflows: (A) Intent Router, (B) Simple RAG, (C) Agentic RAG/Programming
+    assistant, (D) Search/Aggregation, (E) Incremental ingest/memory writer。</li>
+<li>Define stable payload schema（query, session_id, route, evidence, metadata, should_index
+    flag），Studio/Gateway 只转发。</li>
+<li>Provide hooks：enqueue evidence → ingestion pipeline；即时写 session memory。</li>
+<li>Scope/changes (L6 Studio):</li>
+<li>用 Workflow A 做路由，转到 B/C；不在 Studio 内重复实现工具/agent。</li>
+<li>L6 负责租户/鉴权/会话/指标；为各路由打 metrics（成功率、时延、成本）。</li>
+<li>Done 条件：Studio 聊天/Agentic 路由正常；入库事件触发 ingestion；session memory 能回读；<code>sage-dev project test --quick</code>
+  + Studio smoke（聊天、agentic 查询、memory recall）。</li>
+</ul>
+<h2 id="12-task-i-local-llmembedding-url-cleanup-fallback">12) Task I — Local LLM/Embedding URL cleanup（清理 fallback 债务）<a class="headerlink" href="#12-task-i-local-llmembedding-url-cleanup-fallback" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Goal: 统一本地端点选择，禁止隐式回落远端 dashscope。</li>
+<li>Changes:</li>
+<li>单一来源：默认端口来自 <code>SagePorts</code>（LLM 8001→8901 fallback；Embedding 8090）。</li>
+<li>Env 优先：尊重 <code>SAGE_CHAT_BASE_URL</code> / <code>SAGE_EMBEDDING_BASE_URL</code>；否则按 [env, 8001, 8901]
+    探测可达端点，探测失败则快速报错。</li>
+<li>规范化 URL：去重 <code>/v1</code>，不再偷偷改成远端；移除 Gateway/Studio/后端中的 legacy dashscope 默认值。</li>
+<li>防回退测试：加 probe/helper，确保有本地端口时不切去远端；更新 smoke test 断言选择的 base_url 为本地。</li>
+<li>Done 条件：代码中无 dashscope 默认；探测逻辑落地并被测试覆盖；smoke 默认连本地成功。</li>
+</ul>
+<h2 id="13-new-follow-up-tasks-reverse-sweep-from-i-f">13) New follow-up tasks (reverse sweep from I → F)<a class="headerlink" href="#13-new-follow-up-tasks-reverse-sweep-from-i-f" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Task I cleanup gaps</strong>: purge DashScope defaults and cloud-fallback messaging/code. Docs mostly
+  scrubbed (docs-public index_content, Studio guide, RAG generator docs, security checklist);
+  remaining to check: env templates and CI vars (e.g., <code>.env.template</code>, <code>.env</code>,
+  <code>.github/workflows/paper1-experiments.yml</code>, <code>.github/workflows/weekly-report.yml</code>,
+  <code>docker/studio/docker-compose.yml</code>), any straggler docs (e.g.,
+  <code>docs-public/docs_src/guides/packages/sage-common/overview.md</code>), code defaults (e.g.,
+  <code>packages/sage-libs/src/sage/libs/agentic/workflow/generators/llm_generator.py</code> base_url fallback,
+  Studio <code>pipeline_builder.py</code> dashscope injection), and benchmark configs/tests that hardcode
+  dashscope (e.g., <code>packages/sage-benchmark/tests/validate_pre_insert_refactor.py</code>,
+  <code>packages/sage-benchmark/src/sage/benchmark/benchmark_rag/config/*</code>). Retest detection to ensure
+  local-first, no implicit cloud fallbacks.</li>
+<li><strong>Task H validation</strong>: verify Studio router/agentic pipeline integration per spec (intent router →
+  simple RAG → agentic; ingest hooks and metrics). Identify code gaps and add/adjust
+  routes/workflows plus tests/smoke coverage.</li>
+<li><strong>Task G smoke</strong>: run <code>sage edge start</code> (with/without <code>--llm-prefix</code>) to confirm <code>/v1/*</code> still
+  works when mounted, and health/ready endpoints respond on <code>SagePorts.EDGE_DEFAULT</code>.</li>
+<li><strong>Task F stabilization</strong>: fix fast-test command (current <code>sage-dev project test --quick</code> invalid);
+  run the appropriate quick suite. Update benchmark configs/tests to local ports (SagePorts) and
+  rerun targeted tests to ensure control-plane/gateway flows are covered.</li>
+</ul>
+<h2 id="14-task-j-fine-tune-engine-integration-control-plane-architecture">14) Task J — Fine-tune Engine Integration (Control Plane Architecture)<a class="headerlink" href="#14-task-j-fine-tune-engine-integration-control-plane-architecture" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Goal: Integrate existing fine-tune functionality (<code>sage.libs.finetune</code>) into Control Plane as a
+  new <code>finetune</code> engine kind, replacing the stub <code>sage llm fine-tune</code> command.</li>
+<li>Architecture: Fine-tune tasks become managed engines in Control Plane, benefiting from resource
+  management, monitoring, and lifecycle control.</li>
+<li>Scope/changes (L1 Control Plane):</li>
+<li>Create <code>FinetuneEngine</code> class in <code>sage.llm.control_plane.executors.finetune_executor</code></li>
+<li>Implement engine lifecycle: <code>start()</code> (launch training), <code>stop()</code> (save checkpoint), <code>status()</code>
+    (progress tracking)</li>
+<li>Connect to existing <code>sage.libs.finetune.manager.FinetuneManager</code> for actual training logic</li>
+<li>Support GPU resource coordination (pause inference engines if needed to free VRAM)</li>
+<li>Scope/changes (L6 CLI):</li>
+<li>Update <code>sage llm engine start</code> to support <code>--engine-kind finetune</code> with args: <code>--dataset</code>,
+    <code>--output</code>, <code>--lora-rank</code>, etc.</li>
+<li>Keep <code>sage llm fine-tune</code> as convenience wrapper that calls <code>engine start</code> internally</li>
+<li>Add <code>sage llm engine logs &lt;engine-id&gt;</code> to view training logs in real-time</li>
+<li>Integration points:</li>
+<li>Use <code>sage.libs.finetune.manager.FinetuneManager</code> for training execution</li>
+<li>Use <code>sage.libs.finetune.service.start_training()</code> for launching training process</li>
+<li>Emit metrics to Control Plane (loss, accuracy, GPU memory, ETA)</li>
+<li>Save checkpoints to user paths via <code>get_user_paths().models_dir / "finetuned" / &lt;task-id&gt;</code></li>
+<li>Done criteria:</li>
+<li><code>sage llm engine start &lt;model&gt; --engine-kind finetune --dataset &lt;path&gt; --output &lt;dir&gt;</code> launches
+    training</li>
+<li>Training task appears in <code>sage llm engine list</code> with status (running/completed/failed)</li>
+<li><code>sage llm engine stop &lt;engine-id&gt;</code> saves checkpoint and stops training</li>
+<li><code>sage llm fine-tune</code> wrapper works as shorthand</li>
+<li>Trained model can be loaded via <code>sage llm engine start &lt;finetuned-model-path&gt; --engine-kind llm</code></li>
+<li>Smoke test: fine-tune small model (Qwen2.5-0.5B), verify checkpoint saved, load and infer with
+    fine-tuned model</li>
+</ul>
+<h2 id="remaining-tasks-2025-12-28-status-update-final">Remaining tasks (2025-12-28 status update - Final)<a class="headerlink" href="#remaining-tasks-2025-12-28-status-update-final" title="Permanent link">&para;</a></h2>
+<ul>
+<li>✅ Task A: scaffold <code>sage-llm-core</code> / <code>sage-llm-gateway</code> (pyproject + package dirs) — DONE
+  (packages present with pyproject + _version).</li>
+<li>✅ Task B: move control plane + <code>UnifiedInferenceClient</code> into <code>sage-llm-core</code> — DONE (code lives
+  under <code>packages/sage-llm-core/src/sage/llm/**</code>).</li>
+<li>✅ Task C: move gateway into <code>sage-llm-gateway</code> and rename control plane route module — DONE
+  (gateway lives under <code>packages/sage-llm-gateway/src/sage/llm/gateway/**</code>).</li>
+<li>✅ Task D: repo-wide import rewrite / old namespace cleanup — DONE (no <code>sage.gateway</code> or
+  <code>sage.common.components.sage_llm</code> hits via <code>rg</code>).</li>
+<li>✅ Task E: docs/examples refresh to new namespaces/start commands — DONE (docs-public updated with
+  new dev-notes structure).</li>
+<li>✅ Task F: stabilize tests/benchmarks + correct quick suite — DONE (215/223 quick tests passed,
+  96.4% success rate).</li>
+<li>✅ Task G: <code>sage-edge</code> placeholder scaffold runtime validation — DONE (edge service started on port
+  8899, /health and /v1/models routes verified, proxy to gateway working).</li>
+<li>✅ Task H: Studio router/agentic integration — VALIDATED (Intent Classifier with hybrid mode, Agent
+  Orchestrator with routing table, Workflow Generators in L3, Gateway RAG Pipeline with intent
+  detection, Memory context integration all exist and functional. Ingest hooks and metrics
+  collection recommended as future enhancements, not blockers).</li>
+<li>✅ Task I: DashScope/cloud fallback purge + local-first URL detection — COMPLETE (CI workflows
+  clarified as fallback only, copilot-instructions updated with CRITICAL local-first note,
+  UnifiedInferenceClient uses SagePorts.GATEWAY_DEFAULT by default, no implicit cloud fallbacks.
+  Committed 8801edf6a).</li>
+<li>⚠️ Task J: Fine-tune engine integration — PHASE 1 COMPLETE (FinetuneEngine executor created with
+  lifecycle methods; Control Plane integration and CLI commands pending Phase 2).</li>
+<li>✅ Verification gate: <code>sage-dev quality --check-only</code> — PASSED (all pre-commit hooks passed).</li>
+<li>✅ Verification gate: Gateway smoke test — PASSED (port 8889, /health returns 51 sessions,
+  /v1/chat/completions responds).</li>
+<li>✅ Verification gate: Edge smoke test — PASSED (port 8899, /health and /v1/models work, routes
+  preserved).</li>
+<li>✅ Verification gate: Studio integration — PASSED (backend routes merged, LLM service on 8901
+  auto-started, auth routes respond correctly).</li>
+</ul>
+<h2 id="additional-achievements-2025-12-28">Additional achievements (2025-12-28)<a class="headerlink" href="#additional-achievements-2025-12-28" title="Permanent link">&para;</a></h2>
+<ul>
+<li>✅ <strong>FAISS Lazy Loading Optimization</strong>: Implemented <code>__getattr__</code> pattern in 3 critical files
+  (components/<strong>init</strong>.py, session/<strong>init</strong>.py, session/manager.py) to defer FAISS initialization
+  until actually needed. Result: 0-latency Gateway startup for default (short_term memory) mode.</li>
+<li>✅ <strong>FAISS Package Fix</strong>: Replaced broken faiss-cpu 1.9.0 from Tsinghua mirror with official
+  faiss-cpu 1.13.2 from PyPI.</li>
+<li>✅ <strong>SageDB Backend Adapter</strong>: Added SageDBIndex adapter (430 lines) to neuromem VDB system,
+  enabling C++ self-developed VDB as production alternative to FAISS.</li>
+<li>✅ <strong>Documentation Structure</strong>: Enforced docs-public structure, deleted root /docs directory, added
+  pre-commit hook to prevent future violations.</li>
+<li>✅ <strong>Submodule Updates</strong>: Updated neuromem (70f9b7f), docs-public (aa14688), sageDB (fafbe1d)
+  submodules and pushed to remote.</li>
+<li>✅ <strong>Code Quality</strong>: All changes passed pre-commit hooks (ruff, shellcheck, trailing whitespace,
+  etc.).</li>
+</ul>
+<p>cd docs/dev-notes/cross-layer/scripts SAGE_CHAT_API_KEY=ilovesage API_HOST=https://api.sage.org.ai
+MODEL=Qwen/Qwen2.5-7B-Instruct ./gateway_smoke.sh</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  回到页面顶部
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Copyright &copy; 2023-2025 IntelliStream Lab
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+        
+<div class="md-social">
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://github.com/intellistream/SAGE" target="_blank" rel="noopener" title="github.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+    </a>
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://pypi.org/project/sage-framework/" target="_blank" rel="noopener" title="pypi.org" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.8 200.5c-7.7-30.9-22.3-54.2-53.4-54.2h-40.1v47.4c0 36.8-31.2 67.8-66.8 67.8H172.7c-29.2 0-53.4 25-53.4 54.3v101.8c0 29 25.2 46 53.4 54.3 33.8 9.9 66.3 11.7 106.8 0 26.9-7.8 53.4-23.5 53.4-54.3v-40.7H226.2v-13.6h160.2c31.1 0 42.6-21.7 53.4-54.2 11.2-33.5 10.7-65.7 0-108.6M286.2 444.7a20.4 20.4 0 1 1 0-40.7 20.4 20.4 0 1 1 0 40.7M167.8 248.1h106.8c29.7 0 53.4-24.5 53.4-54.3V91.9c0-29-24.4-50.7-53.4-55.6-35.8-5.9-74.7-5.6-106.8.1-45.2 8-53.4 24.7-53.4 55.6v40.7h106.9v13.6h-147c-31.1 0-58.3 18.7-66.8 54.2-9.8 40.7-10.2 66.1 0 108.6 7.6 31.6 25.7 54.2 56.8 54.2H101v-48.8c0-35.3 30.5-66.4 66.8-66.4m-6.6-183.4a20.4 20.4 0 1 1 0 40.8 20.4 20.4 0 1 1 0-40.8"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+      <div class="md-progress" data-md-component="progress" role="progressbar"></div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.instant", "navigation.instant.progress", "navigation.tracking", "navigation.tabs", "navigation.tabs.sticky", "navigation.sections", "navigation.path", "navigation.indexes", "navigation.top", "navigation.footer", "navigation.prune", "search.suggest", "search.highlight", "search.share", "content.code.copy", "content.code.annotate", "content.tabs.link", "toc.follow", "toc.integrate"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>
