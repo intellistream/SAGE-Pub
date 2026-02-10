@@ -1,21 +1,9 @@
 # Studio知识库忽略的文件和目录
 # 用于减少embedding生成时间
 
-# Archive和清理报告
-dev-notes/archive/
-dev-notes/cleanup_reports_20251129/
-
-# 任务计划（未来的，不是当前文档）
-dev-notes/task-plans/
-
-# 测试相关（对用户查询价值较低）
-dev-notes/testing/
-
-# 迁移文档（历史记录）
-dev-notes/migration/
-
-# 研究工作（可能过于专业）
-dev-notes/research_work/
+# 暂时跳过所有dev-notes（太多太慢）
+# 只加载用户友好的guides目录
+dev-notes/
 
 # 模板文件
 templates/
