@@ -7,7 +7,7 @@
 
 ```
 communication/
-├── README.md
+├── readme.md
 ├── queue_descriptor/
 │   ├── base_queue_descriptor.py
 │   ├── python_queue_descriptor.py

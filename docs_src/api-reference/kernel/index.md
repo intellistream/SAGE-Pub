@@ -132,5 +132,5 @@ stream = env.from_source(...).map_service("llm").sink(...)
 ## See Also
 
 - [Getting Started](../../getting-started/quickstart.md)
-- [Kernel Guide](../../guides/packages/sage-kernel/README.md)
+- [Kernel Guide](../../guides/packages/sage-kernel/readme.md)
 - [Best Practices](../../guides/packages/sage-kernel/best-practices.md)

@@ -149,8 +149,8 @@ env.execute()  # 执行
 
 ### 深入学习
 
-- [Kernel 用户指南](../guides/packages/sage-kernel/README.md) - 深入理解流式执行引擎
-- [Libs 用户指南](../guides/packages/sage-libs/README.md) - 了解 AI 算法库和 Agents
+- [Kernel 用户指南](../guides/packages/sage-kernel/readme.md) - 深入理解流式执行引擎
+- [Libs 用户指南](../guides/packages/sage-libs/readme.md) - 了解 AI 算法库和 Agents
 - [Middleware 用户指南](../guides/packages/sage-middleware/overview.md) - 领域算子和组件使用
 
 ### 架构演进

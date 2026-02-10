@@ -786,11 +786,9 @@ class CloudSyncScheduler {
                 'Accept': 'application/vnd.github.v3+json'
             },
             body: JSON.stringify({
-                files: {
-                    [filename]: {
-                        content: JSON.stringify(data, null, 2)
-                    }
-                }
+                files: { [filename]: {
+                    content: JSON.stringify(data, null, 2)
+                } }
             })
         });
 

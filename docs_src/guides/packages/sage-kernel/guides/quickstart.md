@@ -336,11 +336,11 @@ class TimedMapFunction(MapFunction[str, str]):
 
 恭喜！你已经掌握了 SAGE Kernel 的基础用法。现在可以：
 
-1. 📖 阅读 [API 详细文档](../api/README.md)
+1. 📖 阅读 [API 详细文档](../api/readme.md)
 1. 🌐 学习 [核心概念](../concepts.md)
-1. 🔍 查看 [用户指南](../README.md)
+1. 🔍 查看 [用户指南](../readme.md)
 
 ## 📞 获取帮助
 
 - [GitHub Issues](https://github.com/intellistream/SAGE/issues) - 报告问题
-- [文档中心](../README.md) - 完整文档
+- [文档中心](../readme.md) - 完整文档

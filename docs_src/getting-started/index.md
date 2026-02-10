@@ -40,8 +40,8 @@
 
 探索 SAGE 的高级特性与最佳实践：
 
-- [Kernel 指南](../guides/packages/sage-kernel/README.md)
-- [Libs 指南](../guides/packages/sage-libs/README.md)
+- [Kernel 指南](../guides/packages/sage-kernel/readme.md)
+- [Libs 指南](../guides/packages/sage-libs/readme.md)
 
 ## 🎯 学习路径建议
 
@@ -51,7 +51,7 @@
 1. ✅ [安装 SAGE](installation.md)
 2. ✅ [快速入门](quickstart.md)
 3. ✅ [架构总览](../concepts/architecture/overview.md)
-4. ✅ [Kernel 指南](../guides/packages/sage-kernel/README.md)
+4. ✅ [Kernel 指南](../guides/packages/sage-kernel/readme.md)
 ```
 
 === "中级用户"
@@ -59,8 +59,8 @@
 ```
 1. ✅ [架构总览](../concepts/architecture/overview.md)
 2. ✅ [包结构](../concepts/architecture/package-structure.md)
-3. ✅ [Kernel 指南](../guides/packages/sage-kernel/README.md)
-4. ✅ [Libs 指南](../guides/packages/sage-libs/README.md)
+3. ✅ [Kernel 指南](../guides/packages/sage-kernel/readme.md)
+4. ✅ [Libs 指南](../guides/packages/sage-libs/readme.md)
 ```
 
 === "高级开发者"
@@ -121,10 +121,10 @@ env.from_bot(question_bot).connect(answer_bot).sink(output)
 
 ## 🆘 需要帮助？
 
-- 📖 查看[用户指南](../guides/packages/sage-kernel/README.md)了解详细功能
+- 📖 查看[用户指南](../guides/packages/sage-kernel/readme.md)了解详细功能
 - 💬 访问 [GitHub Discussions](https://github.com/intellistream/SAGE/discussions) 提问
 - 🐛 在 [GitHub Issues](https://github.com/intellistream/SAGE/issues) 报告问题
-- 👥 加入[社区](../community/README.md)与其他开发者交流
+- 👥 加入[社区](../community/readme.md)与其他开发者交流
 
 ## 📝 下一步
 

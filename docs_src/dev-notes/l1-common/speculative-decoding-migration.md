@@ -186,7 +186,7 @@ sage-dev project test packages/sage-llm-core/tests/
 
 ## 相关文档
 
-- vLLM Engine: `packages/sage-llm-core/src/sage/llm/engines/vllm/README.md`
+- vLLM Engine: `packages/sage-llm-core/src/sage/llm/engines/vllm/readme.md`
 - Control Plane: `docs-public/docs_src/dev-notes/l1-common/control-plane-enhancement.md`
 - 示例代码: `packages/sage-llm-core/src/sage/llm/engines/vllm/examples/speculative_decoding_demo.py`
 

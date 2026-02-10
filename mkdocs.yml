@@ -135,7 +135,7 @@ nav:
     - sage-platform 概览: guides/packages/sage-platform/overview.md
   - L3 核心层:
     - Kernel 执行引擎:
-      - 概览: guides/packages/sage-kernel/README.md
+      - 概览: guides/packages/sage-kernel/readme.md
       - 架构设计: guides/packages/sage-kernel/architecture.md
       - 核心概念: guides/packages/sage-kernel/concepts.md
       - 核心组件:
@@ -157,14 +157,14 @@ nav:
       - 最佳实践: guides/packages/sage-kernel/best-practices.md
       - 常见问题: guides/packages/sage-kernel/faq.md
     - Libs AI 组件库:
-      - 概览: guides/packages/sage-libs/README.md
+      - 概览: guides/packages/sage-libs/readme.md
       - 简介: guides/packages/sage-libs/lib_intro.md
       - 设计哲学: guides/packages/sage-libs/philosophy.md
       - 核心组件:
         - Embeddings: guides/packages/sage-libs/embedding.md
         - RAG:
           - 概述: guides/packages/sage-libs/rag.md
-          - RAG 总览: guides/packages/sage-libs/rag/README.md
+          - RAG 总览: guides/packages/sage-libs/rag/readme.md
           - 组件:
             - 文档加载器: guides/packages/sage-libs/rag/components/document_loaders.md
             - 文档切块: guides/packages/sage-libs/rag/components/chunk.md
@@ -177,8 +177,8 @@ nav:
             - 生成器: guides/packages/sage-libs/rag/components/generator.md
             - 评估: guides/packages/sage-libs/rag/components/evaluate.md
           - 示例:
-            - RAG 示例: guides/packages/sage-libs/rag/examples/RAG.md
-            - RAG Milvus 示例: guides/packages/sage-libs/rag/examples/RAG_milvus.md
+            - RAG 示例: guides/packages/sage-libs/rag/examples/rag.md
+            - RAG Milvus 示例: guides/packages/sage-libs/rag/examples/rag_milvus.md
         - Tools:
           - 概述: guides/packages/sage-libs/tools_intro.md
           - Arxiv 论文搜索: guides/packages/sage-libs/tools/arxiv_paper_searcher.md
@@ -225,11 +225,11 @@ nav:
   - 部署运维:
     - 部署指南: guides/deployment/index.md
     - 安全指南:
-      - 概览: security/README.md
-      - 安全安装: security/SECURE_INSTALLATION_GUIDE.md
-      - 离线安装: security/OFFLINE_INSTALLATION.md
-      - 权限管理: security/PERMISSION_MANAGEMENT.md
-      - 改进记录: security/SECURITY_IMPROVEMENTS.md
+      - 概览: security/readme.md
+      - 安全安装: security/secure_installation_guide.md
+      - 离线安装: security/offline_installation.md
+      - 权限管理: security/permission_management.md
+      - 改进记录: security/security_improvements.md
     - 最佳实践: guides/best-practices/index.md
 
   - API 参考:
@@ -261,23 +261,23 @@ nav:
   - 开发笔记:
     - 总览: dev-notes/index.md
     - 包架构: dev-notes/package-architecture.md
-    - L1 基础设施: dev-notes/l1-common/README.md
-    - L2 平台服务: dev-notes/l2-platform/README.md
-    - L3 核心引擎: dev-notes/l3-kernel/README.md
-    - L3 算法库: dev-notes/l3-libs/README.md
-    - L4 中间件: dev-notes/l4-middleware/README.md
-    - L5 CLI: dev-notes/l5-cli/README.md
-    - L5 Tools: dev-notes/l5-tools/README.md
-    - 测试策略: dev-notes/testing/README.md
+    - L1 基础设施: dev-notes/l1-common/readme.md
+    - L2 平台服务: dev-notes/l2-platform/readme.md
+    - L3 核心引擎: dev-notes/l3-kernel/readme.md
+    - L3 算法库: dev-notes/l3-libs/readme.md
+    - L4 中间件: dev-notes/l4-middleware/readme.md
+    - L5 CLI: dev-notes/l5-cli/readme.md
+    - L5 Tools: dev-notes/l5-tools/readme.md
+    - 测试策略: dev-notes/testing/readme.md
 
 - 社区:
-  - 社区总览: community/README.md
+  - 社区总览: community/readme.md
   - 社区指南: community/community.md
   - 常见问题 (FAQ): community/faq.md
   - 每周会议: community/meetings.md
   - IntelliStream Lab: community/intellistream.md
   - 社区成员:
-    - Shuhao Zhang: community/faculty/Shuhao Zhang.md
+    - Shuhao Zhang: community/faculty/shuhao zhang.md
 
 
 - 我们的贡献:

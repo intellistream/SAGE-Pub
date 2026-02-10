@@ -26,13 +26,13 @@ ______________________________________________________________________
 
 | 层级 | 目录                                     | 说明               |
 | ---- | ---------------------------------------- | ------------------ |
-| L1   | [l1-common](l1-common/README.md)         | 基础设施、共享组件 |
-| L2   | [l2-platform](l2-platform/README.md)     | 平台服务、部署     |
-| L3   | [l3-kernel](l3-kernel/README.md)         | 核心引擎           |
-| L3   | [l3-libs](l3-libs/README.md)             | 算法库             |
-| L4   | [l4-middleware](l4-middleware/README.md) | 中间件、C++ 扩展   |
-| L5   | [l5-cli](l5-cli/README.md)               | 命令行工具         |
-| L5   | [l5-tools](l5-tools/README.md)           | 开发者工具         |
+| L1   | [l1-common](l1-common/readme.md)         | 基础设施、共享组件 |
+| L2   | [l2-platform](l2-platform/readme.md)     | 平台服务、部署     |
+| L3   | [l3-kernel](l3-kernel/readme.md)         | 核心引擎           |
+| L3   | [l3-libs](l3-libs/readme.md)             | 算法库             |
+| L4   | [l4-middleware](l4-middleware/readme.md) | 中间件、C++ 扩展   |
+| L5   | [l5-cli](l5-cli/readme.md)               | 命令行工具         |
+| L5   | [l5-tools](l5-tools/readme.md)           | 开发者工具         |
 
 ### 独立仓库（已迁移）
 
@@ -47,8 +47,8 @@ ______________________________________________________________________
 
 ## 🔧 专题笔记
 
-- [测试策略 (Testing)](testing/README.md)
-- [研究工作 (Research)](research_work/README.md)
+- [测试策略 (Testing)](testing/readme.md)
+- [研究工作 (Research)](research_work/readme.md)
 
 ______________________________________________________________________
 

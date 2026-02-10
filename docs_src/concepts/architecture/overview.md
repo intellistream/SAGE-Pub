@@ -82,14 +82,14 @@ SAGE (Streaming AI aGent Engine) 采用分层单体架构（Modular Monolith）�
 - **职责**: 流式数据处理、任务调度、分布式执行
 - **关键模块**: api, operators, runtime
 - **依赖**: common, platform
-- **文档**: [Kernel 用户指南 →](../../guides/packages/sage-kernel/README.md)
+- **文档**: [Kernel 用户指南 →](../../guides/packages/sage-kernel/readme.md)
 
 ### L3: sage-libs (算法库)
 
 - **职责**: Agents 框架、RAG 工具、I/O 工具、工作流优化
 - **关键模块**: agents, rag, io, workflow, integrations
 - **依赖**: common, kernel (可选)
-- **文档**: [Libs 用户指南 →](../../guides/packages/sage-libs/README.md)
+- **文档**: [Libs 用户指南 →](../../guides/packages/sage-libs/readme.md)
 
 ### L4: sage-middleware (中间件) ⚡
 

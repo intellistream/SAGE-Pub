@@ -82,7 +82,7 @@ ______________________________________________________________________
 
 ### 🔹 L3: 核心层
 
-#### [Kernel 执行引擎](packages/sage-kernel/README.md)
+#### [Kernel 执行引擎](packages/sage-kernel/readme.md)
 
 SAGE 的流式处理核心，提供 DataStream API 和执行运行时。
 
@@ -99,11 +99,11 @@ SAGE 的流式处理核心，提供 DataStream API 和执行运行时。
 - 实现实时数据转换和分析
 - 开发复杂的数据处理 Pipeline
 
-👉 [查看 Kernel 文档](packages/sage-kernel/README.md)
+👉 [查看 Kernel 文档](packages/sage-kernel/readme.md)
 
 ______________________________________________________________________
 
-#### [Libs AI 组件库](packages/sage-libs/README.md)
+#### [Libs AI 组件库](packages/sage-libs/readme.md)
 
 高级 AI 算法库，包含 RAG、Agents、Embeddings 等开箱即用的组件。
 
@@ -121,7 +121,7 @@ ______________________________________________________________________
 - 实现 RAG 问答系统
 - 集成 LLM 能力到数据流
 
-👉 [查看 Libs 文档](packages/sage-libs/README.md)
+👉 [查看 Libs 文档](packages/sage-libs/readme.md)
 
 ______________________________________________________________________
 
@@ -209,7 +209,7 @@ ______________________________________________________________________
 
    - [L3: Kernel 快速开始](packages/sage-kernel/guides/quickstart.md)
    - [L3: Kernel 基本操作](packages/sage-kernel/guides/operations.md)
-   - [L3: Libs 概览](packages/sage-libs/README.md)
+   - [L3: Libs 概览](packages/sage-libs/readme.md)
 
 1. **探索高级能力**
 
@@ -285,7 +285,7 @@ ______________________________________________________________________
 ### 按使用场景选择
 
 **构建数据处理应用**\
-→ 重点学习 [L3: Kernel](packages/sage-kernel/README.md)
+→ 重点学习 [L3: Kernel](packages/sage-kernel/readme.md)
 
 **开发 AI Agent**\
 → 重点学习 [L3: Libs - Agents](packages/sage-libs/agents.md)
@@ -322,7 +322,7 @@ ______________________________________________________________________
 - 📖 查看 [常见问题](packages/sage-kernel/faq.md)
 - 💬 访问 [GitHub Discussions](https://github.com/intellistream/SAGE/discussions)
 - 🐛 报告 [GitHub Issues](https://github.com/intellistream/SAGE/issues)
-- 👥 加入 [社区](../community/README.md)
+- 👥 加入 [社区](../community/readme.md)
 - 📚 阅读 [包架构文档](../dev-notes/package-architecture.md)
 
 ______________________________________________________________________
@@ -355,8 +355,8 @@ ______________________________________________________________________
 
   Kernel 执行引擎 + Libs AI 组件库
 
-  [:octicons-arrow-right-24: Kernel](packages/sage-kernel/README.md) |
-  [:octicons-arrow-right-24: Libs](packages/sage-libs/README.md)
+  [:octicons-arrow-right-24: Kernel](packages/sage-kernel/readme.md) |
+  [:octicons-arrow-right-24: Libs](packages/sage-libs/readme.md)
 
 - :material-database-outline:{ .lg .middle } __L4: 中间件层__
 
