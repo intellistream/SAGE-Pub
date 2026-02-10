@@ -366,21 +366,16 @@ ______________________________________________________________________
 
 1. [快速入门](../guides/quickstart.md) - 5分钟上手SAGE Core
 1. [核心概念](../concepts.md) - 理解基本概念
-1. [基础教程](../examples/basic_tutorials.md) - 跟随教程学习
 
 ### 进阶开发者
 
-1. <!-- [数据流开发指南](../guides/dataflow_development.md) -->
-
-数据流开发指南 - 深入理解数据流编程 2. <!-- [自定义算子开发](../guides/custom_operators.md) --> 自定义算子开发 - 扩展系统功能 3.
-    <!-- [性能调优](../guides/performance_tuning.md) --> 性能调优 - 优化系统性能
+1. [数据流模型](./dataflow_model.md) - 理解数据流与执行模型
+1. [算子概述](./operators/operators_overview.md) - 掌握常用算子与扩展点
 
 ### 系统管理员
 
 1. [系统配置](../config/config.md) - 配置生产环境
-1. <!-- [监控配置](../config/monitoring_config.md) -->
-
-监控配置 - 设置监控告警 3. <!-- [故障排除](../troubleshooting.md) --> 故障排除 - 解决常见问题
+1. [运行时通信](../runtime_communication.md) - 了解运行时机制
 
 ______________________________________________________________________
 

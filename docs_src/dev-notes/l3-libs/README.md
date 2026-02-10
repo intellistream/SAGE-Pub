@@ -61,48 +61,30 @@ from sage.libs.agentic.agents.planning import (
 
 #### 核心文档
 
-- **[FINETUNE_REFACTOR_SUMMARY.md](./FINETUNE_REFACTOR_SUMMARY.md)** - 模块化重构总结（内部实现细节）
-- **[CHAT_FINETUNE_INTEGRATION_SUMMARY.md](./CHAT_FINETUNE_INTEGRATION_SUMMARY.md)** - Chat 集成说明
 - **[AGENT_FINETUNE_API_REFERENCE.md](./AGENT_FINETUNE_API_REFERENCE.md)** - Agent Finetune API 参考
 
 #### Finetune 文档概览
 
-为避免在多个文档间来回跳转，本小节汇总了 Finetune 相关笔记的关键结论，具体实现细节仍保留在各独立文档中。
-
-- **Finetune 重构总结** (`FINETUNE_REFACTOR_SUMMARY.md`)
-  - 记录了从「单文件 1000+ 行」到「按功能拆分为 core/trainer/data/config/models」的重构过程。
-  - 重点是目录与模块边界的确定，以及如何在不破坏外部 API 的前提下完成拆分。
-- **Chat Finetune 集成** (`CHAT_FINETUNE_INTEGRATION_SUMMARY.md`)
-  - 描述了微调后的模型如何在 Chat 后端中被注册、加载与路由。
-  - 与 cross-layer 的 `FINETUNE_BACKEND_INTEGRATION.md` 相呼应，前者偏 libs 层实现，后者偏端到端架构。
 - **Agent Finetune API 参考** (`AGENT_FINETUNE_API_REFERENCE.md`)
   - 定义了 Agent 相关 SFT/RL 训练接口（config、数据格式、结果产物）。
   - 与 `AGENT_TRAINING_PIPELINE.md` 一起，构成 Agent 训练从「概念 → 代码」的完整链路。
-
-> 📁 历史文档已归档到 `archive/l3-libs/`
 
 ### 📊 Embedding 系统
 
 Embedding 系统的文档：
 
-- **[EMBEDDING_OPTIMIZATION_PLAN.md](./EMBEDDING_OPTIMIZATION_PLAN.md)** - 优化计划
 - **[EMBEDDING_CHANGELOG.md](./EMBEDDING_CHANGELOG.md)** - 变更日志
 - **[PIPELINE_BUILDER_EMBEDDING_INTEGRATION.md](./PIPELINE_BUILDER_EMBEDDING_INTEGRATION.md)** -
   Pipeline 集成
 
 #### Embedding 文档概览
 
-- **Embedding 优化计划** (`EMBEDDING_OPTIMIZATION_PLAN.md`)
-  - 讨论了向量维度、批大小、缓存策略等对吞吐与延迟的影响。
-  - 给出了在 CPU/GPU 场景下的推荐配置与调优步骤。
 - **Embedding 变更日志** (`EMBEDDING_CHANGELOG.md`)
   - 以时间线形式记录了接口变更、默认模型调整以及兼容性注意事项。
   - 在做版本回滚或排查历史行为差异时可快速定位关键变更点。
 - **Pipeline Builder 集成** (`PIPELINE_BUILDER_EMBEDDING_INTEGRATION.md`)
   - 描述了在 Pipeline Builder 中使用 Embedding 的最佳实践，包括算子拼接方式与错误处理策略。
   - 适合在搭建端到端 RAG/检索工作流时作为参考。
-
-> 📁 阶段完成报告已归档到 `archive/l3-libs/`
 
 ### � ANNS 模块 (统一结构)
 
@@ -176,7 +158,6 @@ C++ 高性能近似矩阵乘法库：
 | Agentic 模块架构   | `packages/sage-libs/src/sage/libs/agentic/`                                                                                 |
 | ANNS 统一结构      | `packages/sage-libs/src/sage/libs/anns/` 或 `.github/ANNS_REFACTOR_COMPLETE.md`                                             |
 | Finetune 使用      | `packages/sage-libs/src/sage/libs/finetune/`                                                                                |
-| 工具选择 SOTA 方法 | [Benchmark adapter_registry.py](../../../../packages/sage-benchmark/src/sage/benchmark/benchmark_agent/adapter_registry.py) |
 | Agent Finetune API | [AGENT_FINETUNE_API_REFERENCE.md](./AGENT_FINETUNE_API_REFERENCE.md)                                                        |
 | Embedding 变更     | [EMBEDDING_CHANGELOG.md](./EMBEDDING_CHANGELOG.md)                                                                          |
 
@@ -215,7 +196,6 @@ C++ 高性能近似矩阵乘法库：
 - **Finetune 代码**: `packages/sage-libs/src/sage/libs/finetune/`
 - **Benchmark 集成**: `packages/sage-benchmark/src/sage/benchmark/benchmark_agent/`
 - **测试**: `packages/sage-libs/tests/`
-- **归档文档**: `docs/dev-notes/archive/l3-libs/`
 
 ______________________________________________________________________
 

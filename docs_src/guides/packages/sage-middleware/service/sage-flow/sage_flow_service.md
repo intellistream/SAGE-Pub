@@ -218,9 +218,3 @@ ______________________________________________________________________
 | **SageFlowService** | L4   | 微服务封装        |
 
 ______________________________________________________________________
-
-## 相关文档
-
-- [SAGE-Flow 概览](./README.md)
-- [StreamEnvironment API](./stream_environment.md)
-- [流处理算子](../../operators/stream_operators.md)

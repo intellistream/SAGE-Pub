@@ -398,14 +398,7 @@ refiner_config = {
 更多配置示例和详细文档：
 
 - [检索器配置](../components/retriever.md)
-- <!-- [重排序器配置](../components/BGE_RERANKER_GUIDE.md) -->
-
-BGE重排器指南
-
 - [文档优化器配置](../components/refiner.md)
-- <!-- [基础配置文件](../../config/config_qa_chroma.yaml) -->
-
-Chroma配置文件
 
 ______________________________________________________________________
 

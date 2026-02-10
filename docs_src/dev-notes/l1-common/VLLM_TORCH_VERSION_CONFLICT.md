@@ -230,7 +230,6 @@ sage-dev --help
 - [vLLM 官方文档](https://docs.vllm.ai/)
 - [vLLM GitHub Releases](https://github.com/vllm-project/vllm/releases)
 - [PyTorch 版本历史](https://pytorch.org/get-started/previous-versions/)
-- [SAGE vLLM 安装指南](../../../../tools/install/VLLM_INSTALLATION_GUIDE.md)
 
 ## ✅ 验证清单
 

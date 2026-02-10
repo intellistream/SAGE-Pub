@@ -146,7 +146,6 @@ env.execute()  # 执行
 
 - [安装指南](../getting-started/installation.md) - 安装 SAGE 开发环境
 - [快速开始](../getting-started/quickstart.md) - 5 分钟上手第一个 Pipeline
-- [流式处理 101](../tutorials/basic/streaming-101.md) - 理解数据流编程基础
 
 ### 深入学习
 

@@ -520,10 +520,7 @@ manager.store_collection()
 
 ## 相关文档
 
-- [Neuromem Architecture Analysis](../cross-layer/architecture/NEUROMEM_ARCHITECTURE_ANALYSIS.md)
 - [Document Storage Feature Technical Guide](./DOCUMENT_STORAGE_FEATURE.md)
-- [RAG Examples](../../../../examples/tutorials/L3-libs/rag/)
-- [Memory Service Examples](../../../../examples/tutorials/L4-middleware/memory_service/)
 
 ## 支持
 

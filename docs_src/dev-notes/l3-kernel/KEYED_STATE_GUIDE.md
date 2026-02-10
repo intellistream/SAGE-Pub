@@ -388,7 +388,3 @@ Changes needed:
 1. Replace manual key extraction with `self.ctx.get_key()`
 
 ## Related Documentation
-
-- [SAGE State Management](../../../docs/dev-notes/l3-kernel/state-management.md)
-- [KeyBy Operator](../../../docs/dev-notes/l3-kernel/operators.md#keyby)
-- [Stateful Functions](../../../docs/dev-notes/l1-common/functions.md#stateful-functions)

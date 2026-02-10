@@ -7,11 +7,9 @@ sage-middleware 属于 L4（中间件层），包含 C++ 扩展、neuromem 内�
 ```
 l4-middleware/
 ├── README.md                          # 本文件
-├── archive/                           # 已归档的文档（已完成的 issue 修复等）
 │
 ├── # === Autostop 功能文档 ===
 ├── AUTOSTOP_MODE_SUPPORT.md           # Autostop 模式在不同执行环境下的支持
-├── AUTOSTOP_SERVICE_FIX_SUMMARY.md    # Autostop 服务修复总结
 ├── REMOTE_AUTOSTOP_IMPLEMENTATION.md  # 远程 Autostop 实现
 ├── fix-autostop-service-cleanup.md    # Autostop 服务清理修复说明（中文）
 ├── remote-mode-support.md             # 远程模式支持说明
@@ -27,8 +25,6 @@ l4-middleware/
 │
 └── song_migration_complete.md         # SONG GPU ANN 后端迁移完成
 ```
-
-> **归档文档**: Issue #610 (Multimodal Storage) 和 Neuromem 子模块修复相关文档已移动到 `archive/` 目录。
 
 ## 核心组件
 
@@ -76,7 +72,7 @@ BILINEAR_POOLING, CUSTOM
 Autostop 相关的开发与问题修复笔记包括：
 
 - `AUTOSTOP_MODE_SUPPORT.md` - 不同执行环境下 Autostop 模式的支持情况与边界。
-- `AUTOSTOP_SERVICE_FIX_SUMMARY.md`、`FIX_AUTOSTOP_SERVICE_CLEANUP.md` - 服务清理与退出流程的修复总结。
+- `FIX_AUTOSTOP_SERVICE_CLEANUP.md` - 服务清理与退出流程的修复总结。
 - `REMOTE_AUTOSTOP_IMPLEMENTATION.md`、`REMOTE_MODE_SUPPORT.md` - 远程模式下的实现差异与已知限制。
 
 整体建议阅读顺序为：先看本 README 中的概览，再按需查阅上述文档获取细节实现与历史问题背景。
@@ -105,7 +101,6 @@ Autostop 相关的开发与问题修复笔记包括：
 | ------------------------- | :--: | ------------------------------ |
 | Document Storage          |  ✅  | `DOCUMENT_STORAGE_STATUS.md`   |
 | Graph Memory Collection   |  ✅  | `GRAPH_MEMORY_FINAL_STATUS.md` |
-| Multimodal Storage (#610) |  ✅  | `archive/ISSUE_610_STATUS.md`  |
 | Autostop Local Mode       |  ✅  | `AUTOSTOP_MODE_SUPPORT.md`     |
 | SONG GPU Migration        |  ✅  | `SONG_MIGRATION_COMPLETE.md`   |
 
@@ -127,8 +122,5 @@ packages/sage-middleware/src/sage/middleware/
 
 ## 相关资源
 
-- [Neuromem 架构分析](../cross-layer/architecture/NEUROMEM_ARCHITECTURE_ANALYSIS.md)
-- [数据类型架构](../cross-layer/architecture/DATA_TYPES_ARCHITECTURE.md)
-- [公共文档](../../docs-public/docs_src/guides/packages/sage-middleware/)
+- [公共文档](../../guides/packages/sage-middleware/overview.md)
 - [L3 Libs Dev Notes](../l3-libs/) - 上游依赖
-- [L5 Apps Dev Notes](../l5-apps/) - 下游消费者

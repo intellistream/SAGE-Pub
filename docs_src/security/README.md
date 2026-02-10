@@ -221,9 +221,8 @@ pip install --cert /path/to/ca.crt isage
 
 ### 相关文档
 
-- 📖 [SAGE 主安装指南](../../docs-public/docs_src/getting-started/installation.md)
-- 📖 [SAGE 故障排除](../../docs/TROUBLESHOOTING.md)
-- 📖 [SAGE 开发指南](../../DEVELOPER.md)
+- 📖 [SAGE 主安装指南](../getting-started/installation.md)
+- 📖 [SAGE 开发指南](../developers/development-setup.md)
 
 ## 🔐 安全最佳实践
 
@@ -258,7 +257,7 @@ pip install --cert /path/to/ca.crt isage
 ### 社区支持
 
 - 📚 [SAGE 文档](https://sage.intellistream.ai/)
-- 🤝 [贡献指南](../../CONTRIBUTING.md)
+- 🤝 [贡献指南](../developers/commands.md)
 
 ## 📋 版本信息
 

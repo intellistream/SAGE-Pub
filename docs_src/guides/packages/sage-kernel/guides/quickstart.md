@@ -338,11 +338,9 @@ class TimedMapFunction(MapFunction[str, str]):
 
 1. 📖 阅读 [API 详细文档](../api/README.md)
 1. 🌐 学习 [核心概念](../concepts.md)
-1. ⚡ 了解 <!-- [数据流开发](./dataflow_development.md) --> 数据流开发指南
-1. 🔍 查看 [更多示例](../examples/basic_tutorials.md)
+1. 🔍 查看 [用户指南](../README.md)
 
 ## 📞 获取帮助
 
 - [GitHub Issues](https://github.com/intellistream/SAGE/issues) - 报告问题
 - [文档中心](../README.md) - 完整文档
-- [示例代码](../examples/README.md) - 更多示例

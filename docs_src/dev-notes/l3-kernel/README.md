@@ -55,12 +55,8 @@
 
 ### 架构文档
 
-- **[KERNEL_REFACTORING_COMPLETED.md](./KERNEL_REFACTORING_COMPLETED.md)** - Kernel 层重构完成报告（函数接口迁移到
-  L1）
 - **[KEYED_STATE_GUIDE.md](./KEYED_STATE_GUIDE.md)** - Keyed State 使用指南
 - **[RESOURCE_CONFIG_SUPPORT_FEATURE.md](./RESOURCE_CONFIG_SUPPORT_FEATURE.md)** - 资源配置支持特性
-
-> 📁 历史 Issue 文档已归档到 `archive/l3-kernel/`
 
 ## 🔄 重要架构变更
 
@@ -92,7 +88,6 @@ from sage.kernel.api.function import MapFunction  # DeprecationWarning
 | 想要了解...     | 查看                                                                       |
 | --------------- | -------------------------------------------------------------------------- |
 | DataStream 使用 | `packages/sage-kernel/src/sage/kernel/api/datastream.py`                   |
-| 函数接口迁移    | [KERNEL_REFACTORING_COMPLETED.md](./KERNEL_REFACTORING_COMPLETED.md)       |
 | Keyed State     | [KEYED_STATE_GUIDE.md](./KEYED_STATE_GUIDE.md)                             |
 | 资源配置        | [RESOURCE_CONFIG_SUPPORT_FEATURE.md](./RESOURCE_CONFIG_SUPPORT_FEATURE.md) |
 
@@ -101,7 +96,6 @@ from sage.kernel.api.function import MapFunction  # DeprecationWarning
 - **代码位置**: `packages/sage-kernel/src/sage/kernel/`
 - **测试**: `packages/sage-kernel/tests/`
 - **函数接口（新位置）**: `packages/sage-common/src/sage/common/core/functions/`
-- **归档文档**: `docs/dev-notes/archive/l3-kernel/`
 
 ______________________________________________________________________
 

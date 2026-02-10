@@ -447,9 +447,6 @@ cat security_audit_safety.json
 # 检查系统状态
 sage doctor
 
-# 运行 hello world 示例
-python3 docs-public/hello_world.py
-
 # 最终验证
 python3 -c "import sage; print(f'SAGE {sage.__version__} installed successfully')"
 ```
@@ -614,8 +611,7 @@ ______________________________________________________________________
 
 - [权限管理指南](./PERMISSION_MANAGEMENT.md)
 - [离线安装指南](./OFFLINE_INSTALLATION.md)
-- [主安装指南](../../docs-public/docs_src/getting-started/installation.md)
-- [SAGE 故障排除](../../docs/TROUBLESHOOTING.md)
+- [主安装指南](../getting-started/installation.md)
 
 ______________________________________________________________________
 

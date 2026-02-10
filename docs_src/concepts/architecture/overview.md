@@ -176,4 +176,3 @@ L3 → L4+
 
 - [安装指南](../../getting-started/installation.md)
 - [快速入门](../../getting-started/quickstart.md)
-- [基础教程](../../tutorials/basic/streaming-101.md)

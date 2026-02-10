@@ -152,9 +152,6 @@ nav:
         - 通信机制: guides/packages/sage-kernel/runtime_communication.md
         - 任务管理: guides/packages/sage-kernel/runtime_tasks.md
         - 服务调用: guides/packages/sage-kernel/runtime_services.md
-      - 示例代码:
-        - 示例总览: guides/packages/sage-kernel/examples/README.md
-        - 基础教程: guides/packages/sage-kernel/examples/basic_tutorials.md
       - CLI 工具: guides/packages/sage-kernel/components/cli.md
       - 配置说明: guides/packages/sage-kernel/config/config.md
       - 最佳实践: guides/packages/sage-kernel/best-practices.md
@@ -182,17 +179,6 @@ nav:
           - 示例:
             - RAG 示例: guides/packages/sage-libs/rag/examples/RAG.md
             - RAG Milvus 示例: guides/packages/sage-libs/rag/examples/RAG_milvus.md
-        - Agents:
-          - 概述: guides/packages/sage-libs/agents.md
-          - 组件:
-            - Profile: guides/packages/sage-libs/agents/components/profile.md
-            - Memory: guides/packages/sage-libs/agents/components/memory.md
-            - Planner: guides/packages/sage-libs/agents/components/planner.md
-            - Action: guides/packages/sage-libs/agents/components/action.md
-            - Runtime: guides/packages/sage-libs/agents/components/runtime.md
-            - MCP Server: guides/packages/sage-libs/agents/components/mcp_server.md
-          - 示例:
-            - 最小 Agent: guides/packages/sage-libs/agents/examples/agent_min.md
         - Tools:
           - 概述: guides/packages/sage-libs/tools_intro.md
           - Arxiv 论文搜索: guides/packages/sage-libs/tools/arxiv_paper_searcher.md
@@ -280,13 +266,8 @@ nav:
     - L3 核心引擎: dev-notes/l3-kernel/README.md
     - L3 算法库: dev-notes/l3-libs/README.md
     - L4 中间件: dev-notes/l4-middleware/README.md
-    - L5 应用: dev-notes/l5-apps/README.md
-    - L5 评测: dev-notes/l5-benchmark/README.md
-    - L6 CLI: dev-notes/l6-cli/README.md
-    - L6 Gateway: dev-notes/l6-gateway/README.md
-    - L6 Studio: dev-notes/l6-studio/README.md
-    - L6 Tools: dev-notes/l6-tools/README.md
-    - 交叉层设计: dev-notes/cross-layer/README.md
+    - L5 CLI: dev-notes/l5-cli/README.md
+    - L5 Tools: dev-notes/l5-tools/README.md
     - 测试策略: dev-notes/testing/README.md
 
 - 社区:
@@ -294,7 +275,6 @@ nav:
   - 社区指南: community/community.md
   - 常见问题 (FAQ): community/faq.md
   - 每周会议: community/meetings.md
-  - 工作报告: community/weekly-reports/index.md
   - IntelliStream Lab: community/intellistream.md
   - 社区成员:
     - Shuhao Zhang: community/faculty/Shuhao Zhang.md

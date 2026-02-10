@@ -71,7 +71,6 @@
 | `tests/integration/test_control_plane.py`                          | Control Plane 集成测试           |
 | `tests/integration/test_dynamic_discovery.py`                      | 动态发现集成测试                 |
 | `examples/tutorials/L1-common/unified_inference_client_example.py` | 客户端使用示例                   |
-| `docs/dev-notes/l1-common/unified-gateway-tasks.md`                | 任务规划文档                     |
 
 ### 修改文件
 
@@ -196,7 +195,6 @@ vectors = client.embed(["text1", "text2"])
 
 - `docs/dev-notes/l1-common/README.md` - 添加详细 CLI 使用教程
 - `examples/tutorials/L1-common/README.md` - 添加新示例说明
-- `.github/copilot-instructions.md` - 需要后续更新
 
 ## ✅ Checklist
 

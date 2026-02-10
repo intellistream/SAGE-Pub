@@ -375,5 +375,4 @@ sage.libs/
 ## See Also
 
 - [Libraries Guide](../../guides/packages/sage-libs/README.md)
-- [Benchmark 概览](../../guides/packages/sage-benchmark/index.md)
 - [Design Decisions](../../concepts/architecture/design-decisions/sage-libs-restructuring.md)

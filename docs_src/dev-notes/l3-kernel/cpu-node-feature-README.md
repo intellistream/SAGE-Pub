@@ -315,7 +315,6 @@ class BatchProcessor(MapFunction):
 
 - 开发: SAGE Development Assistant
 - 审查: IntelliStream Team
-- 分支: `copilot/add-cpu-version-sage-node`
 
 ## 许可证
 

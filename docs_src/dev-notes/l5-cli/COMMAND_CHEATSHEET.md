@@ -306,6 +306,4 @@ sage-dev maintain submodule init --help
 
 ## 📚 相关文档
 
-- [COMMAND_REORGANIZATION_SUMMARY.md](./COMMAND_REORGANIZATION_SUMMARY.md) - 重组方案总结与映射
 - [CLI_HELP_UPDATE.md](./CLI_HELP_UPDATE.md) - 帮助文本改版详情
-- [sage-tools README](../../../../packages/sage-tools/README.md) - sage-tools 包文档

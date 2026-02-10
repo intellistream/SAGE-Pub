@@ -77,7 +77,5 @@ sage-dev project clean --deep    # 清理所有缓存
 
 ## 相关文档
 
-- [sage-tools README](../../../../packages/sage-tools/README.md) - sage-tools 包文档
 - [l5-cli/](../l5-cli/) - CLI 命令文档
-- [tools/](../../../../tools/) - Shell 脚本工具
 ````

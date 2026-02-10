@@ -277,5 +277,3 @@ python -c "import torch; print(torch.__file__)"
 ## 相关资源
 
 - [GitHub Actions Self-hosted Runners](https://docs.github.com/en/actions/hosting-your-own-runners)
-- [LibAMM 编译文档](../../../packages/sage-libs/README_LIBAMM.md)
-- [内存优化笔记](../dev-notes/l3-libs/libamm-memory-optimization.md)

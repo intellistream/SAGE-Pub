@@ -525,10 +525,9 @@ ______________________________________________________________________
 
 ## 相关文档
 
-- [SAGE 安装指南](../docs-public/docs_src/getting-started/installation.md)
+- [SAGE 安装指南](../getting-started/installation.md)
 - [安全安装指南](./SECURE_INSTALLATION_GUIDE.md)
 - [离线安装指南](./OFFLINE_INSTALLATION.md)
-- [故障排除指南](../docs/TROUBLESHOOTING.md)
 
 ______________________________________________________________________
 

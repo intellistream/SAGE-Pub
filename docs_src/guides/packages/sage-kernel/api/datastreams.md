@@ -246,6 +246,5 @@ profiles: DataStream[UserProfile] = users.map(process_user)
 - [函数接口](functions.md) - 详细的函数接口说明
 - [连接流](connected-streams.md) - 多流处理
 
-<!-- - [性能优化](../guides/performance.md) - 性能调优指南 -->
 
 - 性能优化 - 性能调优指南

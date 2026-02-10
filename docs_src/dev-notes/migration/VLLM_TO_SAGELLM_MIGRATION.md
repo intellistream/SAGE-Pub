@@ -322,7 +322,6 @@ generator = SageLLMGenerator(
 
 - [ISAGELLM Migration](./ISAGELLM_MIGRATION.md) - sage-llm-core/gateway to isagellm migration
 - [API Reference: SageLLMGenerator](../../api-reference/middleware/index.md#sagellmgenerator)
-- [Control Plane Architecture](../cross-layer/control-plane-architecture.md)
 
 ## Support
 

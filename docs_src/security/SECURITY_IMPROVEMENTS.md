@@ -80,7 +80,7 @@ ______________________________________________________________________
 
 #### 3️⃣ 权限需求文档
 
-- **文件**：`docs/security/PERMISSION_MANAGEMENT.md`
+- **文件**：`docs_src/security/PERMISSION_MANAGEMENT.md`
 - **内容**：
   - 详细的权限需求表
   - 每个步骤的权限说明
@@ -103,10 +103,10 @@ ______________________________________________________________________
 
 | 文档         | 位置                                                   | 内容                              |
 | ------------ | ------------------------------------------------------ | --------------------------------- |
-| 权限管理指南 | `docs/security/PERMISSION_MANAGEMENT.md`               | 权限需求、最小权限原则、故障排除  |
-| 安全安装指南 | `docs/security/SECURE_INSTALLATION_GUIDE.md`           | Checksum、漏洞扫描、--verify-deps |
-| 离线安装指南 | `docs/security/OFFLINE_INSTALLATION.md`                | 企业网络、Air-Gapped、离线包      |
-| 主安装指南   | `docs-public/docs_src/getting-started/installation.md` | 总体安装指南（已更新链接）        |
+| 权限管理指南 | `docs_src/security/PERMISSION_MANAGEMENT.md`           | 权限需求、最小权限原则、故障排除  |
+| 安全安装指南 | `docs_src/security/SECURE_INSTALLATION_GUIDE.md`       | Checksum、漏洞扫描、--verify-deps |
+| 离线安装指南 | `docs_src/security/OFFLINE_INSTALLATION.md`            | 企业网络、Air-Gapped、离线包      |
+| 主安装指南   | `docs_src/getting-started/installation.md`             | 总体安装指南                      |
 
 ### 代码实现
 
@@ -220,15 +220,15 @@ ______________________________________________________________________
 ### 新增文件
 
 - ✅ `tools/install/examination_tools/dependency_verification.sh` (600+ 行)
-- ✅ `docs/security/PERMISSION_MANAGEMENT.md` (600+ 行)
-- ✅ `docs/security/SECURE_INSTALLATION_GUIDE.md` (800+ 行)
-- ✅ `docs/security/OFFLINE_INSTALLATION.md` (700+ 行)
+- ✅ `docs_src/security/PERMISSION_MANAGEMENT.md` (600+ 行)
+- ✅ `docs_src/security/SECURE_INSTALLATION_GUIDE.md` (800+ 行)
+- ✅ `docs_src/security/OFFLINE_INSTALLATION.md` (700+ 行)
 
 ### 修改文件
 
 - ✅ `tools/install/download_tools/argument_parser.sh` (+50 行)
 - ✅ `quickstart.sh` (+30 行)
-- ✅ `docs-public/docs_src/getting-started/installation.md` (+40 行)
+- ✅ `docs_src/getting-started/installation.md` (+40 行)
 
 ### 总计
 
@@ -274,8 +274,8 @@ ______________________________________________________________________
 
 ### 获取帮助
 
-- **文档**：[SAGE 安全文档](../../docs/security/)
-- **教程**：[快速开始](../../docs-public/docs_src/getting-started/)
+- **文档**：[SAGE 安全文档](./README.md)
+- **教程**：[快速开始](../getting-started/quickstart.md)
 
 ______________________________________________________________________
 

@@ -233,9 +233,9 @@ sage jobmanager stop
 
 ## 📚 相关文档
 
-- `AUTOSTOP_SERVICE_FIX_SUMMARY.md` - 原始服务清理问题修复
 - `AUTOSTOP_MODE_SUPPORT.md` - 各模式支持详情
-- `远程模式支持说明.md` - 远程模式使用指南
+- `REMOTE_MODE_SUPPORT.md` - 远程模式使用指南
+- `FIX_AUTOSTOP_SERVICE_CLEANUP.md` - 服务清理与退出流程修复
 
 ## ✨ 下一步
 

@@ -274,8 +274,6 @@ Embedding 服务和工厂：
 
 本目录下的历史开发笔记已按主题整合到本 README 中，推荐从以下几个小节阅读：
 
-- [Control Plane 路线图与任务拆解](#control-plane-%E8%B7%AF%E7%BA%BF%E5%9B%BE%E4%B8%8E%E4%BB%BB%E5%8A%A1%E6%8B%86%E8%A7%A3)
-- [Unified Gateway 统一网关任务](#unified-gateway-%E7%BB%9F%E4%B8%80%E7%BD%91%E5%85%B3%E4%BB%BB%E5%8A%A1)
 - [Control Plane 增强概要](#control-plane-%E5%A2%9E%E5%BC%BA%E6%A6%82%E8%A6%81)
 - [vLLM 与 Torch 版本兼容性](#vllm-%E4%B8%8E-torch-%E7%89%88%E6%9C%AC%E5%85%BC%E5%AE%B9%E6%80%A7)
 
@@ -285,14 +283,10 @@ Embedding 服务和工厂：
 
 - **[control-plane-enhancement.md](./control-plane-enhancement.md)** - Control Plane
   动态引擎管理增强（GPU/Lifecycle/预设/`use_gpu` 支持）
-- **[control-plane-roadmap-tasks.md](./control-plane-roadmap-tasks.md)** - Control Plane
-  任务路线图（详细任务书）
-- **[unified-gateway-tasks.md](./unified-gateway-tasks.md)** - Unified Gateway 开发任务拆解
 - **[PR-unified-gateway.md](./PR-unified-gateway.md)** - Unified Gateway 集成 PR 总结
 
 ### 工具与运维文档
 
-- **[CLEANUP_AUTOMATION.md](./CLEANUP_AUTOMATION.md)** - 自动清理功能说明
 - **[VLLM_TORCH_VERSION_CONFLICT.md](./VLLM_TORCH_VERSION_CONFLICT.md)** - vLLM 和 Torch
   版本冲突解决与版本管理建议
 
@@ -352,7 +346,6 @@ sage llm preset list               # 查看预设
 
 | 想要了解...        | 查看                                                              |
 | ------------------ | ----------------------------------------------------------------- |
-| 统一推理客户端使用 | [hybrid-scheduler/README.md](./hybrid-scheduler/README.md)        |
 | 动态引擎管理       | [control-plane-enhancement.md](./control-plane-enhancement.md)    |
 | Embedding GPU 支持 | [control-plane-enhancement.md](./control-plane-enhancement.md)    |
 | Control Plane 架构 | `packages/sage-llm-core/src/sage/llm/control_plane/`              |
@@ -364,93 +357,6 @@ sage llm preset list               # 查看预设
 
 - **代码位置**: `packages/sage-common/src/sage/common/`
 - **测试**: `packages/sage-common/tests/`
-- **Copilot 指南**: `.github/copilot-instructions.md`
-
-______________________________________________________________________
-
-## Control Plane 路线图与任务拆解
-
-该小节对 `control-plane-roadmap-tasks.md` 进行提炼，聚焦于 **UnifiedInferenceClient 统一入口**、**引擎健康检查与自动重启**、以及
-**Embedding GPU 支持** 三大方向。
-
-### 统一入口 `UnifiedInferenceClient.create()`
-
-- 将原有多种创建方式（`create_auto` / `create_with_control_plane` / 直接构造）统一为单一入口 `create()`：
-  - `UnifiedInferenceClient.create()`
-  - `UnifiedInferenceClient.create(control_plane_url=...)`
-  - `UnifiedInferenceClient.create(embedded=True)`
-- 删除旧 API 和模式枚举，确保所有调用路径都经由 Control Plane 管理。
-- 在 Control Plane Manager 中集中端口和资源管理逻辑，减少分散的端口常量与重复判断。
-
-在实现层面，任务书明确了需要更新的核心文件（`unified_client.py`、`control_plane/__init__.py`、`engine_lifecycle.py`、`manager.py`
-及所有调用方），并给出了**验收示例代码**，这些完整细节仍可在原文档中查阅。
-
-### 引擎健康检查与自动重启
-
-依据任务书：
-
-- 在 `EngineLifecycleManager` 中新增：
-  - `health_check(engine_id, timeout=...)`
-  - `health_check_all()`
-- 在 `ControlPlaneManager` 中增加后台循环：
-  - 周期性调用健康检查
-  - 支持 `auto_restart=True`、`max_restart_attempts` 等配置
-  - 使用指数退避策略进行重试
-
-这部分任务为后续的 **稳定性保障** 和 **生产可用性** 打下基础，也是与 Gateway 合并后保持统一行为的关键前置条件。
-
-### Embedding 引擎 GPU 支持
-
-- 在 Control Plane API、Preset 模型与 CLI 中统一引入 `use_gpu: bool | None`：
-  - `None`（默认）: LLM 使用 GPU，Embedding 使用 CPU
-  - `True`: 强制使用 GPU
-  - `False`: 强制不使用 GPU
-- 调整 `needs_gpu` 判断逻辑与 Embedding Server 启动参数，使得大型 Embedding 模型（如 BGE-M3）可以按需迁移到 GPU 上运行。
-
-更多包含 AI 提示词的详细拆解，仍保存在 `control-plane-roadmap-tasks.md` 中，适合在做二次重构或回顾设计决策时阅读。
-
-______________________________________________________________________
-
-## Unified Gateway 统一网关任务
-
-本节综合 `unified-gateway-tasks.md` 与 `PR-unified-gateway.md`，从“规划 → 实现结果”的视角描述 Gateway 统一工作的整体图景。
-
-### 规划视角（来自 unified-gateway-tasks.md）
-
-统一 Gateway 的任务被拆解为三个串行任务组：
-
-1. **任务组 1：Control Plane 动态引擎管理**
-   - 引擎注册与生命周期管理（`EngineState` / `EngineInfo` / 心跳机制 / 优雅关闭）
-   - 动态后端发现（定期刷新后端列表、故障转移、客户端透明切换）
-1. **任务组 2：Gateway 统一**
-   - 将 Control Plane 端点迁移到 `sage-llm-gateway`
-   - 合并 LLM / Embedding 代理与管理路由
-   - CLI 命令统一：增加 `sage gateway` 命令组，重定向 `sage llm engine` 到 Gateway 端点
-1. **任务组 3：测试与文档**
-   - 编写端到端集成测试（Gateway + Control Plane + Client）
-   - 更新文档与示例代码（尤其是 L1 tutorial 与 CLI 参考）
-
-任务文档为每一小节都提供了清晰的 AI 提示词、文件列表与验收标准，适合用作未来类似大型重构任务的模板。
-
-### 结果视角（来自 PR-unified-gateway.md）
-
-PR 文档记录了这些规划在代码层面的最终落地：
-
-- 控制平面与 Gateway：
-  - 在 `sage-llm-gateway` 中新增 `routes/control_plane.py`，承载所有 `/v1/management/*` 端点。
-  - 删除 `unified_api_server.py`，所有控制功能正式迁移到 Gateway。
-  - 补充 `/v1/embeddings` 路由，确保 OpenAI 兼容接口完整。
-- CLI 统一：
-  - 新增 `sage gateway` 命令组（`start/stop/status/logs/restart`）。
-  - `sage llm engine` 命令改为通过 Gateway Control Plane 进行管理。
-- 客户端与 API：
-  - `UnifiedInferenceClient.create(control_plane_url=...)` 作为标准调用方式。
-  - OpenAI 兼容端点与 Management API 的清单一并整理在 PR 文档中，可作为对接其他系统时的参考表。
-
-如果你希望理解“为什么现在的 Gateway/Control Plane 是这个形态”，推荐顺序是：
-
-1. 先读本 README 中的综述小节（路线图 + Gateway 统一）；
-1. 再按需查阅 `unified-gateway-tasks.md`（规划）和 `PR-unified-gateway.md`（实际差异）。
 
 ______________________________________________________________________
 

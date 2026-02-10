@@ -635,7 +635,7 @@ ______________________________________________________________________
 
 - [权限管理指南](./PERMISSION_MANAGEMENT.md)
 - [安全安装指南](./SECURE_INSTALLATION_GUIDE.md)
-- [主安装指南](../../docs-public/docs_src/getting-started/installation.md)
+- [主安装指南](../getting-started/installation.md)
 
 ______________________________________________________________________
 

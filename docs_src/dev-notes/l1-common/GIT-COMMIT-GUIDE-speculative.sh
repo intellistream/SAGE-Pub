@@ -26,7 +26,6 @@ git add packages/sage-llm-core/src/sage/llm/engines/vllm/examples/speculative_de
 git add docs-public/docs_src/dev-notes/l1-common/speculative-decoding-migration.md
 git add docs-public/docs_src/dev-notes/l1-common/CHANGELOG-speculative-migration.md
 git add docs-public/docs_src/dev-notes/l1-common/MIGRATION-REPORT-speculative.md
-git add .github/copilot-instructions.md
 
 # 3. 删除旧目录（如果还存在）
 git rm -r packages/sage-libs/src/sage/libs/algorithms/speculative/
@@ -66,7 +65,6 @@ Testing:
 Documentation:
 - Migration guide: docs-public/docs_src/dev-notes/l1-common/speculative-decoding-migration.md
 - Usage examples: packages/sage-llm-core/src/sage/llm/engines/vllm/examples/speculative_decoding_demo.py
-- Updated copilot-instructions.md with new import paths
 
 Related: #1284 (Control Plane Enhancement)
 "

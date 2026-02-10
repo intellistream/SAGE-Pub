@@ -8,7 +8,6 @@
 | 文件 | 说明 |
 |------|------|
 | `COMMAND_CHEATSHEET.md` | `sage`/`sage-dev` 命令速查表（完整命令结构与示例） |
-| `COMMAND_REORGANIZATION_SUMMARY.md` | `sage-dev` 命令重组总结（旧 → 新 映射与兼容策略） |
 | `CLI_HELP_UPDATE.md` | `sage` / `sage-dev` 帮助信息与 UX 更新记录 |
 | `llm-preset-launcher.md` | LLM 预设启动器设计（Control Plane 预设引擎管理） |
 
@@ -69,7 +68,7 @@ sage-dev
 - 九大命令组：`quality`、`project`、`maintain`、`package`、`resource`、`github`、`examples`、`maintenance`、`docs`，职责边界清晰。
 - 旧命令（如 `sage-dev test`、`sage-dev check-all` 等）在 `dev/main.py` 中保留包装，并在执行时输出弃用提示，引导用户迁移到新路径（如 `sage-dev project test`、`sage-dev quality check`）。
 
-> 具体的组内命令列表与“旧 → 新”映射表见 `COMMAND_CHEATSHEET.md` 与 `COMMAND_REORGANIZATION_SUMMARY.md`，实现位置集中在 `packages/sage-tools/src/sage/tools/cli/commands/dev/` 目录下。
+> 具体的组内命令列表与“旧 → 新”映射表见 `COMMAND_CHEATSHEET.md`，实现位置集中在 `packages/sage-tools/src/sage/tools/cli/commands/dev/` 目录下。
 
 ## 帮助信息与 UX 更新
 
@@ -128,8 +127,6 @@ sage studio start                # 启动 Studio
 ## 相关文档
 
 - [COMMAND_CHEATSHEET.md](./COMMAND_CHEATSHEET.md) - 完整命令速查
-- [sage-tools README](../../../../packages/sage-tools/README.md) - sage-tools 包文档
-- [sage-cli 源码](../../../../packages/sage-cli/src/sage/cli/) - CLI 实现
 
 ## 更新指引
 

@@ -173,7 +173,7 @@ ______________________________________________________________________
 
 ## 参考资料
 
-- [SAGE 架构概览](../../architecture/overview.md)
-- [sage-libs API 参考](../../../api-reference/sage-libs/README.md)
+- [SAGE 架构概览](../../../concepts/architecture/overview.md)
+- [sage-libs API 参考](../../../api-reference/libs/index.md)
 - [RAG 模块指南](./rag.md)
 - [Tools 模块指南](./tools_intro.md)

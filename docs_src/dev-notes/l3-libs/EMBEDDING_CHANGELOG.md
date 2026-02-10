@@ -32,7 +32,6 @@ ______________________________________________________________________
 #### 文档
 
 - `PIPELINE_BUILDER_EMBEDDING_INTEGRATION.md` - 完整集成文档
-- `EMBEDDING_SYSTEM_COMPLETE_SUMMARY.md` - 整体总结
 - `EMBEDDING_QUICK_REFERENCE.md` - 快速参考指南
 
 ### 🔧 修改 (Changed)
@@ -52,7 +51,6 @@ ______________________________________________________________________
 **新增:**
 
 - `docs/dev-notes/PIPELINE_BUILDER_EMBEDDING_INTEGRATION.md`
-- `docs/dev-notes/EMBEDDING_SYSTEM_COMPLETE_SUMMARY.md`
 - `docs/dev-notes/EMBEDDING_QUICK_REFERENCE.md`
 - `examples/tutorials/pipeline_builder_embedding_demo.py`
 
@@ -252,8 +250,7 @@ packages/sage-middleware/tests/embedding/
 └── test_hf_wrapper.py
 
 docs/dev-notes/
-├── EMBEDDING_OPTIMIZATION_PLAN.md
-└── EMBEDDING_OPTIMIZATION_PHASE1_COMPLETE.md
+└── EMBEDDING_QUICK_REFERENCE.md
 ```
 
 ### 🎯 设计原则
@@ -272,7 +269,6 @@ ______________________________________________________________________
 - 完成需求分析
 - 设计系统架构
 - 制定实施路线图
-- 创建 `EMBEDDING_OPTIMIZATION_PLAN.md`
 
 ______________________________________________________________________
 
@@ -298,11 +294,9 @@ ______________________________________________________________________
 
 ## 贡献指南
 
-参考 [CONTRIBUTING.md](../../../CONTRIBUTING.md) 了解如何参与贡献。
 
 ## 许可证
 
-参考 [LICENSE](../../../LICENSE) 了解许可信息。
 
 ______________________________________________________________________
 
