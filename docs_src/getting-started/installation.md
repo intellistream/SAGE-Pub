@@ -42,11 +42,8 @@ ______________________________________________________________________
 git clone https://github.com/intellistream/SAGE.git
 cd SAGE
 
-# 切换到开发分支
+# 切换到开发分支（推荐）
 git checkout main-dev
-
-# 初始化子模块（C++ 扩展依赖）
-./tools/maintenance/sage-maintenance.sh submodule init
 
 # 交互式安装（推荐初次使用）
 ./quickstart.sh
@@ -69,8 +66,6 @@ git checkout main-dev
 附加参数：
 
 - `--pip` / `--conda`：显式指定使用系统 Python 或自动创建 Conda 环境（默认 Conda）。
-- `--sync-submodules`：安装前调用 `./manage.sh` 与
-  `./tools/maintenance/sage-maintenance.sh submodule init`，确保 C++ 扩展子模块拉取到最新。
 - `--yes`：跳过交互确认，适合脚本/CI。
 - `--vllm`：在 GPU 主机上额外安装 vLLM 依赖。
 
