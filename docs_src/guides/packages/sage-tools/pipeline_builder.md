@@ -1,5 +1,5 @@
 - **知识库构建**：命令会在首次运行时扫描本地仓库并构建轻量级向量索引（内存缓存），无需额外安装 SageDB。若本地缺乏源码（如 `pip install isage` 场景），会自动从官方
-  `SAGE-Pub` 仓库下载 `docs_src` 压缩包并缓存于 `~/.sage/cache/pipeline-builder/docs`。
+  `sage-docs` 仓库下载 `docs_src` 压缩包并缓存于 `~/.sage/cache/pipeline-builder/docs`。
 
 # Pipeline Builder
 

@@ -365,7 +365,7 @@ ______________________________________________________________________
 **错误信息**：
 
 ```bash
-fatal: unable to access 'https://github.com/intellistream/SAGE-Pub.git/':
+fatal: unable to access 'https://github.com/intellistream/sage-docs.git/':
 Failed to connect to github.com port 443
 ```
 
@@ -556,7 +556,7 @@ ______________________________________________________________________
 
 ### 获取帮助
 
-- **文档**：[SAGE 文档](https://intellistream.github.io/SAGE-Pub/)
+- **文档**：[SAGE 文档](https://intellistream.github.io/sage-docs/)
 - **Issue**：[GitHub Issues](https://github.com/intellistream/SAGE/issues)
 - **社区**：
   - 微信群：参见 [社区指南](../community/community.md)

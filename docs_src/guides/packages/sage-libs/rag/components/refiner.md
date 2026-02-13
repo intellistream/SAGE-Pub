@@ -400,7 +400,7 @@ refiner = LongRefinerAdapter(config, enable_profile=True)
 
 - **论文链接**：[https://arxiv.org/abs/2505.10413](https://arxiv.org/abs/2505.10413)
 - **开源代码**：[https://github.com/ignorejjj/LongRefiner](https://github.com/ignorejjj/LongRefiner)
-- **SAGE框架文档**：[https://intellistream.github.io/SAGE-Pub/](https://intellistream.github.io/SAGE-Pub/)
+- **SAGE框架文档**：[https://intellistream.github.io/sage-docs/](https://intellistream.github.io/sage-docs/)
 
 ### 相关技术
 

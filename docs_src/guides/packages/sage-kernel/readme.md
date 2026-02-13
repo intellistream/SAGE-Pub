@@ -121,7 +121,7 @@ env.submit(autostop=True)
 
 - [GitHub Issues](https://github.com/intellistream/SAGE/issues) - 报告问题
 - [讨论区](https://github.com/intellistream/SAGE/discussions) - 社区讨论
-- [官方文档](https://intellistream.github.io/SAGE-Pub/) - 完整文档
+- [官方文档](https://intellistream.github.io/sage-docs/) - 完整文档
 
 ## 📄 许可证
 

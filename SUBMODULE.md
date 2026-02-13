@@ -1,4 +1,4 @@
-# Git Submodule: SAGE-Pub
+# Git Submodule: sage-docs
 
 ⚠️ **This directory is a Git submodule** - it's a separate repository!
 
