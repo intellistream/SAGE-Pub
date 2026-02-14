@@ -29,14 +29,6 @@
 
 完成快速开始后，您可以继续学习：
 
-### 基础教程
-
-掌握 SAGE 的核心概念和基本用法：
-
-- [流式处理 101](../tutorials/basic/streaming-101.md) - 了解 DataStream 编程模型
-- [批处理示例](../tutorials/basic/hello_batch.md) - 学习批处理任务
-- [算子使用](../tutorials/basic/operators/hello_filter_world.md) - 掌握各种数据处理算子
-
 ### 核心概念
 
 深入理解 SAGE 的架构和设计：
@@ -44,13 +36,12 @@
 - [架构总览](../concepts/architecture/overview.md) - SAGE 整体架构
 - [包结构](../concepts/architecture/package-structure.md) - 各包的职责和依赖
 
-### 高级教程
+### 进阶指南
 
-探索 SAGE 的高级特性：
+探索 SAGE 的高级特性与最佳实践：
 
-- [分布式 Pipeline](../tutorials/advanced/distributed-pipeline.md)
-- [自定义算子](../tutorials/advanced/custom-operators.md)
-- [复杂工作流](../tutorials/advanced/complex-workflows.md)
+- [Kernel 指南](../guides/packages/sage-kernel/readme.md)
+- [Libs 指南](../guides/packages/sage-libs/readme.md)
 
 ## 🎯 学习路径建议
 
@@ -59,8 +50,8 @@
 ```
 1. ✅ [安装 SAGE](installation.md)
 2. ✅ [快速入门](quickstart.md)
-3. ✅ [流式处理 101](../tutorials/basic/streaming-101.md)
-4. ✅ [基础算子](../tutorials/basic/operators/hello_filter_world.md)
+3. ✅ [架构总览](../concepts/architecture/overview.md)
+4. ✅ [Kernel 指南](../guides/packages/sage-kernel/readme.md)
 ```
 
 === "中级用户"
@@ -68,17 +59,16 @@
 ```
 1. ✅ [架构总览](../concepts/architecture/overview.md)
 2. ✅ [包结构](../concepts/architecture/package-structure.md)
-3. ✅ [自定义算子](../tutorials/advanced/custom-operators.md)
-4. ✅ [性能优化](../tutorials/advanced/performance-tuning.md)
+3. ✅ [Kernel 指南](../guides/packages/sage-kernel/readme.md)
+4. ✅ [Libs 指南](../guides/packages/sage-libs/readme.md)
 ```
 
 === "高级开发者"
 
 ```
-1. ✅ [分布式部署](../tutorials/advanced/distributed-pipeline.md)
-2. ✅ [容错机制](../tutorials/advanced/fault-tolerance.md)
-3. ✅ [设计决策文档](../concepts/architecture/design-decisions/sage-libs-restructuring.md)
-4. ✅ [贡献指南](../developers/commands.md)
+1. ✅ [设计决策文档](../concepts/architecture/design-decisions/sage-libs-restructuring.md)
+2. ✅ [包结构](../concepts/architecture/package-structure.md)
+3. ✅ [贡献指南](../developers/commands.md)
 ```
 
 ## 💡 常见使用场景
@@ -131,10 +121,10 @@ env.from_bot(question_bot).connect(answer_bot).sink(output)
 
 ## 🆘 需要帮助？
 
-- 📖 查看[用户指南](../guides/packages/sage-kernel/README.md)了解详细功能
+- 📖 查看[用户指南](../guides/packages/sage-kernel/readme.md)了解详细功能
 - 💬 访问 [GitHub Discussions](https://github.com/intellistream/SAGE/discussions) 提问
 - 🐛 在 [GitHub Issues](https://github.com/intellistream/SAGE/issues) 报告问题
-- 👥 加入[社区](../community/README.md)与其他开发者交流
+- 👥 加入[社区](../community/readme.md)与其他开发者交流
 
 ## 📝 下一步
 
@@ -164,7 +154,7 @@ env.from_bot(question_bot).connect(answer_bot).sink(output)
 
   学习 SAGE 的核心概念和用法
 
-  [:octicons-arrow-right-24: 查看教程](../tutorials/basic/streaming-101.md)
+  [:octicons-arrow-right-24: 查看指南](../guides/index.md)
 
 - :material-rocket:{ .lg .middle } __高级特性__
 
@@ -172,6 +162,6 @@ env.from_bot(question_bot).connect(answer_bot).sink(output)
 
   探索分布式、自定义算子等高级功能
 
-  [:octicons-arrow-right-24: 高级教程](../tutorials/advanced/index.md)
+  [:octicons-arrow-right-24: 进阶指南](../guides/index.md)
 
 </div>

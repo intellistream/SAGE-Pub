@@ -590,6 +590,6 @@ sage.common/
 
 ## See Also
 
-- [Package Architecture](../../dev-notes/package-architecture.md)
+- [Package Architecture](../../concepts/architecture/package-structure.md)
 - [Common Utilities Guide](../../guides/packages/sage-common/overview.md)
 - [L1 Layer Overview](../../guides/index.md#l1-基础设施层)

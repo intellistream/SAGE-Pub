@@ -341,10 +341,10 @@ ______________________________________________________________________
 
 **A**:
 
-- **架构文档**：`docs/dev-notes/` (按层级组织 l1-l5)
+- **架构文档**：`docs_src/concepts/architecture/` (按主题组织)
 - **公开文档**：`docs-public/docs_src/`
 - **贡献指南**：`CONTRIBUTING.md` (中文), `DEVELOPER.md` (英文)
-- **包架构**：`docs-public/docs_src/dev-notes/package-architecture.md`
+- **变更日志**：`CHANGELOG.md`
 
 ______________________________________________________________________
 

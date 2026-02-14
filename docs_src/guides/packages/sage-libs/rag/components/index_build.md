@@ -267,6 +267,6 @@ ______________________________________________________________________
 
 ## 相关文档
 
-- [RAG 模块概览](../rag.md)
-- [SageDB 后端](../../sage-middleware/components/sage_db.md)
-- [Embedding 服务](../../sage-common/embedding.md)
+- [RAG 模块概览](../../rag.md)
+- [SageDB 后端](../../../sage-middleware/components/sage_db.md)
+- [Sage Common 概览](../../../sage-common/overview.md)

@@ -275,7 +275,7 @@ planner = HierarchicalPlanner.from_config(
 
 - [用户指南](../guides/index.md) - 各层级的详细使用指南
 - [快速入门](../getting-started/quickstart.md) - 快速开始使用 SAGE
-- [包架构](../dev-notes/package-architecture.md) - 了解 SAGE 的架构设计
+- [包架构](../concepts/architecture/package-structure.md) - 了解 SAGE 的架构设计
 - [核心概念](../concepts/index.md) - 理解 SAGE 的核心概念
 - [FAQ](../community/faq.md) - 常见问题解答
 

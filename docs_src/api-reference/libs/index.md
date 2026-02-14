@@ -337,7 +337,7 @@ stream = (env
 
 ### RAG
 
-- [RAG Overview](../../guides/packages/sage-libs/rag/README.md)
+- [RAG Overview](../../guides/packages/sage-libs/rag/readme.md)
 - [RAG Components](../../guides/packages/sage-libs/rag/api_reference.md)
 
 ### Agents
@@ -374,6 +374,5 @@ sage.libs/
 
 ## See Also
 
-- [Libraries Guide](../../guides/packages/sage-libs/README.md)
-- [Benchmark 概览](../../guides/packages/sage-benchmark/index.md)
+- [Libraries Guide](../../guides/packages/sage-libs/readme.md)
 - [Design Decisions](../../concepts/architecture/design-decisions/sage-libs-restructuring.md)

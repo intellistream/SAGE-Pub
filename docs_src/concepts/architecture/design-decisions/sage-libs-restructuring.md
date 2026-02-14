@@ -35,7 +35,7 @@ sage-libs 作为 L3 层的算法库和组件集合，当前存在以下问题：
 
 1. **文档缺失**:
 
-   - 子模块缺少 README.md
+   - 子模块缺少 readme.md
    - 缺少使用示例
    - API 文档不完整
 
@@ -45,12 +45,12 @@ sage-libs 作为 L3 层的算法库和组件集合，当前存在以下问题：
 sage-libs/
 ├── src/sage/libs/
 │   ├── __init__.py          # 主导出
-│   ├── README.md            # 总体说明
+│   ├── readme.md            # 总体说明
 │   ├── py.typed
 │   │
 │   ├── agents/              # ✅ 智能体框架 (Agent Framework)
 │   │   ├── __init__.py      # 导出核心类
-│   │   ├── README.md        # 子模块文档
+│   │   ├── readme.md        # 子模块文档
 │   │   ├── agent.py         # BaseAgent
 │   │   ├── runtime/         # 运行时
 │   │   ├── planning/        # 规划器
@@ -65,7 +65,7 @@ sage-libs/
 │   │
 │   ├── rag/                 # ✅ RAG 系统 (Retrieval-Augmented Generation)
 │   │   ├── __init__.py
-│   │   ├── README.md
+│   │   ├── readme.md
 │   │   ├── pipeline.py      # RAG Pipeline
 │   │   ├── retrievers/      # 检索器
 │   │   ├── generators/      # 生成器
@@ -75,7 +75,7 @@ sage-libs/
 │   │
 │   ├── unlearning/          # ✅ 机器遗忘 (Machine Unlearning)
 │   │   ├── __init__.py
-│   │   ├── README.md
+│   │   ├── readme.md
 │   │   ├── algorithms/      # 遗忘算法
 │   │   │   ├── laplace_unlearning.py
 │   │   │   └── gaussian_unlearning.py
@@ -89,7 +89,7 @@ sage-libs/
 │   │
 │   ├── workflow/            # ✨ NEW: 工作流优化 (重命名 workflow_optimizer)
 │   │   ├── __init__.py
-│   │   ├── README.md
+│   │   ├── readme.md
 │   │   ├── base.py          # 基础抽象
 │   │   ├── constraints.py   # 约束系统
 │   │   ├── evaluator.py     # 评估器
@@ -102,14 +102,14 @@ sage-libs/
 │   │
 │   ├── io/                  # ✨ RENAME: io_utils → io
 │   │   ├── __init__.py
-│   │   ├── README.md
+│   │   ├── readme.md
 │   │   ├── source.py        # 数据源
 │   │   ├── sink.py          # 数据接收器
 │   │   └── batch.py         # 批处理
 │   │
 │   ├── context/             # ✅ 上下文管理 (Context Management)
 │   │   ├── __init__.py
-│   │   ├── README.md
+│   │   ├── readme.md
 │   │   ├── base.py
 │   │   ├── model_context.py
 │   │   ├── search_context.py
@@ -117,7 +117,7 @@ sage-libs/
 │   │
 │   ├── tools/               # ✅ 工具集 (Tools & Utilities)
 │   │   ├── __init__.py
-│   │   ├── README.md
+│   │   ├── readme.md
 │   │   ├── base/            # 工具基类
 │   │   ├── search/          # 搜索工具
 │   │   ├── processing/      # 处理工具
@@ -125,7 +125,7 @@ sage-libs/
 │   │
 │   ├── integrations/        # ✨ NEW: 第三方集成 (从 utils 迁移)
 │   │   ├── __init__.py
-│   │   ├── README.md
+│   │   ├── readme.md
 │   │   ├── openai.py
 │   │   ├── milvus.py
 │   │   ├── chroma.py
@@ -134,7 +134,7 @@ sage-libs/
 │   │
 │   └── filters/             # ✨ NEW: 过滤器 (从 utils 迁移)
 │       ├── __init__.py
-│       ├── README.md
+│       ├── readme.md
 │       ├── tool_filter.py
 │       ├── evaluate_filter.py
 │       ├── context_source.py
@@ -153,7 +153,7 @@ sage-libs/
 
 ### Phase 1: 目录重命名和重组 ✅ **已完成**
 
-**Commit**: `a14bf142` - "feat(libs): Phase 2 - Add standardized __init__.py and README.md for new
+**Commit**: `a14bf142` - "feat(libs): Phase 2 - Add standardized __init__.py and readme.md for new
 modules"
 
 执行的操作：
@@ -198,11 +198,11 @@ modules"
    - 更新 `io/__init__.py` - 改进文档
    - 更新 `sage.libs/__init__.py` - 导出新模块结构
 
-1. **README.md** ✅
+1. **readme.md** ✅
 
-   - `integrations/README.md` - 完整的模块说明和使用示例
-   - `filters/README.md` - 完整的模块说明和使用示例
-   - `agents/bots/README.md` - 完整的模块说明和使用示例
+   - `integrations/readme.md` - 完整的模块说明和使用示例
+   - `filters/readme.md` - 完整的模块说明和使用示例
+   - `agents/bots/readme.md` - 完整的模块说明和使用示例
 
 1. **Layer 标记** ✅
 
@@ -285,10 +285,10 @@ modules"
 
 1. **验证 README 覆盖** ✅
 
-   - rag/README.md ✅ (已存在)
-   - tools/README.md ✅ (已存在)
-   - context/README.md ✅ (已存在)
-   - unlearning/README.md ✅ (已存在)
+   - rag/readme.md ✅ (已存在)
+   - tools/readme.md ✅ (已存在)
+   - context/readme.md ✅ (已存在)
+   - unlearning/readme.md ✅ (已存在)
 
 1. **修复遗漏的导入** ✅
 
@@ -324,7 +324,7 @@ modules"
    __version__ = "0.1.0"
    ```
 
-1. **`README.md`**
+1. **`readme.md`**
 
    ```markdown
    # Module Name
@@ -372,7 +372,7 @@ modules"
 ## 验收标准
 
 - [x] 所有目录符合新结构 ✅
-- [x] 核心子模块有 README.md (所有模块已有) ✅
+- [x] 核心子模块有 readme.md (所有模块已有) ✅
 - [x] 所有子模块有正确的 __init__.py ✅
 - [x] 关键测试通过 (io: 39/39, agents: 13/13) ✅
 - [x] 核心模块有 examples.py (agents, rag, workflow, unlearning) ✅
@@ -411,7 +411,7 @@ modules"
 
    - 移动 13个文件到新位置
    - 创建 6个新的 __init__.py
-   - 创建 4个新的 README.md
+   - 创建 4个新的 readme.md
    - 创建 3个新的 examples.py (agents, rag, unlearning)
    - 更新 29个文件的导入语句（包括 image_captioner.py）
 
@@ -425,14 +425,14 @@ modules"
 
 1. **文档完善** ✅
 
-   - 所有10个子模块都有 README.md
+   - 所有10个子模块都有 readme.md
    - 4个核心模块有 examples.py (agents, rag, workflow, unlearning)
    - 所有模块标注 Layer 信息
    - 更新主 __init__.py 文档
 
 ### Git 提交历史
 
-1. **Commit a14bf142**: feat(libs): Phase 2 - Add standardized __init__.py and README.md
+1. **Commit a14bf142**: feat(libs): Phase 2 - Add standardized __init__.py and readme.md
 
    - 36 files changed, 685 insertions(+), 217 deletions(-)
    - 完成 Phase 1 和 Phase 2
@@ -539,7 +539,7 @@ pytest packages/sage-libs/tests/ -v
 **Phase 2: 标准化** (100%)
 
 - 创建 6个新 __init__.py
-- 创建 4个新 README.md
+- 创建 4个新 readme.md
 - 所有模块添加 Layer 标记
 
 **Phase 3: 导入更新** (100%)
@@ -623,7 +623,7 @@ pytest packages/sage-libs/tests/ -v
 
 1. **更新文档**
 
-   - 更新主 README.md 中的导入示例
+   - 更新主 readme.md 中的导入示例
    - 更新 docs/ 中的架构图
    - 更新教程和示例代码
 
@@ -656,7 +656,7 @@ pytest packages/sage-libs/tests/ -v
 
 1. **合并准备**
 
-   - [ ] 更新主 README.md
+   - [ ] 更新主 readme.md
    - [ ] 更新 CHANGELOG
    - [ ] 准备 PR description
 

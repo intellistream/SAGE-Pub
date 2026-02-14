@@ -362,5 +362,5 @@ sage-dev package pypi publish
   workflow definitions
 - [Development Setup](./development-setup.md) - Local development environment
 - [CLI Commands](./commands.md) - Complete command reference
-- [Internal Dev Notes](https://github.com/intellistream/SAGE/tree/main/docs/dev-notes/cross-layer/ci-cd)
-  \- Detailed CI/CD notes
+- [Repository Changelog](../../CHANGELOG.md)
+   \- Release-level CI/CD related changes

@@ -435,7 +435,7 @@ stream.map(validate_input)
 
 ### Where can I find more documentation?
 
-- [API Reference](api/README.md)
+- [API Reference](api/readme.md)
 - [Architecture Guide](architecture.md)
 - [Best Practices](best-practices.md)
 - Examples - 查看导航栏中的教程章节

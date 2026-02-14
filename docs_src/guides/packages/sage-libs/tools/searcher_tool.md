@@ -226,4 +226,4 @@ ______________________________________________________________________
 
 - [Tools 模块概览](../tools_intro.md)
 - [Agent 集成指南](../agents.md)
-- [BaseTool API 参考](../../../../api-reference/libs/tools.md)
+- [BaseTool API 参考](../../../../api-reference/libs/index.md)

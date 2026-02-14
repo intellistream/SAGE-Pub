@@ -73,7 +73,7 @@ ______________________________________________________________________
 | 2025 H2    | 发布 Beta 版本的 Dataflow SDK + 基础记忆 API |
 | 2026 H1    | 发布观测组件与调度策略论文，并同步开源实现   |
 
-项目地址与文档持续更新中：[https://intellistream.github.io/SAGE-Pub/](https://intellistream.github.io/SAGE-Pub/)
+项目地址与文档持续更新中：[https://intellistream.github.io/sage-docs/](https://intellistream.github.io/sage-docs/)
 
 ______________________________________________________________________
 

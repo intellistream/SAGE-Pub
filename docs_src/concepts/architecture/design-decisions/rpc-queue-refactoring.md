@@ -391,8 +391,8 @@ result = check_imports(
 
 - [包架构总览](../package-structure.md) - 包结构说明
 - [L2 平台层设计](./l2-platform-layer.md) - L2 层设计分析
-- [架构审查报告](https://github.com/intellistream/SAGE/tree/main/docs/dev-notes/cross-layer/architecture)
-  \- 详细审查文档
+- [仓库变更日志](../../../../CHANGELOG.md)
+    \- 详细变更记录
 
 ## 🔄 后续工作
 

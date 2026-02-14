@@ -107,7 +107,7 @@ env.submit()
 
 ## 延伸阅读
 
-- `packages/sage-kernel/src/sage/kernel/runtime/service/README.md`
+- `packages/sage-kernel/src/sage/kernel/runtime/service/readme.md`
 - `packages/sage-kernel/src/sage/kernel/runtime/proxy/proxy_manager.py`
 - `guides/packages/sage-kernel/runtime_tasks.md`
 - `guides/packages/sage-kernel/runtime_communication.md`

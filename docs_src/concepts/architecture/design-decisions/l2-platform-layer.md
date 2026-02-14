@@ -78,7 +78,7 @@ register_rpc_queue_factory(_rpc_queue_factory)
 
 ## 决策 4：文档与工具链同步
 
-- `docs-public/docs_src/dev-notes/package-architecture.md`、`concepts/architecture/*.md` 更新为“11 个包 +
+- `CHANGELOG.md`、`concepts/architecture/*.md` 更新为“11 个包 +
   meta-package”。
 - `docs-public/docs_src/concepts/architecture/package-structure.md` 显式标注 L2 及其 C++ 依赖（无）。
 - `docs-public/docs_src/guides/packages/sage-platform/overview.md`（新增）覆盖 API。
