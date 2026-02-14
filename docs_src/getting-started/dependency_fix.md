@@ -89,7 +89,7 @@ dependencies = [
 ## 相关链接
 
 - sage-benchmark 独立仓库：https://github.com/intellistream/sage-benchmark
-- 依赖规范文档：[package-architecture.md](../dev-notes/package-architecture.md)
+- 依赖规范文档：[Package Structure](../concepts/architecture/package-structure.md)
 
 ## 更新日期
 

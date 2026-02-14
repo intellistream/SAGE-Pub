@@ -85,7 +85,7 @@ result = generator.execute("Generate text")
 > Use `SageLLMGenerator` with `backend_type="cuda"` instead.
 > Will be removed in SAGE v0.4.0.
 >
-> See [vLLM to sageLLM Migration Guide](../../dev-notes/migration/vllm_to_sagellm_migration.md)
+> See [Repository Changelog](../../../CHANGELOG.md)
 
 #### Tool Operators
 
@@ -272,7 +272,7 @@ generator = VLLMGenerator(
 )
 ```
 
-See [Migration Guide](../../dev-notes/migration/vllm_to_sagellm_migration.md) for details.
+See [Repository Changelog](../../../CHANGELOG.md) for details.
 
 ## C++ Extensions
 

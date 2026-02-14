@@ -258,17 +258,7 @@ nav:
   - 贡献指南: developers/commands.md
   - 开发环境: developers/development-setup.md
   - CI/CD: developers/ci-cd.md
-  - 开发笔记:
-    - 总览: dev-notes/index.md
-    - 包架构: dev-notes/package-architecture.md
-    - L1 基础设施: dev-notes/l1-common/readme.md
-    - L2 平台服务: dev-notes/l2-platform/readme.md
-    - L3 核心引擎: dev-notes/l3-kernel/readme.md
-    - L3 算法库: dev-notes/l3-libs/readme.md
-    - L4 中间件: dev-notes/l4-middleware/readme.md
-    - L5 CLI: dev-notes/l5-cli/readme.md
-    - L5 Tools: dev-notes/l5-tools/readme.md
-    - 测试策略: dev-notes/testing/readme.md
+  - 变更日志: ../../CHANGELOG.md
 
 - 社区:
   - 社区总览: community/readme.md

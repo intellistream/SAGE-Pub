@@ -323,7 +323,7 @@ ______________________________________________________________________
 - 💬 访问 [GitHub Discussions](https://github.com/intellistream/SAGE/discussions)
 - 🐛 报告 [GitHub Issues](https://github.com/intellistream/SAGE/issues)
 - 👥 加入 [社区](../community/readme.md)
-- 📚 阅读 [包架构文档](../dev-notes/package-architecture.md)
+- 📚 阅读 [包架构文档](../concepts/architecture/package-structure.md)
 
 ______________________________________________________________________
 

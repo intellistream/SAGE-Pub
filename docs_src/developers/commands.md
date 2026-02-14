@@ -643,7 +643,7 @@ sage finetune list
 
 #### 详细文档
 
-参见 [GitHub 仓库中的开发文档](https://github.com/intellistream/SAGE/tree/main/docs/dev-notes) 获取更多细节。
+参见 [包结构文档](../concepts/architecture/package-structure.md) 和 [仓库变更日志](../../CHANGELOG.md) 获取更多细节。
 
 #### 使用示例
 
@@ -676,7 +676,7 @@ ______________________________________________________________________
 
 - [SAGE 主仓库](https://github.com/intellistream/SAGE)
 - [贡献指南](https://github.com/intellistream/SAGE/blob/main/CONTRIBUTING.md)
-- [开发者文档](https://github.com/intellistream/SAGE/tree/main/docs/dev-notes)
+- [仓库变更日志](../../CHANGELOG.md)
 - [CI/CD 文档](./ci-cd.md)
 
 ______________________________________________________________________

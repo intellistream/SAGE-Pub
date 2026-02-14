@@ -335,4 +335,4 @@ sage-dev visualize-deps
 
 - [架构总览](./overview.md)
 - [设计决策记录](./design-decisions/l2-platform-layer.md)
-- [开发笔记 - 包架构](../../dev-notes/package-architecture.md)
+- [仓库变更日志](../../../CHANGELOG.md)

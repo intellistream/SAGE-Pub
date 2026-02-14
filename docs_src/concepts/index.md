@@ -64,12 +64,12 @@
 1. 详细阅读 [包结构与依赖](architecture/package-structure.md) 了解代码组织
 2. 理解依赖规则（参考 [包结构文档](architecture/package-structure.md)）避免架构违规
 3. 查看 [开发者指南](../developers/commands.md) 了解贡献流程
-4. 参考 [包架构文档](../dev-notes/package-architecture.md) 了解最新的架构状态
+4. 参考 [包结构文档](architecture/package-structure.md) 了解最新的架构状态
 
 **架构师 / 技术决策者**
 
 1. 系统学习 [架构总览](architecture/overview.md) 和 [包结构](architecture/package-structure.md)
-2. 查看 [包架构文档](../dev-notes/package-architecture.md) 了解架构演进历史
+2. 查看 [仓库变更日志](../../CHANGELOG.md) 了解架构演进历史
 3. 评估如何将 SAGE 的架构模式应用到自己的系统
 ```
 
@@ -215,7 +215,7 @@ env.execute()  # 执行
 
   查看详细的架构状态、重构历史和开发者笔记
 
-  [:octicons-arrow-right-24: 浏览文档](../dev-notes/package-architecture.md)
+  [:octicons-arrow-right-24: 浏览文档](architecture/package-structure.md)
 
 - :material-book-open-page-variant:{ .lg .middle } **开始实践**
 
@@ -233,7 +233,7 @@ ______________________________________________________________________
 
 - [用户指南](../guides/index.md) - 各层级的详细使用指南
 - [API 参考](../api-reference/index.md) - 完整的 API 文档
-- [包架构文档](../dev-notes/package-architecture.md) - 开发者视角的架构文档和演进历史
+- [仓库变更日志](../../CHANGELOG.md) - 开发者视角的架构演进历史
 - [贡献指南](../developers/commands.md) - 参与贡献的指南
 
 ______________________________________________________________________
